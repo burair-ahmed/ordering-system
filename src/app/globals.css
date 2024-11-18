@@ -83,12 +83,24 @@
   border-radius: 10px;
   text-align: center;
   width: 25%;
+  padding: 0px 0px 20px 0px; /* Adds some spacing inside the card */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Optional: adds shadow for better look */
+  margin: 10px; /* Adds spacing between cards */
+}
+.menu-item-card:hover {
+  transition: 1000ms;
+  display: flex; /* Enables flexbox */
+  flex-direction: column; /* Stacks items vertically */
+  align-items: center; /* Centers items horizontally */
+  justify-content: center; /* Centers items vertically */
+  border-radius: 10px;
+  text-align: center;
+  width: 25%;
   border: 2px black solid;
   padding: 0px 0px 20px 0px; /* Adds some spacing inside the card */
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Optional: adds shadow for better look */
   margin: 10px; /* Adds spacing between cards */
 }
-
 /* Menu Item Card */
 
 

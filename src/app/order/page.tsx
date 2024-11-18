@@ -48,8 +48,8 @@ export default function MenuPage() {
             height={150}
 />
             <h2 className="font-extrabold text-lg">{item.name}</h2>
-            <p className="text-xs ">{item.description}</p>
-            <p className="font-bold">${item.price}</p>
+            <p className="text-xs mb-3">{item.description}</p>
+            <p className="font-bold mb-2">${item.price}</p>
             <button
               className="cartBtn"
               onClick={() => console.log(`Added ${item.name} to cart`)}
