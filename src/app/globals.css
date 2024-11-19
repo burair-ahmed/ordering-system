@@ -103,6 +103,13 @@
 }
 /* Menu Item Card */
 
+.fading-gradient {
+  width: 100%; /* Adjust as needed */
+  height: 200px; /* Adjust as needed */
+  background: linear-gradient(180deg, #741052 0%, rgba(116, 16, 82, 0) 100%);
+}
+
+
 
 :root {
   --background: #ffffff;
