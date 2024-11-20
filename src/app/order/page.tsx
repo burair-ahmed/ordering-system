@@ -33,7 +33,7 @@ export default function MenuPage() {
 
   return (
     <div>
-      <h1>Restaurant Menu</h1>
+      {/* <h1>Restaurant Menu</h1> */}
       <div className="grid grid-cols-4 gap-2 w-4/5 mx-auto">
   {menu.map((item) => (
     <MenuItem key={item.id} item={item} />
