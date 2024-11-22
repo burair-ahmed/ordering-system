@@ -49,44 +49,53 @@ const MenuItem: FC<MenuItemProps> = ({ item }) => {
       {/* Modal */}
       {showModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 max-w-md w-full relative">
+          <div className="bg-white rounded-lg p-6 max-w-4xl w-full relative flex flex-col lg:flex-row">
+            {/* Close Button */}
             <button
               className="absolute top-2 right-2 text-gray-400 hover:text-gray-800"
               onClick={() => setShowModal(false)} // Close modal
             >
               ✕
             </button>
-            <Image
-              src="/items/platter.jpeg"
-              alt={item.name}
-              className="rounded-md mx-auto"
-              width={300}
-              height={300}
-            />
-            <h2 className="text-xl font-bold mt-4">{item.name}</h2>
-            <p className="text-gray-600 mt-2">{item.description}</p>
-            <p className="text-lg font-bold mt-4">${item.price.toFixed(2)}</p>
 
-            {/* Variations */}
-            <div className="mt-4">
-              <label className="block text-sm font-medium mb-2">Variations</label>
-              <select className="border rounded px-4 py-2 w-full">
-                <option>Small</option>
-                <option>Medium</option>
-                <option>Large</option>
-              </select>
+            {/* Left Column - Image */}
+            <div className="lg:w-1/2 flex justify-center items-center mb-4 lg:mb-0">
+              <Image
+                src="/items/platter.jpeg"
+                alt={item.name}
+                className="rounded-md"
+                width={300}
+                height={300}
+              />
             </div>
 
-            {/* Add to Cart Button */}
-            <button
-              className="bg-[#ff9824] mt-4 px-4 py-2 rounded text-white font-bold w-full"
-              onClick={() => {
-                console.log(`Added ${item.name} to cart`);
-                setShowModal(false); // Close modal after adding to cart
-              }}
-            >
-              Add to Cart
-            </button>
+            {/* Right Column - Details */}
+            <div className="lg:w-1/2 px-4">
+              <h2 className="text-xl font-bold mt-4 lg:mt-0">{item.name}</h2>
+              <p className="text-gray-600 mt-2">{item.description}</p>
+              <p className="text-lg font-bold mt-4">${item.price.toFixed(2)}</p>
+
+              {/* Variations */}
+              <div className="mt-4">
+                <label className="block text-sm font-medium mb-2">Variations</label>
+                <select className="border rounded px-4 py-2 w-full">
+                  <option>Small</option>
+                  <option>Medium</option>
+                  <option>Large</option>
+                </select>
+              </div>
+
+              {/* Add to Cart Button */}
+              <button
+                className="bg-[#ff9824] mt-6 px-4 py-2 rounded text-white font-bold w-full"
+                onClick={() => {
+                  console.log(`Added ${item.name} to cart`);
+                  setShowModal(false); // Close modal after adding to cart
+                }}
+              >
+                Add to Cart
+              </button>
+            </div>
           </div>
         </div>
       )}
