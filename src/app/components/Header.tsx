@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link";
 
 export default function Header() {
   return (
@@ -53,7 +54,7 @@ export default function Header() {
             <button className="bg-[#ff9824] rounded-[5px] px-4 py-1">
               <div className="flex items-center gap-2 mx-auto">
                 <div className="flex items-center">
-                  <Image src="/contact.svg" alt="" width={15} height={15} />
+                  <Image src="/cart-icon.webp" alt="" width={20} height={20} />
                 </div>
                 <div className="text-left">
                   <h1 className="text-[11px] font-extrabold">Cart</h1>
@@ -63,15 +64,15 @@ export default function Header() {
             </button>
 
             {/* Offcanvas Button */}
-            <button className="bg-[#ff9824] rounded-[5px] px-4 py-1">
+            <button className="bg-[#000] rounded-[5px] px-4 py-1">
               <div className="flex items-center gap-2 mx-auto">
                 <div className="flex items-center">
-                  <Image src="/location.svg" alt="" width={15} height={15} />
+                  <Image src="/sidebar.svg" alt="" width={15} height={15} />
                 </div>
-                <div className="text-left">
+                {/* <div className="text-left">
                   <h1 className="text-[11px] font-extrabold">Menu</h1>
                   <p className="text-[10px] font-regular">Explore</p>
-                </div>
+                </div> */}
               </div>
             </button>
           </div>
@@ -79,7 +80,9 @@ export default function Header() {
 
         {/* Centered Logo */}
         <div className="flex justify-center items-center -mt-[5rem] z-10">
+          <Link href={"/"}>
           <Image src="/logo.webp" alt="Logo" width={120} height={120} />
+          </Link>
         </div>
       </div>
     </div>

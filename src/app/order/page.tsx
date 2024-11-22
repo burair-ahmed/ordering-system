@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import MenuItem from "../components/MenuItem";
+import CategoryBanner from "../components/CategoriesBanner";
 
 interface MenuItemData {
   id: number;
@@ -33,15 +34,12 @@ export default function MenuPage() {
 
   return (
     <div>
-      {/* <h1>Restaurant Menu</h1> */}
-      <div className="grid grid-cols-4 gap-2 w-4/5 mx-auto">
-  {menu.map((item) => (
-    <MenuItem key={item.id} item={item} />
-  ))}
-</div>
-
-
-
+      <CategoryBanner />
+      <div className="grid grid-cols-1 gap-4 w-11/12 mx-auto sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+        {menu.map((item) => (
+          <MenuItem key={item.id} item={item} />
+        ))}
+      </div>
     </div>
   );
 }
