@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import MenuItem from "../components/MenuItem";
 import CategoryBanner from "../components/CategoriesBanner";
+import Hero from "../components/Hero";
 
 interface MenuItemData {
   id: number;
@@ -34,7 +35,9 @@ export default function MenuPage() {
 
   return (
     <div>
-      <CategoryBanner />
+      {/* <CategoryBanner />
+       */}
+       <Hero/>
       <div className="grid grid-cols-1 gap-4 w-11/12 mx-auto sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
         {menu.map((item) => (
           <MenuItem key={item.id} item={item} />

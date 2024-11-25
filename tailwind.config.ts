@@ -9,12 +9,15 @@ export default {
   theme: {
     extend: {
       colors: {
+        backgroundColor: ['checked'],
+      borderColor: ['checked'],
         background: "var(--background)",
         foreground: "var(--foreground)",
       },
       screen: {
         xs: '480px'
       },
+      
     },
   },
   plugins: [],

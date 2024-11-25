@@ -1,9 +1,7 @@
-"use client";
-
 import { FC, useState } from "react";
 import Image from "next/image";
+import AddToCartButton from "./AddToCartButton";
 
-// Rename the type to avoid conflicts with the component name
 interface MenuItemData {
   id: number;
   name: string;
@@ -12,7 +10,7 @@ interface MenuItemData {
 }
 
 interface MenuItemProps {
-  item: MenuItemData; // Use the renamed type here
+  item: MenuItemData;
 }
 
 const MenuItem: FC<MenuItemProps> = ({ item }) => {
@@ -35,15 +33,7 @@ const MenuItem: FC<MenuItemProps> = ({ item }) => {
         <h2 className="font-extrabold text-lg">{item.name}</h2>
         <p className="text-xs mb-3">{item.description}</p>
         <p className="font-bold mb-2">${item.price}</p>
-        <button
-          className="cartBtn"
-          onClick={(e) => {
-            e.stopPropagation(); // Prevent triggering modal
-            console.log(`Added ${item.name} to cart`);
-          }}
-        >
-          ADD TO CART
-        </button>
+        <button className="cartBtn">ADD TO CART</button>
       </div>
 
       {/* Modal */}
@@ -86,15 +76,11 @@ const MenuItem: FC<MenuItemProps> = ({ item }) => {
               </div>
 
               {/* Add to Cart Button */}
-              <button
-                className="bg-[#ff9824] mt-6 px-4 py-2 rounded text-white font-bold w-full"
-                onClick={() => {
-                  console.log(`Added ${item.name} to cart`);
-                  setShowModal(false); // Close modal after adding to cart
-                }}
-              >
-                Add to Cart
-              </button>
+              <AddToCartButton
+                id={item.id.toString()} // Use item.id as a string
+                title={item.name}
+                price={item.price}
+              />
             </div>
           </div>
         </div>

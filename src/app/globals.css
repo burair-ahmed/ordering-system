@@ -113,6 +113,39 @@
 
 
 
+
+/* Make the checkbox round */
+.custom-checkbox {
+  width: 16px; /* Default size */
+  height: 16px; /* Default size */
+  border: 2px solid #ccc; /* Neutral border */
+  border-radius: 50%; /* Makes it round */
+  background-color: white; /* Default background */
+  appearance: none; /* Removes default checkbox styling */
+  cursor: pointer; /* Adds pointer cursor for interactivity */
+  transition: background-color 0.3s, border-color 0.3s; /* Smooth transitions */
+}
+
+/* Apply styles when the checkbox is checked */
+.custom-checkbox:checked {
+  background-color: #731351; /* Checked background color */
+  border-color: #731351; /* Border matches the background */
+}
+
+/* Apply styles when the checkbox is focused (accessibility) */
+.custom-checkbox:focus {
+  outline: none; /* Removes default outline */
+  box-shadow: 0 0 0 3px rgba(115, 19, 81, 0.5); /* Adds focus ring */
+}
+
+/* Apply styles when the checkbox is active (pressed) */
+.custom-checkbox:active {
+  background-color: #731351; /* Active background color */
+}
+
+
+
+
 :root {
   --background: #ffffff;
   --foreground: #171717;
