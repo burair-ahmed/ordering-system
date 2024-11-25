@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import MenuItem from "../components/MenuItem";
-import CategoryBanner from "../components/CategoriesBanner";
+// import CategoryBanner from "../components/CategoriesBanner";
 import Hero from "../components/Hero";
 
 interface MenuItemData {

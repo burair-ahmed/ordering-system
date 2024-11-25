@@ -1,4 +1,4 @@
-import Image from "next/image";
+// import Image from "next/image";
 import Dashboard from "./Dashboard";
 import Hero from "./components/Hero";
 

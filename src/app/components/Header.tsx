@@ -11,7 +11,7 @@ export default function Header() {
   const [isCartOpen, setIsCartOpen] = useState(false);
   
   // Access the cart items and other cart functions from the context
-  const { cartItems, removeFromCart, totalAmount } = useCart();
+  // const { cartItems, removeFromCart, totalAmount } = useCart();
 
   // Function to toggle the cart sidebar
   const toggleCartSidebar = () => {

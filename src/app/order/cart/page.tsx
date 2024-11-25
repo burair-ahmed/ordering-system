@@ -4,7 +4,7 @@
 import { useState } from 'react';
 
 const CartPage = () => {
-  const [cart, setCart] = useState([
+  const [cart] = useState([
     { id: 1, name: 'Pizza', quantity: 1, price: 10 },
     { id: 1, name: 'Pizza', quantity: 1, price: 10 },
     { id: 1, name: 'Pizza', quantity: 1, price: 10 },
