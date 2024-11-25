@@ -1,11 +1,19 @@
 import { useCart } from '../context/CartContext';
 
-const CartSidebar = () => {
+const CartSidebar = ({ closeSidebar }: { closeSidebar: () => void }) => {
   const { cartItems, removeFromCart, updateQuantity, totalAmount, clearCart } = useCart();
-  
+
   return (
-    <div className="fixed right-0 top-0 w-72 h-full bg-white shadow-lg p-4">
-      <h2 className="text-2xl font-bold mb-4">Your Cart</h2>
+    <div className="fixed right-0 top-0 w-72 h-full bg-white shadow-lg p-4 z-50">
+      <div className="flex justify-between items-center mb-4">
+        <h2 className="text-2xl font-bold">Your Cart</h2>
+        <button
+          onClick={closeSidebar}
+          className="text-red-500 font-bold text-xl"
+        >
+          &times;
+        </button>
+      </div>
       {cartItems.length === 0 ? (
         <p>Your cart is empty</p>
       ) : (
@@ -15,7 +23,7 @@ const CartSidebar = () => {
               <li key={item.id} className="flex justify-between items-center mb-4">
                 <div>
                   <p className="font-medium">{item.title}</p>
-                  <p>${item.price} x {item.quantity}</p>
+                  <p>Rs.{item.price} x {item.quantity}</p>
                 </div>
                 <div className="flex items-center space-x-2">
                   <button
@@ -42,10 +50,10 @@ const CartSidebar = () => {
             ))}
           </ul>
           <div className="mt-4">
-            <p className="font-bold">Total: ${totalAmount.toFixed(2)}</p>
+            <p className="font-bold">Total: Rs.{totalAmount.toFixed(2)}</p>
             <button
               onClick={clearCart}
-              className="bg-red-500 text-white px-4 py-2 rounded mt-2 w-full"
+              className="bg-[#000] text-white px-4 py-2 rounded mt-2 w-full"
             >
               Clear Cart
             </button>

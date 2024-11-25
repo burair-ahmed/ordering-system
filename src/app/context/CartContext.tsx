@@ -1,7 +1,7 @@
 "use client"; // Add this line
 
 // CartContext.tsx
-import { createContext, useState, useContext, ReactNode } from "react";
+import React, { createContext, useContext, useState } from 'react';
 
 interface CartItem {
   id: string;
@@ -12,28 +12,27 @@ interface CartItem {
 
 interface CartContextType {
   cartItems: CartItem[];
+  totalAmount: number;
   addToCart: (item: CartItem) => void;
   removeFromCart: (id: string) => void;
-  updateQuantity: (id: string, quantity: number) => void;
+  updateQuantity: (id: string, newQuantity: number) => void;
   clearCart: () => void;
-  totalAmount: number;
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
-export const CartProvider = ({ children }: { children: ReactNode }) => {
+export const CartProvider = ({ children }: { children: React.ReactNode }) => {
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
 
   const addToCart = (item: CartItem) => {
-    console.log("Adding item to cart:", item); // Log to check item being added
     setCartItems((prevItems) => {
-      const itemIndex = prevItems.findIndex((i) => i.id === item.id);
-      if (itemIndex !== -1) {
-        const updatedItems = [...prevItems];
-        updatedItems[itemIndex].quantity += item.quantity;
-        return updatedItems;
+      const existingItem = prevItems.find((i) => i.id === item.id);
+      if (existingItem) {
+        return prevItems.map((i) =>
+          i.id === item.id ? { ...i, quantity: i.quantity + 1 } : i
+        );
       }
-      return [...prevItems, item];
+      return [...prevItems, { ...item, quantity: 1 }];
     });
   };
 
@@ -41,10 +40,11 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     setCartItems((prevItems) => prevItems.filter((item) => item.id !== id));
   };
 
-  const updateQuantity = (id: string, quantity: number) => {
+  const updateQuantity = (id: string, newQuantity: number) => {
+    if (newQuantity < 1) return; // Don't allow negative quantity
     setCartItems((prevItems) =>
       prevItems.map((item) =>
-        item.id === id ? { ...item, quantity: Math.max(1, quantity) } : item
+        item.id === id ? { ...item, quantity: newQuantity } : item
       )
     );
   };
@@ -53,14 +53,10 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     setCartItems([]);
   };
 
-  const totalAmount = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
-
-  console.log("Cart items:", cartItems); // Log cartItems to check if items are in the cart
+  const totalAmount = cartItems.reduce((total, item) => total + item.price * item.quantity, 0);
 
   return (
-    <CartContext.Provider
-      value={{ cartItems, addToCart, removeFromCart, updateQuantity, clearCart, totalAmount }}
-    >
+    <CartContext.Provider value={{ cartItems, totalAmount, addToCart, removeFromCart, updateQuantity, clearCart }}>
       {children}
     </CartContext.Provider>
   );

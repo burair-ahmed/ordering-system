@@ -4,6 +4,7 @@ import { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useCart } from '../context/CartContext'; // Import the useCart hook
+import CartSidebar from './CartSidebar'; // Import the CartSidebar component
 
 export default function Header() {
   // State to track if the cart sidebar is open or closed
@@ -97,47 +98,11 @@ export default function Header() {
             <Image src="/logo.webp" alt="Logo" width={120} height={120} />
           </Link>
         </div>
-
-        {/* Cart Sidebar (Conditionally rendered) */}
-        {isCartOpen && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 z-20">
-            <div className="fixed top-0 right-0 bg-white w-1/3 h-full p-4">
-              <h2 className="text-xl font-bold">Cart Items</h2>
-              {/* Display the cart items */}
-              <div className="mt-4">
-                {cartItems.length === 0 ? (
-                  <p>No items in the cart yet.</p>
-                ) : (
-                  <div>
-                    <ul>
-                      {cartItems.map((item) => (
-                        <li key={item.id} className="mb-2">
-                          <p>{item.title}</p>
-                          <p>Quantity: {item.quantity}</p>
-                          <p>${item.price} x {item.quantity} = ${item.price * item.quantity}</p>
-                          <button
-                            onClick={() => removeFromCart(item.id)}
-                            className="text-red-500 mt-2"
-                          >
-                            Remove
-                          </button>
-                        </li>
-                      ))}
-                    </ul>
-                    <p className="mt-4 font-bold">Total: ${totalAmount.toFixed(2)}</p>
-                  </div>
-                )}
-                <button
-                  onClick={toggleCartSidebar}
-                  className="mt-4 bg-red-500 text-white px-4 py-2 rounded"
-                >
-                  Close Cart
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
       </div>
+
+      {/* Conditionally Render Cart Sidebar */}
+      {isCartOpen && <CartSidebar closeSidebar={toggleCartSidebar} />}
+      
     </div>
   );
 }
