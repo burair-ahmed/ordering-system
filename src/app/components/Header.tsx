@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { useCart } from '../context/CartContext'; // Import the useCart hook
+// import { useCart } from '../context/CartContext'; 
 import CartSidebar from './CartSidebar'; // Import the CartSidebar component
 
 export default function Header() {
