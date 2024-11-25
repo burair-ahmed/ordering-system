@@ -26,11 +26,11 @@ const CartSidebar = ({ closeSidebar }: { closeSidebar: () => void }) => {
               <li key={item.id} className="flex items-start mb-4 border-b pb-4">
                 {/* Image */}
                 <div className="w-1/3">
-                  <img
+                  {/* <img
                     src={item.image || '/placeholder.png'}
                     alt={item.title}
                     className="w-full h-auto rounded"
-                  />
+                  /> */}
                 </div>
 
                 {/* Item Details */}
