@@ -75,7 +75,7 @@ const AddMenuItemForm = () => {
     console.log("Menu Item Data:", menuItemData);
 
     try {
-      const response = await fetch("/api/menuItems", {
+      const response = await fetch("/api/menuitems", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(menuItemData),

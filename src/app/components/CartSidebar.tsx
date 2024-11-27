@@ -39,17 +39,17 @@ const CartSidebar = ({ closeSidebar }: { closeSidebar: () => void }) => {
                   <p className="text-sm text-gray-500">Rs. {item.price}</p>
 
                   {/* Quantity Controls */}
-                  <div className="mt-2 flex items-center gap-2">
+                  <div className="mt-2 flex items-center gap-2 p-2 border rounded-lg shadow-sm">
                     <button
                       onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                      className="bg-green-500 text-white w-7 h-7 rounded-full flex justify-center items-center text-lg"
+                      className="bg-green-500 text-white w-8 h-8 rounded-full flex justify-center items-center text-lg"
                     >
                       +
                     </button>
                     <span className="text-sm font-medium">{item.quantity}</span>
                     <button
                       onClick={() => updateQuantity(item.id, item.quantity - 1)}
-                      className="bg-red-500 text-white w-7 h-7 rounded-full flex justify-center items-center text-lg"
+                      className="bg-red-500 text-white w-8 h-8 rounded-full flex justify-center items-center text-lg"
                       disabled={item.quantity === 1}
                     >
                       -

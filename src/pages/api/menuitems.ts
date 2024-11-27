@@ -1,12 +1,13 @@
-import type { NextApiRequest, NextApiResponse } from 'next';
-import { MongoClient } from 'mongodb';
-
-const uri = process.env.MONGODB_URI || '';
-const client = new MongoClient(uri);
+import { NextApiRequest, NextApiResponse } from 'next';
+import testMongoConnection from '../../lib/db'; // Update with the correct path to your db.ts
+import MenuItem from '../../models/MenuItem'; // Your Mongoose model for MenuItem
 
 const handler = async (req: NextApiRequest, res: NextApiResponse) => {
+  // Call the connectDB function to establish a connection before any DB operations
+  await testMongoConnection;
+
   if (req.method === 'POST') {
-    const { title, price, image, description, variations } = req.body;
+    const { title, price, description, image, variations } = req.body;
 
     // Validate input
     if (!title || !price || !description) {
@@ -14,26 +15,20 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
     }
 
     try {
-      await client.connect();
-      const database = client.db('restaurant');
-      const collection = database.collection('menuItems');
-
-      // Insert into the database
-      const result = await collection.insertOne({
+      // Create and save the new menu item
+      const newMenuItem = new MenuItem({
         title,
         price,
         description,
         image,
         variations,
-        createdAt: new Date(),
       });
 
+      const result = await newMenuItem.save();
       res.status(200).json({ success: true, data: result });
     } catch (error) {
       console.error('Error saving to database:', error);
       res.status(500).json({ error: 'Failed to save menu item' });
-    } finally {
-      await client.close();
     }
   } else {
     res.status(405).json({ error: 'Method not allowed' });
