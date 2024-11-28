@@ -4,7 +4,7 @@ import AddToCartButton from "./AddToCartButton";
 
 interface MenuItemData {
   id: number;
-  name: string;
+  title: string;
   description: string;
   price: number;
 }
@@ -16,23 +16,26 @@ interface MenuItemProps {
 const MenuItem: FC<MenuItemProps> = ({ item }) => {
   const [showModal, setShowModal] = useState(false);
 
+  // Ensure price is a number before using toFixed
+  const price = typeof item.price === "number" ? item.price : parseFloat(item.price);
+
+  // Check if item.id is defined before using toString()
+  const itemId = item.id ? item.id.toString() : "";
+
   return (
     <>
       {/* Menu Item Card */}
-      <div
-        className="menu-item-card"
-        onClick={() => setShowModal(true)} // Open modal on click
-      >
+      <div className="menu-item-card" onClick={() => setShowModal(true)}>
         <Image
           src="/items/platter.jpeg"
-          alt={item.name}
+          alt={item.title}
           className="p-2 g-0 rounded-[15px]"
           width={450}
           height={150}
         />
-        <h2 className="font-extrabold text-lg">{item.name}</h2>
+        <h2 className="font-extrabold text-lg">{item.title}</h2>
         <p className="text-xs mb-3">{item.description}</p>
-        <p className="font-bold mb-2">${item.price}</p>
+        <p className="font-bold mb-2">${price.toFixed(2)}</p> {/* Safe usage of toFixed */}
         <button className="cartBtn">ADD TO CART</button>
       </div>
 
@@ -43,7 +46,7 @@ const MenuItem: FC<MenuItemProps> = ({ item }) => {
             {/* Close Button */}
             <button
               className="absolute top-2 right-2 text-gray-400 hover:text-gray-800"
-              onClick={() => setShowModal(false)} // Close modal
+              onClick={() => setShowModal(false)}
             >
               ✕
             </button>
@@ -52,7 +55,7 @@ const MenuItem: FC<MenuItemProps> = ({ item }) => {
             <div className="lg:w-1/2 flex justify-center items-center mb-4 lg:mb-0">
               <Image
                 src="/items/platter.jpeg"
-                alt={item.name}
+                alt={item.title}
                 className="rounded-md"
                 width={300}
                 height={300}
@@ -61,9 +64,9 @@ const MenuItem: FC<MenuItemProps> = ({ item }) => {
 
             {/* Right Column - Details */}
             <div className="lg:w-1/2 px-4">
-              <h2 className="text-xl font-bold mt-4 lg:mt-0">{item.name}</h2>
+              <h2 className="text-xl font-bold mt-4 lg:mt-0">{item.title}</h2>
               <p className="text-gray-600 mt-2">{item.description}</p>
-              <p className="text-lg font-bold mt-4">${item.price.toFixed(2)}</p>
+              <p className="text-lg font-bold mt-4">${price.toFixed(2)}</p> {/* Safe usage of toFixed */}
 
               {/* Variations */}
               <div className="mt-4">
@@ -77,9 +80,9 @@ const MenuItem: FC<MenuItemProps> = ({ item }) => {
 
               {/* Add to Cart Button */}
               <AddToCartButton
-                id={item.id.toString()} // Use item.id as a string
-                title={item.name}
-                price={item.price}
+                id={itemId} // Pass itemId safely
+                title={item.title}
+                price={price} // Pass price as a number
               />
             </div>
           </div>

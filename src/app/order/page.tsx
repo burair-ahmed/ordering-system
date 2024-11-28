@@ -2,46 +2,56 @@
 
 import { useState, useEffect } from "react";
 import MenuItem from "../components/MenuItem";
-// import CategoryBanner from "../components/CategoriesBanner";
 import Hero from "../components/Hero";
+import { v4 as uuidv4 } from 'uuid';
 
 interface MenuItemData {
   id: number;
-  name: string;
+  title: string;
   description: string;
   price: number;
 }
 
 export default function MenuPage() {
   const [menu, setMenu] = useState<MenuItemData[]>([]);
+  const [loading, setLoading] = useState<boolean>(true); // To handle loading state
+  const [error, setError] = useState<string | null>(null); // To handle error state
 
   useEffect(() => {
     const fetchMenu = async () => {
-      const data: MenuItemData[] = [
-        { id: 1, name: "Pizza", description: "Test", price: 10 },
-        { id: 2, name: "Burger", description: "Juicy beef ", price: 5 },
-        { id: 3, name: "Fries", description: "Test", price: 10 },
-        { id: 4, name: "Burger", description: "Juicy burger", price: 5 },
-        { id: 5, name: "Pizza", description: "Test", price: 10 },
-        { id: 6, name: "Burger", description: "beef burger", price: 5 },
-        { id: 7, name: "Pizza", description: "Test", price: 10 },
-        { id: 8, name: "Burger", description: "burger", price: 5 },
-      ];
-      setMenu(data);
+      try {
+        // Fetch menu items from your API route
+        const response = await fetch("/api/getitems"); // Update with your actual API route
+        if (!response.ok) {
+          throw new Error("Failed to fetch menu items");
+        }
+        const data: MenuItemData[] = await response.json();
+        setMenu(data);
+      } catch (err: any) {
+        setError("Error fetching menu items: " + err.message);
+      } finally {
+        setLoading(false);
+      }
     };
 
     fetchMenu();
   }, []);
 
+  if (loading) {
+    return <div>Loading...</div>; // Loading state
+  }
+
+  if (error) {
+    return <div>{error}</div>; // Error state
+  }
+
   return (
     <div>
-      {/* <CategoryBanner />
-       */}
-       <Hero/>
+      <Hero />
       <div className="grid grid-cols-1 gap-4 w-11/12 mx-auto sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
         {menu.map((item) => (
-          <MenuItem key={item.id} item={item} />
-        ))}
+  <MenuItem key={uuidv4()} item={item} />
+          ))}
       </div>
     </div>
   );
