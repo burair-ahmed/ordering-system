@@ -3,6 +3,7 @@ import { useCart } from '../context/CartContext';
 const CartSidebar = ({ closeSidebar }: { closeSidebar: () => void }) => {
   const { cartItems, removeFromCart, updateQuantity, totalAmount, clearCart } = useCart();
 
+
   return (
     <div className="fixed right-0 top-0 w-72 h-full bg-white shadow-lg p-4 z-50 flex flex-col">
       {/* Header */}
@@ -31,6 +32,7 @@ const CartSidebar = ({ closeSidebar }: { closeSidebar: () => void }) => {
                     alt={item.title}
                     className="w-full h-auto rounded"
                   /> */}
+
                 </div>
 
                 {/* Item Details */}

@@ -10,6 +10,7 @@ interface MenuItemData {
   title: string;
   description: string;
   price: number;
+  imageUrl: string; // New property to hold the image URL
 }
 
 export default function MenuPage() {
