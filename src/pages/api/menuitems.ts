@@ -4,7 +4,7 @@ import MenuItem from '../../models/MenuItem'; // Your Mongoose model for MenuIte
 
 const handler = async (req: NextApiRequest, res: NextApiResponse) => {
   // Call the connectDB function to establish a connection before any DB operations
-  await testMongoConnection;
+  await testMongoConnection();
 
   if (req.method === 'POST') {
     const { title, price, description, image, variations } = req.body;

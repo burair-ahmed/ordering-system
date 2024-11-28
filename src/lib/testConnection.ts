@@ -5,7 +5,7 @@ dotenv.config(); // Load environment variables
 
 const testMongoConnection = async () => {
   const MONGODB_URI = process.env.MONGODB_URI || 'mongodb+srv://admin:jHG1csS4fbZWUcrL@cafe-little.mfqm3.mongodb.net/?retryWrites=true&w=majority&appName=cafe-little';
-  
+
   console.log('Using MongoDB URI'); // Log the URI to check
 
   try {
@@ -16,4 +16,5 @@ const testMongoConnection = async () => {
   }
 };
 
-export default testMongoConnection();
+// Export the function to be invoked later
+export default testMongoConnection;
