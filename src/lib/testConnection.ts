@@ -16,4 +16,4 @@ const testMongoConnection = async () => {
   }
 };
 
-testMongoConnection();
+export default testMongoConnection();

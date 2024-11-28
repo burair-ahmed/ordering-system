@@ -1,5 +1,5 @@
 import { NextApiRequest, NextApiResponse } from 'next';
-import testMongoConnection from '../../lib/db'; // Update with the correct path to your db.ts
+import testMongoConnection from '../../lib/testConnection'; // Update with the correct path to your db.ts
 import MenuItem from '../../models/MenuItem'; // Your Mongoose model for MenuItem
 
 const handler = async (req: NextApiRequest, res: NextApiResponse) => {
