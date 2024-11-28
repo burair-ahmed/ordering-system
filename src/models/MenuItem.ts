@@ -14,7 +14,7 @@ const MenuItemSchema: Schema = new Schema({
   title: { type: String, required: true },
   price: { type: Number, required: true },
   description: { type: String, required: true },
-  image: { type: String, default: '' },
+  image: { type: String, required: true }, // Should be a string for Base64 image
   variations: [
     {
       name: { type: String },
@@ -23,5 +23,6 @@ const MenuItemSchema: Schema = new Schema({
   ],
   createdAt: { type: Date, default: Date.now },
 });
+
 
 export default mongoose.models.MenuItem || mongoose.model<IMenuItem>('MenuItems', MenuItemSchema);

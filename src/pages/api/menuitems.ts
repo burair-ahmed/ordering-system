@@ -15,7 +15,6 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
     }
 
     try {
-      // Create and save the new menu item
       const newMenuItem = new MenuItem({
         title,
         price,
@@ -23,13 +22,13 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
         image,
         variations,
       });
-
+    
       const result = await newMenuItem.save();
       res.status(200).json({ success: true, data: result });
-    } catch (error) {
+    } catch (error: any) {  // Explicitly type 'error' as 'any'
       console.error('Error saving to database:', error);
-      res.status(500).json({ error: 'Failed to save menu item' });
-    }
+      res.status(500).json({ error: 'Failed to save menu item', details: error.message });
+    }    
   } else {
     res.status(405).json({ error: 'Method not allowed' });
   }

@@ -10,9 +10,10 @@ const AddMenuItemForm = () => {
   const [formData, setFormData] = useState({
     title: "",
     price: "",
-    image: null as File | null,
+    image: null as File | string | null, // Updated type to allow string
     description: "",
   });
+  
 
   // Handle form input changes
   const handleInputChange = (
@@ -28,12 +29,18 @@ const AddMenuItemForm = () => {
   // Handle image upload
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0] || null;
-    setFormData((prev) => ({
-      ...prev,
-      image: file,
-    }));
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setFormData((prev) => ({
+          ...prev,
+          image: reader.result as string, // Store Base64 data
+        }));
+      };
+      reader.readAsDataURL(file);
+    }
   };
-
+  
   // Handle variation input changes
   const handleVariationChange = (
     index: number,
