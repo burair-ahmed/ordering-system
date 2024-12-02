@@ -96,15 +96,18 @@ const CheckoutPage: FC = () => {
 
       <div className="mb-6">
         <h2 className="font-bold">Cart Summary</h2>
-        <ul>
-        {cartItems.map((item, index) => (
-  <li key={`${item.id || 'item'}-${index}`} className="flex justify-between mb-2">
-    <span>{item.title}</span>
-    <span>Rs. {item.price * item.quantity}</span>
-  </li>
-))}
-
-        </ul>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          {cartItems.map((item, index) => (
+            <div key={`${item.id}-${index}`} className="border rounded p-4 shadow-md">
+              <img src={item.image} alt={item.title} className="w-full h-40 object-cover mb-4" />
+              <div className="flex flex-col">
+                <span className="font-semibold">{item.title}</span>
+                <span>Qty: {item.quantity}</span>
+                <span>Rs. {item.price * item.quantity}</span>
+              </div>
+            </div>
+          ))}
+        </div>
         <div className="flex justify-between font-bold mt-4">
           <span>Total:</span>
           <span>Rs. {totalAmount.toFixed(2)}</span>
