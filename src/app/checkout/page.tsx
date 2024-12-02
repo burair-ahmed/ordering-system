@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import { FC, useState } from "react";
 import { useCart } from "../context/CartContext";
@@ -12,6 +12,8 @@ const CheckoutPage: FC = () => {
     tableNumber: "",
     paymentMethod: "cash",
   });
+  const [isModalOpen, setIsModalOpen] = useState(false); // Modal state
+  const [isChecked, setIsChecked] = useState(false); // Checkbox state
   const router = useRouter();
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -28,9 +30,16 @@ const CheckoutPage: FC = () => {
       alert("Please fill in all fields.");
       return;
     }
+    setIsModalOpen(true); // Open the modal
+  };
 
+  const handlePlaceOrder = () => {
     clearCart();
     router.push("/thank-you");
+  };
+
+  const handleCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setIsChecked(e.target.checked);
   };
 
   return (
@@ -120,6 +129,72 @@ const CheckoutPage: FC = () => {
       >
         Proceed to Payment
       </button>
+
+      {/* Modal for Order Confirmation */}
+      {isModalOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+          <div className="bg-white p-6 rounded-lg w-full max-w-md">
+            <h2 className="text-xl font-bold mb-4">Confirm Order</h2>
+            <p className="mb-4">
+              Your order is non-cancellable. Please confirm your details before proceeding.
+            </p>
+
+            <div className="space-y-4 mb-4">
+              <div>
+                <strong>Name:</strong> {formData.name}
+              </div>
+              <div>
+                <strong>Email:</strong> {formData.email}
+              </div>
+              <div>
+                <strong>Table Number:</strong> {formData.tableNumber}
+              </div>
+              <div>
+                <strong>Payment Method:</strong> {formData.paymentMethod}
+              </div>
+
+              <div className="space-y-2">
+                <h3 className="font-bold">Order Summary</h3>
+                {cartItems.map((item, index) => (
+                  <div key={index} className="flex justify-between">
+                    <span>{item.title} x{item.quantity}</span>
+                    <span>Rs. {item.price * item.quantity}</span>
+                  </div>
+                ))}
+                <div className="flex justify-between font-bold mt-2">
+                  <span>Total:</span>
+                  <span>Rs. {totalAmount.toFixed(2)}</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2 mb-4">
+              <input
+                type="checkbox"
+                id="confirmOrder"
+                checked={isChecked}
+                onChange={handleCheckboxChange}
+              />
+              <label htmlFor="confirmOrder">I have checked everything and am ready to place the order</label>
+            </div>
+
+            <button
+              onClick={handlePlaceOrder}
+              disabled={!isChecked}
+              className={`w-full py-2 bg-green-500 text-white rounded ${!isChecked && "opacity-50 cursor-not-allowed"}`}
+            >
+              Place Order
+            </button>
+
+            <button
+              onClick={() => setIsModalOpen(false)}
+              className="w-full py-2 mt-4 bg-red-500 text-white rounded"
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
