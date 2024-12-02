@@ -132,7 +132,7 @@ const AddMenuItemForm = () => {
         {/* Price */}
         <div>
           <label htmlFor="price" className="block text-sm font-medium mb-1">
-            Price ($)
+            Price (Rs.)
           </label>
           <input
             type="number"

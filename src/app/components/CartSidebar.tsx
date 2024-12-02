@@ -1,4 +1,5 @@
 import { useCart } from "../context/CartContext";
+import Image from "next/image";
 
 const CartSidebar = ({ closeSidebar }: { closeSidebar: () => void }) => {
   const { cartItems, removeFromCart, updateQuantity, totalAmount, clearCart } = useCart();
@@ -15,8 +16,17 @@ const CartSidebar = ({ closeSidebar }: { closeSidebar: () => void }) => {
 
       {/* Cart Items */}
       <div className="flex-1 overflow-y-auto">
-        {cartItems.length === 0 ? (
-          <p className="text-center mt-4">Your cart is empty</p>
+  {cartItems.length === 0 ? (
+    <div className="flex flex-col justify-center items-center mx-auto">
+      <Image
+        className="mb-4"
+        src="/empty-cart.png"
+        alt="Empty cart"
+        width={200}
+        height={200}
+      />
+      <p className="text-center mt-4">Your cart is empty</p>
+    </div>
         ) : (
           <ul>
             {cartItems.map((item) => (
