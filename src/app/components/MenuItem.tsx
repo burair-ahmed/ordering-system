@@ -24,8 +24,10 @@ const MenuItem: FC<MenuItemProps> = ({ item }) => {
   const [showModal, setShowModal] = useState(false);
   const [selectedVariation, setSelectedVariation] = useState<Variation | null>(null);
 
-  const price = typeof item.price === "number" ? item.price : parseFloat(item.price);
-  const itemId = item.id ? item.id.toString() : "";
+  const itemId = item.id ? item.id.toString() : "0"; // Ensure itemId is always a string
+  const basePrice = typeof item.price === "number" ? item.price : 0; // Default to 0 if price is undefined
+  const variationPrice = selectedVariation ? parseFloat(selectedVariation.price || "0") : 0;
+  const totalPrice = basePrice + variationPrice;
 
   const handleVariationChange = (variation: Variation) => {
     setSelectedVariation(variation);
@@ -36,7 +38,7 @@ const MenuItem: FC<MenuItemProps> = ({ item }) => {
       {/* Menu Item Card */}
       <div className="menu-item-card" onClick={() => setShowModal(true)}>
         <Image
-          src={item.image || '/fallback-image.jpg'}
+          src={item.image || "/fallback-image.jpg"}
           alt={item.title}
           className="p-2 g-0 rounded-[15px]"
           width={450}
@@ -44,7 +46,7 @@ const MenuItem: FC<MenuItemProps> = ({ item }) => {
         />
         <h2 className="font-extrabold text-lg">{item.title}</h2>
         <p className="text-xs mb-3">{item.description}</p>
-        <p className="font-bold mb-2">Rs.{price.toFixed(2)}</p>
+        <p className="font-bold mb-2">Rs.{basePrice.toFixed(2)}</p>
         <button className="cartBtn">ADD TO CART</button>
       </div>
 
@@ -63,7 +65,7 @@ const MenuItem: FC<MenuItemProps> = ({ item }) => {
             {/* Left Column - Image */}
             <div className="lg:w-1/2 flex justify-center items-center mb-4 lg:mb-0">
               <Image
-                src={item.image || '/fallback-image.jpg'}
+                src={item.image || "/fallback-image.jpg"}
                 alt={item.title}
                 className="p-2 g-0 rounded-[15px]"
                 width={450}
@@ -75,7 +77,7 @@ const MenuItem: FC<MenuItemProps> = ({ item }) => {
             <div className="lg:w-1/2 px-4">
               <h2 className="text-xl font-bold mt-4 lg:mt-0">{item.title}</h2>
               <p className="text-gray-600 mt-2">{item.description}</p>
-              <p className="text-lg font-bold mt-4">Rs.{price.toFixed(2)}</p>
+              <p className="text-lg font-bold mt-4">Rs.{totalPrice.toFixed(2)}</p>
 
               {/* Variations - Radio Buttons */}
               <div className="mt-4">
@@ -106,18 +108,16 @@ const MenuItem: FC<MenuItemProps> = ({ item }) => {
 
               {/* Add to Cart Button */}
               <AddToCartButton
-  id={itemId}
-  title={item.title}
-  price={price}
-  image={item.image} // Pass the image to the button
-  selectedVariations={
-    selectedVariation
-      ? [`${selectedVariation.name} (+${selectedVariation.price})`] // Wrap in array
-      : undefined
-  }
-/>
-
-
+                id={itemId}
+                title={item.title}
+                price={totalPrice}
+                image={item.image}
+                selectedVariations={
+                  selectedVariation
+                    ? [`${selectedVariation.name} (+${selectedVariation.price})`]
+                    : undefined
+                }
+              />
             </div>
           </div>
         </div>
