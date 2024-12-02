@@ -1,23 +1,25 @@
 // AddToCartButton.tsx
 import { FC } from "react";
-import { useCart } from "../context/CartContext"; // Importing Cart Context
+import { useCart } from "../context/CartContext"; 
 
 interface AddToCartButtonProps {
-  id: string;  // Ensuring the id is a string as required by the cart context
+  id: string;
   title: string;
   price: number;
-  selectedVariations?: string[]; // Adding selected variations as an optional prop
+  image: string; // Add image as a required prop
+  selectedVariations?: string[];
 }
 
-const AddToCartButton: FC<AddToCartButtonProps> = ({ id, title, price, selectedVariations = [] }) => {
-  const { addToCart } = useCart(); // Destructure the addToCart function from context
+const AddToCartButton: FC<AddToCartButtonProps> = ({ id, title, price, image, selectedVariations = [] }) => {
+  const { addToCart } = useCart(); 
 
   const handleAddToCart = () => {
     addToCart({
-      id, // ID of the item
-      title, // Title of the item
-      price, // Price of the item
-      quantity: 1, // Default quantity is 1
+      id,
+      title,
+      price,
+      quantity: 1,
+      image,  // Pass image here
       variations: selectedVariations,
     });    
   };

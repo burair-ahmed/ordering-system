@@ -1,18 +1,15 @@
+// CartSidebar.tsx
 import { useCart } from '../context/CartContext';
 
 const CartSidebar = ({ closeSidebar }: { closeSidebar: () => void }) => {
   const { cartItems, removeFromCart, updateQuantity, totalAmount, clearCart } = useCart();
-
 
   return (
     <div className="fixed right-0 top-0 w-72 h-full bg-white shadow-lg p-4 z-50 flex flex-col">
       {/* Header */}
       <div className="flex justify-between items-center mb-4 border-b pb-2">
         <h2 className="text-2xl font-bold">Your Cart</h2>
-        <button
-          onClick={closeSidebar}
-          className="text-red-500 font-bold text-xl"
-        >
+        <button onClick={closeSidebar} className="text-red-500 font-bold text-xl">
           &times;
         </button>
       </div>
@@ -27,12 +24,11 @@ const CartSidebar = ({ closeSidebar }: { closeSidebar: () => void }) => {
               <li key={item.id} className="flex items-start mb-4 border-b pb-4">
                 {/* Image */}
                 <div className="w-1/3">
-                  {/* <img
+                  <img
                     src={item.image || '/placeholder.png'}
                     alt={item.title}
                     className="w-full h-auto rounded"
-                  /> */}
-
+                  />
                 </div>
 
                 {/* Item Details */}
@@ -44,24 +40,23 @@ const CartSidebar = ({ closeSidebar }: { closeSidebar: () => void }) => {
                   <div className="mt-2 flex items-center gap-2 p-2 border rounded-lg shadow-sm">
                     <button
                       onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                      className="bg-green-500 text-white w-8 h-8 rounded-full flex justify-center items-center text-lg"
+                      className="bg-gray-200 text-sm px-2 py-1 rounded-md"
                     >
                       +
                     </button>
-                    <span className="text-sm font-medium">{item.quantity}</span>
+                    <span className="text-sm">{item.quantity}</span>
                     <button
                       onClick={() => updateQuantity(item.id, item.quantity - 1)}
-                      className="bg-red-500 text-white w-8 h-8 rounded-full flex justify-center items-center text-lg"
-                      disabled={item.quantity === 1}
+                      className="bg-gray-200 text-sm px-2 py-1 rounded-md"
                     >
                       -
                     </button>
                   </div>
 
-                  {/* Remove Button */}
+                  {/* Remove from Cart */}
                   <button
                     onClick={() => removeFromCart(item.id)}
-                    className="text-red-500 text-sm mt-2 underline"
+                    className="text-red-500 text-sm mt-2"
                   >
                     Remove
                   </button>
@@ -72,13 +67,16 @@ const CartSidebar = ({ closeSidebar }: { closeSidebar: () => void }) => {
         )}
       </div>
 
-      {/* Footer */}
+      {/* Total */}
       {cartItems.length > 0 && (
-        <div className="mt-4 border-t pt-4">
-          <p className="font-bold text-lg mb-2">Total: Rs. {totalAmount.toFixed(2)}</p>
+        <div className="border-t pt-4">
+          <div className="flex justify-between">
+            <span className="font-bold">Total:</span>
+            <span className="font-bold">Rs. {totalAmount.toFixed(2)}</span>
+          </div>
           <button
             onClick={clearCart}
-            className="bg-red-600 text-white px-4 py-2 rounded w-full"
+            className="bg-red-500 text-white rounded-full py-2 mt-4 w-full"
           >
             Clear Cart
           </button>

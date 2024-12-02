@@ -8,7 +8,8 @@ export interface CartItem {
   title: string;
   price: number;
   quantity: number;
-  variations?: string[]; // Add variations as an optional property
+  variations?: string[];
+  image: string; // Add image property to store image URL
 }
 
 

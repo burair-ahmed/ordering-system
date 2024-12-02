@@ -1,3 +1,4 @@
+// MenuItem.tsx
 import { FC, useState } from "react";
 import Image from "next/image";
 import AddToCartButton from "./AddToCartButton";
@@ -13,7 +14,7 @@ interface MenuItemData {
   description: string;
   price: number;
   image: string;
-  variations: Variation[]; // Updated type for variations
+  variations: Variation[];
 }
 
 interface MenuItemProps {
@@ -24,13 +25,9 @@ const MenuItem: FC<MenuItemProps> = ({ item }) => {
   const [showModal, setShowModal] = useState(false);
   const [selectedVariations, setSelectedVariations] = useState<Variation[]>([]);
 
-  // Ensure price is a number before using toFixed
   const price = typeof item.price === "number" ? item.price : parseFloat(item.price);
-
-  // Check if item.id is defined before using toString()
   const itemId = item.id ? item.id.toString() : "";
 
-  // Handle checkbox state for variations
   const handleVariationChange = (event: React.ChangeEvent<HTMLInputElement>, variation: Variation) => {
     if (selectedVariations.includes(variation)) {
       setSelectedVariations(selectedVariations.filter((v) => v.name !== variation.name));
@@ -113,10 +110,11 @@ const MenuItem: FC<MenuItemProps> = ({ item }) => {
 
               {/* Add to Cart Button */}
               <AddToCartButton
-                id={itemId} // Pass itemId safely
+                id={itemId}
                 title={item.title}
-                price={price} // Pass price as a number
-                selectedVariations={selectedVariations.map((v) => `${v.name} (+${v.price})`)} // Pass selected variations as strings
+                price={price}
+                image={item.image}  // Pass the image to the button
+                selectedVariations={selectedVariations.map((v) => `${v.name} (+${v.price})`)}
               />
             </div>
           </div>
