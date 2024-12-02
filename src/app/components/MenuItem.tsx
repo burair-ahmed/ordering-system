@@ -75,7 +75,12 @@ const MenuItem: FC<MenuItemProps> = ({ item }) => {
 
             {/* Right Column - Details */}
             <div className="lg:w-1/2 px-4">
-              <h2 className="text-xl font-bold mt-4 lg:mt-0">{item.title}</h2>
+              {/* Dynamic Title */}
+              <h2 className="text-xl font-bold mt-4 lg:mt-0">
+                {item.title}
+                {selectedVariation && ` (${selectedVariation.name})`}
+              </h2>
+
               <p className="text-gray-600 mt-2">{item.description}</p>
               <p className="text-lg font-bold mt-4">Rs.{totalPrice.toFixed(2)}</p>
 
