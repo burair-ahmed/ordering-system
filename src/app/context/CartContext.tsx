@@ -1,45 +1,81 @@
-"use client"; // Add this line
+"use client"; // Mark this file as a client-side component
 
-// CartContext.tsx
-import React, { createContext, useContext, useState } from 'react';
+import { createContext, useContext, useState, useEffect, ReactNode } from "react";
 
-export interface CartItem {
+interface CartItem {
   id: string;
   title: string;
   price: number;
   quantity: number;
+  image?: string;
   variations?: string[];
-  image: string; // Add image property to store image URL
 }
-
 
 interface CartContextType {
   cartItems: CartItem[];
   totalAmount: number;
   addToCart: (item: CartItem) => void;
   removeFromCart: (id: string) => void;
-  updateQuantity: (id: string, newQuantity: number) => void;
+  updateQuantity: (id: string, quantity: number) => void;
   clearCart: () => void;
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
-export const CartProvider = ({ children }: { children: React.ReactNode }) => {
+export const useCart = () => {
+  const context = useContext(CartContext);
+  if (!context) {
+    throw new Error("useCart must be used within a CartProvider");
+  }
+  return context;
+};
+
+interface CartProviderProps {
+  children: ReactNode;
+}
+
+export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
+  const [totalAmount, setTotalAmount] = useState<number>(0);
+
+  // Only access localStorage on the client side (inside useEffect)
+  useEffect(() => {
+    const savedCartItems = localStorage.getItem("cartItems");
+    if (savedCartItems) {
+      const parsedCartItems: CartItem[] = JSON.parse(savedCartItems);
+      setCartItems(parsedCartItems);
+      setTotalAmount(
+        parsedCartItems.reduce((sum, item) => sum + item.price * item.quantity, 0)
+      );
+    }
+  }, []); // Empty dependency array ensures this runs only once when the component mounts
+
+  useEffect(() => {
+    if (cartItems.length > 0) {
+      localStorage.setItem("cartItems", JSON.stringify(cartItems));
+    } else {
+      localStorage.removeItem("cartItems");
+    }
+    setTotalAmount(cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0));
+  }, [cartItems]);
 
   const addToCart = (item: CartItem) => {
     setCartItems((prevItems) => {
-      const existingItem = prevItems.find(
-        (i) => i.id === item.id && JSON.stringify(i.variations) === JSON.stringify(item.variations) // Check variations as well
-      );
-      if (existingItem) {
-        return prevItems.map((i) =>
-          i.id === item.id && JSON.stringify(i.variations) === JSON.stringify(item.variations)
-            ? { ...i, quantity: i.quantity + 1 } // If variations match, increment quantity
-            : i
-        );
+      // Check if the item exists already in the cart
+      const existingItemIndex = prevItems.findIndex((cartItem) => {
+        // Check if the item ID and variation combination already exists in the cart
+        return cartItem.id === item.id && JSON.stringify(cartItem.variations) === JSON.stringify(item.variations);
+      });
+  
+      if (existingItemIndex >= 0) {
+        // If the item with the same variations already exists, increase the quantity of that item
+        const updatedCartItems = [...prevItems];
+        updatedCartItems[existingItemIndex].quantity += 1;
+        return updatedCartItems;
+      } else {
+        // If the item doesn't exist, add it to the cart with quantity 1
+        return [...prevItems, { ...item, quantity: 1 }];
       }
-      return [...prevItems, { ...item, quantity: 1 }];
     });
   };
   
@@ -48,11 +84,10 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
     setCartItems((prevItems) => prevItems.filter((item) => item.id !== id));
   };
 
-  const updateQuantity = (id: string, newQuantity: number) => {
-    if (newQuantity < 1) return; // Don't allow negative quantity
+  const updateQuantity = (id: string, quantity: number) => {
     setCartItems((prevItems) =>
       prevItems.map((item) =>
-        item.id === id ? { ...item, quantity: newQuantity } : item
+        item.id === id ? { ...item, quantity: Math.max(quantity, 1) } : item
       )
     );
   };
@@ -61,19 +96,11 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
     setCartItems([]);
   };
 
-  const totalAmount = cartItems.reduce((total, item) => total + item.price * item.quantity, 0);
-
   return (
-    <CartContext.Provider value={{ cartItems, totalAmount, addToCart, removeFromCart, updateQuantity, clearCart }}>
+    <CartContext.Provider
+      value={{ cartItems, totalAmount, addToCart, removeFromCart, updateQuantity, clearCart }}
+    >
       {children}
     </CartContext.Provider>
   );
-};
-
-export const useCart = () => {
-  const context = useContext(CartContext);
-  if (!context) {
-    throw new Error('useCart must be used within a CartProvider');
-  }
-  return context;
 };

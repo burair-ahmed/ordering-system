@@ -2,7 +2,7 @@
 
 import { FC, useState } from "react";
 import { useCart } from "../context/CartContext";
-import { useRouter } from "next/navigation"; // Import from next/navigation
+import { useRouter } from "next/navigation";
 
 const CheckoutPage: FC = () => {
   const { cartItems, totalAmount, clearCart } = useCart();
@@ -10,9 +10,9 @@ const CheckoutPage: FC = () => {
     name: "",
     email: "",
     tableNumber: "",
-    paymentMethod: "cash", // default payment method
+    paymentMethod: "cash",
   });
-  const router = useRouter(); // Now using next/navigation
+  const router = useRouter();
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -29,22 +29,28 @@ const CheckoutPage: FC = () => {
       return;
     }
 
-    // Process the order here (e.g., call an API)
     clearCart();
-    router.push("/thank-you"); // Redirect to a thank-you page
+    router.push("/thank-you");
   };
 
   return (
     <div className="container mx-auto p-4">
       <h1 className="text-2xl font-bold mb-6">Checkout</h1>
 
-      {/* Form to collect user information */}
       <div className="space-y-4 mb-6">
         <input
           type="text"
           name="name"
           placeholder="Full Name"
           value={formData.name}
+          onChange={handleInputChange}
+          className="w-full p-2 border rounded"
+        />
+        <input
+          type="email"
+          name="email"
+          placeholder="Email Address"
+          value={formData.email}
           onChange={handleInputChange}
           className="w-full p-2 border rounded"
         />
@@ -58,7 +64,6 @@ const CheckoutPage: FC = () => {
         />
       </div>
 
-      {/* Payment Method Selection */}
       <div className="mb-6">
         <h2 className="font-bold mb-2">Select Payment Method</h2>
         <div className="flex gap-4">
@@ -89,16 +94,16 @@ const CheckoutPage: FC = () => {
         </div>
       </div>
 
-      {/* Cart summary */}
       <div className="mb-6">
         <h2 className="font-bold">Cart Summary</h2>
         <ul>
-          {cartItems.map((item) => (
-            <li key={item.id} className="flex justify-between mb-2">
-              <span>{item.title}</span>
-              <span>Rs. {item.price * item.quantity}</span>
-            </li>
-          ))}
+        {cartItems.map((item, index) => (
+  <li key={`${item.id || 'item'}-${index}`} className="flex justify-between mb-2">
+    <span>{item.title}</span>
+    <span>Rs. {item.price * item.quantity}</span>
+  </li>
+))}
+
         </ul>
         <div className="flex justify-between font-bold mt-4">
           <span>Total:</span>
@@ -106,7 +111,6 @@ const CheckoutPage: FC = () => {
         </div>
       </div>
 
-      {/* Checkout Button */}
       <button
         onClick={handleCheckout}
         className="w-full py-2 bg-blue-500 text-white rounded"

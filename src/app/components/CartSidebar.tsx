@@ -1,6 +1,7 @@
 import { useCart } from "../context/CartContext";
 import Image from "next/image";
 import { FaArrowRight } from "react-icons/fa";  // Importing the right arrow icon from react-icons
+import Link from "next/link";
 
 const CartSidebar = ({ closeSidebar }: { closeSidebar: () => void }) => {
   const { cartItems, removeFromCart, updateQuantity, totalAmount, clearCart } = useCart();
@@ -100,13 +101,14 @@ const CartSidebar = ({ closeSidebar }: { closeSidebar: () => void }) => {
           </button>
 
           {/* Proceed to Checkout Button */}
-          <button
-            onClick={() => console.log("Proceed to Checkout")} // Replace with actual checkout logic
-            className="flex items-center justify-center bg-blue-500 text-white rounded-full py-2 mt-4 w-full"
-          >
-            Proceed to Checkout
-            <FaArrowRight className="ml-2" /> {/* Right arrow icon */}
-          </button>
+          <button className="flex items-center justify-center bg-blue-500 text-white rounded-full py-2 mt-4 w-full">
+  <Link href="/checkout" passHref>
+    <span className="flex items-center">
+      Checkout
+      <FaArrowRight className="ml-2" /> {/* Right arrow icon with margin */}
+    </span>
+  </Link>
+</button>
         </div>
       )}
     </div>
