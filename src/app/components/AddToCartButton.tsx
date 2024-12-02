@@ -6,9 +6,11 @@ interface AddToCartButtonProps {
   id: string;
   title: string;
   price: number;
-  image: string; // Add image as a required prop
-  selectedVariations?: string[];
+  image: string;
+  selectedVariations: string[] | undefined; // Matches expected type
 }
+
+
 
 const AddToCartButton: FC<AddToCartButtonProps> = ({ id, title, price, image, selectedVariations = [] }) => {
   const { addToCart } = useCart(); 

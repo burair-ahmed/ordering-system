@@ -1,4 +1,3 @@
-// MenuItem.tsx
 import { FC, useState } from "react";
 import Image from "next/image";
 import AddToCartButton from "./AddToCartButton";
@@ -23,17 +22,13 @@ interface MenuItemProps {
 
 const MenuItem: FC<MenuItemProps> = ({ item }) => {
   const [showModal, setShowModal] = useState(false);
-  const [selectedVariations, setSelectedVariations] = useState<Variation[]>([]);
+  const [selectedVariation, setSelectedVariation] = useState<Variation | null>(null);
 
   const price = typeof item.price === "number" ? item.price : parseFloat(item.price);
   const itemId = item.id ? item.id.toString() : "";
 
-  const handleVariationChange = (event: React.ChangeEvent<HTMLInputElement>, variation: Variation) => {
-    if (selectedVariations.includes(variation)) {
-      setSelectedVariations(selectedVariations.filter((v) => v.name !== variation.name));
-    } else {
-      setSelectedVariations([...selectedVariations, variation]);
-    }
+  const handleVariationChange = (variation: Variation) => {
+    setSelectedVariation(variation);
   };
 
   return (
@@ -82,7 +77,7 @@ const MenuItem: FC<MenuItemProps> = ({ item }) => {
               <p className="text-gray-600 mt-2">{item.description}</p>
               <p className="text-lg font-bold mt-4">Rs.{price.toFixed(2)}</p>
 
-              {/* Variations - Checkboxes */}
+              {/* Variations - Radio Buttons */}
               <div className="mt-4">
                 <label className="block text-sm font-medium mb-2">Variations</label>
                 <div className="space-y-2">
@@ -90,11 +85,12 @@ const MenuItem: FC<MenuItemProps> = ({ item }) => {
                     item.variations.map((variation, index) => (
                       <div key={index} className="flex items-center">
                         <input
-                          type="checkbox"
+                          type="radio"
                           id={`variation-${index}`}
+                          name={`variation-${item.id}`}
                           value={variation.name}
-                          onChange={(e) => handleVariationChange(e, variation)}
-                          checked={selectedVariations.some((v) => v.name === variation.name)}
+                          onChange={() => handleVariationChange(variation)}
+                          checked={selectedVariation?.name === variation.name}
                           className="mr-2"
                         />
                         <label htmlFor={`variation-${index}`} className="text-sm">
@@ -110,12 +106,18 @@ const MenuItem: FC<MenuItemProps> = ({ item }) => {
 
               {/* Add to Cart Button */}
               <AddToCartButton
-                id={itemId}
-                title={item.title}
-                price={price}
-                image={item.image}  // Pass the image to the button
-                selectedVariations={selectedVariations.map((v) => `${v.name} (+${v.price})`)}
-              />
+  id={itemId}
+  title={item.title}
+  price={price}
+  image={item.image} // Pass the image to the button
+  selectedVariations={
+    selectedVariation
+      ? [`${selectedVariation.name} (+${selectedVariation.price})`] // Wrap in array
+      : undefined
+  }
+/>
+
+
             </div>
           </div>
         </div>
