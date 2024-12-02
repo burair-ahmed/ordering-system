@@ -10,8 +10,15 @@ interface MenuItemData {
   title: string;
   description: string;
   price: number;
-  imageUrl: string; // New property to hold the image URL
+  image: string; // This should be the property expected by MenuItem
+  variations: Variation[]; // This should match the expected format
 }
+
+interface Variation {
+  name: string;
+  price: string;
+}
+
 
 export default function MenuPage() {
   const [menu, setMenu] = useState<MenuItemData[]>([]);

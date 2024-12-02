@@ -24,5 +24,5 @@ const MenuItemSchema: Schema = new Schema({
   createdAt: { type: Date, default: Date.now },
 });
 
-
-export default mongoose.models.MenuItem || mongoose.model<IMenuItem>('MenuItems', MenuItemSchema);
+// Access MenuItems instead of MenuItem
+export default mongoose.models.MenuItems || mongoose.model<IMenuItem>('MenuItems', MenuItemSchema);
