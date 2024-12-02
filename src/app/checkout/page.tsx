@@ -33,10 +33,43 @@ const CheckoutPage: FC = () => {
     setIsModalOpen(true); // Open the modal
   };
 
-  const handlePlaceOrder = () => {
-    clearCart();
-    router.push("/thank-you");
+  const handlePlaceOrder = async () => {
+    // Prepare the order data
+    const newOrder = {
+      orderNumber: `ORD-${Math.floor(Math.random() * 1000000)}`,
+      customerName: formData.name,
+      email: formData.email,
+      tableNumber: formData.tableNumber,
+      paymentMethod: formData.paymentMethod,
+      items: cartItems.map(item => ({
+        id: item.id,
+        title: item.title,
+        quantity: item.quantity,
+        price: item.price,
+      })), // Only include essential item data
+      totalAmount: totalAmount,
+      status: "Received",
+    };
+  
+    // Send order data to the API
+    const response = await fetch("/api/orders", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(newOrder),
+    });
+  
+    const data = await response.json();
+    if (response.ok) {
+      alert("Order placed successfully!");
+      clearCart();
+      router.push("/thank-you");
+    } else {
+      alert("Failed to place the order.");
+    }
   };
+  
 
   const handleCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setIsChecked(e.target.checked);
