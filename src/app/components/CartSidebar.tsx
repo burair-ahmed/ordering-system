@@ -1,5 +1,4 @@
-// CartSidebar.tsx
-import { useCart } from '../context/CartContext';
+import { useCart } from "../context/CartContext";
 
 const CartSidebar = ({ closeSidebar }: { closeSidebar: () => void }) => {
   const { cartItems, removeFromCart, updateQuantity, totalAmount, clearCart } = useCart();
@@ -20,57 +19,57 @@ const CartSidebar = ({ closeSidebar }: { closeSidebar: () => void }) => {
           <p className="text-center mt-4">Your cart is empty</p>
         ) : (
           <ul>
-{cartItems.map((item) => (
-  <li key={`${item.id}-${JSON.stringify(item.variations)}`} className="flex items-start mb-4 border-b pb-4">
-    {/* Image */}
-    <div className="w-1/3">
-      <img
-        src={item.image || '/placeholder.png'}
-        alt={item.title}
-        className="w-full h-auto rounded"
-      />
-    </div>
+            {cartItems.map((item) => (
+              <li
+                key={`${item.id}-${JSON.stringify(item.variations)}`}
+                className="flex items-start mb-4 border-b pb-4"
+              >
+                {/* Image */}
+                <div className="w-1/3">
+                  <img
+                    src={item.image || "/placeholder.png"}
+                    alt={item.title}
+                    className="w-full h-auto rounded"
+                  />
+                </div>
 
-    {/* Item Details */}
-    <div className="w-2/3 pl-3">
-      <p className="font-medium text-sm">{item.title}</p>
-      <p className="text-sm text-gray-500">Rs. {item.price}</p>
+                {/* Item Details */}
+                <div className="w-2/3 pl-3">
+                  {/* Updated Title: Show only title and selected variations without price */}
+                  <p className="font-medium text-sm">
+                    {item.title}
+                    {item.variations && item.variations.length > 0 && ` (${item.variations.join(", ")})`}
+                  </p>
+                  {/* We no longer display the variation price here */}
+                  <p className="text-sm text-gray-500">Rs. {item.price}</p> {/* Show base price only */}
 
-      {/* Display variations */}
-      {item.variations && item.variations.length > 0 && (
-        <p className="text-sm text-gray-500">
-          {item.variations.join(", ")} {/* Join variations to display them as a string */}
-        </p>
-      )}
+                  {/* Quantity Controls */}
+                  <div className="mt-2 flex items-center gap-2 p-2 border rounded-lg shadow-sm">
+                    <button
+                      onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                      className="bg-gray-200 text-sm px-2 py-1 rounded-md"
+                    >
+                      +
+                    </button>
+                    <span className="text-sm">{item.quantity}</span>
+                    <button
+                      onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                      className="bg-gray-200 text-sm px-2 py-1 rounded-md"
+                    >
+                      -
+                    </button>
+                  </div>
 
-      {/* Quantity Controls */}
-      <div className="mt-2 flex items-center gap-2 p-2 border rounded-lg shadow-sm">
-        <button
-          onClick={() => updateQuantity(item.id, item.quantity + 1)}
-          className="bg-gray-200 text-sm px-2 py-1 rounded-md"
-        >
-          +
-        </button>
-        <span className="text-sm">{item.quantity}</span>
-        <button
-          onClick={() => updateQuantity(item.id, item.quantity - 1)}
-          className="bg-gray-200 text-sm px-2 py-1 rounded-md"
-        >
-          -
-        </button>
-      </div>
-
-      {/* Remove from Cart */}
-      <button
-        onClick={() => removeFromCart(item.id)}
-        className="text-red-500 text-sm mt-2"
-      >
-        Remove
-      </button>
-    </div>
-  </li>
-))}
-
+                  {/* Remove from Cart */}
+                  <button
+                    onClick={() => removeFromCart(item.id)}
+                    className="text-red-500 text-sm mt-2"
+                  >
+                    Remove
+                  </button>
+                </div>
+              </li>
+            ))}
           </ul>
         )}
       </div>

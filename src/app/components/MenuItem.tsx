@@ -119,7 +119,7 @@ const MenuItem: FC<MenuItemProps> = ({ item }) => {
                 image={item.image}
                 selectedVariations={
                   selectedVariation
-                    ? [`${selectedVariation.name} (+${selectedVariation.price})`]
+                    ? [`${selectedVariation.name}`] // Only show name without price in the cart
                     : undefined
                 }
               />
