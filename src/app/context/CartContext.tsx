@@ -29,15 +29,20 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
 
   const addToCart = (item: CartItem) => {
     setCartItems((prevItems) => {
-      const existingItem = prevItems.find((i) => i.id === item.id);
+      const existingItem = prevItems.find(
+        (i) => i.id === item.id && JSON.stringify(i.variations) === JSON.stringify(item.variations) // Check variations as well
+      );
       if (existingItem) {
         return prevItems.map((i) =>
-          i.id === item.id ? { ...i, quantity: i.quantity + 1 } : i
+          i.id === item.id && JSON.stringify(i.variations) === JSON.stringify(item.variations)
+            ? { ...i, quantity: i.quantity + 1 } // If variations match, increment quantity
+            : i
         );
       }
       return [...prevItems, { ...item, quantity: 1 }];
     });
   };
+  
 
   const removeFromCart = (id: string) => {
     setCartItems((prevItems) => prevItems.filter((item) => item.id !== id));
