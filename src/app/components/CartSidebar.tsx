@@ -1,5 +1,6 @@
 import { useCart } from "../context/CartContext";
 import Image from "next/image";
+import { FaArrowRight } from "react-icons/fa";  // Importing the right arrow icon from react-icons
 
 const CartSidebar = ({ closeSidebar }: { closeSidebar: () => void }) => {
   const { cartItems, removeFromCart, updateQuantity, totalAmount, clearCart } = useCart();
@@ -16,17 +17,17 @@ const CartSidebar = ({ closeSidebar }: { closeSidebar: () => void }) => {
 
       {/* Cart Items */}
       <div className="flex-1 overflow-y-auto">
-  {cartItems.length === 0 ? (
-    <div className="flex flex-col justify-center items-center mx-auto">
-      <Image
-        className="mb-4"
-        src="/empty-cart.png"
-        alt="Empty cart"
-        width={200}
-        height={200}
-      />
-      <p className="text-center mt-4">Your cart is empty</p>
-    </div>
+        {cartItems.length === 0 ? (
+          <div className="flex flex-col justify-center items-center mx-auto">
+            <Image
+              className="mb-4"
+              src="/empty-cart.png"
+              alt="Empty cart"
+              width={200}
+              height={200}
+            />
+            <p className="text-center mt-4">Your cart is empty</p>
+          </div>
         ) : (
           <ul>
             {cartItems.map((item) => (
@@ -45,13 +46,11 @@ const CartSidebar = ({ closeSidebar }: { closeSidebar: () => void }) => {
 
                 {/* Item Details */}
                 <div className="w-2/3 pl-3">
-                  {/* Updated Title: Show only title and selected variations without price */}
                   <p className="font-medium text-sm">
                     {item.title}
                     {item.variations && item.variations.length > 0 && ` (${item.variations.join(", ")})`}
                   </p>
-                  {/* We no longer display the variation price here */}
-                  <p className="text-sm text-gray-500">Rs. {item.price}</p> {/* Show base price only */}
+                  <p className="text-sm text-gray-500">Rs. {item.price}</p>
 
                   {/* Quantity Controls */}
                   <div className="mt-2 flex items-center gap-2 p-2 border rounded-lg shadow-sm">
@@ -91,11 +90,22 @@ const CartSidebar = ({ closeSidebar }: { closeSidebar: () => void }) => {
             <span className="font-bold">Total:</span>
             <span className="font-bold">Rs. {totalAmount.toFixed(2)}</span>
           </div>
+
+          {/* Clear Cart Button */}
           <button
             onClick={clearCart}
             className="bg-red-500 text-white rounded-full py-2 mt-4 w-full"
           >
             Clear Cart
+          </button>
+
+          {/* Proceed to Checkout Button */}
+          <button
+            onClick={() => console.log("Proceed to Checkout")} // Replace with actual checkout logic
+            className="flex items-center justify-center bg-blue-500 text-white rounded-full py-2 mt-4 w-full"
+          >
+            Proceed to Checkout
+            <FaArrowRight className="ml-2" /> {/* Right arrow icon */}
           </button>
         </div>
       )}
