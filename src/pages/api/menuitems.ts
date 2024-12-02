@@ -25,10 +25,15 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
     
       const result = await newMenuItem.save();
       res.status(200).json({ success: true, data: result });
-    } catch (error: any) {  // Explicitly type 'error' as 'any'
-      console.error('Error saving to database:', error);
-      res.status(500).json({ error: 'Failed to save menu item', details: error.message });
-    }    
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        console.error('Error saving to database:', error);
+        res.status(500).json({ error: 'Failed to save menu item', details: error.message });
+      } else {
+        res.status(500).json({ error: 'Failed to save menu item', details: 'Unknown error' });
+      }
+    }
+    
   } else {
     res.status(405).json({ error: 'Method not allowed' });
   }

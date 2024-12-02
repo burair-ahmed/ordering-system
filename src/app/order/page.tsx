@@ -35,9 +35,14 @@ export default function MenuPage() {
         }
         const data: MenuItemData[] = await response.json();
         setMenu(data);
-      } catch (err: any) {
-        setError("Error fetching menu items: " + err.message);
-      } finally {
+      } catch (err: unknown) {
+        if (err instanceof Error) {
+          setError("Error fetching menu items: " + err.message);
+        } else {
+          setError("Unknown error occurred");
+        }
+      }
+       finally {
         setLoading(false);
       }
     };
