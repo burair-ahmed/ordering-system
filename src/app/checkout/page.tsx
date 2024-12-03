@@ -1,4 +1,5 @@
-'use client';
+// CheckoutPage.tsx
+'use client'
 
 import { FC, useState } from "react";
 import { useCart } from "../context/CartContext";
@@ -46,11 +47,12 @@ const CheckoutPage: FC = () => {
         title: item.title,
         quantity: item.quantity,
         price: item.price,
-      })), // Only include essential item data
+        variations: item.variations, // Include variations in the order
+      })),
       totalAmount: totalAmount,
       status: "Received",
     };
-  
+
     // Send order data to the API
     const response = await fetch("/api/orders", {
       method: "POST",
@@ -59,7 +61,7 @@ const CheckoutPage: FC = () => {
       },
       body: JSON.stringify(newOrder),
     });
-  
+
     const data = await response.json();
     if (response.ok) {
       alert("Order placed successfully!");
@@ -69,7 +71,6 @@ const CheckoutPage: FC = () => {
       alert("Failed to place the order.");
     }
   };
-  
 
   const handleCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setIsChecked(e.target.checked);
@@ -146,6 +147,14 @@ const CheckoutPage: FC = () => {
                 <span className="font-semibold">{item.title}</span>
                 <span>Qty: {item.quantity}</span>
                 <span>Rs. {item.price * item.quantity}</span>
+                <div>
+                  <strong>Selected Variations:</strong>
+                  <ul>
+                    {item.variations?.map((variation, idx) => (
+                      <li key={idx}>{variation}</li>
+                    ))}
+                  </ul>
+                </div>
               </div>
             </div>
           ))}
@@ -192,6 +201,14 @@ const CheckoutPage: FC = () => {
                   <div key={index} className="flex justify-between">
                     <span>{item.title} x{item.quantity}</span>
                     <span>Rs. {item.price * item.quantity}</span>
+                    <div>
+                      <strong>Selected Variations:</strong>
+                      <ul>
+                        {item.variations?.map((variation, idx) => (
+                          <li key={idx}>{variation}</li>
+                        ))}
+                      </ul>
+                    </div>
                   </div>
                 ))}
                 <div className="flex justify-between font-bold mt-2">

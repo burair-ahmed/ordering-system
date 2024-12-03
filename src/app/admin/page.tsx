@@ -39,6 +39,22 @@ const AdminOrdersPage: FC = () => {
                 {order.items?.map((item: any, index: number) => (
                   <li key={`${item.id}-${index}`}>
                     <span>{item.title} x{item.quantity} - Rs. {item.price * item.quantity}</span>
+                    {/* Displaying variations */}
+                    {item.variations?.length > 0 && (
+                      <div className="text-sm text-gray-500 mt-1">
+                        <strong>Variations:</strong>
+                        <ul className="list-disc pl-5">
+                          {item.variations.map((variation: any, i: number) => (
+                            // Check if variation is an object and render the name or value
+                            <li key={i}>
+                              {typeof variation === "object"
+                                ? `${variation.name}: ${variation.value}`
+                                : variation}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
                   </li>
                 ))}
               </ul>
