@@ -33,7 +33,7 @@ const ThankYouPage: FC = () => {
 
       <div className="mb-6 text-center">
         <p className="text-lg">Your order is now forwarded to preparation.</p>
-        <p className="text-md">We'll serve you your order when it gets ready. Primarily, it takes 30-45 minutes.</p>
+        <p className="text-md">We&apos;ll serve you your order when it gets ready. Primarily, it takes 30-45 minutes.</p>
       </div>
 
       {/* Optional: Button to redirect back to the homepage or other pages */}
