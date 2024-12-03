@@ -3,21 +3,29 @@
 import { useState } from "react";
 
 const AddMenuItemForm = () => {
-  const [enableVariations, setEnableVariations] = useState(false); // Toggle for variations
+  const [enableVariations, setEnableVariations] = useState(false);
   const [variations, setVariations] = useState<{ name: string; price: string }[]>([
     { name: "", price: "" },
   ]);
   const [formData, setFormData] = useState({
     title: "",
     price: "",
-    image: null as File | string | null, // Updated type to allow string
+    image: null as File | string | null,
     description: "",
+    category: "", // Add category to form data
   });
-  
+
+  // List of categories
+  const categories = [
+    "Charming Chai", "Paratha Performance", "Beast BBQ", "Rolls Royce",
+    "Very Fast Food", "Burger-E-Karachi", "Woodfired Pizza", "Shawarmania",
+    "French Boys Fries", "Dashing Desserts", "Chicken Karahis",
+    "Mutton Karahis", "Handi & Qeema", "Beverages", "Juicy Lucy", "Very Extra"
+  ];
 
   // Handle form input changes
   const handleInputChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
   ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
@@ -40,7 +48,7 @@ const AddMenuItemForm = () => {
       reader.readAsDataURL(file);
     }
   };
-  
+
   // Handle variation input changes
   const handleVariationChange = (
     index: number,
@@ -67,7 +75,7 @@ const AddMenuItemForm = () => {
     e.preventDefault();
 
     // Form data validation
-    if (!formData.title || !formData.price || !formData.image || !formData.description) {
+    if (!formData.title || !formData.price || !formData.image || !formData.description || !formData.category) {
       alert("All fields except variations are required!");
       return;
     }
@@ -95,6 +103,7 @@ const AddMenuItemForm = () => {
           price: "",
           image: null,
           description: "",
+          category: "", // Reset category
         });
         setEnableVariations(false);
         setVariations([{ name: "", price: "" }]);
@@ -144,6 +153,28 @@ const AddMenuItemForm = () => {
             placeholder="Enter price"
             required
           />
+        </div>
+
+        {/* Category */}
+        <div>
+          <label htmlFor="category" className="block text-sm font-medium mb-1">
+            Category
+          </label>
+          <select
+            id="category"
+            name="category"
+            value={formData.category}
+            onChange={handleInputChange}
+            className="border rounded px-4 py-2 w-full"
+            required
+          >
+            <option value="">Select Category</option>
+            {categories.map((category) => (
+              <option key={category} value={category}>
+                {category}
+              </option>
+            ))}
+          </select>
         </div>
 
         {/* Image */}

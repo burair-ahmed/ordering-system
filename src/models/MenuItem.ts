@@ -7,6 +7,7 @@ interface IMenuItem extends Document {
   description: string;
   image: string;
   variations: { name: string; price: number }[];
+  category: { type: String, required: true },
   createdAt: Date;
 }
 
@@ -21,6 +22,7 @@ const MenuItemSchema: Schema = new Schema({
       price: { type: Number },
     },
   ],
+  category: { type: String, required: true },
   createdAt: { type: Date, default: Date.now },
 });
 
