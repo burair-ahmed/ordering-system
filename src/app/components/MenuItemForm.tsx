@@ -12,18 +12,16 @@ const AddMenuItemForm = () => {
     price: "",
     image: null as File | string | null,
     description: "",
-    category: "", // Add category to form data
+    category: "",
   });
 
-  // List of categories
   const categories = [
     "Charming Chai", "Paratha Performance", "Beast BBQ", "Rolls Royce",
     "Very Fast Food", "Burger-E-Karachi", "Woodfired Pizza", "Shawarmania",
     "French Boys Fries", "Dashing Desserts", "Chicken Karahis",
-    "Mutton Karahis", "Handi & Qeema", "Beverages", "Juicy Lucy", "Very Extra"
+    "Mutton Karahis", "Handi & Qeema", "Beverages", "Juicy Lucy", "Very Extra",
   ];
 
-  // Handle form input changes
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
   ) => {
@@ -34,7 +32,6 @@ const AddMenuItemForm = () => {
     }));
   };
 
-  // Handle image upload
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0] || null;
     if (file) {
@@ -42,14 +39,13 @@ const AddMenuItemForm = () => {
       reader.onloadend = () => {
         setFormData((prev) => ({
           ...prev,
-          image: reader.result as string, // Store Base64 data
+          image: reader.result as string,
         }));
       };
       reader.readAsDataURL(file);
     }
   };
 
-  // Handle variation input changes
   const handleVariationChange = (
     index: number,
     field: keyof { name: string; price: string },
@@ -60,21 +56,17 @@ const AddMenuItemForm = () => {
     setVariations(updatedVariations);
   };
 
-  // Add a new variation input
   const addVariation = () => {
     setVariations((prev) => [...prev, { name: "", price: "" }]);
   };
 
-  // Remove a variation input
   const removeVariation = (index: number) => {
     setVariations((prev) => prev.filter((_, i) => i !== index));
   };
 
-  // Handle form submission
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Form data validation
     if (!formData.title || !formData.price || !formData.image || !formData.description || !formData.category) {
       alert("All fields except variations are required!");
       return;
@@ -84,10 +76,8 @@ const AddMenuItemForm = () => {
       ...formData,
       variations: enableVariations
         ? variations.filter((v) => v.name.trim() !== "" && v.price.trim() !== "")
-        : [], // Include only valid variations
+        : [],
     };
-
-    console.log("Menu Item Data:", menuItemData);
 
     try {
       const response = await fetch("/api/menuitems", {
@@ -103,7 +93,7 @@ const AddMenuItemForm = () => {
           price: "",
           image: null,
           description: "",
-          category: "", // Reset category
+          category: "",
         });
         setEnableVariations(false);
         setVariations([{ name: "", price: "" }]);
@@ -116,7 +106,7 @@ const AddMenuItemForm = () => {
       alert("An error occurred. Please try again.");
     }
   };
-
+  
   return (
     <div className="max-w-xl mx-auto p-6 bg-white rounded-md shadow-md">
       <h2 className="text-2xl font-bold mb-4">Add Menu Item</h2>
