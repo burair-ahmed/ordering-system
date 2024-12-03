@@ -1,8 +1,14 @@
-// pages/api/menuitems.ts
 import { NextApiRequest, NextApiResponse } from "next";
 import { v4 as uuidv4 } from "uuid";  // Import UUID
 import testMongoConnection from "../../lib/testConnection";
 import MenuItem from "../../models/MenuItem";
+
+// Define an interface for the variation
+interface Variation {
+  name: string;
+  price: number;
+  id?: string;  // Optional since you'll be adding the UUID
+}
 
 const handler = async (req: NextApiRequest, res: NextApiResponse) => {
   await testMongoConnection();
@@ -17,7 +23,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
 
     try {
       // Generate UUIDs for variations
-      const variationsWithUUID = variations.map((variation: any) => ({
+      const variationsWithUUID = variations.map((variation: Variation) => ({
         ...variation,  // Keep existing properties
         id: uuidv4(),  // Add UUID for each variation
       }));
