@@ -16,7 +16,7 @@ interface CartContextType {
   totalAmount: number;
   addToCart: (item: CartItem) => void;
   removeFromCart: (id: string, variations?: string[]) => void; // Updated
-  updateQuantity: (id: string, quantity: number) => void;
+  updateQuantity: (id: string, quantity: number, variations?: string[]) => void;
   clearCart: () => void;
 }
 
@@ -91,13 +91,17 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
   
   
 
-  const updateQuantity = (id: string, quantity: number) => {
+  const updateQuantity = (id: string, quantity: number, variations?: string[]) => {
     setCartItems((prevItems) =>
       prevItems.map((item) =>
-        item.id === id ? { ...item, quantity: Math.max(quantity, 1) } : item
+        item.id === id &&
+        (!variations || JSON.stringify(item.variations) === JSON.stringify(variations))
+          ? { ...item, quantity: Math.max(quantity, 1) }
+          : item
       )
     );
   };
+  
 
   const clearCart = () => {
     setCartItems([]);

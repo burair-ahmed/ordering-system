@@ -62,14 +62,26 @@ const CartSidebar = ({ closeSidebar }: { closeSidebar: () => void }) => {
                   {/* Quantity Controls */}
                   <div className="mt-2 flex items-center gap-2 p-2 border rounded-lg shadow-sm">
                     <button
-                      onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                      onClick={() =>
+                        updateQuantity(
+                          item.id,
+                          item.quantity + 1,
+                          item.variations
+                        )
+                      }
                       className="bg-gray-200 text-sm px-2 py-1 rounded-md"
                     >
                       +
                     </button>
                     <span className="text-sm">{item.quantity}</span>
                     <button
-                      onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                      onClick={() =>
+                        updateQuantity(
+                          item.id,
+                          item.quantity - 1,
+                          item.variations
+                        )
+                      }
                       className="bg-gray-200 text-sm px-2 py-1 rounded-md"
                     >
                       -
