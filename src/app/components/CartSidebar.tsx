@@ -1,17 +1,21 @@
 import { useCart } from "../context/CartContext";
 import Image from "next/image";
-import { FaArrowRight } from "react-icons/fa";  // Importing the right arrow icon from react-icons
+import { FaArrowRight } from "react-icons/fa"; // Importing the right arrow icon from react-icons
 import Link from "next/link";
 
 const CartSidebar = ({ closeSidebar }: { closeSidebar: () => void }) => {
-  const { cartItems, removeFromCart, updateQuantity, totalAmount, clearCart } = useCart();
+  const { cartItems, removeFromCart, updateQuantity, totalAmount, clearCart } =
+    useCart();
 
   return (
     <div className="fixed right-0 top-0 w-72 h-full bg-white shadow-lg p-4 z-50 flex flex-col">
       {/* Header */}
       <div className="flex justify-between items-center mb-4 border-b pb-2">
         <h2 className="text-2xl font-bold">Your Cart</h2>
-        <button onClick={closeSidebar} className="text-red-500 font-bold text-xl">
+        <button
+          onClick={closeSidebar}
+          className="text-red-500 font-bold text-xl"
+        >
           &times;
         </button>
       </div>
@@ -49,7 +53,9 @@ const CartSidebar = ({ closeSidebar }: { closeSidebar: () => void }) => {
                 <div className="w-2/3 pl-3">
                   <p className="font-medium text-sm">
                     {item.title}
-                    {item.variations && item.variations.length > 0 && ` (${item.variations.join(", ")})`}
+                    {item.variations &&
+                      item.variations.length > 0 &&
+                      ` (${item.variations.join(", ")})`}
                   </p>
                   <p className="text-sm text-gray-500">Rs. {item.price}</p>
 
@@ -72,7 +78,7 @@ const CartSidebar = ({ closeSidebar }: { closeSidebar: () => void }) => {
 
                   {/* Remove from Cart */}
                   <button
-                    onClick={() => removeFromCart(item.id)}
+                    onClick={() => removeFromCart(item.id, item.variations)}
                     className="text-red-500 text-sm mt-2"
                   >
                     Remove
@@ -102,13 +108,14 @@ const CartSidebar = ({ closeSidebar }: { closeSidebar: () => void }) => {
 
           {/* Proceed to Checkout Button */}
           <button className="flex items-center justify-center bg-blue-500 text-white rounded-full py-2 mt-4 w-full">
-  <Link href="/checkout" passHref>
-    <span className="flex items-center">
-      Checkout
-      <FaArrowRight className="ml-2" /> {/* Right arrow icon with margin */}
-    </span>
-  </Link>
-</button>
+            <Link href="/checkout" passHref>
+              <span className="flex items-center">
+                Checkout
+                <FaArrowRight className="ml-2" />{" "}
+                {/* Right arrow icon with margin */}
+              </span>
+            </Link>
+          </button>
         </div>
       )}
     </div>

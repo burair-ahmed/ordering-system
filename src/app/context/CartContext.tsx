@@ -15,10 +15,11 @@ interface CartContextType {
   cartItems: CartItem[];
   totalAmount: number;
   addToCart: (item: CartItem) => void;
-  removeFromCart: (id: string) => void;
+  removeFromCart: (id: string, variations?: string[]) => void; // Updated
   updateQuantity: (id: string, quantity: number) => void;
   clearCart: () => void;
 }
+
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
@@ -80,9 +81,15 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
   };
   
 
-  const removeFromCart = (id: string) => {
-    setCartItems((prevItems) => prevItems.filter((item) => item.id !== id));
+  const removeFromCart = (id: string, variations?: string[]) => {
+    setCartItems((prevItems) =>
+      prevItems.filter(
+        (item) => item.id !== id || JSON.stringify(item.variations) !== JSON.stringify(variations)
+      )
+    );
   };
+  
+  
 
   const updateQuantity = (id: string, quantity: number) => {
     setCartItems((prevItems) =>
@@ -97,10 +104,19 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
   };
 
   return (
-    <CartContext.Provider
-      value={{ cartItems, totalAmount, addToCart, removeFromCart, updateQuantity, clearCart }}
-    >
-      {children}
-    </CartContext.Provider>
+<CartContext.Provider
+  value={{
+    cartItems,
+    totalAmount,
+    addToCart,
+    removeFromCart, // Updated to match the new signature
+    updateQuantity,
+    clearCart,
+  }}
+>
+  {children}
+</CartContext.Provider>
+
+
   );
 };
