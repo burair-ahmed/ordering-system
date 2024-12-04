@@ -143,6 +143,12 @@
   background-color: #731351; /* Active background color */
 }
 
+.sidebar {
+  transition: width 0.3s ease;
+}
+.sidebar-collapsed .nav-label {
+  display: none;
+}
 
 
 
