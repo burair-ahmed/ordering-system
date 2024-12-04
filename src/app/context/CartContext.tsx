@@ -1,7 +1,7 @@
 "use client"; // Mark this file as a client-side component
 
 import { createContext, useContext, useState, useEffect, ReactNode } from "react";
-import { useRouter } from "next/navigation";
+
 
 interface CartItem {
   id: string;

@@ -1,6 +1,6 @@
 'use client';
 
-import { FC, useState, useEffect } from "react";
+import { FC, useState } from "react";
 import OrdersList from "../components/OrdersList";
 import AddMenuItemForm from "../components/MenuItemForm";
 import TableManagement from "../components/TableManagement"; // Assuming you create this component

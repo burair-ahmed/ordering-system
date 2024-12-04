@@ -3,6 +3,26 @@
 
 import { FC, useEffect, useState } from "react";
 
+interface Item {
+  id: string;
+  title: string;
+  quantity: number;
+  price: number;
+  variations?: { name: string; value: string }[] | string[];  // Adjust based on how variations are structured
+}
+
+interface Order {
+  orderNumber: string;
+  customerName: string;
+  email: string;
+  tableNumber: string;
+  status: string;
+  paymentMethod: string;
+  items: Item[];
+  totalAmount: number;
+}
+
+
 const OrdersList: FC = () => {
   const [orders, setOrders] = useState<any[]>([]);
 

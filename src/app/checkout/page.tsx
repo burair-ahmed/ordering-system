@@ -81,7 +81,6 @@ const CheckoutPage: FC = () => {
       body: JSON.stringify(newOrder),
     });
 
-    const data = await response.json();
     if (response.ok) {
       alert("Order placed successfully!");
       clearCart();
