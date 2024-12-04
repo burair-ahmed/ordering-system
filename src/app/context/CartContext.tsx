@@ -1,6 +1,7 @@
 "use client"; // Mark this file as a client-side component
 
 import { createContext, useContext, useState, useEffect, ReactNode } from "react";
+import { useRouter } from "next/navigation";
 
 interface CartItem {
   id: string;
@@ -15,11 +16,10 @@ interface CartContextType {
   cartItems: CartItem[];
   totalAmount: number;
   addToCart: (item: CartItem) => void;
-  removeFromCart: (id: string, variations?: string[]) => void; // Updated
+  removeFromCart: (id: string, variations?: string[]) => void;
   updateQuantity: (id: string, quantity: number, variations?: string[]) => void;
   clearCart: () => void;
 }
-
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
@@ -38,53 +38,72 @@ interface CartProviderProps {
 export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [totalAmount, setTotalAmount] = useState<number>(0);
+  const [tableId, setTableId] = useState<string | null>(null);
 
-  // Only access localStorage on the client side (inside useEffect)
+  // Access the router only in the client environment
   useEffect(() => {
-    const savedCartItems = localStorage.getItem("cartItems");
-    if (savedCartItems) {
-      const parsedCartItems: CartItem[] = JSON.parse(savedCartItems);
-      setCartItems(parsedCartItems);
-      setTotalAmount(
-        parsedCartItems.reduce((sum, item) => sum + item.price * item.quantity, 0)
-      );
+    if (typeof window !== "undefined") {
+      const urlParams = new URLSearchParams(window.location.search);
+      const id = urlParams.get("tableId");
+      setTableId(id);
     }
-  }, []); // Empty dependency array ensures this runs only once when the component mounts
+  }, []);
 
+  // Helper function to calculate total amount
+  const updateTotalAmount = (items: CartItem[]) => {
+    const total = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
+    setTotalAmount(total);
+  };
+
+  // Load cart from localStorage when tableId changes
   useEffect(() => {
-    if (cartItems.length > 0) {
-      localStorage.setItem("cartItems", JSON.stringify(cartItems));
-    } else {
-      localStorage.removeItem("cartItems");
+    if (tableId) {
+      const savedCartItems = localStorage.getItem(`cart-${tableId}`);
+      if (savedCartItems) {
+        const parsedCartItems: CartItem[] = JSON.parse(savedCartItems);
+        setCartItems(parsedCartItems);
+        updateTotalAmount(parsedCartItems);
+      } else {
+        setCartItems([]);
+        setTotalAmount(0);
+      }
     }
-    setTotalAmount(cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0));
-  }, [cartItems]);
+  }, [tableId]);
 
+  // Save cart to localStorage and update total amount whenever cartItems change
+  useEffect(() => {
+    if (tableId) {
+      if (cartItems.length > 0) {
+        localStorage.setItem(`cart-${tableId}`, JSON.stringify(cartItems));
+      } else {
+        localStorage.removeItem(`cart-${tableId}`);
+      }
+      updateTotalAmount(cartItems);
+    }
+  }, [cartItems, tableId]);
+
+  // Add item to cart
   const addToCart = (item: CartItem) => {
     setCartItems((prevItems) => {
-      // Check if the item exists already in the cart
       const existingItemIndex = prevItems.findIndex(
         (cartItem) =>
           cartItem.id === item.id &&
           JSON.stringify(cartItem.variations) === JSON.stringify(item.variations)
       );
-  
+
       if (existingItemIndex >= 0) {
-        // If the item exists, create a new array with updated quantity
         return prevItems.map((cartItem, index) =>
           index === existingItemIndex
             ? { ...cartItem, quantity: cartItem.quantity + 1 }
             : cartItem
         );
       } else {
-        // If the item doesn't exist, add it with quantity 1
         return [...prevItems, { ...item, quantity: 1 }];
       }
     });
   };
-  
-  
 
+  // Remove item from cart
   const removeFromCart = (id: string, variations?: string[]) => {
     setCartItems((prevItems) =>
       prevItems.filter(
@@ -92,9 +111,8 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
       )
     );
   };
-  
-  
 
+  // Update item quantity
   const updateQuantity = (id: string, quantity: number, variations?: string[]) => {
     setCartItems((prevItems) =>
       prevItems.map((item) =>
@@ -105,26 +123,24 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
       )
     );
   };
-  
 
+  // Clear the entire cart
   const clearCart = () => {
     setCartItems([]);
   };
 
   return (
-<CartContext.Provider
-  value={{
-    cartItems,
-    totalAmount,
-    addToCart,
-    removeFromCart, // Updated to match the new signature
-    updateQuantity,
-    clearCart,
-  }}
->
-  {children}
-</CartContext.Provider>
-
-
+    <CartContext.Provider
+      value={{
+        cartItems,
+        totalAmount,
+        addToCart,
+        removeFromCart,
+        updateQuantity,
+        clearCart,
+      }}
+    >
+      {children}
+    </CartContext.Provider>
   );
 };

@@ -1,11 +1,13 @@
 import { useCart } from "../context/CartContext";
 import Image from "next/image";
-import { FaArrowRight } from "react-icons/fa"; // Importing the right arrow icon from react-icons
+import { FaArrowRight } from "react-icons/fa";
 import Link from "next/link";
 
-const CartSidebar = ({ closeSidebar }: { closeSidebar: () => void }) => {
-  const { cartItems, removeFromCart, updateQuantity, totalAmount, clearCart } =
-    useCart();
+const CartSidebar = ({ closeSidebar, tableId }: { closeSidebar: () => void, tableId: string }) => {
+  const { cartItems, removeFromCart, updateQuantity, totalAmount, clearCart } = useCart();
+
+  // Debugging: Check if tableId is being passed correctly
+  console.log("Table ID in CartSidebar:", tableId);
 
   return (
     <div className="fixed right-0 top-0 w-72 h-full bg-white shadow-lg p-4 z-50 flex flex-col">
@@ -63,11 +65,7 @@ const CartSidebar = ({ closeSidebar }: { closeSidebar: () => void }) => {
                   <div className="mt-2 flex items-center gap-2 p-2 border rounded-lg shadow-sm">
                     <button
                       onClick={() =>
-                        updateQuantity(
-                          item.id,
-                          item.quantity + 1,
-                          item.variations
-                        )
+                        updateQuantity(item.id, item.quantity + 1, item.variations)
                       }
                       className="bg-gray-200 text-sm px-2 py-1 rounded-md"
                     >
@@ -76,11 +74,7 @@ const CartSidebar = ({ closeSidebar }: { closeSidebar: () => void }) => {
                     <span className="text-sm">{item.quantity}</span>
                     <button
                       onClick={() =>
-                        updateQuantity(
-                          item.id,
-                          item.quantity - 1,
-                          item.variations
-                        )
+                        updateQuantity(item.id, item.quantity - 1, item.variations)
                       }
                       className="bg-gray-200 text-sm px-2 py-1 rounded-md"
                     >
@@ -112,7 +106,7 @@ const CartSidebar = ({ closeSidebar }: { closeSidebar: () => void }) => {
 
           {/* Clear Cart Button */}
           <button
-            onClick={clearCart}
+            onClick={clearCart} // Fixed: clearCart should be called without arguments
             className="bg-red-500 text-white rounded-full py-2 mt-4 w-full"
           >
             Clear Cart
@@ -120,11 +114,11 @@ const CartSidebar = ({ closeSidebar }: { closeSidebar: () => void }) => {
 
           {/* Proceed to Checkout Button */}
           <button className="flex items-center justify-center bg-blue-500 text-white rounded-full py-2 mt-4 w-full">
-            <Link href="/checkout" passHref>
+            {/* Ensure the `tableId` is passed correctly */}
+            <Link href={`/checkout?tableId=${tableId}`} passHref>
               <span className="flex items-center">
                 Checkout
-                <FaArrowRight className="ml-2" />{" "}
-                {/* Right arrow icon with margin */}
+                <FaArrowRight className="ml-2" />
               </span>
             </Link>
           </button>

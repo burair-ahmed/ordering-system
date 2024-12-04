@@ -1,9 +1,9 @@
-// CheckoutPage.tsx
 'use client'
 
-import { FC, useState } from "react";
+import { FC, useState, useEffect } from "react";
 import { useCart } from "../context/CartContext";
 import { useRouter } from "next/navigation";
+import { useSearchParams } from "next/navigation";  // Import useSearchParams
 
 const CheckoutPage: FC = () => {
   const { cartItems, totalAmount, clearCart } = useCart();
@@ -16,6 +16,25 @@ const CheckoutPage: FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false); // Modal state
   const [isChecked, setIsChecked] = useState(false); // Checkbox state
   const router = useRouter();
+  
+  const searchParams = useSearchParams();  // Get search params from URL
+
+  // Get tableId from URL query parameters and ensure it's valid
+  useEffect(() => {
+    if (searchParams) {  // Check if searchParams is not null
+      const tableId = searchParams.get("tableId");  // Read tableId from URL
+      console.log("Table ID from URL: ", tableId);  // Debugging log
+      if (tableId && tableId !== "undefined") {  // Check if tableId is valid
+        setFormData((prevData) => ({
+          ...prevData,
+          tableNumber: tableId,
+        }));
+      } else {
+        alert("Table ID is missing or invalid.");
+        router.push("/");  // Redirect to home or an appropriate page if tableId is invalid
+      }
+    }
+  }, [searchParams, router]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -238,9 +257,9 @@ const CheckoutPage: FC = () => {
 
             <button
               onClick={() => setIsModalOpen(false)}
-              className="w-full py-2 mt-4 bg-red-500 text-white rounded"
+              className="w-full py-2 mt-4 bg-gray-300 text-black rounded"
             >
-              Cancel
+              Close
             </button>
           </div>
         </div>

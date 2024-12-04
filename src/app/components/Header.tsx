@@ -1,21 +1,38 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-// import { useCart } from '../context/CartContext'; 
 import CartSidebar from './CartSidebar'; // Import the CartSidebar component
 
 export default function Header() {
   // State to track if the cart sidebar is open or closed
   const [isCartOpen, setIsCartOpen] = useState(false);
-  
-  // Access the cart items and other cart functions from the context
-  // const { cartItems, removeFromCart, totalAmount } = useCart();
+  const [tableId, setTableId] = useState<string>(''); // State for tableId
+
+  // UseEffect hook to fetch tableId from URL query params or localStorage
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const tableIdFromUrl = urlParams.get('tableId');
+
+    if (tableIdFromUrl) {
+      setTableId(tableIdFromUrl); // If tableId is found in URL, set it
+    } else {
+      // Fallback: Get tableId from localStorage
+      const tableIdFromStorage = localStorage.getItem('tableId');
+      if (tableIdFromStorage) {
+        setTableId(tableIdFromStorage); // Set tableId from localStorage
+      }
+    }
+  }, []);
 
   // Function to toggle the cart sidebar
   const toggleCartSidebar = () => {
-    setIsCartOpen((prevState) => !prevState);
+    if (tableId) {
+      setIsCartOpen((prevState) => !prevState); // Open the sidebar if tableId is set
+    } else {
+      console.log("Table ID is missing");
+    }
   };
 
   return (
@@ -101,8 +118,9 @@ export default function Header() {
       </div>
 
       {/* Conditionally Render Cart Sidebar */}
-      {isCartOpen && <CartSidebar closeSidebar={toggleCartSidebar} />}
-      
+      {isCartOpen && tableId && <CartSidebar closeSidebar={toggleCartSidebar} tableId={tableId} />}
+      {/* Show an error if tableId is missing */}
+      {isCartOpen && !tableId && <div className="text-red-500">Error: Table ID is missing</div>}
     </div>
   );
 }
