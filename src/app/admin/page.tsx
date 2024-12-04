@@ -1,9 +1,10 @@
 'use client';
 
-import { FC, useState } from "react";
+import { FC, useState, useEffect } from "react";
 import OrdersList from "../components/OrdersList";
 import AddMenuItemForm from "../components/MenuItemForm";
-import { FiMenu, FiList, FiSettings, FiPlus } from "react-icons/fi"; // Icons
+import TableManagement from "../components/TableManagement"; // Assuming you create this component
+import { FiMenu, FiList, FiSettings, FiPlus, FiTable } from "react-icons/fi"; // Added FiTable icon
 
 const AdminDashboard: FC = () => {
   const [activeTab, setActiveTab] = useState("orders");
@@ -41,48 +42,39 @@ const AdminDashboard: FC = () => {
         {/* Sidebar Navigation */}
         <nav className="space-y-4">
           <button
-            className={`flex items-center gap-2 ${
-              activeTab === "orders" ? "text-gray-300" : "hover:text-gray-300"
-            }`}
+            className={`flex items-center gap-2 ${activeTab === "orders" ? "text-gray-300" : "hover:text-gray-300"}`}
             onClick={() => handleTabClick("orders")}
           >
             <FiList size={20} />
-            <span className={`${isSidebarCollapsed ? "hidden" : "block"}`}>
-              Orders
-            </span>
+            <span className={`${isSidebarCollapsed ? "hidden" : "block"}`}>Orders</span>
           </button>
           <button
-            className={`flex items-center gap-2 ${
-              activeTab === "menu" ? "text-gray-300" : "hover:text-gray-300"
-            }`}
+            className={`flex items-center gap-2 ${activeTab === "menu" ? "text-gray-300" : "hover:text-gray-300"}`}
             onClick={() => handleTabClick("menu")}
           >
             <FiList size={20} />
-            <span className={`${isSidebarCollapsed ? "hidden" : "block"}`}>
-              Menu Items
-            </span>
+            <span className={`${isSidebarCollapsed ? "hidden" : "block"}`}>Menu Items</span>
           </button>
           <button
-            className={`flex items-center gap-2 ${
-              activeTab === "addmenu" ? "text-gray-300" : "hover:text-gray-300"
-            }`}
+            className={`flex items-center gap-2 ${activeTab === "addmenu" ? "text-gray-300" : "hover:text-gray-300"}`}
             onClick={() => handleTabClick("addmenu")}
           >
             <FiPlus size={20} />
-            <span className={`${isSidebarCollapsed ? "hidden" : "block"}`}>
-              Add Menu Item
-            </span>
+            <span className={`${isSidebarCollapsed ? "hidden" : "block"}`}>Add Menu Item</span>
           </button>
           <button
-            className={`flex items-center gap-2 ${
-              activeTab === "settings" ? "text-gray-300" : "hover:text-gray-300"
-            }`}
+            className={`flex items-center gap-2 ${activeTab === "tables" ? "text-gray-300" : "hover:text-gray-300"}`}
+            onClick={() => handleTabClick("tables")}
+          >
+            <FiTable size={20} />
+            <span className={`${isSidebarCollapsed ? "hidden" : "block"}`}>Table Management</span>
+          </button>
+          <button
+            className={`flex items-center gap-2 ${activeTab === "settings" ? "text-gray-300" : "hover:text-gray-300"}`}
             onClick={() => handleTabClick("settings")}
           >
             <FiSettings size={20} />
-            <span className={`${isSidebarCollapsed ? "hidden" : "block"}`}>
-              Settings
-            </span>
+            <span className={`${isSidebarCollapsed ? "hidden" : "block"}`}>Settings</span>
           </button>
         </nav>
       </div>
@@ -109,6 +101,14 @@ const AdminDashboard: FC = () => {
         {activeTab === "addmenu" && (
           <div>
             <AddMenuItemForm />
+          </div>
+        )}
+        {activeTab === "tables" && (
+          <div>
+            <h2 className="text-2xl font-semibold text-[#741052] mb-4">
+              Table Management
+            </h2>
+            <TableManagement /> {/* Table Management component */}
           </div>
         )}
         {activeTab === "settings" && (

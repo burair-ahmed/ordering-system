@@ -123,6 +123,7 @@ const CheckoutPage: FC = () => {
           value={formData.tableNumber}
           onChange={handleInputChange}
           className="w-full p-2 border rounded"
+          disabled
         />
       </div>
 
