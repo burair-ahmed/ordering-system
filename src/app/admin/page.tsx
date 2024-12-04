@@ -3,6 +3,7 @@
 
 import { FC, useState } from "react";
 import OrdersList from "../components/OrdersList";
+import AddMenuItemForm from "../components/MenuItemForm";
 
 const AdminDashboard: FC = () => {
   const [activeTab, setActiveTab] = useState("orders");
@@ -30,10 +31,10 @@ const AdminDashboard: FC = () => {
             Menu Items
           </button>
           <button
-            className={`block text-xl font-semibold hover:text-gray-300 ${activeTab === 'customers' ? 'text-gray-300' : ''}`}
-            onClick={() => handleTabClick("customers")}
+            className={`block text-xl font-semibold hover:text-gray-300 ${activeTab === 'addmenu' ? 'text-gray-300' : ''}`}
+            onClick={() => handleTabClick("addmenu")}
           >
-            Customers
+            Add Menu Item
           </button>
           <button
             className={`block text-xl font-semibold hover:text-gray-300 ${activeTab === 'settings' ? 'text-gray-300' : ''}`}
@@ -60,10 +61,10 @@ const AdminDashboard: FC = () => {
             <h2>Menu Management</h2>
           </div>
         )}
-        {activeTab === "customers" && (
+        {activeTab === "addmenu" && (
           <div>
             {/* Customer management content goes here */}
-            <h2>Customers</h2>
+            <AddMenuItemForm/>
           </div>
         )}
         {activeTab === "settings" && (

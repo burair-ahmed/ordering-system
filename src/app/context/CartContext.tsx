@@ -63,22 +63,26 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
   const addToCart = (item: CartItem) => {
     setCartItems((prevItems) => {
       // Check if the item exists already in the cart
-      const existingItemIndex = prevItems.findIndex((cartItem) => {
-        // Check if the item ID and variation combination already exists in the cart
-        return cartItem.id === item.id && JSON.stringify(cartItem.variations) === JSON.stringify(item.variations);
-      });
+      const existingItemIndex = prevItems.findIndex(
+        (cartItem) =>
+          cartItem.id === item.id &&
+          JSON.stringify(cartItem.variations) === JSON.stringify(item.variations)
+      );
   
       if (existingItemIndex >= 0) {
-        // If the item with the same variations already exists, increase the quantity of that item
-        const updatedCartItems = [...prevItems];
-        updatedCartItems[existingItemIndex].quantity += 1;
-        return updatedCartItems;
+        // If the item exists, create a new array with updated quantity
+        return prevItems.map((cartItem, index) =>
+          index === existingItemIndex
+            ? { ...cartItem, quantity: cartItem.quantity + 1 }
+            : cartItem
+        );
       } else {
-        // If the item doesn't exist, add it to the cart with quantity 1
+        // If the item doesn't exist, add it with quantity 1
         return [...prevItems, { ...item, quantity: 1 }];
       }
     });
   };
+  
   
 
   const removeFromCart = (id: string, variations?: string[]) => {
