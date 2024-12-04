@@ -1,23 +1,23 @@
-'use client'
+// src/app/order/[tableId]/page.tsx
 
-import { useSearchParams } from 'next/navigation'; // Import from next/navigation
-import MenuPage from '../page';
+'use client';
+
+import { useParams } from 'next/navigation'; // Use useParams for dynamic route parameters
+import MenuPage from '../../order/page'; // Import the MenuPage component
 
 const TableMenuPage = () => {
-  const searchParams = useSearchParams();
-  
-  // Check if searchParams is null or if tableId is not available
-  const tableId = searchParams ? searchParams.get('tableId') : null; // Access query parameter safely
+  const params = useParams(); // Get parameters from the URL
 
-  // If tableId is not available, you can render a fallback UI or return null
+  const tableId = params?.tableId as string | undefined; // Assert tableId as string (or undefined if not found)
+
   if (!tableId) {
     return <div>Loading table menu...</div>;
   }
 
   return (
     <div>
-      <h2>Table {tableId} Menu</h2>
-      <MenuPage /> {/* Table-specific menu display */}
+      {/* <h2>Table {tableId} Menu</h2> */}
+      <MenuPage />
     </div>
   );
 };
