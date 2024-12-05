@@ -157,6 +157,11 @@ export default function Header() {
         </button>
       </div>
 
+      {/* Main Content (Add bottom padding to avoid overlap) */}
+      <div className="pt-16 lg:pt-0 pb-16">
+        {/* Your main content goes here */}
+      </div>
+
       {/* Cart Sidebar */}
       {isCartOpen && tableId && (
         <CartSidebar closeSidebar={toggleCartSidebar} tableId={tableId} />

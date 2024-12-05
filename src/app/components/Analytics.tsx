@@ -1,3 +1,5 @@
+'use client';
+
 import { FC, useState, useEffect } from "react";
 
 const AnalyticsPage: FC = () => {
@@ -75,14 +77,14 @@ const AnalyticsPage: FC = () => {
             type="date"
             value={startDate}
             onChange={(e) => setStartDate(e.target.value)}
-            className="px-4 py-2 border rounded-lg text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#741052]"
+            className="px-4 py-2 border rounded-lg text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#741052] shadow-md transition-all duration-300 border-[#741052]"
           />
           <span className="text-2xl font-bold text-gray-600">to</span>
           <input
             type="date"
             value={endDate}
             onChange={(e) => setEndDate(e.target.value)}
-            className="px-4 py-2 border rounded-lg text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#741052]"
+            className="px-4 py-2 border rounded-lg text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#741052] shadow-md transition-all duration-300 border-[#741052]"
           />
           <button
             onClick={handleCustomDateFilter}
