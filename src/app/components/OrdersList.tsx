@@ -1,4 +1,3 @@
-// src/components/OrdersList.tsx
 'use client';
 
 import { FC, useEffect, useState } from "react";
@@ -22,9 +21,8 @@ interface Order {
   totalAmount: number;
 }
 
-
 const OrdersList: FC = () => {
-  const [orders, setOrders] = useState<any[]>([]);
+  const [orders, setOrders] = useState<Order[]>([]);
 
   useEffect(() => {
     const fetchOrders = async () => {
@@ -60,18 +58,18 @@ const OrdersList: FC = () => {
             </div>
             <h3 className="text-xl font-bold mt-4 text-gray-800">Items:</h3>
             <ul className="space-y-4">
-              {order.items?.map((item: any, index: number) => (
+              {order.items.map((item, index) => (
                 <li key={`${item.id}-${index}`} className="flex justify-between items-center border-b pb-4">
                   <div className="flex-1">
                     <span className="font-medium text-gray-800">{item.title}</span> x{item.quantity}
                     <span className="text-sm text-gray-600"> - Rs. {item.price * item.quantity}</span>
                   </div>
-                  {/* Displaying variations */}
-                  {item.variations?.length > 0 && (
+                  {/* Check if variations exists before accessing length or mapping */}
+                  {item.variations && item.variations.length > 0 && (
                     <div className="text-sm text-gray-500 mt-2 ml-4">
                       <strong>Variations:</strong>
                       <ul className="list-disc pl-5">
-                        {item.variations.map((variation: any, i: number) => (
+                        {item.variations.map((variation, i) => (
                           <li key={i}>
                             {typeof variation === "object"
                               ? `${variation.name}: ${variation.value}`

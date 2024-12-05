@@ -2,13 +2,31 @@
 
 import { FC, useState, useEffect } from "react";
 
+// Define interfaces for the data structures
+interface TableAnalytics {
+  tableNumber: string;
+  orderCount: number;
+  totalRevenue: number;
+}
+
+interface AnalyticsData {
+  totalRevenueCombined: number;
+  tableAnalytics: TableAnalytics[];
+}
+
+interface TableDetail {
+  itemName: string;
+  totalQuantity: number;
+}
+
 const AnalyticsPage: FC = () => {
-  const [analyticsData, setAnalyticsData] = useState<any>(null);
+  const [analyticsData, setAnalyticsData] = useState<AnalyticsData | null>(null);
   const [filter, setFilter] = useState<string>("today");
   const [startDate, setStartDate] = useState<string>("");
   const [endDate, setEndDate] = useState<string>("");
-  const [tableDetails, setTableDetails] = useState<any>(null); // State for table details
+  const [tableDetails, setTableDetails] = useState<TableDetail[] | null>(null); // State for table details
 
+  // Fetch analytics data based on the selected filter and optional date range
   const fetchAnalytics = async (filter: string, startDate?: string, endDate?: string) => {
     try {
       const query = new URLSearchParams();
@@ -26,6 +44,7 @@ const AnalyticsPage: FC = () => {
     }
   };
 
+  // Fetch details for a specific table
   const fetchTableDetails = async (tableNumber: string) => {
     try {
       const response = await fetch(`/api/analytics/details?tableNumber=${tableNumber}`);
@@ -36,10 +55,12 @@ const AnalyticsPage: FC = () => {
     }
   };
 
+  // Fetch data whenever filter or dates change
   useEffect(() => {
     fetchAnalytics(filter, startDate, endDate);
   }, [filter, startDate, endDate]);
 
+  // Handle custom date filter
   const handleCustomDateFilter = () => {
     if (startDate && endDate) {
       setFilter("custom");
@@ -47,16 +68,19 @@ const AnalyticsPage: FC = () => {
     }
   };
 
+  // Handle table click to fetch specific table details
   const handleTableClick = (tableNumber: string) => {
-    fetchTableDetails(tableNumber); // Fetch details for the clicked table
+    fetchTableDetails(tableNumber);
   };
 
+  // Display loading state if analytics data is not available
   if (!analyticsData) return <div>Loading...</div>;
 
   return (
     <div className="max-w-screen-lg mx-auto px-4 py-8">
       <h1 className="text-3xl font-semibold mb-8 text-center text-gray-800">Analytics</h1>
 
+      {/* Filter Buttons */}
       <div className="flex justify-center gap-6 mb-8">
         {["today", "week", "last-week", "month", "last-month"].map((item) => (
           <button
@@ -70,6 +94,7 @@ const AnalyticsPage: FC = () => {
         ))}
       </div>
 
+      {/* Custom Date Filter */}
       <div className="mb-8 text-center">
         <h3 className="text-lg font-semibold text-gray-700 mb-4">Custom Date Range</h3>
         <div className="flex justify-center gap-6">
@@ -95,6 +120,7 @@ const AnalyticsPage: FC = () => {
         </div>
       </div>
 
+      {/* Total Revenue and Table Analytics */}
       <div className="mb-6">
         <h2 className="text-xl font-semibold text-gray-800 text-center mb-6">
           Total Revenue: <span className="text-[#741052]">Rs. {analyticsData.totalRevenueCombined.toFixed(2)}</span>
@@ -111,7 +137,7 @@ const AnalyticsPage: FC = () => {
               </tr>
             </thead>
             <tbody>
-              {analyticsData.tableAnalytics.map((item: any) => (
+              {analyticsData.tableAnalytics.map((item: TableAnalytics) => (
                 <tr
                   key={item.tableNumber}
                   className="hover:bg-gray-50 cursor-pointer transition-all duration-200"
@@ -140,7 +166,7 @@ const AnalyticsPage: FC = () => {
                 </tr>
               </thead>
               <tbody>
-                {tableDetails.map((item: any) => (
+                {tableDetails.map((item: TableDetail) => (
                   <tr key={item.itemName} className="hover:bg-gray-50">
                     <td className="px-6 py-4 text-sm text-gray-700">{item.itemName}</td>
                     <td className="px-6 py-4 text-sm text-gray-700">{item.totalQuantity}</td>
