@@ -16,18 +16,12 @@ const CheckoutPage: FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false); // Modal state
   const [isChecked, setIsChecked] = useState(false); // Checkbox state
   const router = useRouter();
-  const [searchParams, setSearchParams] = useState<URLSearchParams | null>(null); // State for search params
+  const searchParams = useSearchParams(); // Get searchParams from URL
 
-  // Get tableId from URL query parameters using useSearchParams
-  useEffect(() => {
-    const params = useSearchParams();
-    setSearchParams(params);  // Update searchParams state
-  }, []);  // Only run on mount
-
-  // Update formData with table number once searchParams is available
+  // Check if searchParams is available and update formData with tableId
   useEffect(() => {
     if (searchParams) {
-      const tableId = searchParams.get("tableId");  // Read tableId from URL
+      const tableId = searchParams.get("tableId"); // Read tableId from URL
       if (tableId && tableId !== "undefined") {
         setFormData((prevData) => ({
           ...prevData,
@@ -35,7 +29,7 @@ const CheckoutPage: FC = () => {
         }));
       } else {
         alert("Table ID is missing or invalid.");
-        router.push("/");  // Redirect to home or an appropriate page if tableId is invalid
+        router.push("/"); // Redirect to home or an appropriate page if tableId is invalid
       }
     }
   }, [searchParams, router]);
@@ -99,7 +93,7 @@ const CheckoutPage: FC = () => {
   };
 
   if (!searchParams) {
-    return <div>Loading...</div>;  // Show loading until searchParams are available
+    return <div>Loading...</div>; // Show loading until searchParams are available
   }
 
   return (
