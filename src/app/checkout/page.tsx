@@ -186,7 +186,7 @@ const CheckoutPage: FC = () => {
 
       <button
         onClick={handleCheckout}
-        className="w-full py-2 bg-blue-500 text-white rounded"
+        className="w-full py-2 bg-blue-500 text-white rounded mb-[100px]"
       >
         Proceed to Payment
       </button>

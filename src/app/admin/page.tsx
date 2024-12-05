@@ -4,7 +4,8 @@ import { FC, useState } from "react";
 import OrdersList from "../components/OrdersList";
 import AddMenuItemForm from "../components/MenuItemForm";
 import TableManagement from "../components/TableManagement"; // Assuming you create this component
-import { FiMenu, FiList, FiSettings, FiPlus, FiTable } from "react-icons/fi"; // Added FiTable icon
+import { FiMenu, FiList, FiSettings, FiPlus, FiTable, FiBarChart } from "react-icons/fi"; // Added FiTable icon
+import AnalyticsPage from "../components/Analytics";
 
 const AdminDashboard: FC = () => {
   const [activeTab, setActiveTab] = useState("orders");
@@ -70,6 +71,13 @@ const AdminDashboard: FC = () => {
             <span className={`${isSidebarCollapsed ? "hidden" : "block"}`}>Table Management</span>
           </button>
           <button
+            className={`flex items-center gap-2 ${activeTab === "analytics" ? "text-gray-300" : "hover:text-gray-300"}`}
+            onClick={() => handleTabClick("analytics")}
+          >
+            <FiBarChart size={20} />
+            <span className={`${isSidebarCollapsed ? "hidden" : "block"}`}>Analytics</span>
+          </button>
+          <button
             className={`flex items-center gap-2 ${activeTab === "settings" ? "text-gray-300" : "hover:text-gray-300"}`}
             onClick={() => handleTabClick("settings")}
           >
@@ -109,6 +117,14 @@ const AdminDashboard: FC = () => {
               Table Management
             </h2>
             <TableManagement /> {/* Table Management component */}
+          </div>
+        )}
+        {activeTab === "analytics" && (
+          <div>
+            <h2 className="text-2xl font-semibold text-[#741052] mb-4">
+              Analytics
+            </h2>
+            <AnalyticsPage/>
           </div>
         )}
         {activeTab === "settings" && (
