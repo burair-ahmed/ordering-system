@@ -143,19 +143,20 @@ export default function Header() {
         </div>
       </div>
 
-      {/* Fixed Bottom Bar for Mobile */}
-      <div className="fixed bottom-0 w-full bg-[#ff9824] text-white py-4 flex justify-between items-center px-4 z-10">
-        <div>
-          <p className="text-sm font-bold">Total Price: Rs. {totalAmount.toFixed(2)}</p>
-          <p className="text-sm">Items: {totalItems}</p>
-        </div>
-        <button
-          className="bg-white text-[#ff9824] rounded-full px-6 py-2 font-bold"
-          onClick={toggleCartSidebar}
-        >
-          View Cart
-        </button>
-      </div>
+{/* Fixed Bottom Bar for Mobile */}
+<div className="fixed bottom-0 left-0 w-full bg-[#741052] text-white py-3 flex justify-between items-center px-6 z-20 shadow-md">
+  <div className="flex flex-col text-center sm:text-left">
+    <p className="text-sm font-semibold">Total Price: Rs. {totalAmount.toFixed(2)}</p>
+    <p className="text-xs sm:text-sm">Items: {totalItems}</p>
+  </div>
+  <button 
+    className="bg-white text-[#ff7b00] rounded-full px-6 py-2 font-bold shadow-lg transition-all hover:bg-[#ff5f00] hover:text-[#fff] focus:outline-none focus:ring-2 focus:ring-[#ff5f00] focus:ring-opacity-50"
+    onClick={toggleCartSidebar}
+  >
+    View Cart
+  </button>
+</div>
+
 
       {/* Main Content (Add bottom padding to avoid overlap) */}
       <div className="pt-16 lg:pt-0 pb-16">
