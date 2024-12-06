@@ -12,12 +12,11 @@ const CheckoutPageContent: FC = () => {
     tableNumber: '',
     paymentMethod: 'cash',
   });
-  const [isModalOpen, setIsModalOpen] = useState(false); // Modal state
-  const [isChecked, setIsChecked] = useState(false); // Checkbox state
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isChecked, setIsChecked] = useState(false);
   const router = useRouter();
-  const searchParams = useSearchParams(); // Client-side hook
+  const searchParams = useSearchParams();
 
-  // Read tableId from URL using useSearchParams
   useEffect(() => {
     if (searchParams) {
       const tableId = searchParams.get('tableId');
@@ -28,7 +27,7 @@ const CheckoutPageContent: FC = () => {
         }));
       } else {
         alert('Table ID is missing or invalid.');
-        router.push('/'); // Redirect to home if tableId is invalid
+        router.push('/');
       }
     }
   }, [searchParams, router]);
@@ -47,7 +46,7 @@ const CheckoutPageContent: FC = () => {
       alert('Please fill in all fields.');
       return;
     }
-    setIsModalOpen(true); // Open the modal
+    setIsModalOpen(true);
   };
 
   const handlePlaceOrder = async () => {
@@ -63,7 +62,7 @@ const CheckoutPageContent: FC = () => {
         quantity: item.quantity,
         price: item.price,
         image: item.image,
-        variations: item.variations, // Include variations in the order
+        variations: item.variations,
       })),
       totalAmount: totalAmount,
       status: 'Received',
@@ -91,148 +90,155 @@ const CheckoutPageContent: FC = () => {
   };
 
   return (
-    <div className="container mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-6">Checkout</h1>
+    <div className="container mx-auto p-6">
+      <h1 className="text-3xl font-semibold text-center text-[#333]">Checkout</h1>
 
-      <div className="space-y-4 mb-6">
-        <input
-          type="text"
-          name="name"
-          placeholder="Full Name"
-          value={formData.name}
-          onChange={handleInputChange}
-          className="w-full p-2 border rounded"
-        />
-        <input
-          type="email"
-          name="email"
-          placeholder="Email Address"
-          value={formData.email}
-          onChange={handleInputChange}
-          className="w-full p-2 border rounded"
-        />
-        <input
-          type="text"
-          name="tableNumber"
-          placeholder="Table Number"
-          value={formData.tableNumber}
-          onChange={handleInputChange}
-          className="w-full p-2 border rounded"
-          disabled
-        />
-      </div>
+      <div className="space-y-6">
+        <div className="space-y-4">
+          <input
+            type="text"
+            name="name"
+            placeholder="Full Name"
+            value={formData.name}
+            onChange={handleInputChange}
+            className="w-full p-3 border-2 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+          />
+          <input
+            type="email"
+            name="email"
+            placeholder="Email Address"
+            value={formData.email}
+            onChange={handleInputChange}
+            className="w-full p-3 border-2 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+          />
+          <input
+            type="text"
+            name="tableNumber"
+            placeholder="Table Number"
+            value={formData.tableNumber}
+            onChange={handleInputChange}
+            className="w-full p-3 border-2 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+            disabled
+          />
+        </div>
 
-      <div className="mb-6">
-        <h2 className="font-bold mb-2">Select Payment Method</h2>
-        <div className="flex gap-4">
-          <div className="flex items-center">
-            <input
-              type="radio"
-              id="cash"
-              name="paymentMethod"
-              value="cash"
-              checked={formData.paymentMethod === 'cash'}
-              onChange={handlePaymentChange}
-              className="mr-2"
-            />
-            <label htmlFor="cash">Cash</label>
-          </div>
-          <div className="flex items-center">
-            <input
-              type="radio"
-              id="card"
-              name="paymentMethod"
-              value="card"
-              checked={formData.paymentMethod === 'card'}
-              onChange={handlePaymentChange}
-              className="mr-2"
-            />
-            <label htmlFor="card">Card</label>
+        <div className="mb-6">
+          <h2 className="font-semibold text-lg text-[#333] mb-4">Select Payment Method</h2>
+          <div className="flex gap-6">
+            <div className="flex items-center space-x-2">
+              <input
+                type="radio"
+                id="cash"
+                name="paymentMethod"
+                value="cash"
+                checked={formData.paymentMethod === 'cash'}
+                onChange={handlePaymentChange}
+                className="text-blue-500 focus:ring-blue-500"
+              />
+              <label htmlFor="cash" className="text-sm text-[#333]">Cash</label>
+            </div>
+            <div className="flex items-center space-x-2">
+              <input
+                type="radio"
+                id="card"
+                name="paymentMethod"
+                value="card"
+                checked={formData.paymentMethod === 'card'}
+                onChange={handlePaymentChange}
+                className="text-blue-500 focus:ring-blue-500"
+              />
+              <label htmlFor="card" className="text-sm text-[#333]">Card</label>
+            </div>
           </div>
         </div>
-      </div>
 
-      <div className="mb-6">
-        <h2 className="font-bold">Cart Summary</h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-  {cartItems.map((item, index) => (
-    <div key={`${item.id}-${index}`} className="border rounded p-4 shadow-md">
-      <img src={item.image} alt={item.title} className="w-full h-40 object-cover mb-4" />
-      <div className="flex flex-col">
-      <span className="font-semibold">
-  {item.title} ({typeof item.variations === 'object' ? Object.values(item.variations).join(', ') : item.variations})
-</span>
+        <div className="mb-6">
+          <h2 className="font-semibold text-lg text-[#333]">Cart Summary</h2>
+          <div className="space-y-4">
+            {cartItems.map((item, index) => (
+              <div key={`${item.id}-${index}`} className="flex justify-between items-center bg-gray-100 p-4 rounded-lg shadow-md">
+                <img src={item.image} alt={item.title} className="w-20 h-20 object-cover rounded-lg" />
+                <div className="flex-1 pl-4">
+                  <p className="font-medium text-[#333]">{item.title} ({typeof item.variations === 'object' ? Object.values(item.variations).join(', ') : item.variations})</p>
+                  <p className="text-sm text-gray-500">Qty: {item.quantity}</p>
+                  <p className="font-semibold text-[#741052]">Rs. {item.price * item.quantity}</p>
+                </div>
+              </div>
+            ))}
+          </div>
 
-        <span>Qty: {item.quantity}</span>
-        <span>Rs. {item.price * item.quantity}</span>
-      </div>
-    </div>
-  ))}
-</div>
-
-        <div className="flex justify-between font-bold mt-4">
-          <span>Total:</span>
-          <span>Rs. {totalAmount.toFixed(2)}</span>
+          <div className="flex justify-between font-bold text-lg mt-4">
+            <span>Total:</span>
+            <span>Rs. {totalAmount.toFixed(2)}</span>
+          </div>
         </div>
-      </div>
 
-      <button
-        onClick={handleCheckout}
-        className="w-full py-2 bg-blue-500 text-white rounded mb-4"
-      >
-        Proceed to Payment
-      </button>
+        <button
+          onClick={handleCheckout}
+          className="w-full py-3 bg-[#741052] text-white rounded-lg hover:bg-[#5e0d41] transition"
+        >
+          Proceed to Payment
+        </button>
+      </div>
 
       {isModalOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-          <div className="bg-white p-6 rounded-lg w-full max-w-md">
-            <h2 className="text-xl font-bold mb-4">Confirm Order</h2>
-            <div className="space-y-4 mb-4">
-              <div><strong>Name:</strong> {formData.name}</div>
-              <div><strong>Email:</strong> {formData.email}</div>
-              <div><strong>Table Number:</strong> {formData.tableNumber}</div>
-              <div><strong>Payment Method:</strong> {formData.paymentMethod}</div>
-              <div><strong>Cart Items:</strong></div>
-              <ul>
-  {cartItems.map((item, index) => (
-    <li key={`${item.id}-${index}`}>
-      <strong>{item.title}</strong> 
-      ({typeof item.variations === 'object' ? Object.values(item.variations).join(', ') : item.variations}) 
-      - Qty: {item.quantity}, Price: Rs. {item.price * item.quantity}
-    </li>
-  ))}
-</ul>
+        <div className="fixed inset-0 bg-opacity-60 bg-black flex justify-center items-center z-50 -mt-2">
+  <div className="bg-white px-8 py-4 rounded-lg shadow-lg w-full max-w-lg transform transition-all duration-300">
+    <h2 className="text-2xl font-semibold text-center mb-4 text-[#333]">Confirm Order</h2>
+    <div className="space-y-3 mb-6">
+      <div className="text-lg text-[#333]"><strong>Name:</strong> {formData.name}</div>
+      <div className="text-lg text-[#333]"><strong>Email:</strong> {formData.email}</div>
+      <div className="text-lg text-[#333]"><strong>Table Number:</strong> {formData.tableNumber}</div>
+      <div className="text-lg text-[#333]"><strong>Payment Method:</strong> {formData.paymentMethod}</div>
+      
+      <div className="text-lg text-[#333]"><strong>Cart Items:</strong></div>
+      <ul className="space-y-2">
+        {cartItems.map((item, index) => (
+          <li key={`${item.id}-${index}`} className="text-sm text-gray-700">
+            <strong>{item.title}</strong> 
+            ({typeof item.variations === 'object' ? Object.values(item.variations).join(', ') : item.variations}) 
+            - Qty: {item.quantity}, Price: Rs. {item.price * item.quantity}
+          </li>
+        ))}
+      </ul>
+      
+      <div className="text-lg font-semibold text-[#741052] mt-4">
+        <strong>Total Amount:</strong> Rs. {totalAmount.toFixed(2)}
+      </div>
+    </div>
+
+    <div className="flex items-center mb-6 space-x-2">
+      <input
+        type="checkbox"
+        id="confirm"
+        checked={isChecked}
+        onChange={handleCheckboxChange}
+        className="mr-2 h-5 w-5 text-[#741052] border-gray-300 rounded focus:ring-[#741052]"
+      />
+      <label htmlFor="confirm" className="text-sm text-[#333]">I confirm the above details are correct.</label>
+    </div>
+
+    <div className="flex flex-col space-y-4">
+      <button
+        onClick={handlePlaceOrder}
+        disabled={!isChecked}
+        className={`w-full py-3 text-white rounded-lg font-semibold text-lg ${
+          !isChecked ? 'bg-gray-400 cursor-not-allowed' : 'bg-[#741052] hover:bg-[#5e0d41]'
+        } transition-colors duration-200`}
+      >
+        Place Order
+      </button>
+      <button
+        onClick={() => setIsModalOpen(false)}
+        className="w-full py-3 bg-gray-200 text-[#333] rounded-lg font-semibold text-lg hover:bg-gray-300 transition-colors duration-200"
+      >
+        Close
+      </button>
+    </div>
+  </div>
+</div>
 
 
-              <div><strong>Total Amount:</strong> Rs. {totalAmount.toFixed(2)}</div>
-            </div>
-            <div className="flex items-center mb-4">
-              <input
-                type="checkbox"
-                id="confirm"
-                checked={isChecked}
-                onChange={handleCheckboxChange}
-                className="mr-2"
-              />
-              <label htmlFor="confirm">I confirm the above details are correct.</label>
-            </div>
-            <button
-              onClick={handlePlaceOrder}
-              disabled={!isChecked}
-              className={`w-full py-2 bg-green-500 text-white rounded ${
-                !isChecked && 'opacity-50 cursor-not-allowed'
-              }`}
-            >
-              Place Order
-            </button>
-            <button
-              onClick={() => setIsModalOpen(false)}
-              className="w-full py-2 mt-4 bg-gray-300 text-black rounded"
-            >
-              Close
-            </button>
-          </div>
-        </div>
       )}
     </div>
   );
@@ -244,4 +250,4 @@ const CheckoutPage: FC = () => (
   </Suspense>
 );
 
-export default CheckoutPage;
+export default CheckoutPageContent;
