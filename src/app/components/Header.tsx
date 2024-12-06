@@ -5,8 +5,6 @@ import Image from 'next/image';
 import Link from 'next/link';
 import CartSidebar from './CartSidebar';
 import { useCart } from '../context/CartContext';
-import cartimg from "../../../public/cart-icon.png"
-import groupimg from "../../../public/group426.png"
 
 export default function Header() {
   const [isCartOpen, setIsCartOpen] = useState(false);
@@ -53,7 +51,7 @@ export default function Header() {
               padding: '0px',
               width: '100%',
               height: '80px',
-              backgroundImage: 'url({groupimg})',
+              backgroundImage: 'url(/group426.png)',
               backgroundRepeat: 'repeat-x',
               backgroundSize: '365px 65px',
               backgroundPosition: '0 0',
@@ -97,7 +95,7 @@ export default function Header() {
               >
                 <div className="flex items-center gap-2 mx-auto">
                   <div className="flex items-center">
-                    <Image src={cartimg} alt="" width={20} height={20} />
+                    <Image src={"/cart-icon.png"} alt="" width={20} height={20} />
                   </div>
                   <div className="text-left">
                     <h1 className="text-[11px] font-extrabold">Cart</h1>
