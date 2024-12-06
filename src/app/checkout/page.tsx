@@ -62,6 +62,7 @@ const CheckoutPageContent: FC = () => {
         title: item.title,
         quantity: item.quantity,
         price: item.price,
+        image: item.image,
         variations: item.variations, // Include variations in the order
       })),
       totalAmount: totalAmount,
@@ -161,6 +162,7 @@ const CheckoutPageContent: FC = () => {
                 <span className="font-semibold">{item.title}</span>
                 <span>Qty: {item.quantity}</span>
                 <span>Rs. {item.price * item.quantity}</span>
+                <span>Variations: {JSON.stringify(item.variations)}</span>
               </div>
             </div>
           ))}
@@ -187,7 +189,15 @@ const CheckoutPageContent: FC = () => {
               <div><strong>Email:</strong> {formData.email}</div>
               <div><strong>Table Number:</strong> {formData.tableNumber}</div>
               <div><strong>Payment Method:</strong> {formData.paymentMethod}</div>
-              <div><strong>Total Items:</strong> {cartItems.length}</div>
+              <div><strong>Cart Items:</strong></div>
+              <ul>
+                {cartItems.map((item, index) => (
+                  <li key={`${item.id}-${index}`}>
+                    <strong>{item.title}</strong> - Qty: {item.quantity}, Price: Rs.{' '}
+                    {item.price * item.quantity}, Variations: {JSON.stringify(item.variations)}
+                  </li>
+                ))}
+              </ul>
               <div><strong>Total Amount:</strong> Rs. {totalAmount.toFixed(2)}</div>
             </div>
             <div className="flex items-center mb-4">
