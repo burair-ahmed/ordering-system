@@ -73,7 +73,7 @@ const MenuItem: FC<MenuItemProps> = ({ item }) => {
                 src={item.image || "/fallback-image.jpg"}
                 alt={item.title}
                 className="p-2 g-0 rounded-[15px] object-cover"
-                width={450}
+                width={356}
                 height={250}
               />
             </div>
