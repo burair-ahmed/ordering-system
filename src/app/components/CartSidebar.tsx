@@ -78,7 +78,8 @@ const CartSidebar = ({ closeSidebar, tableId }: { closeSidebar: () => void; tabl
                     </p>
                     <p className="text-sm">Rs. {item.price}</p>
 
-                    {/* Quantity Controls */}
+                    <div className="flex gap-2">
+                      {/* Quantity Controls */}
                     <div className="mt-2 flex items-center justify-between bg-gray-100 border border-gray-200 rounded-full px-2 py-1 shadow-sm w-fit">
                       <button
                         onClick={() => updateQuantity(item.id, item.quantity - 1, item.variations)}
@@ -102,6 +103,7 @@ const CartSidebar = ({ closeSidebar, tableId }: { closeSidebar: () => void; tabl
                     >
                       Remove
                     </button>
+                    </div>
                   </div>
                 </div>
               </li>
