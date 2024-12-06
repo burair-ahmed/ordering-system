@@ -20,7 +20,7 @@ const AdminDashboard: FC = () => {
   };
 
   return (
-    <div className="flex h-screen">
+    <div className="flex h-screen -mb-[1em] -mt-[3em]">
       {/* Sidebar */}
       <div
         className={`${

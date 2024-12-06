@@ -95,7 +95,7 @@ export default function Header() {
               >
                 <div className="flex items-center gap-2 mx-auto">
                   <div className="flex items-center">
-                    <Image src="/cart-icon.webp" alt="" width={20} height={20} />
+                    <Image src="/cart-icon.png" alt="" width={20} height={20} />
                   </div>
                   <div className="text-left">
                     <h1 className="text-[11px] font-extrabold">Cart</h1>
