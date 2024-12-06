@@ -1,6 +1,6 @@
 'use client';
 
-import { FC, useEffect, useState } from 'react';
+import { FC, Suspense, useEffect, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 
 const ThankYouPage: FC = () => {
@@ -93,4 +93,13 @@ const ThankYouPage: FC = () => {
   );
 };
 
-export default ThankYouPage;
+// Wrapping in Suspense boundary to handle client-side behavior
+const ThankYouPageWithSuspense: FC = () => {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <ThankYouPage />
+    </Suspense>
+  );
+};
+
+export default ThankYouPageWithSuspense;
