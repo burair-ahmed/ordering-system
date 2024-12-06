@@ -79,7 +79,9 @@ const CheckoutPageContent: FC = () => {
     if (response.ok) {
       alert('Order placed successfully!');
       clearCart();
-      router.push('/thank-you');
+      
+      // Redirect to the thank you page with tableId
+      router.push(`/thank-you?tableId=${formData.tableNumber}`);
     } else {
       alert('Failed to place the order.');
     }
@@ -183,62 +185,60 @@ const CheckoutPageContent: FC = () => {
 
       {isModalOpen && (
         <div className="fixed inset-0 bg-opacity-60 bg-black flex justify-center items-center z-50 -mt-2">
-  <div className="bg-white px-8 py-4 rounded-lg shadow-lg w-full max-w-lg transform transition-all duration-300">
-    <h2 className="text-2xl font-semibold text-center mb-4 text-[#333]">Confirm Order</h2>
-    <div className="space-y-3 mb-6">
-      <div className="text-lg text-[#333]"><strong>Name:</strong> {formData.name}</div>
-      <div className="text-lg text-[#333]"><strong>Email:</strong> {formData.email}</div>
-      <div className="text-lg text-[#333]"><strong>Table Number:</strong> {formData.tableNumber}</div>
-      <div className="text-lg text-[#333]"><strong>Payment Method:</strong> {formData.paymentMethod}</div>
-      
-      <div className="text-lg text-[#333]"><strong>Cart Items:</strong></div>
-      <ul className="space-y-2">
-        {cartItems.map((item, index) => (
-          <li key={`${item.id}-${index}`} className="text-sm text-gray-700">
-            <strong>{item.title}</strong> 
-            ({typeof item.variations === 'object' ? Object.values(item.variations).join(', ') : item.variations}) 
-            - Qty: {item.quantity}, Price: Rs. {item.price * item.quantity}
-          </li>
-        ))}
-      </ul>
-      
-      <div className="text-lg font-semibold text-[#741052] mt-4">
-        <strong>Total Amount:</strong> Rs. {totalAmount.toFixed(2)}
-      </div>
-    </div>
+          <div className="bg-white px-8 py-4 rounded-lg shadow-lg w-full max-w-lg transform transition-all duration-300">
+            <h2 className="text-2xl font-semibold text-center mb-4 text-[#333]">Confirm Order</h2>
+            <div className="space-y-3 mb-6">
+              <div className="text-lg text-[#333]"><strong>Name:</strong> {formData.name}</div>
+              <div className="text-lg text-[#333]"><strong>Email:</strong> {formData.email}</div>
+              <div className="text-lg text-[#333]"><strong>Table Number:</strong> {formData.tableNumber}</div>
+              <div className="text-lg text-[#333]"><strong>Payment Method:</strong> {formData.paymentMethod}</div>
+              
+              <div className="text-lg text-[#333]"><strong>Cart Items:</strong></div>
+              <ul className="space-y-2">
+                {cartItems.map((item, index) => (
+                  <li key={`${item.id}-${index}`} className="text-sm text-gray-700">
+                    <strong>{item.title}</strong> 
+                    ({typeof item.variations === 'object' ? Object.values(item.variations).join(', ') : item.variations}) 
+                    - Qty: {item.quantity}, Price: Rs. {item.price * item.quantity}
+                  </li>
+                ))}
+              </ul>
+              
+              <div className="text-lg font-semibold text-[#741052] mt-4">
+                <strong>Total Amount:</strong> Rs. {totalAmount.toFixed(2)}
+              </div>
+            </div>
 
-    <div className="flex items-center mb-6 space-x-2">
-      <input
-        type="checkbox"
-        id="confirm"
-        checked={isChecked}
-        onChange={handleCheckboxChange}
-        className="mr-2 h-5 w-5 text-[#741052] border-gray-300 rounded focus:ring-[#741052]"
-      />
-      <label htmlFor="confirm" className="text-sm text-[#333]">I confirm the above details are correct.</label>
-    </div>
+            <div className="flex items-center mb-6 space-x-2">
+              <input
+                type="checkbox"
+                id="confirm"
+                checked={isChecked}
+                onChange={handleCheckboxChange}
+                className="mr-2 h-5 w-5 text-[#741052] border-gray-300 rounded focus:ring-[#741052]"
+              />
+              <label htmlFor="confirm" className="text-sm text-[#333]">I confirm the above details are correct.</label>
+            </div>
 
-    <div className="flex flex-col space-y-4">
-      <button
-        onClick={handlePlaceOrder}
-        disabled={!isChecked}
-        className={`w-full py-3 text-white rounded-lg font-semibold text-lg ${
-          !isChecked ? 'bg-gray-400 cursor-not-allowed' : 'bg-[#741052] hover:bg-[#5e0d41]'
-        } transition-colors duration-200`}
-      >
-        Place Order
-      </button>
-      <button
-        onClick={() => setIsModalOpen(false)}
-        className="w-full py-3 bg-gray-200 text-[#333] rounded-lg font-semibold text-lg hover:bg-gray-300 transition-colors duration-200"
-      >
-        Close
-      </button>
-    </div>
-  </div>
-</div>
-
-
+            <div className="flex flex-col space-y-4">
+              <button
+                onClick={handlePlaceOrder}
+                disabled={!isChecked}
+                className={`w-full py-3 text-white rounded-lg font-semibold text-lg ${
+                  !isChecked ? 'bg-gray-400 cursor-not-allowed' : 'bg-[#741052] hover:bg-[#5e0d41]'
+                } transition-colors duration-200`}
+              >
+                Place Order
+              </button>
+              <button
+                onClick={() => setIsModalOpen(false)}
+                className="w-full py-3 bg-gray-200 text-[#333] rounded-lg font-semibold text-lg hover:bg-gray-300 transition-colors duration-200"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );
