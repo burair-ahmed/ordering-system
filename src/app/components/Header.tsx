@@ -60,7 +60,7 @@ export default function Header() {
 
           <div className="grid grid-cols-8 items-center w-9/12 mx-auto pt-6">
             <div className="col-span-4 flex gap-4">
-              {/* Contact Button */}
+        
               <button className="bg-[#ff9824] rounded-[5px] px-4 py-1">
                 <div className="flex items-center gap-2 mx-auto">
                   <div className="flex items-center">
