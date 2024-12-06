@@ -1,35 +1,34 @@
-'use client'
+'use client';
 
-import { FC, useState, useEffect } from "react";
-import { useCart } from "../context/CartContext";
-import { useRouter } from "next/navigation";
-import { useSearchParams } from "next/navigation";
+import React, { FC, useState, useEffect, Suspense } from 'react';
+import { useCart } from '../context/CartContext';
+import { useRouter, useSearchParams } from 'next/navigation';
 
-const CheckoutPage: FC = () => {
+const CheckoutPageContent: FC = () => {
   const { cartItems, totalAmount, clearCart } = useCart();
   const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    tableNumber: "",
-    paymentMethod: "cash",
+    name: '',
+    email: '',
+    tableNumber: '',
+    paymentMethod: 'cash',
   });
   const [isModalOpen, setIsModalOpen] = useState(false); // Modal state
   const [isChecked, setIsChecked] = useState(false); // Checkbox state
   const router = useRouter();
-  const searchParams = useSearchParams(); // Get searchParams from URL
+  const searchParams = useSearchParams(); // Client-side hook
 
-  // Check if searchParams is available and update formData with tableId
+  // Read tableId from URL using useSearchParams
   useEffect(() => {
     if (searchParams) {
-      const tableId = searchParams.get("tableId"); // Read tableId from URL
-      if (tableId && tableId !== "undefined") {
+      const tableId = searchParams.get('tableId');
+      if (tableId) {
         setFormData((prevData) => ({
           ...prevData,
           tableNumber: tableId,
         }));
       } else {
-        alert("Table ID is missing or invalid.");
-        router.push("/"); // Redirect to home or an appropriate page if tableId is invalid
+        alert('Table ID is missing or invalid.');
+        router.push('/'); // Redirect to home if tableId is invalid
       }
     }
   }, [searchParams, router]);
@@ -45,21 +44,20 @@ const CheckoutPage: FC = () => {
 
   const handleCheckout = () => {
     if (!formData.name || !formData.email || !formData.tableNumber) {
-      alert("Please fill in all fields.");
+      alert('Please fill in all fields.');
       return;
     }
     setIsModalOpen(true); // Open the modal
   };
 
   const handlePlaceOrder = async () => {
-    // Prepare the order data
     const newOrder = {
       orderNumber: `ORD-${Math.floor(Math.random() * 1000000)}`,
       customerName: formData.name,
       email: formData.email,
       tableNumber: formData.tableNumber,
       paymentMethod: formData.paymentMethod,
-      items: cartItems.map(item => ({
+      items: cartItems.map((item) => ({
         id: item.id,
         title: item.title,
         quantity: item.quantity,
@@ -67,34 +65,29 @@ const CheckoutPage: FC = () => {
         variations: item.variations, // Include variations in the order
       })),
       totalAmount: totalAmount,
-      status: "Received",
+      status: 'Received',
     };
 
-    // Send order data to the API
-    const response = await fetch("/api/orders", {
-      method: "POST",
+    const response = await fetch('/api/orders', {
+      method: 'POST',
       headers: {
-        "Content-Type": "application/json",
+        'Content-Type': 'application/json',
       },
       body: JSON.stringify(newOrder),
     });
 
     if (response.ok) {
-      alert("Order placed successfully!");
+      alert('Order placed successfully!');
       clearCart();
-      router.push("/thank-you");
+      router.push('/thank-you');
     } else {
-      alert("Failed to place the order.");
+      alert('Failed to place the order.');
     }
   };
 
   const handleCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setIsChecked(e.target.checked);
   };
-
-  if (!searchParams) {
-    return <div>Loading...</div>; // Show loading until searchParams are available
-  }
 
   return (
     <div className="container mx-auto p-4">
@@ -137,7 +130,7 @@ const CheckoutPage: FC = () => {
               id="cash"
               name="paymentMethod"
               value="cash"
-              checked={formData.paymentMethod === "cash"}
+              checked={formData.paymentMethod === 'cash'}
               onChange={handlePaymentChange}
               className="mr-2"
             />
@@ -149,7 +142,7 @@ const CheckoutPage: FC = () => {
               id="card"
               name="paymentMethod"
               value="card"
-              checked={formData.paymentMethod === "card"}
+              checked={formData.paymentMethod === 'card'}
               onChange={handlePaymentChange}
               className="mr-2"
             />
@@ -168,14 +161,6 @@ const CheckoutPage: FC = () => {
                 <span className="font-semibold">{item.title}</span>
                 <span>Qty: {item.quantity}</span>
                 <span>Rs. {item.price * item.quantity}</span>
-                <div>
-                  <strong>Selected Variations:</strong>
-                  <ul>
-                    {item.variations?.map((variation, idx) => (
-                      <li key={idx}>{variation}</li>
-                    ))}
-                  </ul>
-                </div>
               </div>
             </div>
           ))}
@@ -188,71 +173,42 @@ const CheckoutPage: FC = () => {
 
       <button
         onClick={handleCheckout}
-        className="w-full py-2 bg-blue-500 text-white rounded mb-[100px]"
+        className="w-full py-2 bg-blue-500 text-white rounded mb-4"
       >
         Proceed to Payment
       </button>
 
-      {/* Modal for Order Confirmation */}
       {isModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
           <div className="bg-white p-6 rounded-lg w-full max-w-md">
             <h2 className="text-xl font-bold mb-4">Confirm Order</h2>
-            <p className="mb-4">
-              Your order is non-cancellable. Please confirm your details before proceeding.
-            </p>
-
             <div className="space-y-4 mb-4">
-              <div>
-                <strong>Name:</strong> {formData.name}
-              </div>
-              <div>
-                <strong>Email:</strong> {formData.email}
-              </div>
-              <div>
-                <strong>Table Number:</strong> {formData.tableNumber}
-              </div>
-              <div>
-                <strong>Payment Method:</strong> {formData.paymentMethod}
-              </div>
-
-              <div className="space-y-2">
-                <h3 className="font-bold">Order Summary</h3>
-                {cartItems.map((item, index) => (
-                  <div key={index} className="flex justify-between">
-                    <span>{item.title} x{item.quantity}</span>
-                    <span>Rs. {item.price * item.quantity}</span>
-                    <div>
-                      <strong>Selected Variations:</strong>
-                      <ul>
-                        {item.variations?.map((variation, idx) => (
-                          <li key={idx}>{variation}</li>
-                        ))}
-                      </ul>
-                    </div>
-                  </div>
-                ))}
-              </div>
+              <div><strong>Name:</strong> {formData.name}</div>
+              <div><strong>Email:</strong> {formData.email}</div>
+              <div><strong>Table Number:</strong> {formData.tableNumber}</div>
+              <div><strong>Payment Method:</strong> {formData.paymentMethod}</div>
+              <div><strong>Total Items:</strong> {cartItems.length}</div>
+              <div><strong>Total Amount:</strong> Rs. {totalAmount.toFixed(2)}</div>
             </div>
-
-            <div className="flex items-center gap-2 mb-4">
+            <div className="flex items-center mb-4">
               <input
                 type="checkbox"
-                id="confirmOrder"
+                id="confirm"
                 checked={isChecked}
                 onChange={handleCheckboxChange}
+                className="mr-2"
               />
-              <label htmlFor="confirmOrder">I have checked everything and am ready to place the order</label>
+              <label htmlFor="confirm">I confirm the above details are correct.</label>
             </div>
-
             <button
               onClick={handlePlaceOrder}
               disabled={!isChecked}
-              className={`w-full py-2 bg-green-500 text-white rounded ${!isChecked && "opacity-50 cursor-not-allowed"}`}
+              className={`w-full py-2 bg-green-500 text-white rounded ${
+                !isChecked && 'opacity-50 cursor-not-allowed'
+              }`}
             >
               Place Order
             </button>
-
             <button
               onClick={() => setIsModalOpen(false)}
               className="w-full py-2 mt-4 bg-gray-300 text-black rounded"
@@ -265,5 +221,11 @@ const CheckoutPage: FC = () => {
     </div>
   );
 };
+
+const CheckoutPage: FC = () => (
+  <Suspense fallback={<div>Loading...</div>}>
+    <CheckoutPageContent />
+  </Suspense>
+);
 
 export default CheckoutPage;
