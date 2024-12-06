@@ -67,14 +67,22 @@ const ordersHandler = async (req: NextApiRequest, res: NextApiResponse) => {
       return res.status(500).json({ message: "Failed to save order to database" });
     }
   } else if (req.method === "GET") {
+    const { tableId } = req.query;
+
     try {
       // Connect to the database
       await connectToDatabase();
 
-      // Fetch all orders from the database
-      const orders = await Order.find({});
+      // Fetch the most recent order for the given tableId
+      const order = await Order.findOne({ tableNumber: tableId })
+        .sort({ createdAt: -1 })  // Sort by creation date, most recent first
+        .limit(1); // Get only the most recent order
 
-      return res.status(200).json({ orders });
+      if (!order) {
+        return res.status(404).json({ message: "Order not found for the given tableId" });
+      }
+
+      return res.status(200).json({ orderNumber: order.orderNumber }); // Return the order number
     } catch (error) {
       console.error("Error fetching orders:", error);
       return res.status(500).json({ message: "Failed to fetch orders" });
