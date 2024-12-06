@@ -6,7 +6,7 @@ import { useSearchParams } from 'next/navigation';
 const ThankYouPage: FC = () => {
   const [orderNumber, setOrderNumber] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null); // Used for errors.
 
   const searchParams = useSearchParams();
   const tableId = searchParams ? searchParams.get('tableId') : null; // Get tableId from search params
