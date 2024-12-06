@@ -25,7 +25,7 @@ const CartSidebar = ({ closeSidebar, tableId }: { closeSidebar: () => void; tabl
 
   return (
     <div
-      className={`fixed top-0 h-full bg-white shadow-lg p-4 z-50 flex flex-col transform ${
+      className={`fixed top-0 h-full bg-white shadow-lg p-2 z-50 flex flex-col transform ${
         isVisible && !isExiting ? "translate-x-0" : "translate-x-full"
       } transition-transform duration-300 ease-in-out right-0 w-72 border-l-4 border-[#741052]`}
     >
@@ -58,52 +58,51 @@ const CartSidebar = ({ closeSidebar, tableId }: { closeSidebar: () => void; tabl
             {cartItems.map((item) => (
               <li
                 key={`${item.id}-${JSON.stringify(item.variations)}`}
-                className="flex items-start mb-4 pb-4 border-b border-gray-200"
+                className="mb-4 pb-4 border-b border-gray-200 bg-[#741052] text-white rounded-lg p-2"
               >
-                {/* Image */}
-                <div className="w-1/3">
-                  <img
-                    src={item.image || "/placeholder.png"}
-                    alt={item.title}
-                    className="w-full h-auto rounded-lg"
-                  />
-                </div>
+                {/* Cart Item Image */}
+                <div className="flex items-center ">
+                  <div className="w-1/4">
+                    <img
+                      src={item.image || "/placeholder.png"}
+                      alt={item.title}
+                      className="w-full h-auto rounded-lg"
+                    />
+                  </div>
 
-                {/* Item Details */}
-                <div className="w-2/3 pl-3">
-                  <p className="font-medium text-sm text-[#741052]">
-                    {item.title}
-                    {item.variations &&
-                      item.variations.length > 0 &&
-                      ` (${item.variations.join(", ")})`}
-                  </p>
-                  <p className="text-sm text-gray-600">Rs. {item.price}</p>
+                  {/* Item Details */}
+                  <div className="w-3/4 pl-4">
+                    <p className="font-medium text-sm">
+                      {item.title}
+                      {item.variations && item.variations.length > 0 && ` (${item.variations.join(", ")})`}
+                    </p>
+                    <p className="text-sm">Rs. {item.price}</p>
 
-                  {/* Quantity Controls */}
-                  <div className="mt-2 flex items-center justify-between bg-gray-100 border border-gray-200 rounded-full px-2 py-1 shadow-sm w-fit">
-  <button
-    onClick={() => updateQuantity(item.id, item.quantity - 1, item.variations)}
-    className="bg-[#f8ad3c] text-white text-sm w-8 h-8 flex items-center justify-center rounded-full hover:bg-[#d28f32] transition"
-  >
-    -
-  </button>
-  <span className="text-sm text-black font-medium mx-2">{item.quantity}</span>
-  <button
-    onClick={() => updateQuantity(item.id, item.quantity + 1, item.variations)}
-    className="bg-[#f8ad3c] text-white text-sm w-8 h-8 flex items-center justify-center rounded-full hover:bg-[#d28f32] transition"
-  >
-    +
-  </button>
-</div>
+                    {/* Quantity Controls */}
+                    <div className="mt-2 flex items-center justify-between bg-gray-100 border border-gray-200 rounded-full px-2 py-1 shadow-sm w-fit">
+                      <button
+                        onClick={() => updateQuantity(item.id, item.quantity - 1, item.variations)}
+                        className="bg-[#f8ad3c] text-white text-sm w-6 h-6 flex items-center justify-center rounded-full hover:bg-[#d28f32] transition"
+                      >
+                        -
+                      </button>
+                      <span className="text-sm text-black font-medium mx-2">{item.quantity}</span>
+                      <button
+                        onClick={() => updateQuantity(item.id, item.quantity + 1, item.variations)}
+                        className="bg-[#f8ad3c] text-white text-sm w-6 h-6 flex items-center justify-center rounded-full hover:bg-[#d28f32] transition"
+                      >
+                        +
+                      </button>
+                    </div>
 
-
-                  {/* Remove from Cart */}
-                  <button
-                    onClick={() => removeFromCart(item.id, item.variations)}
-                    className="text-red-500 text-sm mt-2 hover:text-red-700"
-                  >
-                    Remove
-                  </button>
+                    {/* Remove from Cart */}
+                    <button
+                      onClick={() => removeFromCart(item.id, item.variations)}
+                      className="text-white text-sm mt-2 hover:text-red-700"
+                    >
+                      Remove
+                    </button>
+                  </div>
                 </div>
               </li>
             ))}
