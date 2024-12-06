@@ -36,18 +36,23 @@ const MenuItem: FC<MenuItemProps> = ({ item }) => {
   return (
     <>
       {/* Menu Item Card */}
-      <div className="menu-item-card" onClick={() => setShowModal(true)}>
+      <div
+        className="menu-item-card bg-white rounded-lg shadow-lg p-4 cursor-pointer hover:shadow-xl transition-transform transform hover:scale-105"
+        onClick={() => setShowModal(true)}
+      >
         <Image
           src={item.image || "/fallback-image.jpg"}
           alt={item.title}
-          className="p-2 g-0 rounded-[15px]"
+          className="rounded-lg object-cover w-full h-48 mb-4"
           width={450}
           height={150}
         />
-        <h2 className="font-extrabold text-lg">{item.title}</h2>
-        <p className="text-xs mb-3">{item.description}</p>
-        <p className="font-bold mb-2">Rs.{basePrice.toFixed(2)}</p>
-        <button className="cartBtn">ADD TO CART</button>
+        <h2 className="font-bold text-xl text-gray-800 mb-2">{item.title}</h2>
+        <p className="text-sm text-gray-600 mb-4">{item.description}</p>
+        <p className="font-semibold text-lg text-[#741052]">Rs.{basePrice.toFixed(2)}</p>
+        <button className="mt-4 py-2 px-4 bg-[#741052] text-white rounded-lg hover:bg-[#5e0d41] transition">
+          ADD TO CART
+        </button>
       </div>
 
       {/* Modal */}
@@ -67,9 +72,9 @@ const MenuItem: FC<MenuItemProps> = ({ item }) => {
               <Image
                 src={item.image || "/fallback-image.jpg"}
                 alt={item.title}
-                className="p-2 g-0 rounded-[15px]"
+                className="p-2 g-0 rounded-[15px] object-cover"
                 width={450}
-                height={150}
+                height={250}
               />
             </div>
 
@@ -82,11 +87,11 @@ const MenuItem: FC<MenuItemProps> = ({ item }) => {
               </h2>
 
               <p className="text-gray-600 mt-2">{item.description}</p>
-              <p className="text-lg font-bold mt-4">Rs.{totalPrice.toFixed(2)}</p>
+              <p className="text-lg font-semibold mt-4 text-[#741052]">Rs.{totalPrice.toFixed(2)}</p>
 
               {/* Variations - Radio Buttons */}
               <div className="mt-4">
-                <label className="block text-sm font-medium mb-2">Variations</label>
+                <label className="block text-sm font-medium mb-2 text-gray-700">Variations</label>
                 <div className="space-y-2">
                   {item.variations && item.variations.length > 0 ? (
                     item.variations.map((variation, index) => (
@@ -100,7 +105,7 @@ const MenuItem: FC<MenuItemProps> = ({ item }) => {
                           checked={selectedVariation?.name === variation.name}
                           className="mr-2"
                         />
-                        <label htmlFor={`variation-${index}`} className="text-sm">
+                        <label htmlFor={`variation-${index}`} className="text-sm text-gray-800">
                           {variation.name} (+Rs.{parseFloat(variation.price).toFixed(2)})
                         </label>
                       </div>
