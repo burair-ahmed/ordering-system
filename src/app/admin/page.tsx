@@ -6,14 +6,31 @@ import AddMenuItemForm from "../components/MenuItemForm";
 import EditMenuItemForm from "../components/EditMenuItemForm"; // Import Edit Form Component
 import TableManagement from "../components/TableManagement";
 import AnalyticsPage from "../components/Analytics";
-import { FiMenu, FiList, FiSettings, FiPlus, FiTable, FiBarChart, FiEdit } from "react-icons/fi";
+import { FiMenu, FiList, FiSettings, FiPlus, FiTable, FiBarChart } from "react-icons/fi";
 import Image from "next/image";
+
+interface Variation {
+  name: string;
+  price: number;
+}
+
+interface MenuItem {
+  _id: string;
+  title: string;
+  description: string;
+  price: number;
+  category: string;
+  image: string; // Remove 'undefined' from the type
+  variations: Variation[];
+}
+
+
 
 const AdminDashboard: FC = () => {
   const [activeTab, setActiveTab] = useState("orders"); // Active tab state
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(true); // Sidebar toggle state
-  const [menuItems, setMenuItems] = useState<any[]>([]); // Menu items state
-  const [selectedMenuItem, setSelectedMenuItem] = useState<any>(null); // Selected menu item for editing
+  const [menuItems, setMenuItems] = useState<MenuItem[]>([]); // Menu items state
+  const [selectedMenuItem, setSelectedMenuItem] = useState<MenuItem | null>(null); // Selected menu item for editing
   const [showEditModal, setShowEditModal] = useState(false); // Edit modal visibility
 
   // Fetch menu items
@@ -21,7 +38,7 @@ const AdminDashboard: FC = () => {
     const fetchMenuItems = async () => {
       try {
         const response = await fetch('/api/getitems');
-        const data = await response.json();
+        const data: MenuItem[] = await response.json();
         setMenuItems(data); // Store fetched menu items
       } catch (error) {
         console.error("Error fetching menu items:", error);
@@ -44,7 +61,7 @@ const AdminDashboard: FC = () => {
   };
 
   // Open Edit Modal
-  const handleEditItem = (item: any) => {
+  const handleEditItem = (item: MenuItem) => {
     setSelectedMenuItem(item);
     setShowEditModal(true);
   };
@@ -59,7 +76,7 @@ const AdminDashboard: FC = () => {
   const refreshMenuItems = async () => {
     try {
       const response = await fetch('/api/getitems');
-      const data = await response.json();
+      const data: MenuItem[] = await response.json();
       setMenuItems(data);
     } catch (error) {
       console.error("Error refreshing menu items:", error);
