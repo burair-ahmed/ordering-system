@@ -52,10 +52,6 @@ const ThankYouPage: FC = () => {
     return <div className="text-center">Loading order details...</div>;
   }
 
-  if (error) {
-    return <div className="text-center text-red-500">{error}</div>;
-  }
-
   return (
     <div className="flex flex-col items-center justify-center bg-gray-50 py-4 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full bg-white shadow-md rounded-lg p-4 text-center">
@@ -63,6 +59,13 @@ const ThankYouPage: FC = () => {
         
         <p className="text-base text-gray-700 mb-2">Your order has been successfully received.</p>
         
+        {/* Display error if it exists */}
+        {error && (
+          <div className="text-center text-red-500 mb-2">
+            {error}
+          </div>
+        )}
+
         <div className="mb-2">
           {orderNumber ? (
             <>

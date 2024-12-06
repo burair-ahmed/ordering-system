@@ -3,6 +3,7 @@
 import React, { FC, useState, useEffect, Suspense } from 'react';
 import { useCart } from '../context/CartContext';
 import { useRouter, useSearchParams } from 'next/navigation';
+import Image from 'next/image';
 
 const CheckoutPageContent: FC = () => {
   const { cartItems, totalAmount, clearCart } = useCart();
@@ -159,7 +160,8 @@ const CheckoutPageContent: FC = () => {
           <div className="space-y-4">
             {cartItems.map((item, index) => (
               <div key={`${item.id}-${index}`} className="flex justify-between items-center bg-gray-100 p-4 rounded-lg shadow-md">
-                <img src={item.image} alt={item.title} className="w-20 h-20 object-cover rounded-lg" />
+                {/* <img src={item.image} alt={item.title} className="w-20 h-20 object-cover rounded-lg" /> */}
+                <Image src={item.image || "Placeholder.png"} alt={item.title} width={150} height={40}/>
                 <div className="flex-1 pl-4">
                   <p className="font-medium text-[#333]">{item.title} ({typeof item.variations === 'object' ? Object.values(item.variations).join(', ') : item.variations})</p>
                   <p className="text-sm text-gray-500">Qty: {item.quantity}</p>
@@ -250,4 +252,5 @@ const CheckoutPage: FC = () => (
   </Suspense>
 );
 
-export default CheckoutPageContent;
+export default CheckoutPage;
+

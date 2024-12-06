@@ -63,10 +63,12 @@ const CartSidebar = ({ closeSidebar, tableId }: { closeSidebar: () => void; tabl
                 {/* Cart Item Image */}
                 <div className="flex items-center ">
                   <div className="w-1/4">
-                    <img
-                      src={item.image || "/placeholder.png"}
-                      alt={item.title}
-                      className="w-full h-auto rounded-lg"
+                    <Image 
+                    src={item.image || "/placeholder.png"}
+                    alt={item.title}
+                    width={200}
+                    height={60}
+                    className="w-full h-auto rounded-lg"
                     />
                   </div>
 
