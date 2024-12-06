@@ -30,7 +30,7 @@ const ThankYouPage: FC = () => {
         } else {
           setError('Failed to fetch order details.');
         }
-      } catch (error) {
+      } catch (fetchError) {
         setError('An error occurred while fetching order details.');
       } finally {
         setLoading(false);
