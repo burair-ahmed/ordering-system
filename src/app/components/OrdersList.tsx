@@ -26,10 +26,15 @@ const OrdersList: FC = () => {
 
   useEffect(() => {
     const fetchOrders = async () => {
-      const response = await fetch("/api/orders");
+      const response = await fetch("/api/fetchorders");  // Use the new API route
       const data = await response.json();
       if (response.ok) {
-        setOrders(data.orders); // Assuming the API sends the orders in an array
+        const sortedOrders = data.orders.sort((a: Order, b: Order) => {
+          const dateA = a.orderNumber.slice(8, 16);  // Extract YYYYMMDD
+          const dateB = b.orderNumber.slice(8, 16);  // Extract YYYYMMDD
+          return dateB.localeCompare(dateA);  // Sorting in descending order by date
+        });
+        setOrders(sortedOrders); // Update state with sorted orders
       } else {
         alert("Failed to fetch orders.");
       }
@@ -64,7 +69,6 @@ const OrdersList: FC = () => {
                     <span className="font-medium text-gray-800">{item.title}</span> x{item.quantity}
                     <span className="text-sm text-gray-600"> - Rs. {item.price * item.quantity}</span>
                   </div>
-                  {/* Check if variations exists before accessing length or mapping */}
                   {item.variations && item.variations.length > 0 && (
                     <div className="text-sm text-gray-500 mt-2 ml-4">
                       <strong>Variations:</strong>
