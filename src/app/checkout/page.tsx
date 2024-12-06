@@ -155,18 +155,21 @@ const CheckoutPageContent: FC = () => {
       <div className="mb-6">
         <h2 className="font-bold">Cart Summary</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {cartItems.map((item, index) => (
-            <div key={`${item.id}-${index}`} className="border rounded p-4 shadow-md">
-              <img src={item.image} alt={item.title} className="w-full h-40 object-cover mb-4" />
-              <div className="flex flex-col">
-                <span className="font-semibold">{item.title}</span>
-                <span>Qty: {item.quantity}</span>
-                <span>Rs. {item.price * item.quantity}</span>
-                <span>Variations: {JSON.stringify(item.variations)}</span>
-              </div>
-            </div>
-          ))}
-        </div>
+  {cartItems.map((item, index) => (
+    <div key={`${item.id}-${index}`} className="border rounded p-4 shadow-md">
+      <img src={item.image} alt={item.title} className="w-full h-40 object-cover mb-4" />
+      <div className="flex flex-col">
+      <span className="font-semibold">
+  {item.title} ({typeof item.variations === 'object' ? Object.values(item.variations).join(', ') : item.variations})
+</span>
+
+        <span>Qty: {item.quantity}</span>
+        <span>Rs. {item.price * item.quantity}</span>
+      </div>
+    </div>
+  ))}
+</div>
+
         <div className="flex justify-between font-bold mt-4">
           <span>Total:</span>
           <span>Rs. {totalAmount.toFixed(2)}</span>
@@ -191,13 +194,16 @@ const CheckoutPageContent: FC = () => {
               <div><strong>Payment Method:</strong> {formData.paymentMethod}</div>
               <div><strong>Cart Items:</strong></div>
               <ul>
-                {cartItems.map((item, index) => (
-                  <li key={`${item.id}-${index}`}>
-                    <strong>{item.title}</strong> - Qty: {item.quantity}, Price: Rs.{' '}
-                    {item.price * item.quantity}, Variations: {JSON.stringify(item.variations)}
-                  </li>
-                ))}
-              </ul>
+  {cartItems.map((item, index) => (
+    <li key={`${item.id}-${index}`}>
+      <strong>{item.title}</strong> 
+      ({typeof item.variations === 'object' ? Object.values(item.variations).join(', ') : item.variations}) 
+      - Qty: {item.quantity}, Price: Rs. {item.price * item.quantity}
+    </li>
+  ))}
+</ul>
+
+
               <div><strong>Total Amount:</strong> Rs. {totalAmount.toFixed(2)}</div>
             </div>
             <div className="flex items-center mb-4">
