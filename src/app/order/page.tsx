@@ -20,6 +20,13 @@ interface Variation {
   price: string;
 }
 
+const categories = [
+  "Charming Chai", "Paratha Performance", "Beast BBQ", "Rolls Royce",
+  "Very Fast Food", "Burger-E-Karachi", "Woodfired Pizza", "Shawarmania",
+  "French Boys Fries", "Dashing Desserts", "Chicken Karahis",
+  "Mutton Karahis", "Handi & Qeema", "Beverages", "Juicy Lucy", "Very Extra"
+];
+
 export default function MenuPage() {
   const [menu, setMenu] = useState<MenuItemData[]>([]);
   const [loading, setLoading] = useState<boolean>(true); // To handle loading state
@@ -57,30 +64,39 @@ export default function MenuPage() {
     return <div>{error}</div>; // Error state
   }
 
-  // Filter the menu for Chicken Karahis category
-  const chickenKarahis = menu.filter(item => item.category === "Chicken Karahis");
-
-  return (
-    <div>
-      <Hero />
-      <div className="grid grid-cols-1 gap-4 w-11/12 mx-auto sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-        {menu.map((item) => (
-          <MenuItem key={uuidv4()} item={item} />
-        ))}
-      </div>
-
-      {/* Section for Chicken Karahis */}
-      <div>
-        <h1 className="text-3xl font-bold mt-8">Chicken Karahis</h1>
+  // Function to render sections for each category
+  const renderCategorySection = (category: string) => {
+    const filteredItems = menu.filter(item => item.category === category);
+    
+    return (
+      <div key={category} className="mt-8">
+        {/* Heading with background color only behind the text and centered */}
+        <div className="w-full flex justify-center mb-4">
+          <h1 className="text-3xl font-semibold text-white bg-[#741052] py-3 px-6 rounded-lg shadow-md text-center">
+            {category}
+          </h1>
+        </div>
         <div className="grid grid-cols-1 gap-4 w-11/12 mx-auto sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 mt-4">
-          {chickenKarahis.length === 0 ? (
-            <div>No items found for Chicken Karahis</div> // Message if no items are found
+          {filteredItems.length === 0 ? (
+            <div className="text-black">No items found for {category}</div> // Message if no items are found
           ) : (
-            chickenKarahis.map((item) => (
+            filteredItems.map((item) => (
               <MenuItem key={uuidv4()} item={item} />
             ))
           )}
         </div>
+      </div>
+    );
+  };
+
+  return (
+    <div className="bg-white text-black">
+      <Hero />
+
+      {/* Displaying the whole menu with each category section */}
+      <div>
+        {/* Render all categories dynamically */}
+        {categories.map(category => renderCategorySection(category))}
       </div>
     </div>
   );
