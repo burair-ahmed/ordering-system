@@ -69,14 +69,17 @@ const MenuItem: FC<MenuItemProps> = ({ item }) => {
 
             {/* Left Column - Image */}
             <div className="lg:w-1/2 flex justify-center items-center mb-4 lg:mb-0">
-              <Image
-                src={item.image || "/fallback-image.jpg"}
-                alt={item.title}
-                className="p-2 g-0 rounded-[15px] object-cover"
-                width={356}
-                height={250}
-              />
-            </div>
+  <Image
+    src={item.image || "/fallback-image.jpg"}
+    alt={item.title}
+    className="p-2 g-0 rounded-[15px] object-cover w-full h-[350px]"  // Set height to 350px
+    width={356}  // You can keep these for a specific width if needed
+    height={350} // Maintain the height of 350px
+  />
+</div>
+
+
+
 
             {/* Right Column - Details */}
             <div className="lg:w-1/2 px-4">
