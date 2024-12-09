@@ -23,14 +23,21 @@ interface MenuItemProps {
 const MenuItem: FC<MenuItemProps> = ({ item }) => {
   const [showModal, setShowModal] = useState(false);
   const [selectedVariation, setSelectedVariation] = useState<Variation | null>(null);
+  const [showAddedMessage, setShowAddedMessage] = useState(false); // State for showing the added message
 
-  const itemId = item.id ? item.id.toString() : "0"; // Ensure itemId is always a string
-  const basePrice = typeof item.price === "number" ? item.price : 0; // Default to 0 if price is undefined
+  const itemId = item.id ? item.id.toString() : "0";
+  const basePrice = typeof item.price === "number" ? item.price : 0;
   const variationPrice = selectedVariation ? parseFloat(selectedVariation.price || "0") : 0;
   const totalPrice = basePrice + variationPrice;
 
   const handleVariationChange = (variation: Variation) => {
     setSelectedVariation(variation);
+  };
+
+  // Function to trigger the "Item added" message
+  const handleItemAdded = () => {
+    setShowAddedMessage(true);
+    setTimeout(() => setShowAddedMessage(false), 3000); // Hide the message after 3 seconds
   };
 
   return (
@@ -58,7 +65,7 @@ const MenuItem: FC<MenuItemProps> = ({ item }) => {
       {/* Modal */}
       {showModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 max-w-4xl w-full relative flex flex-col lg:flex-row">
+          <div className="bg-white rounded-lg p-6 max-w-4xl w-full relative flex flex-col lg:flex-row border-4 border-[#741052]">
             {/* Close Button */}
             <button
               className="absolute top-2 right-2 text-gray-400 hover:text-gray-800"
@@ -69,21 +76,17 @@ const MenuItem: FC<MenuItemProps> = ({ item }) => {
 
             {/* Left Column - Image */}
             <div className="lg:w-1/2 flex justify-center items-center mb-4 lg:mb-0">
-  <Image
-    src={item.image || "/fallback-image.jpg"}
-    alt={item.title}
-    className="p-2 g-0 rounded-[15px] object-cover w-full h-[350px]"  // Set height to 350px
-    width={356}  // You can keep these for a specific width if needed
-    height={350} // Maintain the height of 350px
-  />
-</div>
-
-
-
+              <Image
+                src={item.image || "/fallback-image.jpg"}
+                alt={item.title}
+                className="p-2 g-0 rounded-[15px] object-cover w-full h-[350px]"
+                width={356}
+                height={350}
+              />
+            </div>
 
             {/* Right Column - Details */}
             <div className="lg:w-1/2 px-4">
-              {/* Dynamic Title */}
               <h2 className="text-xl font-bold mt-4 lg:mt-0">
                 {item.title}
                 {selectedVariation && ` (${selectedVariation.name})`}
@@ -120,17 +123,24 @@ const MenuItem: FC<MenuItemProps> = ({ item }) => {
               </div>
 
               {/* Add to Cart Button */}
-              <AddToCartButton
-                id={itemId}
-                title={item.title}
-                price={totalPrice}
-                image={item.image}
-                selectedVariations={
-                  selectedVariation
-                    ? [`${selectedVariation.name}`] // Only show name without price in the cart
-                    : undefined
-                }
-              />
+              <div className="flex gap-4 items-center align-center">
+                <AddToCartButton
+                  id={itemId}
+                  title={item.title}
+                  price={totalPrice}
+                  image={item.image}
+                  selectedVariations={
+                    selectedVariation
+                      ? [`${selectedVariation.name}`]
+                      : undefined
+                  }
+                  onClick={handleItemAdded} // Trigger the message when clicked
+                  className="" // No color change on button
+                />
+                {showAddedMessage && (
+                  <p className="text-sm text-green-500 flex items-center text-center mt-4">{item.title} added to cart</p> // Aligns the text vertically
+                )}
+              </div>
             </div>
           </div>
         </div>
