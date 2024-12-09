@@ -24,7 +24,7 @@ const categories = [
   "Charming Chai", "Paratha Performance", "Beast BBQ", "Rolls Royce",
   "Very Fast Food", "Burger-E-Karachi", "Woodfired Pizza", "Shawarmania",
   "French Boys Fries", "Dashing Desserts", "Chicken Karahis",
-  "Mutton Karahis", "Handi & Qeema", "Beverages", "Juicy Lucy", "Very Extra"
+  "Mutton Karahis", "Handi & Qeema", "Beverages", "Juicy Lucy", "Very Extra", "Marvellous Matka Biryani Chicken/Beef",
 ];
 
 export default function MenuPage() {
