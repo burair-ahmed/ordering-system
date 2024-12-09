@@ -26,15 +26,10 @@ const OrdersList: FC = () => {
 
   useEffect(() => {
     const fetchOrders = async () => {
-      const response = await fetch("/api/fetchorders");  // Use the new API route
+      const response = await fetch("/api/fetchorders");
       const data = await response.json();
       if (response.ok) {
-        const sortedOrders = data.orders.sort((a: Order, b: Order) => {
-          const dateA = a.orderNumber.slice(8, 16);  // Extract YYYYMMDD
-          const dateB = b.orderNumber.slice(8, 16);  // Extract YYYYMMDD
-          return dateB.localeCompare(dateA);  // Sorting in descending order by date
-        });
-        setOrders(sortedOrders); // Update state with sorted orders
+        setOrders(data.orders);
       } else {
         alert("Failed to fetch orders.");
       }
@@ -42,6 +37,36 @@ const OrdersList: FC = () => {
 
     fetchOrders();
   }, []);
+
+  const updateOrderStatus = async (orderNumber: string, newStatus: string) => {
+    try {
+      const response = await fetch("/api/updateorderstatus", {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ orderNumber, status: newStatus }),
+      });
+
+      const data = await response.json();
+      if (response.ok) {
+        alert("Order status updated successfully.");
+        // Update the local state with the updated status
+        setOrders((prevOrders) =>
+          prevOrders.map((order) =>
+            order.orderNumber === orderNumber
+              ? { ...order, status: newStatus }
+              : order
+          )
+        );
+      } else {
+        alert(data.message || "Failed to update order status.");
+      }
+    } catch (error) {
+      console.error("Error updating order status:", error);
+      alert("Error updating order status.");
+    }
+  };
 
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -58,8 +83,20 @@ const OrdersList: FC = () => {
               <p><strong className="font-medium text-gray-700">Customer Name:</strong> {order.customerName}</p>
               <p><strong className="font-medium text-gray-700">Email:</strong> {order.email}</p>
               <p><strong className="font-medium text-gray-700">Table Number:</strong> {order.tableNumber}</p>
-              <p><strong className="font-medium text-gray-700">Status:</strong> {order.status}</p>
               <p><strong className="font-medium text-gray-700">Payment Method:</strong> {order.paymentMethod}</p>
+              <p>
+                <strong className="font-medium text-gray-700">Status:</strong>
+                <select
+                  className="ml-2 p-1 border rounded"
+                  value={order.status}
+                  onChange={(e) => updateOrderStatus(order.orderNumber, e.target.value)}
+                >
+                  <option value="Pending">Pending</option>
+                  <option value="In Progress">In Progress</option>
+                  <option value="Completed">Completed</option>
+                  <option value="Cancelled">Cancelled</option>
+                </select>
+              </p>
             </div>
             <h3 className="text-xl font-bold mt-4 text-gray-800">Items:</h3>
             <ul className="space-y-4">
