@@ -41,7 +41,7 @@ export default function Header() {
 
   return (
     <div className="p-0">
-      {/* Desktop Header (Unchanged) */}
+      {/* Desktop Header */}
       <div className="hidden lg:block">
         <div className="fading-gradient">
           <div
@@ -60,7 +60,6 @@ export default function Header() {
 
           <div className="grid grid-cols-8 items-center w-9/12 mx-auto pt-6">
             <div className="col-span-4 flex gap-4">
-        
               <button className="bg-[#ff9824] rounded-[5px] px-4 py-1">
                 <div className="flex items-center gap-2 mx-auto">
                   <div className="flex items-center">
@@ -115,9 +114,9 @@ export default function Header() {
             </div>
           </div>
 
-          {/* Centered Logo */}
+          {/* Centered Logo with Table ID in the Link */}
           <div className="flex justify-center items-center -mt-[5rem] z-10">
-            <Link href={'/'}>
+            <Link href={tableId ? `/order?tableId=${tableId}` : '/'}>
               <Image src="/logo.webp" alt="Logo" width={120} height={120} />
             </Link>
           </div>
@@ -127,7 +126,7 @@ export default function Header() {
       {/* Mobile Header */}
       <div className="block lg:hidden">
         <div className="flex justify-between items-center p-4 bg-[#ff9824]">
-          <Link href={'/'}>
+          <Link href={tableId ? `/order?tableId=${tableId}` : '/'}>
             <Image src="/logo.webp" alt="Logo" width={80} height={80} />
           </Link>
 
@@ -143,22 +142,21 @@ export default function Header() {
         </div>
       </div>
 
-{/* Fixed Bottom Bar for Mobile */}
-<div className="fixed bottom-0 left-0 w-full bg-[#741052] text-white py-3 flex justify-between items-center px-6 z-20 shadow-md">
-  <div className="flex flex-col text-center sm:text-left">
-    <p className="text-sm font-semibold">Total Price: Rs. {totalAmount.toFixed(2)}</p>
-    <p className="text-xs sm:text-sm">Items: {totalItems}</p>
-  </div>
-  <button 
-    className="bg-white text-[#ff7b00] rounded-full px-6 py-2 font-bold shadow-lg transition-all hover:bg-[#ff5f00] hover:text-[#fff] focus:outline-none focus:ring-2 focus:ring-[#ff5f00] focus:ring-opacity-50"
-    onClick={toggleCartSidebar}
-  >
-    View Cart
-  </button>
-</div>
+      {/* Fixed Bottom Bar for Mobile */}
+      <div className="fixed bottom-0 left-0 w-full bg-[#741052] text-white py-3 flex justify-between items-center px-6 z-20 shadow-md">
+        <div className="flex flex-col text-center sm:text-left">
+          <p className="text-sm font-semibold">Total Price: Rs. {totalAmount.toFixed(2)}</p>
+          <p className="text-xs sm:text-sm">Items: {totalItems}</p>
+        </div>
+        <button 
+          className="bg-white text-[#ff7b00] rounded-full px-6 py-2 font-bold shadow-lg transition-all hover:bg-[#ff5f00] hover:text-[#fff] focus:outline-none focus:ring-2 focus:ring-[#ff5f00] focus:ring-opacity-50"
+          onClick={toggleCartSidebar}
+        >
+          View Cart
+        </button>
+      </div>
 
-
-      {/* Main Content (Add bottom padding to avoid overlap) */}
+      {/* Main Content */}
       <div className="pt-16 lg:pt-0 pb-16">
         {/* Your main content goes here */}
       </div>
