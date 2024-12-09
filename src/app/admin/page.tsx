@@ -3,10 +3,11 @@
 import { FC, useState, useEffect } from "react";
 import OrdersList from "../components/OrdersList";
 import AddMenuItemForm from "../components/MenuItemForm";
-import EditMenuItemForm from "../components/EditMenuItemForm"; // Import Edit Form Component
+import EditMenuItemForm from "../components/EditMenuItemForm";
 import TableManagement from "../components/TableManagement";
 import AnalyticsPage from "../components/Analytics";
-import { FiMenu, FiList, FiSettings, FiPlus, FiTable, FiBarChart } from "react-icons/fi";
+import CompletedOrders from "../components/CompletedOrders"; // Import Completed Orders Component
+import { FiMenu, FiList, FiSettings, FiPlus, FiTable, FiBarChart, FiArchive } from "react-icons/fi";
 import Image from "next/image";
 
 interface Variation {
@@ -20,11 +21,9 @@ interface MenuItem {
   description: string;
   price: number;
   category: string;
-  image: string; // Remove 'undefined' from the type
+  image: string;
   variations: Variation[];
 }
-
-
 
 const AdminDashboard: FC = () => {
   const [activeTab, setActiveTab] = useState("orders"); // Active tab state
@@ -139,6 +138,15 @@ const AdminDashboard: FC = () => {
           </button>
           <button
             className={`flex items-center gap-2 ${
+              activeTab === "completedOrders" ? "text-gray-300" : "hover:text-gray-300"
+            }`}
+            onClick={() => handleTabClick("completedOrders")}
+          >
+            <FiArchive size={20} />
+            <span className={`${isSidebarCollapsed ? "hidden" : "block"}`}>Completed Orders</span>
+          </button>
+          <button
+            className={`flex items-center gap-2 ${
               activeTab === "analytics" ? "text-gray-300" : "hover:text-gray-300"
             }`}
             onClick={() => handleTabClick("analytics")}
@@ -206,6 +214,12 @@ const AdminDashboard: FC = () => {
         )}
         {activeTab === "addmenu" && <AddMenuItemForm />}
         {activeTab === "tables" && <TableManagement />}
+        {activeTab === "completedOrders" && (
+          <div>
+            <h2 className="text-2xl font-semibold text-[#741052] mb-4">Completed Orders</h2>
+            <CompletedOrders />
+          </div>
+        )}
         {activeTab === "analytics" && <AnalyticsPage />}
         {activeTab === "settings" && <div>Settings</div>}
       </div>
