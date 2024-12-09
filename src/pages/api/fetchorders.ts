@@ -19,8 +19,8 @@ const fetchOrdersHandler = async (req: NextApiRequest, res: NextApiResponse) => 
       // Connect to the database
       await connectToDatabase();
 
-      // Fetch all orders, sorted by orderNumber (latest orders first)
-      const orders = await Order.find().sort({ orderNumber: -1 }); // Sort by orderNumber, descending
+      // Fetch orders excluding "Completed", sorted by orderNumber (latest orders first)
+      const orders = await Order.find({ status: { $ne: "Completed" } }).sort({ orderNumber: -1 });
 
       if (!orders || orders.length === 0) {
         return res.status(404).json({ message: "No orders found." });

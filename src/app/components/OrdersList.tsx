@@ -7,7 +7,7 @@ interface Item {
   title: string;
   quantity: number;
   price: number;
-  variations?: { name: string; value: string }[] | string[];  // Adjust based on how variations are structured
+  variations?: { name: string; value: string }[] | string[]; // Adjust based on how variations are structured
 }
 
 interface Order {
@@ -24,12 +24,15 @@ interface Order {
 const OrdersList: FC = () => {
   const [orders, setOrders] = useState<Order[]>([]);
 
+  // Fetch orders excluding completed ones
   useEffect(() => {
     const fetchOrders = async () => {
       const response = await fetch("/api/fetchorders");
       const data = await response.json();
       if (response.ok) {
-        setOrders(data.orders);
+        // Filter out completed orders
+        const filteredOrders = data.orders.filter((order: Order) => order.status !== "Completed");
+        setOrders(filteredOrders);
       } else {
         alert("Failed to fetch orders.");
       }
