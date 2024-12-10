@@ -37,7 +37,10 @@ const MenuItem: FC<MenuItemProps> = ({ item }) => {
   // Function to trigger the "Item added" message
   const handleItemAdded = () => {
     setShowAddedMessage(true);
-    setTimeout(() => setShowAddedMessage(false), 3000); // Hide the message after 3 seconds
+    setTimeout(() => {
+      setShowAddedMessage(false);
+      setTimeout(() => setShowModal(false), 200); // Close modal after 500ms delay to allow message to disappear
+    }, 200); // Show the "added" message for 3 seconds
   };
 
   return (

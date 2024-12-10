@@ -170,3 +170,30 @@ body {
   font-family: Arial, Helvetica, sans-serif;
   /* margin-bottom: 5em; */
 }
+
+
+
+/* Apply conditionally to remove the large top padding on mobile */
+@media (max-width: 768px) {
+  .pt-16 {
+    padding-top: 2rem;  /* Reduce padding for mobile */
+  }
+
+  /* Remove negative margin */
+  .-mt-5 {
+    margin-top: 0;  /* Adjust margin for mobile */
+  }
+}
+
+/* Adjust padding in mobile */
+@media (max-width: 768px) {
+  .pt-16 {
+    padding-top: 0;  /* No extra space on mobile */
+  }
+}
+
+@media (max-width: 768px) {
+  .fixed {
+    bottom: 0; /* Ensure it stays at the bottom without affecting the hero section */
+  }
+}
