@@ -131,14 +131,22 @@ const CartSidebar = ({ closeSidebar, tableId }: { closeSidebar: () => void; tabl
           </button>
 
           {/* Proceed to Checkout Button */}
-          <Link href={`/checkout?tableId=${tableId}`} passHref>
-            <button className="flex items-center justify-center bg-[#741052] hover:bg-[#5e0d41] text-white rounded-full py-2 w-full shadow-md transition">
-              <span className="flex items-center">
-                Checkout
-                <FaArrowRight className="ml-2" />
-              </span>
-            </button>
-          </Link>
+       {/* Proceed to Checkout Button */}
+<Link
+  href={`/checkout?tableId=${tableId}`}
+  passHref
+>
+  <button
+    onClick={handleClose} // Close the sidebar on click
+    className="flex items-center justify-center bg-[#741052] hover:bg-[#5e0d41] text-white rounded-full py-2 w-full shadow-md transition"
+  >
+    <span className="flex items-center">
+      Checkout
+      <FaArrowRight className="ml-2" />
+    </span>
+  </button>
+</Link>
+
         </div>
       )}
     </div>
