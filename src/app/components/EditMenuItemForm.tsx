@@ -12,7 +12,7 @@ interface EditMenuItemFormProps {
     description: string;
     price: number;
     category: string;
-    image: string;
+    image: string; // Base64 string
     variations: Variation[];
   };
   onClose: () => void;
@@ -25,13 +25,27 @@ const EditMenuItemForm: React.FC<EditMenuItemFormProps> = ({ item, onClose, onUp
     description: item.description || "",
     price: item.price || 0,
     category: item.category || "",
-    image: item.image || "",
+    image: item.image || "", // Existing image as base64
     variations: item.variations || [],
   });
+  const [newImage, setNewImage] = useState<File | null>(null);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
+  };
+
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0] || null;
+    setNewImage(file);
+
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setFormData({ ...formData, image: reader.result as string });
+      };
+      reader.readAsDataURL(file);
+    }
   };
 
   const handleVariationChange = (
@@ -90,6 +104,7 @@ const EditMenuItemForm: React.FC<EditMenuItemFormProps> = ({ item, onClose, onUp
         <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-8">
           {/* Left Column */}
           <div className="space-y-4">
+            {/* Title */}
             <div>
               <label className="block text-sm font-medium text-gray-700">Title</label>
               <input
@@ -100,6 +115,7 @@ const EditMenuItemForm: React.FC<EditMenuItemFormProps> = ({ item, onClose, onUp
                 className="w-full border border-gray-300 rounded-md shadow-sm px-4 py-2"
               />
             </div>
+            {/* Description */}
             <div>
               <label className="block text-sm font-medium text-gray-700">Description</label>
               <textarea
@@ -109,6 +125,7 @@ const EditMenuItemForm: React.FC<EditMenuItemFormProps> = ({ item, onClose, onUp
                 className="w-full border border-gray-300 rounded-md shadow-sm px-4 py-2"
               ></textarea>
             </div>
+            {/* Price */}
             <div>
               <label className="block text-sm font-medium text-gray-700">Price (Rs.)</label>
               <input
@@ -119,6 +136,7 @@ const EditMenuItemForm: React.FC<EditMenuItemFormProps> = ({ item, onClose, onUp
                 className="w-full border border-gray-300 rounded-md shadow-sm px-4 py-2"
               />
             </div>
+            {/* Category */}
             <div>
               <label className="block text-sm font-medium text-gray-700">Category</label>
               <input
@@ -129,18 +147,17 @@ const EditMenuItemForm: React.FC<EditMenuItemFormProps> = ({ item, onClose, onUp
                 className="w-full border border-gray-300 rounded-md shadow-sm px-4 py-2"
               />
             </div>
+            {/* Image Upload */}
             <div>
-              <label className="block text-sm font-medium text-gray-700">Image URL</label>
+              <label className="block text-sm font-medium text-gray-700">Image</label>
               <input
-                type="text"
-                name="image"
-                value={formData.image}
-                onChange={handleChange}
+                type="file"
+                accept="image/*"
+                onChange={handleImageUpload}
                 className="w-full border border-gray-300 rounded-md shadow-sm px-4 py-2"
               />
             </div>
           </div>
-
           {/* Right Column */}
           <div className="space-y-4">
             <label className="block text-sm font-medium text-gray-700">Variations</label>
@@ -181,7 +198,6 @@ const EditMenuItemForm: React.FC<EditMenuItemFormProps> = ({ item, onClose, onUp
               Add Variation
             </button>
           </div>
-
           {/* Submit and Cancel */}
           <div className="col-span-1 md:col-span-2 flex justify-end gap-4 mt-6">
             <button
