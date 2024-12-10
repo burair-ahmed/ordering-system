@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import MenuItem from "../components/MenuItem";
 import Hero from "../components/Hero";
 import { v4 as uuidv4 } from 'uuid';
+import SkeletonLoader from "../components/SkeletonLoader";
 
 interface MenuItemData {
   id: number;
@@ -20,7 +21,8 @@ interface Variation {
   price: string;
 }
 
-const prioritizedCategories = [
+// Define the fixed order of categories
+const orderedCategories = [
   "Sharing Platter",
   "BBQ Deals",
   "Fast Food Deals",
@@ -29,8 +31,21 @@ const prioritizedCategories = [
   "Dhamaka Discount Platter",
   "Beast BBQ",
   "Rolls Royce",
-  "WoodFired Pizza",
-  "Burger-e-karachi"
+  "Woodfired Pizza",
+  "Burger-E-Karachi",
+  "Chicken Karahis",
+  "Mutton Karahis",
+  "Handi & Qeema",
+  "Marvellous Matka Biryani Chicken/Beef",
+  "Charming Chai",
+  "Paratha Performance",
+  "Very Fast Food",
+  "Shawarmania",
+  "French Boys Fries",
+  "Dashing Desserts",
+  "Beverages",
+  "Juicy Lucy",
+  "Very Extra"
 ];
 
 export default function MenuPage() {
@@ -61,26 +76,6 @@ export default function MenuPage() {
     fetchMenu();
   }, []);
 
-  if (loading) {
-    return <div>Loading...</div>;
-  }
-
-  if (error) {
-    return <div>{error}</div>;
-  }
-
-  // Dynamically get remaining categories
-  const allCategories = Array.from(new Set(menu.map(item => item.category)));
-  const randomCategories = allCategories.filter(
-    category => !prioritizedCategories.includes(category)
-  );
-
-  // Shuffle random categories
-  randomCategories.sort(() => Math.random() - 0.5);
-
-  // Combine prioritized and random categories
-  const combinedCategories = [...prioritizedCategories, ...randomCategories];
-
   // Function to render sections for each category
   const renderCategorySection = (category: string) => {
     const filteredItems = menu.filter(item => item.category === category);
@@ -107,10 +102,35 @@ export default function MenuPage() {
 
   return (
     <div className="bg-white text-black">
+      {/* Hero component always renders immediately */}
       <Hero />
-      <div>
-        {combinedCategories.map(category => renderCategorySection(category))}
-      </div>
+
+      {/* Menu items with loading state */}
+      {loading ? (
+        <div>
+          {/* Render skeleton headings */}
+          {orderedCategories.map((category, index) => (
+            <div key={index} className="mt-8">
+              <div className="w-full flex justify-center mb-4">
+                <div className="bg-gray-300 w-1/2 h-10 rounded-lg animate-pulse"></div> {/* Skeleton heading */}
+              </div>
+              <div className="grid grid-cols-1 gap-4 w-11/12 mx-auto sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 mt-4">
+                {[...Array(4)].map((_, i) => (
+                  <SkeletonLoader key={i} />
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+      ) : (
+        <div>
+          {/* Render only the categories in the specified order */}
+          {orderedCategories.map(category => renderCategorySection(category))}
+        </div>
+      )}
+
+      {/* Error handling */}
+      {error && <div className="text-red-500">{error}</div>}
     </div>
   );
 }
