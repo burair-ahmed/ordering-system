@@ -19,7 +19,8 @@ const AddMenuItemForm = () => {
     "Charming Chai", "Paratha Performance", "Beast BBQ", "Rolls Royce",
     "Very Fast Food", "Burger-E-Karachi", "Woodfired Pizza", "Shawarmania",
     "French Boys Fries", "Dashing Desserts", "Chicken Karahis",
-    "Mutton Karahis", "Handi & Qeema", "Beverages", "Juicy Lucy", "Very Extra", "Marvellous Matka Biryani Chicken/Beef",
+    "Mutton Karahis", "Handi & Qeema", "Beverages", "Juicy Lucy", "Very Extra", "Marvellous Matka Biryani Chicken/Beef", "BBQ Deals", "Fast Food Deals",
+    "Fast Food Platter", "Dawat Deal", "Dhamaka Discount Platter", "Sharing Platters",
   ];
 
   const handleInputChange = (

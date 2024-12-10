@@ -10,9 +10,9 @@ interface MenuItemData {
   title: string;
   description: string;
   price: number;
-  image: string; // This should be the property expected by MenuItem
-  variations: Variation[]; // This should match the expected format
-  category: string; // Add the category property
+  image: string;
+  variations: Variation[];
+  category: string;
 }
 
 interface Variation {
@@ -20,23 +20,28 @@ interface Variation {
   price: string;
 }
 
-const categories = [
-  "Charming Chai", "Paratha Performance", "Beast BBQ", "Rolls Royce",
-  "Very Fast Food", "Burger-E-Karachi", "Woodfired Pizza", "Shawarmania",
-  "French Boys Fries", "Dashing Desserts", "Chicken Karahis",
-  "Mutton Karahis", "Handi & Qeema", "Beverages", "Juicy Lucy", "Very Extra", "Marvellous Matka Biryani Chicken/Beef",
+const prioritizedCategories = [
+  "Sharing Platter",
+  "BBQ Deals",
+  "Fast Food Deals",
+  "Fast Food Platter",
+  "Dawat Deal",
+  "Dhamaka Discount Platter",
+  "Beast BBQ",
+  "Rolls Royce",
+  "WoodFired Pizza",
+  "Burger-e-karachi"
 ];
 
 export default function MenuPage() {
   const [menu, setMenu] = useState<MenuItemData[]>([]);
-  const [loading, setLoading] = useState<boolean>(true); // To handle loading state
-  const [error, setError] = useState<string | null>(null); // To handle error state
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchMenu = async () => {
       try {
-        // Fetch menu items from your API route
-        const response = await fetch("/api/getitems"); // Update with your actual API route
+        const response = await fetch("/api/getitems");
         if (!response.ok) {
           throw new Error("Failed to fetch menu items");
         }
@@ -57,20 +62,31 @@ export default function MenuPage() {
   }, []);
 
   if (loading) {
-    return <div>Loading...</div>; // Loading state
+    return <div>Loading...</div>;
   }
 
   if (error) {
-    return <div>{error}</div>; // Error state
+    return <div>{error}</div>;
   }
+
+  // Dynamically get remaining categories
+  const allCategories = Array.from(new Set(menu.map(item => item.category)));
+  const randomCategories = allCategories.filter(
+    category => !prioritizedCategories.includes(category)
+  );
+
+  // Shuffle random categories
+  randomCategories.sort(() => Math.random() - 0.5);
+
+  // Combine prioritized and random categories
+  const combinedCategories = [...prioritizedCategories, ...randomCategories];
 
   // Function to render sections for each category
   const renderCategorySection = (category: string) => {
     const filteredItems = menu.filter(item => item.category === category);
-    
+
     return (
       <div key={category} className="mt-8">
-        {/* Heading with background color only behind the text and centered */}
         <div className="w-full flex justify-center mb-4">
           <h1 className="text-3xl font-semibold text-white bg-[#741052] py-3 px-6 rounded-lg shadow-md text-center">
             {category}
@@ -78,7 +94,7 @@ export default function MenuPage() {
         </div>
         <div className="grid grid-cols-1 gap-4 w-11/12 mx-auto sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 mt-4">
           {filteredItems.length === 0 ? (
-            <div className="text-black">No items found for {category}</div> // Message if no items are found
+            <div className="text-black">No items found for {category}</div>
           ) : (
             filteredItems.map((item) => (
               <MenuItem key={uuidv4()} item={item} />
@@ -92,11 +108,8 @@ export default function MenuPage() {
   return (
     <div className="bg-white text-black">
       <Hero />
-
-      {/* Displaying the whole menu with each category section */}
       <div>
-        {/* Render all categories dynamically */}
-        {categories.map(category => renderCategorySection(category))}
+        {combinedCategories.map(category => renderCategorySection(category))}
       </div>
     </div>
   );
