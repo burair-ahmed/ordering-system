@@ -87,7 +87,7 @@ export default function MenuPage() {
             {category}
           </h1>
         </div>
-        <div className="grid grid-cols-1 gap-4 w-11/12 mx-auto sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 mt-4">
+        <div className="grid grid-cols-2 gap-4 w-11/12 mx-auto sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 mt-4">
           {filteredItems.length === 0 ? (
             <div className="text-black">No items found for {category}</div>
           ) : (
@@ -114,7 +114,7 @@ export default function MenuPage() {
               <div className="w-full flex justify-center mb-4">
                 <div className="bg-gray-300 w-1/2 h-10 rounded-lg animate-pulse"></div> {/* Skeleton heading */}
               </div>
-              <div className="grid grid-cols-1 gap-4 w-11/12 mx-auto sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 mt-4">
+              <div className="grid grid-cols-2 gap-4 w-11/12 mx-auto sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 mt-4">
                 {[...Array(4)].map((_, i) => (
                   <SkeletonLoader key={i} />
                 ))}
