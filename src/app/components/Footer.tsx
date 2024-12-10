@@ -34,12 +34,12 @@ const Footer: FC = () => {
           </div>
 
           {/* Middle Section: Navigation Links */}
-          <div className="flex justify-center space-x-8 mb-6 lg:mb-0">
+          {/* <div className="flex justify-center space-x-8 mb-6 lg:mb-0">
             <a href="/about" className="text-white hover:text-gray-200 transition duration-300">About Us</a>
             <a href="/menu" className="text-white hover:text-gray-200 transition duration-300">Menu</a>
             <a href="/contact" className="text-white hover:text-gray-200 transition duration-300">Contact</a>
             <a href="/terms" className="text-white hover:text-gray-200 transition duration-300">Terms & Conditions</a>
-          </div>
+          </div> */}
 
           {/* Right Section: Social Media Links */}
           <div className="flex justify-center space-x-6">
