@@ -62,38 +62,38 @@ export default function Header() {
             <div className="col-span-4 flex gap-4">
               <button className="bg-[#ff9824] rounded-[5px] px-4 py-1">
                 <Link href="tel:+923331702704">
-                <div className="flex items-center gap-2 mx-auto">
-                  <div className="flex items-center">
-                    <Image src="/contact.svg" alt="" width={15} height={15} />
+                  <div className="flex items-center gap-2 mx-auto">
+                    <div className="flex items-center">
+                      <Image src="/contact.svg" alt="" width={15} height={15} />
+                    </div>
+                    <div className="text-left">
+                      <h1 className="text-[11px] font-extrabold">Contact Now</h1>
+                      <p className="text-[10px] font-regular">+92 3331702704</p>
+                    </div>
                   </div>
-                  <div className="text-left">
-                    <h1 className="text-[11px] font-extrabold">Contact Now</h1>
-                    <p className="text-[10px] font-regular">+92 3331702704</p>
-                  </div>
-                </div>
                 </Link>
               </button>
 
               {/* Location Button */}
               <button className="bg-[#ff9824] rounded-[5px] px-4 py-1">
                 <Link target='_blank' href="https://www.google.com/maps/place/Cafe+Little+Karachi/@24.9219628,67.1162219,41m/data=!3m1!1e3!4m6!3m5!1s0x3eb3414e7de37d51:0x29be4bee897cb4b2!8m2!3d24.9219151!4d67.1163346!16s%2Fg%2F11jz5mh9y8?entry=ttu&g_ep=EgoyMDI0MTIwNC4wIKXMDSoASAFQAw%3D%3D">
-                <div className="flex items-center gap-2 mx-auto">
-                  <div className="flex items-center">
-                    <Image src="/location.svg" alt="" width={15} height={15} />
+                  <div className="flex items-center gap-2 mx-auto">
+                    <div className="flex items-center">
+                      <Image src="/location.svg" alt="" width={15} height={15} />
+                    </div>
+                    <div className="text-left">
+                      <h1 className="text-[11px] font-extrabold">Location</h1>
+                      <p className="text-[10px] font-regular">Find Us</p>
+                    </div>
                   </div>
-                  <div className="text-left">
-                    <h1 className="text-[11px] font-extrabold">Location</h1>
-                    <p className="text-[10px] font-regular">Find Us</p>
-                  </div>
-                </div>
                 </Link>
               </button>
             </div>
 
             <div className="col-span-4 flex gap-4 justify-end">
-              {/* Cart Button */}
+              {/* Cart Button with item count */}
               <button
-                className="bg-[#ff9824] rounded-[5px] px-4 py-1"
+                className="bg-[#ff9824] rounded-[5px] px-4 py-1 relative"
                 onClick={toggleCartSidebar}
               >
                 <div className="flex items-center gap-2 mx-auto">
@@ -105,6 +105,12 @@ export default function Header() {
                     <p className="text-[10px] font-regular">Your Items</p>
                   </div>
                 </div>
+                {/* Red Circle for Cart Item Quantity */}
+                {totalItems > 0 && (
+                  <div className="absolute top-1 right-2 bg-white text-[#000] text-xs font-extrabold rounded-full w-4 h-4 flex items-center justify-center">
+                    {totalItems}
+                  </div>
+                )}
               </button>
 
               {/* Offcanvas Button */}
