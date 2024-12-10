@@ -28,7 +28,6 @@ const EditMenuItemForm: React.FC<EditMenuItemFormProps> = ({ item, onClose, onUp
     image: item.image || "", // Existing image as base64
     variations: item.variations || [],
   });
-  const [newImage, setNewImage] = useState<File | null>(null);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -37,7 +36,6 @@ const EditMenuItemForm: React.FC<EditMenuItemFormProps> = ({ item, onClose, onUp
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0] || null;
-    setNewImage(file);
 
     if (file) {
       const reader = new FileReader();
