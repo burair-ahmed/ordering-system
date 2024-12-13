@@ -47,23 +47,35 @@ const MenuItem: FC<MenuItemProps> = ({ item }) => {
     <>
       {/* Menu Item Card */}
       <div
-        className="menu-item-card bg-white rounded-lg shadow-lg p-4 cursor-pointer hover:shadow-xl transition-transform transform hover:scale-105"
-        onClick={() => setShowModal(true)}
-      >
-        <Image
-          src={item.image || "/fallback-image.jpg"}
-          alt={item.title}
-          className="rounded-lg object-cover w-full h-48 mb-4"
-          width={450}
-          height={150}
-        />
-        <h2 className="font-bold text-xl text-gray-800 mb-2">{item.title}</h2>
-        <p className="text-sm text-gray-600 mb-4">{item.description}</p>
-        <p className="font-semibold text-lg text-[#741052]">Rs.{basePrice.toFixed(2)}</p>
-        <button className="mt-4 py-2 px-4 bg-[#741052] text-white rounded-lg hover:bg-[#5e0d41] transition">
-          ADD TO CART
-        </button>
-      </div>
+  className="menu-item-card bg-white rounded-lg shadow-lg p-4 cursor-pointer hover:shadow-xl transition-transform transform hover:scale-105 flex flex-col"
+  onClick={() => setShowModal(true)}
+  style={{ height: "24rem" }} // Fixed height for uniformity
+>
+  <Image
+    src={item.image || "/fallback-image.jpg"}
+    alt={item.title}
+    className="rounded-lg object-cover w-full h-40 mb-4"
+    width={450}
+    height={150}
+  />
+  <h2 className="font-bold text-xl text-gray-800 mb-2">{item.title}</h2>
+  <p
+    className="text-sm text-gray-600 mb-4 overflow-hidden text-ellipsis"
+    style={{
+      display: "-webkit-box",
+      WebkitBoxOrient: "vertical",
+      WebkitLineClamp: 3, // Limit to 3 lines
+      overflow: "hidden",
+    }}
+  >
+    {item.description}
+  </p>
+  <p className="font-semibold text-lg text-[#741052] mt-auto">Rs.{basePrice.toFixed(2)}</p>
+  <button className="mt-2 py-2 px-4 bg-[#741052] text-white rounded-lg hover:bg-[#5e0d41] transition">
+    ADD TO CART
+  </button>
+</div>
+
 
       {/* Modal */}
       {showModal && (
