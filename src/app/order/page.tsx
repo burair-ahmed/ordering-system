@@ -23,7 +23,7 @@ interface Variation {
 
 // Define the fixed order of categories
 const orderedCategories = [
-  "Sharing Platter",
+  "Sharing Platters",
   "BBQ Deals",
   "Fast Food Deals",
   "Dhamaka Discount Platter",

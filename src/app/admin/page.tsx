@@ -74,7 +74,7 @@ const AdminDashboard: FC = () => {
   // Refresh Menu Items
   const refreshMenuItems = async () => {
     try {
-      const response = await fetch('/api/getitems');
+      const response = await fetch('/api/getitemsadmin');
       const data: MenuItem[] = await response.json();
       setMenuItems(data);
     } catch (error) {
