@@ -35,7 +35,7 @@ const ordersHandler = async (req: NextApiRequest, res: NextApiResponse) => {
     const { customerName, email, tableNumber, paymentMethod, items, totalAmount, status } = req.body;
 
     // Validate required fields
-    if (!customerName || !email || !tableNumber || !items || !totalAmount || !status) {
+    if (!customerName || !tableNumber || !items || !totalAmount || !status) {
       return res.status(400).json({ message: "Missing required fields" });
     }
 

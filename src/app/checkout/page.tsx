@@ -9,7 +9,7 @@ const CheckoutPageContent: FC = () => {
   const { cartItems, totalAmount, clearCart } = useCart();
   const [formData, setFormData] = useState({
     name: '',
-    email: '',
+    email: '',  // Keep this but it's optional
     tableNumber: '',
     paymentMethod: 'cash',
   });
@@ -43,8 +43,8 @@ const CheckoutPageContent: FC = () => {
   };
 
   const handleCheckout = () => {
-    if (!formData.name || !formData.email || !formData.tableNumber) {
-      alert('Please fill in all fields.');
+    if (!formData.name || !formData.tableNumber) {
+      alert('Please fill in all required fields.');
       return;
     }
     setIsModalOpen(true);
@@ -54,7 +54,7 @@ const CheckoutPageContent: FC = () => {
     const newOrder = {
       orderNumber: `ORD-${Math.floor(Math.random() * 1000000)}`,
       customerName: formData.name,
-      email: formData.email,
+      email: formData.email || '', // Email is optional
       tableNumber: formData.tableNumber,
       paymentMethod: formData.paymentMethod,
       items: cartItems.map((item) => ({
@@ -78,10 +78,7 @@ const CheckoutPageContent: FC = () => {
     });
 
     if (response.ok) {
-      alert('Order placed successfully!');
       clearCart();
-      
-      // Redirect to the thank you page with tableId
       router.push(`/thank-you?tableId=${formData.tableNumber}`);
     } else {
       alert('Failed to place the order.');
@@ -109,7 +106,7 @@ const CheckoutPageContent: FC = () => {
           <input
             type="email"
             name="email"
-            placeholder="Email Address"
+            placeholder="Email Address (Optional)"
             value={formData.email}
             onChange={handleInputChange}
             className="w-full p-3 border-2 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
@@ -160,8 +157,7 @@ const CheckoutPageContent: FC = () => {
           <div className="space-y-4">
             {cartItems.map((item, index) => (
               <div key={`${item.id}-${index}`} className="flex justify-between items-center bg-gray-100 p-4 rounded-lg shadow-md">
-                {/* <img src={item.image} alt={item.title} className="w-20 h-20 object-cover rounded-lg" /> */}
-                <Image src={item.image || "Placeholder.png"} alt={item.title} width={150} height={40}/>
+                <Image src={item.image || "Placeholder.png"} alt={item.title} width={150} height={40} />
                 <div className="flex-1 pl-4">
                   <p className="font-medium text-[#333]">{item.title} ({typeof item.variations === 'object' ? Object.values(item.variations).join(', ') : item.variations})</p>
                   <p className="text-sm text-gray-500">Qty: {item.quantity}</p>
@@ -191,7 +187,7 @@ const CheckoutPageContent: FC = () => {
             <h2 className="text-2xl font-semibold text-center mb-4 text-[#333]">Confirm Order</h2>
             <div className="space-y-3 mb-6">
               <div className="text-lg text-[#333]"><strong>Name:</strong> {formData.name}</div>
-              <div className="text-lg text-[#333]"><strong>Email:</strong> {formData.email}</div>
+              <div className="text-lg text-[#333]"><strong>Email:</strong> {formData.email || 'N/A'}</div>
               <div className="text-lg text-[#333]"><strong>Table Number:</strong> {formData.tableNumber}</div>
               <div className="text-lg text-[#333]"><strong>Payment Method:</strong> {formData.paymentMethod}</div>
               
@@ -253,4 +249,3 @@ const CheckoutPage: FC = () => (
 );
 
 export default CheckoutPage;
-

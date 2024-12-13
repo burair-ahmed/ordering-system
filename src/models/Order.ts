@@ -14,7 +14,7 @@ const orderSchema = new mongoose.Schema({
     unique: true 
   }, // Custom order number: CLK-ORD-YYYYMMDD-XXXX
   customerName: { type: String, required: true },
-  email: { type: String, required: true },
+  email: { type: String },
   tableNumber: { type: String, required: true },
   paymentMethod: { type: String, required: true },
   items: [{ 
