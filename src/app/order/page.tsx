@@ -26,8 +26,6 @@ const orderedCategories = [
   "Sharing Platter",
   "BBQ Deals",
   "Fast Food Deals",
-  "Fast Food Platter",
-  "Dawat Deal",
   "Dhamaka Discount Platter",
   "Beast BBQ",
   "Rolls Royce",
