@@ -20,7 +20,7 @@ const AddMenuItemForm = () => {
     "Very Fast Food", "Burger-E-Karachi", "Woodfired Pizza", "Shawarmania",
     "French Boys Fries", "Dashing Desserts", "Chicken Karahis",
     "Mutton Karahis", "Handi and Qeema", "Beverages", "Juicy Lucy", "Very Extra", "Marvellous Matka Biryani Chicken/Beef", "BBQ Deals", "Fast Food Deals",
-    "Fast Food Platter", "Dawat Deal", "Dhamaka Discount Platter", "Sharing Platters",
+    "Fast Food Platter", "Dawat Deal", "Dhamaka Discount Platter", "Sharing Platters", "Soup", "Gravy", "Rice",
   ];
 
   const handleInputChange = (
