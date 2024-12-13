@@ -134,14 +134,21 @@ export default function MenuPage() {
                 </h1>
               </div>
               <div className="grid grid-cols-2 gap-4 w-11/12 mx-auto sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 mt-4">
-                {filteredItems.map((item, index) => (
-                  <div
-                    ref={index === filteredItems.length - 1 ? (node) => lastMenuItemRef(category, node) : null}
-                    key={uuidv4()}
-                  >
-                    <MenuItem item={item} />
-                  </div>
-                ))}
+                {/* Display skeleton loaders if the menu is still loading */}
+                {loading && filteredItems.length === 0 ? (
+                  [...Array(4)].map((_, i) => (
+                    <SkeletonLoader key={i} />
+                  ))
+                ) : (
+                  filteredItems.map((item, index) => (
+                    <div
+                      ref={index === filteredItems.length - 1 ? (node) => lastMenuItemRef(category, node) : null}
+                      key={uuidv4()}
+                    >
+                      <MenuItem item={item} />
+                    </div>
+                  ))
+                )}
               </div>
             </div>
           );
