@@ -36,7 +36,7 @@ const AdminDashboard: FC = () => {
   useEffect(() => {
     const fetchMenuItems = async () => {
       try {
-        const response = await fetch('/api/getitems');
+        const response = await fetch('/api/getitemsadmin');
         const data: MenuItem[] = await response.json();
         setMenuItems(data); // Store fetched menu items
       } catch (error) {

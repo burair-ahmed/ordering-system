@@ -33,7 +33,7 @@ const orderedCategories = [
   "Burger-E-Karachi",
   "Chicken Karahis",
   "Mutton Karahis",
-  "Handi & Qeema",
+  "Handi and Qeema",
   "Marvellous Matka Biryani Chicken/Beef",
   "Charming Chai",
   "Paratha Performance",
@@ -91,8 +91,9 @@ export default function MenuPage() {
       }
     };
 
+    // Fetch menu for each category on initial render
     orderedCategories.forEach((category) => {
-      fetchMenu(category); // Fetch menu items for each category initially
+      fetchMenu(category);
     });
   }, []);  // Only run once when component mounts
 
@@ -104,7 +105,7 @@ export default function MenuPage() {
     if (node) {
       observer.current = new IntersectionObserver((entries) => {
         if (entries[0].isIntersecting) {
-          setPage((prevPage) => ({
+          setPage((prevPage) => ( {
             ...prevPage,
             [category]: (prevPage[category] || 1) + 1, // Increment page when last item is in view
           }));
@@ -114,7 +115,6 @@ export default function MenuPage() {
       observer.current.observe(node); // Start observing the last item in the list
     }
   };
-  
 
   return (
     <div className="bg-white text-black">

@@ -7,6 +7,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
 
   // Handling pagination params (page and limit)
   const { page = 1, limit = 10, category = "" } = req.query;
+  console.log(`Category being fetched: ${category}`);
 
   if (req.method === "GET") {
     try {
