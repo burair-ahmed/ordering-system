@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import MenuItem from "../components/MenuItem";
 import Hero from "../components/Hero";
 import { v4 as uuidv4 } from 'uuid';
@@ -47,66 +47,110 @@ const orderedCategories = [
 ];
 
 export default function MenuPage() {
-  const [menu, setMenu] = useState<MenuItemData[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
+  const [menu, setMenu] = useState<{ [key: string]: MenuItemData[] }>({}); // Object to store menu items by category
+  const [loading, setLoading] = useState<boolean>(false);
+  const [page, setPage] = useState<{ [key: string]: number }>({});  // Track the current page for each category
+  const [hasMore, setHasMore] = useState<{ [key: string]: boolean }>({}); // Track if more items exist for each category
+
+  const observer = useRef<IntersectionObserver | null>(null); // Ref for the IntersectionObserver
 
   useEffect(() => {
-    const fetchMenu = async () => {
+    const fetchMenu = async (category: string) => {
+      setLoading(true);
+      const currentPage = page[category] || 1;
+      const hasMoreItems = hasMore[category] ?? true;
+
+      if (!hasMoreItems) return;
+
       try {
-        const response = await fetch("/api/getitems");
+        const response = await fetch(`/api/getitems?page=${currentPage}&limit=10&category=${category}`);
         if (!response.ok) {
           throw new Error("Failed to fetch menu items");
         }
         const data: MenuItemData[] = await response.json();
-        setMenu(data);
-      } catch (err: unknown) {
-        if (err instanceof Error) {
-          setError("Error fetching menu items: " + err.message);
-        } else {
-          setError("Unknown error occurred");
-        }
+
+        setMenu((prevMenu) => ({
+          ...prevMenu,
+          [category]: [...(prevMenu[category] || []), ...data], // Append new items to existing ones for the category
+        }));
+
+        setPage((prevPage) => ({
+          ...prevPage,
+          [category]: currentPage + 1, // Increment page for the category
+        }));
+
+        // Check if there are more items to load
+        setHasMore((prevHasMore) => ({
+          ...prevHasMore,
+          [category]: data.length === 10, // If we received less than 10, there are no more items
+        }));
+      } catch (err) {
+        console.error("Error fetching menu items:", err);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchMenu();
-  }, []);
+    orderedCategories.forEach((category) => {
+      fetchMenu(category); // Fetch menu items for each category initially
+    });
+  }, []);  // Only run once when component mounts
 
-  // Function to render sections for each category
-  const renderCategorySection = (category: string) => {
-    const filteredItems = menu.filter(item => item.category === category);
-
-    return (
-      <div key={category} className="mt-8">
-        <div className="w-full flex justify-center mb-4">
-          <h1 className="text-3xl font-semibold text-white bg-[#741052] py-3 px-6 rounded-lg shadow-md text-center">
-            {category}
-          </h1>
-        </div>
-        <div className="grid grid-cols-2 gap-4 w-11/12 mx-auto sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 mt-4">
-          {filteredItems.length === 0 ? (
-            <div className="text-black">No items found for {category}</div>
-          ) : (
-            filteredItems.map((item) => (
-              <MenuItem key={uuidv4()} item={item} />
-            ))
-          )}
-        </div>
-      </div>
-    );
+  const lastMenuItemRef = (category: string, node: HTMLDivElement | null) => {
+    if (loading || !hasMore[category]) return; // Prevent loading if already loading or no more items
+    if (observer.current) observer.current.disconnect(); // Disconnect the previous observer
+  
+    // Add null check before observing the node
+    if (node) {
+      observer.current = new IntersectionObserver((entries) => {
+        if (entries[0].isIntersecting) {
+          setPage((prevPage) => ({
+            ...prevPage,
+            [category]: (prevPage[category] || 1) + 1, // Increment page when last item is in view
+          }));
+        }
+      });
+  
+      observer.current.observe(node); // Start observing the last item in the list
+    }
   };
+  
 
   return (
     <div className="bg-white text-black">
-      {/* Hero component always renders immediately */}
+      {/* Hero component */}
       <Hero />
 
       {/* Menu items with loading state */}
-      {loading ? (
+      <div>
+        {orderedCategories.map((category) => {
+          const filteredItems = menu[category] || [];
+
+          return (
+            <div key={category} className="mt-8">
+              <div className="w-full flex justify-center mb-4">
+                <h1 className="text-3xl font-semibold text-white bg-[#741052] py-3 px-6 rounded-lg shadow-md text-center">
+                  {category}
+                </h1>
+              </div>
+              <div className="grid grid-cols-2 gap-4 w-11/12 mx-auto sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 mt-4">
+                {filteredItems.map((item, index) => (
+                  <div
+                    ref={index === filteredItems.length - 1 ? (node) => lastMenuItemRef(category, node) : null}
+                    key={uuidv4()}
+                  >
+                    <MenuItem item={item} />
+                  </div>
+                ))}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Skeleton Loader */}
+      {loading && (
         <div>
-          {/* Render skeleton headings */}
           {orderedCategories.map((category, index) => (
             <div key={index} className="mt-8">
               <div className="w-full flex justify-center mb-4">
@@ -120,15 +164,10 @@ export default function MenuPage() {
             </div>
           ))}
         </div>
-      ) : (
-        <div>
-          {/* Render only the categories in the specified order */}
-          {orderedCategories.map(category => renderCategorySection(category))}
-        </div>
       )}
 
       {/* Error handling */}
-      {error && <div className="text-red-500">{error}</div>}
+      {menu && Object.keys(menu).length === 0 && !loading && <div className="text-red-500">No menu items found.</div>}
     </div>
   );
 }
