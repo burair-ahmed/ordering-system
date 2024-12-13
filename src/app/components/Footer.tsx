@@ -23,7 +23,7 @@ const Footer: FC = () => {
   }, []);
 
   return (
-    <footer className="bg-[#741052] text-white py-8 mt-12">
+    <footer className="bg-[#741052] text-white py-8">
       <div className="container mx-auto px-6">
         <div className="flex flex-col lg:flex-row justify-between items-center">
           {/* Left Section: Logo */}

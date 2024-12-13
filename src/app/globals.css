@@ -172,7 +172,6 @@ body {
 }
 
 
-
 /* Apply conditionally to remove the large top padding on mobile */
 @media (max-width: 768px) {
   .pt-16 {

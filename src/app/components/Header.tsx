@@ -167,9 +167,8 @@ export default function Header() {
       </div>
 
       {/* Main Content */}
-      <div className="pt-16 lg:pt-0 pb-16">
-        {/* Your main content goes here */}
-      </div>
+      {/* <div className="pt-16 lg:pt-0 pb-16">
+      </div> */}
 
       {/* Cart Sidebar */}
       {isCartOpen && tableId && (
