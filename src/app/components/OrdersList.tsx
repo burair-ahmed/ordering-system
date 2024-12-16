@@ -88,7 +88,7 @@ const OrdersList: FC = () => {
 
   // Handle WebSocket connection and real-time updates
   useEffect(() => {
-    const socket = io("/", { path: "/api/socket" });
+    const socket = io("https://ordering-system.littlekarachirestaurant.com/", { path: "/api/socket" });
 
     socket.on("connect", () => {
       console.log("Socket connected:", socket.id);
