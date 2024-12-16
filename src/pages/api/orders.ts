@@ -2,6 +2,7 @@ import { NextApiRequest, NextApiResponse } from "next";
 import mongoose from "mongoose";
 import Order from "../../models/Order";
 import { Server as HTTPServer } from "http";
+import { Server as SocketIOServer } from "socket.io"; // Import the correct type for Socket.IO server
 
 // MongoDB URI
 const MONGODB_URI = process.env.MONGODB_URI || 'mongodb+srv://admin:jHG1csS4fbZWUcrL@cafe-little.mfqm3.mongodb.net/?retryWrites=true&w=majority&appName=cafe-little';
@@ -30,9 +31,9 @@ const generateOrderNumber = async () => {
   return `CLK-ORD-${datePart}-${counterPart}`;
 };
 
-// Define a custom socket type
+// Define a custom socket type for the socket server (with io)
 interface CustomSocket {
-  server: HTTPServer & { io: any };
+  server: HTTPServer & { io: SocketIOServer }; // Specify that io is a SocketIOServer
 }
 
 // Handle incoming requests
