@@ -46,7 +46,7 @@ const ordersHandler = async (req: NextApiRequest, res: NextApiResponse) => {
       // Generate the new order number
       const orderNumber = await generateOrderNumber();
 
-      // Create a new order document with a custom `id` field and the generated order number
+      // Create a new order document with a custom id field and the generated order number
       const newOrder = new Order({
         orderNumber, // The custom order number
         customerName,
@@ -61,28 +61,30 @@ const ordersHandler = async (req: NextApiRequest, res: NextApiResponse) => {
       // Save the new order to MongoDB
       await newOrder.save();
 
+      // Emit the new order event via Socket.IO
+      const io = (res.socket as any).server?.io; // Ensure Socket.IO is available
+      if (io) {
+        io.emit("newOrder", newOrder); // Emit the new order to all connected clients
+      }
+
       return res.status(200).json({ message: "Order received successfully" });
     } catch (error) {
       console.error("Error saving order:", error);
       return res.status(500).json({ message: "Failed to save order to database" });
     }
   } else if (req.method === "GET") {
-    const { tableId } = req.query;
-
     try {
       // Connect to the database
       await connectToDatabase();
 
-      // Fetch the most recent order for the given tableId
-      const order = await Order.findOne({ tableNumber: tableId })
-        .sort({ createdAt: -1 })  // Sort by creation date, most recent first
-        .limit(1); // Get only the most recent order
+      // Fetch all orders
+      const orders = await Order.find({}).sort({ createdAt: -1 });  // Sort by creation date, most recent first
 
-      if (!order) {
-        return res.status(404).json({ message: "Order not found for the given tableId" });
+      if (!orders || orders.length === 0) {
+        return res.status(404).json({ message: "No orders found" });
       }
 
-      return res.status(200).json({ orderNumber: order.orderNumber }); // Return the order number
+      return res.status(200).json({ orders }); // Return all orders
     } catch (error) {
       console.error("Error fetching orders:", error);
       return res.status(500).json({ message: "Failed to fetch orders" });

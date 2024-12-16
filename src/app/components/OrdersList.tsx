@@ -1,13 +1,14 @@
 'use client';
 
 import { FC, useEffect, useState } from "react";
+import { io, Socket } from "socket.io-client";
 
 interface Item {
   id: string;
   title: string;
   quantity: number;
   price: number;
-  variations?: { name: string; value: string }[] | string[]; // Adjust based on how variations are structured
+  variations?: { name: string; value: string }[] | string[];
 }
 
 interface Order {
@@ -23,22 +24,37 @@ interface Order {
 
 const OrdersList: FC = () => {
   const [orders, setOrders] = useState<Order[]>([]);
+  const [socket, setSocket] = useState<Socket | null>(null);
 
-  // Fetch orders excluding completed ones
+  // Fetch initial orders
   useEffect(() => {
     const fetchOrders = async () => {
-      const response = await fetch("/api/fetchorders");
+      const response = await fetch("/api/orders"); // Fetch orders from the backend
       const data = await response.json();
       if (response.ok) {
-        // Filter out completed orders
-        const filteredOrders = data.orders.filter((order: Order) => order.status !== "Completed");
-        setOrders(filteredOrders);
+        setOrders(data.orders || []);
       } else {
-        alert("Failed to fetch orders.");
+        console.error("Failed to fetch orders:", data.message);
       }
     };
 
     fetchOrders();
+  }, []);
+
+  // Set up Socket.IO connection for real-time updates
+  useEffect(() => {
+    const socketInstance = io("/", { path: "/api/socket" });
+    setSocket(socketInstance);
+
+    // Listen for new orders
+    socketInstance.on("newOrder", (newOrder: Order) => {
+      console.log("New order received:", newOrder);
+      setOrders((prevOrders) => [newOrder, ...prevOrders]); // Add the new order to the top
+    });
+
+    return () => {
+      socketInstance.disconnect(); // Clean up the connection
+    };
   }, []);
 
   const updateOrderStatus = async (orderNumber: string, newStatus: string) => {
@@ -53,21 +69,16 @@ const OrdersList: FC = () => {
 
       const data = await response.json();
       if (response.ok) {
-        alert("Order status updated successfully.");
-        // Update the local state with the updated status
         setOrders((prevOrders) =>
           prevOrders.map((order) =>
-            order.orderNumber === orderNumber
-              ? { ...order, status: newStatus }
-              : order
+            order.orderNumber === orderNumber ? { ...order, status: newStatus } : order
           )
         );
       } else {
-        alert(data.message || "Failed to update order status.");
+        console.error("Failed to update order status:", data.message);
       }
     } catch (error) {
       console.error("Error updating order status:", error);
-      alert("Error updating order status.");
     }
   };
 
@@ -83,12 +94,12 @@ const OrdersList: FC = () => {
           >
             <h2 className="text-2xl font-semibold text-[#741052]">Order #{order.orderNumber}</h2>
             <div className="mt-4 space-y-2">
-              <p><strong className="font-medium text-gray-700">Customer Name:</strong> {order.customerName}</p>
-              <p><strong className="font-medium text-gray-700">Email:</strong> {order.email}</p>
-              <p><strong className="font-medium text-gray-700">Table Number:</strong> {order.tableNumber}</p>
-              <p><strong className="font-medium text-gray-700">Payment Method:</strong> {order.paymentMethod}</p>
+              <p><strong>Customer Name:</strong> {order.customerName}</p>
+              <p><strong>Email:</strong> {order.email}</p>
+              <p><strong>Table Number:</strong> {order.tableNumber}</p>
+              <p><strong>Payment Method:</strong> {order.paymentMethod}</p>
               <p>
-                <strong className="font-medium text-gray-700">Status:</strong>
+                <strong>Status:</strong>
                 <select
                   className="ml-2 p-1 border rounded"
                   value={order.status}
@@ -104,25 +115,10 @@ const OrdersList: FC = () => {
             <h3 className="text-xl font-bold mt-4 text-gray-800">Items:</h3>
             <ul className="space-y-4">
               {order.items.map((item, index) => (
-                <li key={`${item.id}-${index}`} className="flex justify-between items-center border-b pb-4">
-                  <div className="flex-1">
-                    <span className="font-medium text-gray-800">{item.title}</span> x{item.quantity}
-                    <span className="text-sm text-gray-600"> - Rs. {item.price * item.quantity}</span>
-                  </div>
-                  {item.variations && item.variations.length > 0 && (
-                    <div className="text-sm text-gray-500 mt-2 ml-4">
-                      <strong>Variations:</strong>
-                      <ul className="list-disc pl-5">
-                        {item.variations.map((variation, i) => (
-                          <li key={i}>
-                            {typeof variation === "object"
-                              ? `${variation.name}: ${variation.value}`
-                              : variation}
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  )}
+                <li key={index} className="flex justify-between items-center border-b pb-4">
+                  <span>
+                    {item.title} x{item.quantity} - Rs. {item.price * item.quantity}
+                  </span>
                 </li>
               ))}
             </ul>

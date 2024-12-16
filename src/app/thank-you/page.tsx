@@ -21,8 +21,8 @@ const ThankYouPage: FC = () => {
 
     const fetchOrderNumber = async () => {
       try {
-        // Fetch the most recent order details using the tableId
-        const response = await fetch(`/api/orders?tableId=${tableId}`);
+        // Fetch the most recent order details using the new API endpoint
+        const response = await fetch(`/api/getOrderByTableId?tableId=${tableId}`);
         const data = await response.json();
 
         if (response.ok) {
