@@ -1,6 +1,6 @@
+import { NextApiRequest, NextApiResponse } from "next";
 import { Server as NetServer } from "http";
 import { Server as SocketIOServer } from "socket.io";
-import { NextApiRequest, NextApiResponse } from "next";
 
 type NextApiResponseSocket = NextApiResponse & {
   socket: {
@@ -14,9 +14,10 @@ export default function handler(req: NextApiRequest, res: NextApiResponseSocket)
   if (!res.socket.server.io) {
     console.log("Setting up Socket.IO server...");
     io = new SocketIOServer(res.socket.server, {
-      path: "/api/socket",
+      path: "/api/socket", // Path must match the client-side configuration
       cors: {
-        origin: "*", // You can restrict this to your production domain
+        origin: "*",  // Update with your frontend domain if needed
+        methods: ["GET", "POST"],
       },
     });
 
@@ -31,5 +32,5 @@ export default function handler(req: NextApiRequest, res: NextApiResponseSocket)
     });
   }
 
-  res.end(); // Close the API route
+  res.end(); // End the response
 }

@@ -90,12 +90,13 @@ const OrdersList: FC = () => {
   useEffect(() => {
     // Connect to WebSocket server with auto-reconnection options
     const socket = io("https://ordering-system.littlekarachirestaurant.com", {
-      path: "/api/socket",
-      reconnection: true, // Allow automatic reconnection
-      reconnectionAttempts: Infinity, // Retry indefinitely
-      reconnectionDelay: 1000, // Delay between reconnections
-      reconnectionDelayMax: 5000, // Max delay between reconnections
+      path: "/api/socket",  // Ensure correct path here
+      reconnection: true,
+      reconnectionAttempts: Infinity,
+      reconnectionDelay: 1000,
+      reconnectionDelayMax: 5000,
     });
+    
 
     socket.on("connect", () => {
       console.log("Socket connected:", socket.id);
