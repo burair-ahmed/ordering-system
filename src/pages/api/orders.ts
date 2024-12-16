@@ -4,11 +4,13 @@ import Order from "../../models/Order";
 import { Server as HTTPServer } from "http";
 import { Server as SocketIOServer } from "socket.io";
 
-const MONGODB_URI = process.env.MONGODB_URI || 'mongodb+srv://admin:jHG1csS4fbZWUcrL@cafe-little.mfqm3.mongodb.net/?retryWrites=true&w=majority&appName=cafe-little';
+const MONGODB_URI =
+  process.env.MONGODB_URI ||
+  "mongodb+srv://admin:jHG1csS4fbZWUcrL@cafe-little.mfqm3.mongodb.net/?retryWrites=true&w=majority&appName=cafe-little";
 
 async function connectToDatabase() {
-  if (mongoose.connection.readyState === 0) { 
-    await mongoose.connect(MONGODB_URI); 
+  if (mongoose.connection.readyState === 0) {
+    await mongoose.connect(MONGODB_URI);
   }
 }
 
@@ -17,7 +19,7 @@ const generateOrderNumber = async () => {
   const datePart = `${today.getFullYear()}${(today.getMonth() + 1)
     .toString()
     .padStart(2, "0")}${today.getDate().toString().padStart(2, "0")}`;
-  
+
   const lastOrder = await Order.findOne({ orderNumber: new RegExp(`^CLK-ORD-${datePart}-`) })
     .sort({ orderNumber: -1 })
     .limit(1);
@@ -28,7 +30,7 @@ const generateOrderNumber = async () => {
 };
 
 interface CustomSocket {
-  server: HTTPServer & { io: SocketIOServer };
+  server: HTTPServer & { io?: SocketIOServer };
 }
 
 const ordersHandler = async (req: NextApiRequest, res: NextApiResponse) => {
@@ -56,9 +58,10 @@ const ordersHandler = async (req: NextApiRequest, res: NextApiResponse) => {
 
       await newOrder.save();
 
+      // Emit the new order event via Socket.IO to the frontend
       const io = (res.socket as unknown as CustomSocket).server?.io;
       if (io) {
-        io.emit("newOrder", newOrder); 
+        io.emit("newOrder", newOrder);
       }
 
       return res.status(200).json({ message: "Order received successfully" });
