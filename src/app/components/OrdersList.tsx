@@ -1,7 +1,4 @@
-"use client";
-
 import { FC, useEffect, useRef, useState } from "react";
-import { io } from "socket.io-client";
 
 interface Item {
   id: string;
@@ -24,6 +21,7 @@ interface Order {
 
 const OrdersList: FC = () => {
   const [orders, setOrders] = useState<Order[]>([]);
+  const [lastFetched, setLastFetched] = useState<number>(Date.now()); // Tracks when orders were last fetched
   const audioContextRef = useRef<AudioContext | null>(null);
   const audioBufferRef = useRef<AudioBuffer | null>(null);
 
@@ -48,27 +46,52 @@ const OrdersList: FC = () => {
     loadAudioBuffer();
   }, []);
 
-  // Fetch initial orders
-  useEffect(() => {
-    const fetchOrders = async () => {
-      try {
-        const response = await fetch("/api/orders");
-        const data = await response.json();
+  // Function to fetch orders from the server
+  const fetchOrders = async () => {
+    try {
+      const response = await fetch("/api/orders");
+      const data = await response.json();
 
-        if (response.ok) {
-          setOrders(data.orders || []);
-        } else {
-          console.error("Failed to fetch orders:", data.message);
-        }
-      } catch (error) {
-        console.error("Error fetching orders:", error);
+      if (response.ok) {
+        setOrders(data.orders || []);
+        setLastFetched(Date.now()); // Update last fetched time
+      } else {
+        console.error("Failed to fetch orders:", data.message);
       }
-    };
+    } catch (error) {
+      console.error("Error fetching orders:", error);
+    }
+  };
 
-    fetchOrders();
+  // Polling for orders periodically
+  useEffect(() => {
+    const interval = setInterval(() => {
+      fetchOrders(); // Check for new orders every 5 seconds
+    }, 5000);
+
+    // Cleanup polling interval
+    return () => {
+      clearInterval(interval);
+    };
   }, []);
 
-  // Play notification sound
+  // Check if new orders should be added by validating the order list every minute
+  useEffect(() => {
+    const validationInterval = setInterval(() => {
+      const timeSinceLastFetch = Date.now() - lastFetched;
+
+      if (timeSinceLastFetch > 60000) {
+        console.log("Re-validating orders...");
+        fetchOrders(); // Trigger a fetch again if no update in the last minute
+      }
+    }, 60000); // Check every minute
+
+    return () => {
+      clearInterval(validationInterval);
+    };
+  }, [lastFetched]);
+
+  // Play notification sound when a new order is added
   const playNotificationSound = () => {
     if (audioContextRef.current && audioBufferRef.current) {
       try {
@@ -86,37 +109,7 @@ const OrdersList: FC = () => {
     }
   };
 
-  // Handle WebSocket connection and real-time updates
-  useEffect(() => {
-    // Connect to WebSocket server with auto-reconnection options
-    const socket = io("https://ordering-system.littlekarachirestaurant.com", {
-      path: "/api/socket",  // Ensure correct path here
-      reconnection: true,
-      reconnectionAttempts: Infinity,
-      reconnectionDelay: 1000,
-      reconnectionDelayMax: 5000,
-    });
-    
-
-    socket.on("connect", () => {
-      console.log("Socket connected:", socket.id);
-    });
-
-    socket.on("newOrder", (newOrder: Order) => {
-      console.log("New order received:", newOrder);
-      setOrders((prevOrders) => [newOrder, ...prevOrders]);
-      playNotificationSound(); // Play sound when a new order is received
-    });
-
-    socket.on("disconnect", () => {
-      console.warn("Socket disconnected");
-    });
-
-    return () => {
-      socket.disconnect();
-    };
-  }, []);
-
+  // Update order status when changed
   const updateOrderStatus = async (orderNumber: string, newStatus: string) => {
     try {
       const response = await fetch("/api/updateorderstatus", {
