@@ -55,6 +55,7 @@ const OrdersList: FC = () => {
       if (response.ok) {
         setOrders(data.orders || []);
         setLastFetched(Date.now()); // Update last fetched time
+        playNotificationSound(); // Play sound when orders are fetched
       } else {
         console.error("Failed to fetch orders:", data.message);
       }
@@ -92,22 +93,22 @@ const OrdersList: FC = () => {
   }, [lastFetched]);
 
   // Play notification sound when a new order is added
-  // const playNotificationSound = () => {
-  //   if (audioContextRef.current && audioBufferRef.current) {
-  //     try {
-  //       const audioContext = audioContextRef.current;
-  //       const source = audioContext.createBufferSource();
-  //       source.buffer = audioBufferRef.current;
+  const playNotificationSound = () => {
+    if (audioContextRef.current && audioBufferRef.current) {
+      try {
+        const audioContext = audioContextRef.current;
+        const source = audioContext.createBufferSource();
+        source.buffer = audioBufferRef.current;
 
-  //       source.connect(audioContext.destination);
-  //       source.start(0);
+        source.connect(audioContext.destination);
+        source.start(0);
 
-  //       console.log("Notification sound played successfully.");
-  //     } catch (error) {
-  //       console.error("Error playing notification sound:", error);
-  //     }
-  //   }
-  // };
+        console.log("Notification sound played successfully.");
+      } catch (error) {
+        console.error("Error playing notification sound:", error);
+      }
+    }
+  };
 
   // Update order status when changed
   const updateOrderStatus = async (orderNumber: string, newStatus: string) => {
