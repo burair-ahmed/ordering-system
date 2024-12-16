@@ -26,10 +26,14 @@ const OrdersList: FC = () => {
   const [orders, setOrders] = useState<Order[]>([]);
   const [isUserInteracted, setIsUserInteracted] = useState(false);
 
+  // Get the base URL for API and Socket.IO based on the environment
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000";
+  const socketUrl = process.env.NEXT_PUBLIC_SOCKET_URL || apiUrl;
+
   // Fetch initial orders
   useEffect(() => {
     const fetchOrders = async () => {
-      const response = await fetch("/api/orders"); // Fetch orders from the backend
+      const response = await fetch(`${apiUrl}/api/orders`); // Fetch orders from the backend
       const data = await response.json();
       if (response.ok) {
         setOrders(data.orders || []);
@@ -39,11 +43,11 @@ const OrdersList: FC = () => {
     };
 
     fetchOrders();
-  }, []);
+  }, [apiUrl]);
 
   // Set up Socket.IO connection for real-time updates
   useEffect(() => {
-    const socketInstance = io("/", { path: "/api/socket" });
+    const socketInstance = io(socketUrl, { path: "/api/socket" });
 
     // Log to check if connection is established
     socketInstance.on("connect", () => {
@@ -76,7 +80,7 @@ const OrdersList: FC = () => {
     return () => {
       socketInstance.disconnect(); // Clean up the connection
     };
-  }, [isUserInteracted]);
+  }, [isUserInteracted, socketUrl]);
 
   // Handle user interaction to allow autoplay sound after the first interaction
   const handleUserInteraction = () => {
@@ -88,7 +92,7 @@ const OrdersList: FC = () => {
   // Update order status
   const updateOrderStatus = async (orderNumber: string, newStatus: string) => {
     try {
-      const response = await fetch("/api/updateorderstatus", {
+      const response = await fetch(`${apiUrl}/api/updateorderstatus`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
