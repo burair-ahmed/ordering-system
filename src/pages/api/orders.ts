@@ -1,6 +1,7 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import mongoose from "mongoose";
 import Order from "../../models/Order";
+import { Server as HTTPServer } from "http";
 
 // MongoDB URI
 const MONGODB_URI = process.env.MONGODB_URI || 'mongodb+srv://admin:jHG1csS4fbZWUcrL@cafe-little.mfqm3.mongodb.net/?retryWrites=true&w=majority&appName=cafe-little';
@@ -28,6 +29,11 @@ const generateOrderNumber = async () => {
   const counterPart = counter.toString().padStart(4, "0"); // Ensure the counter is always 4 digits
   return `CLK-ORD-${datePart}-${counterPart}`;
 };
+
+// Define a custom socket type
+interface CustomSocket {
+  server: HTTPServer & { io: any };
+}
 
 // Handle incoming requests
 const ordersHandler = async (req: NextApiRequest, res: NextApiResponse) => {
@@ -62,7 +68,7 @@ const ordersHandler = async (req: NextApiRequest, res: NextApiResponse) => {
       await newOrder.save();
 
       // Emit the new order event via Socket.IO
-      const io = (res.socket as any).server?.io; // Ensure Socket.IO is available
+      const io = (res.socket as unknown as CustomSocket).server?.io; // Cast to unknown first, then to CustomSocket
       if (io) {
         io.emit("newOrder", newOrder); // Emit the new order to all connected clients
         console.log("New order emitted:", newOrder);

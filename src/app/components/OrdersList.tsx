@@ -24,7 +24,6 @@ interface Order {
 
 const OrdersList: FC = () => {
   const [orders, setOrders] = useState<Order[]>([]);
-  const [socket, setSocket] = useState<Socket | null>(null);
 
   // Fetch initial orders
   useEffect(() => {
@@ -44,7 +43,6 @@ const OrdersList: FC = () => {
   // Set up Socket.IO connection for real-time updates
   useEffect(() => {
     const socketInstance = io("/", { path: "/api/socket" });
-    setSocket(socketInstance);
 
     // Log to check if connection is established
     socketInstance.on("connect", () => {
