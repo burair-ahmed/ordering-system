@@ -24,6 +24,7 @@ interface Order {
 
 const OrdersList: FC = () => {
   const [orders, setOrders] = useState<Order[]>([]);
+  const [isUserInteracted, setIsUserInteracted] = useState(false);
 
   // Fetch initial orders
   useEffect(() => {
@@ -56,25 +57,35 @@ const OrdersList: FC = () => {
       setOrders((prevOrders) => [newOrder, ...prevOrders]); // Add the new order to the top
 
       // Play the notification sound
-      try {
-        const notificationSound = new Audio("/notification/notification.mp3");
-        notificationSound.play()
-          .then(() => {
-            console.log("Notification sound played successfully");
-          })
-          .catch((error) => {
-            console.error("Error playing notification sound:", error);
-          });
-      } catch (error) {
-        console.error("Error setting up the notification sound:", error);
+      if (isUserInteracted) {
+        try {
+          const notificationSound = new Audio("/notification/notification.mp3");
+          notificationSound.play()
+            .then(() => {
+              console.log("Notification sound played successfully");
+            })
+            .catch((error) => {
+              console.error("Error playing notification sound:", error);
+            });
+        } catch (error) {
+          console.error("Error setting up the notification sound:", error);
+        }
       }
     });
 
     return () => {
       socketInstance.disconnect(); // Clean up the connection
     };
-  }, []);
+  }, [isUserInteracted]);
 
+  // Handle user interaction to allow autoplay sound after the first interaction
+  const handleUserInteraction = () => {
+    if (!isUserInteracted) {
+      setIsUserInteracted(true); // Set the flag to true on any user interaction
+    }
+  };
+
+  // Update order status
   const updateOrderStatus = async (orderNumber: string, newStatus: string) => {
     try {
       const response = await fetch("/api/updateorderstatus", {
@@ -100,23 +111,11 @@ const OrdersList: FC = () => {
     }
   };
 
-  // Test Button for playing the notification sound
-  const testNotificationSound = () => {
-    const notificationSound = new Audio("/notification/notification.mp3");
-    notificationSound.play()
-      .then(() => {
-        console.log("Notification sound played successfully");
-      })
-      .catch((error) => {
-        console.error("Error playing notification sound:", error);
-      });
-  };
-
   return (
-    <div>
+    <div onClick={handleUserInteraction}>
       {/* Test Button to play the notification sound */}
       <button
-        onClick={testNotificationSound}
+        onClick={handleUserInteraction}
         className="p-2 bg-blue-500 text-white rounded"
       >
         Test Notification Sound
