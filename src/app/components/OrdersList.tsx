@@ -1,6 +1,6 @@
-'use client';
+"use client";
 
-import { FC, useEffect, useState } from "react";
+import { FC, useEffect, useRef, useState } from "react";
 import { io } from "socket.io-client";
 
 interface Item {
@@ -24,68 +24,94 @@ interface Order {
 
 const OrdersList: FC = () => {
   const [orders, setOrders] = useState<Order[]>([]);
-  const [isUserInteracted, setIsUserInteracted] = useState(false);
+  const audioContextRef = useRef<AudioContext | null>(null);
+  const audioBufferRef = useRef<AudioBuffer | null>(null);
+
+  // Load and decode audio buffer on mount
+  useEffect(() => {
+    const loadAudioBuffer = async () => {
+      try {
+        const audioContext = new AudioContext();
+        const response = await fetch("/notification/notification.mp3");
+        const arrayBuffer = await response.arrayBuffer();
+        const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
+
+        audioContextRef.current = audioContext;
+        audioBufferRef.current = audioBuffer;
+
+        console.log("Audio loaded and decoded successfully.");
+      } catch (error) {
+        console.error("Error loading notification sound:", error);
+      }
+    };
+
+    loadAudioBuffer();
+  }, []);
 
   // Fetch initial orders
   useEffect(() => {
     const fetchOrders = async () => {
-      const response = await fetch("/api/orders"); // Fetch orders from the backend
-      const data = await response.json();
-      if (response.ok) {
-        setOrders(data.orders || []);
-      } else {
-        console.error("Failed to fetch orders:", data.message);
+      try {
+        const response = await fetch("/api/orders");
+        const data = await response.json();
+
+        if (response.ok) {
+          setOrders(data.orders || []);
+        } else {
+          console.error("Failed to fetch orders:", data.message);
+        }
+      } catch (error) {
+        console.error("Error fetching orders:", error);
       }
     };
 
     fetchOrders();
   }, []);
 
-  // Set up Socket.IO connection for real-time updates
-  useEffect(() => {
-    const socketInstance = io("/", { path: "/api/socket" });
+  // Play notification sound
+  const playNotificationSound = () => {
+    if (audioContextRef.current && audioBufferRef.current) {
+      try {
+        const audioContext = audioContextRef.current;
+        const source = audioContext.createBufferSource();
+        source.buffer = audioBufferRef.current;
 
-    // Log to check if connection is established
-    socketInstance.on("connect", () => {
-      console.log("Socket connected with ID:", socketInstance.id);
-    });
+        source.connect(audioContext.destination);
+        source.start(0);
 
-    // Listen for new orders
-    socketInstance.on("newOrder", (newOrder: Order) => {
-      console.log("New order received:", newOrder); // This log should show the received new order
-
-      setOrders((prevOrders) => [newOrder, ...prevOrders]); // Add the new order to the top
-
-      // Play the notification sound
-      if (isUserInteracted) {
-        try {
-          const notificationSound = new Audio("/notification/notification.mp3");
-          notificationSound.play()
-            .then(() => {
-              console.log("Notification sound played successfully");
-            })
-            .catch((error) => {
-              console.error("Error playing notification sound:", error);
-            });
-        } catch (error) {
-          console.error("Error setting up the notification sound:", error);
-        }
+        console.log("Notification sound played successfully.");
+      } catch (error) {
+        console.error("Error playing notification sound:", error);
       }
-    });
-
-    return () => {
-      socketInstance.disconnect(); // Clean up the connection
-    };
-  }, [isUserInteracted]);
-
-  // Handle user interaction to allow autoplay sound after the first interaction
-  const handleUserInteraction = () => {
-    if (!isUserInteracted) {
-      setIsUserInteracted(true); // Set the flag to true on any user interaction
     }
   };
 
-  // Update order status
+  // Handle WebSocket connection and real-time updates
+  useEffect(() => {
+    const socket = io("/", { path: "/api/socket" });
+
+    socket.on("connect", () => {
+      console.log("Socket connected:", socket.id);
+    });
+
+    // Handle new orders
+    socket.on("newOrder", (newOrder: Order) => {
+      console.log("New order received:", newOrder);
+      setOrders((prevOrders) => [newOrder, ...prevOrders]);
+
+      // Try to play notification sound
+      playNotificationSound();
+    });
+
+    socket.on("disconnect", () => {
+      console.warn("Socket disconnected");
+    });
+
+    return () => {
+      socket.disconnect();
+    };
+  }, []);
+
   const updateOrderStatus = async (orderNumber: string, newStatus: string) => {
     try {
       const response = await fetch("/api/updateorderstatus", {
@@ -100,7 +126,9 @@ const OrdersList: FC = () => {
       if (response.ok) {
         setOrders((prevOrders) =>
           prevOrders.map((order) =>
-            order.orderNumber === orderNumber ? { ...order, status: newStatus } : order
+            order.orderNumber === orderNumber
+              ? { ...order, status: newStatus }
+              : order
           )
         );
       } else {
@@ -112,15 +140,7 @@ const OrdersList: FC = () => {
   };
 
   return (
-    <div onClick={handleUserInteraction}>
-      {/* Test Button to play the notification sound */}
-      <button
-        onClick={handleUserInteraction}
-        className="p-2 bg-blue-500 text-white rounded"
-      >
-        Test Notification Sound
-      </button>
-
+    <div className="p-4">
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-4">
         {orders.length === 0 ? (
           <p className="text-xl text-gray-600 text-center">No orders yet.</p>
@@ -128,20 +148,32 @@ const OrdersList: FC = () => {
           orders.map((order) => (
             <div
               key={order.orderNumber}
-              className="max-w-full border border-gray-300 p-6 rounded-xl shadow-lg hover:shadow-2xl transition-shadow duration-300"
+              className="border border-gray-300 p-6 rounded-xl shadow-lg hover:shadow-2xl transition-shadow duration-300"
             >
-              <h2 className="text-2xl font-semibold text-[#741052]">Order #{order.orderNumber}</h2>
+              <h2 className="text-2xl font-semibold text-[#741052]">
+                Order #{order.orderNumber}
+              </h2>
               <div className="mt-4 space-y-2">
-                <p><strong>Customer Name:</strong> {order.customerName}</p>
-                <p><strong>Email:</strong> {order.email}</p>
-                <p><strong>Table Number:</strong> {order.tableNumber}</p>
-                <p><strong>Payment Method:</strong> {order.paymentMethod}</p>
+                <p>
+                  <strong>Customer Name:</strong> {order.customerName}
+                </p>
+                <p>
+                  <strong>Email:</strong> {order.email}
+                </p>
+                <p>
+                  <strong>Table Number:</strong> {order.tableNumber}
+                </p>
+                <p>
+                  <strong>Payment Method:</strong> {order.paymentMethod}
+                </p>
                 <p>
                   <strong>Status:</strong>
                   <select
                     className="ml-2 p-1 border rounded"
                     value={order.status}
-                    onChange={(e) => updateOrderStatus(order.orderNumber, e.target.value)}
+                    onChange={(e) =>
+                      updateOrderStatus(order.orderNumber, e.target.value)
+                    }
                   >
                     <option value="Pending">Pending</option>
                     <option value="In Progress">In Progress</option>
@@ -153,14 +185,20 @@ const OrdersList: FC = () => {
               <h3 className="text-xl font-bold mt-4 text-gray-800">Items:</h3>
               <ul className="space-y-4">
                 {order.items.map((item, index) => (
-                  <li key={index} className="flex justify-between items-center border-b pb-4">
+                  <li
+                    key={index}
+                    className="flex justify-between items-center border-b pb-4"
+                  >
                     <span>
-                      {item.title} x{item.quantity} - Rs. {item.price * item.quantity}
+                      {item.title} x{item.quantity} - Rs.{" "}
+                      {item.price * item.quantity}
                     </span>
                   </li>
                 ))}
               </ul>
-              <div className="mt-4 font-bold text-xl text-[#741052]">Total: Rs. {order.totalAmount}</div>
+              <div className="mt-4 font-bold text-xl text-[#741052]">
+                Total: Rs. {order.totalAmount}
+              </div>
             </div>
           ))
         )}
