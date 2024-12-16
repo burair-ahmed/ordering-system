@@ -88,19 +88,22 @@ const OrdersList: FC = () => {
 
   // Handle WebSocket connection and real-time updates
   useEffect(() => {
-    const socket = io("https://ordering-system.littlekarachirestaurant.com/", { path: "/api/socket" });
+    // Connect to WebSocket server with auto-reconnection options
+    const socket = io("https://ordering-system.littlekarachirestaurant.com", {
+      path: "/api/socket", 
+      reconnection: true, // Allow automatic reconnection
+      reconnectionAttempts: Infinity, // Retry indefinitely
+      reconnectionDelay: 1000, // Delay between reconnections
+      reconnectionDelayMax: 5000, // Max delay between reconnections
+    });
 
     socket.on("connect", () => {
       console.log("Socket connected:", socket.id);
     });
 
-    // Handle new orders
     socket.on("newOrder", (newOrder: Order) => {
       console.log("New order received:", newOrder);
       setOrders((prevOrders) => [newOrder, ...prevOrders]);
-
-      // Try to play notification sound
-      playNotificationSound();
     });
 
     socket.on("disconnect", () => {
@@ -111,6 +114,7 @@ const OrdersList: FC = () => {
       socket.disconnect();
     };
   }, []);
+
 
   const updateOrderStatus = async (orderNumber: string, newStatus: string) => {
     try {

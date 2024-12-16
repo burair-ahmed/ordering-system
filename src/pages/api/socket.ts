@@ -8,16 +8,15 @@ type NextApiResponseSocket = NextApiResponse & {
   };
 };
 
-export default function handler(
-  req: NextApiRequest,
-  res: NextApiResponseSocket
-) {
+let io: SocketIOServer | null = null;
+
+export default function handler(req: NextApiRequest, res: NextApiResponseSocket) {
   if (!res.socket.server.io) {
     console.log("Setting up Socket.IO server...");
-    const io = new SocketIOServer(res.socket.server, {
+    io = new SocketIOServer(res.socket.server, {
       path: "/api/socket",
       cors: {
-        origin: "*", // Adjust this to allow specific origins
+        origin: "*", // You can restrict this to your production domain
       },
     });
 
