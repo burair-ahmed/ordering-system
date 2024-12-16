@@ -31,7 +31,6 @@ const getOrderByTableId = async (req: NextApiRequest, res: NextApiResponse) => {
         .limit(1); // Get only the most recent order
 
       // Debugging: log the result
-      console.log("Fetched order for tableId", tableId, ":", order);
 
       if (!order) {
         return res.status(404).json({ message: "Order not found for the given tableId" });

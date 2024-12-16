@@ -26,7 +26,6 @@ const orderedCategories = [
   "Sharing Platters",
   "BBQ Deals",
   "Fast Food Deals",
-  "Dhamaka Discount Platter",
   "Soup",
   "Gravy",
   "Beast BBQ",

@@ -65,6 +65,7 @@ const ordersHandler = async (req: NextApiRequest, res: NextApiResponse) => {
       const io = (res.socket as any).server?.io; // Ensure Socket.IO is available
       if (io) {
         io.emit("newOrder", newOrder); // Emit the new order to all connected clients
+        console.log("New order emitted:", newOrder);
       }
 
       return res.status(200).json({ message: "Order received successfully" });
