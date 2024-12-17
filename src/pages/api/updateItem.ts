@@ -6,7 +6,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   await testMongoConnection(); // Ensure the database is connected
 
   if (req.method === 'PUT') {
-    const { id, title, description, price, category, variations, image } = req.body;
+    const { id, title, description, price, category, variations, image, status } = req.body;
 
     if (!id) {
       return res.status(400).json({ error: 'Item ID is required' });
@@ -15,7 +15,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     try {
       const updatedItem = await MenuItem.findByIdAndUpdate(
         id,
-        { title, description, price, category, variations, image },
+        { title, description, price, category, variations, image, status },
         { new: true } // Return the updated document
       );
 

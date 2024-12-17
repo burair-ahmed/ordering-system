@@ -23,6 +23,7 @@ interface MenuItem {
   category: string;
   image: string;
   variations: Variation[];
+  status: "in stock" | "out of stock";
 }
 
 const AdminDashboard: FC = () => {
@@ -88,7 +89,7 @@ const AdminDashboard: FC = () => {
       <div
         className={`${
           isSidebarCollapsed ? "w-16" : "w-64"
-        } bg-[#741052] text-white p-6 space-y-6 transition-all duration-300 flex flex-col`}
+        } bg-[#741052] text-white pl-4 pt-4 space-y-6 transition-all duration-300 flex flex-col `}
       >
         {/* Sidebar Header */}
         <div className="flex items-center justify-between">

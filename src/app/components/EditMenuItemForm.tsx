@@ -14,6 +14,7 @@ interface EditMenuItemFormProps {
     category: string;
     image: string; // Base64 string
     variations: Variation[];
+    status: "in stock" | "out of stock"; // Add status field
   };
   onClose: () => void;
   onUpdate: () => void;
@@ -27,9 +28,10 @@ const EditMenuItemForm: React.FC<EditMenuItemFormProps> = ({ item, onClose, onUp
     category: item.category || "",
     image: item.image || "", // Existing image as base64
     variations: item.variations || [],
+    status: item.status || "in stock", // Set initial status
   });
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
   };
@@ -154,6 +156,19 @@ const EditMenuItemForm: React.FC<EditMenuItemFormProps> = ({ item, onClose, onUp
                 onChange={handleImageUpload}
                 className="w-full border border-gray-300 rounded-md shadow-sm px-4 py-2"
               />
+            </div>
+            {/* Status Dropdown */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700">Status</label>
+              <select
+                name="status"
+                value={formData.status}
+                onChange={handleChange}
+                className="w-full border border-gray-300 rounded-md shadow-sm px-4 py-2"
+              >
+                <option value="in stock">In Stock</option>
+                <option value="out of stock">Out of Stock</option>
+              </select>
             </div>
           </div>
           {/* Right Column */}
