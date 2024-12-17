@@ -21,7 +21,6 @@ interface Order {
 
 const OrdersList: FC = () => {
   const [orders, setOrders] = useState<Order[]>([]);
-  const [lastFetched, setLastFetched] = useState<number>(Date.now()); // Tracks when orders were last fetched
   const audioContextRef = useRef<AudioContext | null>(null);
   const audioBufferRef = useRef<AudioBuffer | null>(null);
   const previousOrdersRef = useRef<Order[]>([]); // To track previous orders
@@ -81,7 +80,7 @@ const OrdersList: FC = () => {
           playNotificationSound(); // Play sound if a new order is fetched
         } else if (
           newOrders.some(
-            (order: any) =>
+            (order: Order) =>
               !previousOrders.some(
                 (prevOrder) => prevOrder.orderNumber === order.orderNumber
               )
@@ -93,7 +92,6 @@ const OrdersList: FC = () => {
 
         setOrders(newOrders);
         previousOrdersRef.current = newOrders; // Update previous orders
-        setLastFetched(Date.now()); // Update last fetched time
       } else {
         console.error("Failed to fetch orders:", data.message);
       }
@@ -146,9 +144,7 @@ const OrdersList: FC = () => {
                   <select
                     className="ml-2 p-1 border rounded"
                     value={order.status}
-                    onChange={(e) =>
-                      console.log("Status update not implemented yet")
-                    }
+                    onChange={() => console.log("Status update not implemented yet")}
                   >
                     <option value="Pending">Pending</option>
                     <option value="In Progress">In Progress</option>
@@ -176,7 +172,6 @@ const OrdersList: FC = () => {
               </div>
             </div>
           ))
-          
         )}
       </div>
     </div>
