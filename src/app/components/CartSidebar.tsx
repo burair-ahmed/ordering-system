@@ -27,7 +27,7 @@ const CartSidebar = ({ closeSidebar, tableId }: { closeSidebar: () => void; tabl
     <div
       className={`fixed top-0 h-full bg-white shadow-lg p-2 z-50 flex flex-col transform ${
         isVisible && !isExiting ? "translate-x-0" : "translate-x-full"
-      } transition-transform duration-300 ease-in-out right-0 w-72 border-l-4 border-[#741052]`}
+      } transition-transform duration-300 ease-in-out right-0 w-full sm:w-72 border-l-4 border-[#741052]`}
     >
       {/* Header */}
       <div className="flex justify-between items-center mb-4 pb-2 border-b border-[#f8ad3c]">
@@ -61,19 +61,19 @@ const CartSidebar = ({ closeSidebar, tableId }: { closeSidebar: () => void; tabl
                 className="mb-4 pb-4 border-b border-gray-200 bg-[#741052] text-white rounded-lg p-2"
               >
                 {/* Cart Item Image */}
-                <div className="flex items-center ">
-                  <div className="w-1/4">
-                    <Image 
-                    src={item.image || "/placeholder.png"}
-                    alt={item.title}
-                    width={200}
-                    height={60}
-                    className="w-full h-auto rounded-lg"
+                <div className="flex items-center">
+                  <div className="w-1/4 sm:w-1/5">
+                    <Image
+                      src={item.image || "/placeholder.png"}
+                      alt={item.title}
+                      width={200}
+                      height={60}
+                      className="w-full h-auto rounded-lg"
                     />
                   </div>
 
                   {/* Item Details */}
-                  <div className="w-3/4 pl-4">
+                  <div className="w-3/4 sm:w-3/5 pl-4">
                     <p className="font-medium text-sm">
                       {item.title}
                       {item.variations && item.variations.length > 0 && ` (${item.variations.join(", ")})`}
@@ -82,29 +82,29 @@ const CartSidebar = ({ closeSidebar, tableId }: { closeSidebar: () => void; tabl
 
                     <div className="flex gap-2">
                       {/* Quantity Controls */}
-                    <div className="mt-2 flex items-center justify-between bg-gray-100 border border-gray-200 rounded-full px-2 py-1 shadow-sm w-fit">
-                      <button
-                        onClick={() => updateQuantity(item.id, item.quantity - 1, item.variations)}
-                        className="bg-[#f8ad3c] text-white text-sm w-6 h-6 flex items-center justify-center rounded-full hover:bg-[#d28f32] transition"
-                      >
-                        -
-                      </button>
-                      <span className="text-sm text-black font-medium mx-2">{item.quantity}</span>
-                      <button
-                        onClick={() => updateQuantity(item.id, item.quantity + 1, item.variations)}
-                        className="bg-[#f8ad3c] text-white text-sm w-6 h-6 flex items-center justify-center rounded-full hover:bg-[#d28f32] transition"
-                      >
-                        +
-                      </button>
-                    </div>
+                      <div className="mt-2 flex items-center justify-between bg-gray-100 border border-gray-200 rounded-full px-2 py-1 shadow-sm w-fit">
+                        <button
+                          onClick={() => updateQuantity(item.id, item.quantity - 1, item.variations)}
+                          className="bg-[#f8ad3c] text-white text-sm w-4 h-4 flex items-center justify-center rounded-full hover:bg-[#d28f32] transition"
+                        >
+                          -
+                        </button>
+                        <span className="text-sm text-black font-medium mx-1">{item.quantity}</span>
+                        <button
+                          onClick={() => updateQuantity(item.id, item.quantity + 1, item.variations)}
+                          className="bg-[#f8ad3c] text-white text-sm w-4 h-4 flex items-center justify-center rounded-full hover:bg-[#d28f32] transition"
+                        >
+                          +
+                        </button>
+                      </div>
 
-                    {/* Remove from Cart */}
-                    <button
-                      onClick={() => removeFromCart(item.id, item.variations)}
-                      className="text-white text-sm mt-2 hover:text-red-700"
-                    >
-                      Remove
-                    </button>
+                      {/* Remove from Cart */}
+                      <button
+                        onClick={() => removeFromCart(item.id, item.variations)}
+                        className="text-white text-sm mt-2 hover:text-red-700"
+                      >
+                        Remove
+                      </button>
                     </div>
                   </div>
                 </div>
@@ -131,22 +131,17 @@ const CartSidebar = ({ closeSidebar, tableId }: { closeSidebar: () => void; tabl
           </button>
 
           {/* Proceed to Checkout Button */}
-       {/* Proceed to Checkout Button */}
-<Link
-  href={`/checkout?tableId=${tableId}`}
-  passHref
->
-  <button
-    onClick={handleClose} // Close the sidebar on click
-    className="flex items-center justify-center bg-[#741052] hover:bg-[#5e0d41] text-white rounded-full py-2 w-full shadow-md transition"
-  >
-    <span className="flex items-center">
-      Checkout
-      <FaArrowRight className="ml-2" />
-    </span>
-  </button>
-</Link>
-
+          <Link href={`/checkout?tableId=${tableId}`} passHref>
+            <button
+              onClick={handleClose} // Close the sidebar on click
+              className="flex items-center justify-center bg-[#741052] hover:bg-[#5e0d41] text-white rounded-full py-2 w-full shadow-md transition"
+            >
+              <span className="flex items-center">
+                Checkout
+                <FaArrowRight className="ml-2" />
+              </span>
+            </button>
+          </Link>
         </div>
       )}
     </div>
