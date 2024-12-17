@@ -24,6 +24,7 @@ const OrdersList: FC = () => {
   const [lastFetched, setLastFetched] = useState<number>(Date.now()); // Tracks when orders were last fetched
   const audioContextRef = useRef<AudioContext | null>(null);
   const audioBufferRef = useRef<AudioBuffer | null>(null);
+  const previousOrdersRef = useRef<Order[]>([]); // To track previous orders
 
   // Load and decode audio buffer on mount
   useEffect(() => {
@@ -46,6 +47,24 @@ const OrdersList: FC = () => {
     loadAudioBuffer();
   }, []);
 
+  // Function to play the notification sound
+  const playNotificationSound = () => {
+    if (audioContextRef.current && audioBufferRef.current) {
+      try {
+        const audioContext = audioContextRef.current;
+        const source = audioContext.createBufferSource();
+        source.buffer = audioBufferRef.current;
+
+        source.connect(audioContext.destination);
+        source.start(0);
+
+        console.log("Notification sound played successfully.");
+      } catch (error) {
+        console.error("Error playing notification sound:", error);
+      }
+    }
+  };
+
   // Function to fetch orders from the server
   const fetchOrders = async () => {
     try {
@@ -53,7 +72,27 @@ const OrdersList: FC = () => {
       const data = await response.json();
 
       if (response.ok) {
-        setOrders(data.orders || []);
+        const newOrders = data.orders || [];
+
+        // Check if there are new orders by comparing lengths or order numbers
+        const previousOrders = previousOrdersRef.current;
+        if (newOrders.length > previousOrders.length) {
+          console.log("New order detected!");
+          playNotificationSound(); // Play sound if a new order is fetched
+        } else if (
+          newOrders.some(
+            (order: any) =>
+              !previousOrders.some(
+                (prevOrder) => prevOrder.orderNumber === order.orderNumber
+              )
+          )
+        ) {
+          console.log("New order detected!");
+          playNotificationSound();
+        }
+
+        setOrders(newOrders);
+        previousOrdersRef.current = newOrders; // Update previous orders
         setLastFetched(Date.now()); // Update last fetched time
       } else {
         console.error("Failed to fetch orders:", data.message);
@@ -75,75 +114,13 @@ const OrdersList: FC = () => {
     };
   }, []);
 
-  // Check if new orders should be added by validating the order list every minute
-  useEffect(() => {
-    const validationInterval = setInterval(() => {
-      const timeSinceLastFetch = Date.now() - lastFetched;
-
-      if (timeSinceLastFetch > 60000) {
-        console.log("Re-validating orders...");
-        fetchOrders(); // Trigger a fetch again if no update in the last minute
-      }
-    }, 60000); // Check every minute
-
-    return () => {
-      clearInterval(validationInterval);
-    };
-  }, [lastFetched]);
-
-  // Play notification sound when a new order is added
-  // const playNotificationSound = () => {
-  //   if (audioContextRef.current && audioBufferRef.current) {
-  //     try {
-  //       const audioContext = audioContextRef.current;
-  //       const source = audioContext.createBufferSource();
-  //       source.buffer = audioBufferRef.current;
-
-  //       source.connect(audioContext.destination);
-  //       source.start(0);
-
-  //       console.log("Notification sound played successfully.");
-  //     } catch (error) {
-  //       console.error("Error playing notification sound:", error);
-  //     }
-  //   }
-  // };
-
-  // Update order status when changed
-  const updateOrderStatus = async (orderNumber: string, newStatus: string) => {
-    try {
-      const response = await fetch("/api/updateorderstatus", {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ orderNumber, status: newStatus }),
-      });
-
-      const data = await response.json();
-      if (response.ok) {
-        setOrders((prevOrders) =>
-          prevOrders.map((order) =>
-            order.orderNumber === orderNumber
-              ? { ...order, status: newStatus }
-              : order
-          )
-        );
-      } else {
-        console.error("Failed to update order status:", data.message);
-      }
-    } catch (error) {
-      console.error("Error updating order status:", error);
-    }
-  };
-
   return (
     <div className="p-4">
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-4">
         {orders.length === 0 ? (
           <p className="text-xl text-gray-600 text-center">No orders yet.</p>
         ) : (
-          orders.map((order) => (
+          orders.map((order: Order) => (
             <div
               key={order.orderNumber}
               className="border border-gray-300 p-6 rounded-xl shadow-lg hover:shadow-2xl transition-shadow duration-300"
@@ -170,7 +147,7 @@ const OrdersList: FC = () => {
                     className="ml-2 p-1 border rounded"
                     value={order.status}
                     onChange={(e) =>
-                      updateOrderStatus(order.orderNumber, e.target.value)
+                      console.log("Status update not implemented yet")
                     }
                   >
                     <option value="Pending">Pending</option>
@@ -199,10 +176,11 @@ const OrdersList: FC = () => {
               </div>
             </div>
           ))
+          
         )}
       </div>
     </div>
   );
 };
 
-export default OrdersList; 
+export default OrdersList;
