@@ -2,6 +2,132 @@
 @tailwind components;
 @tailwind utilities;
 
+
+/* globals.css */
+
+/* Apply Poppins font to the entire page */
+body {
+  font-family: var(--font-poppins), sans-serif;
+  line-height: 1.6;
+  margin: 0;
+  padding: 0;
+}
+
+/* Headings */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-poppins), sans-serif;
+  font-weight: 600; /* You can adjust the weight here */
+  margin: 0;
+  padding: 0;
+}
+
+/* Paragraphs */
+p {
+  font-family: var(--font-poppins), sans-serif;
+  font-weight: 400; /* Regular weight */
+  margin-bottom: 1rem;
+}
+
+/* Links */
+a {
+  font-family: var(--font-poppins), sans-serif;
+  text-decoration: none;
+  color: inherit; /* Inherit color from parent */
+  transition: color 0.3s ease;
+}
+
+a:hover, a:focus {
+  text-decoration: underline;
+  color: #741052; /* Custom color on hover */
+}
+
+/* Lists */
+ul, ol {
+  font-family: var(--font-poppins), sans-serif;
+  margin: 0;
+  padding: 0 20px;
+}
+
+li {
+  font-family: var(--font-poppins), sans-serif;
+  font-weight: 400;
+  margin-bottom: 0.5rem;
+}
+
+/* Form Elements */
+input, button, select, textarea {
+  font-family: var(--font-poppins), sans-serif;
+  font-weight: 400;
+  padding: 0.5rem;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+}
+
+input:focus, select:focus, textarea:focus, button:focus {
+  border-color: #741052; /* Focus color */
+  outline: none;
+}
+
+/* Strong and Bold Text */
+strong, b {
+  font-family: var(--font-poppins), sans-serif;
+  font-weight: 700;
+}
+
+/* Italics */
+em, i {
+  font-family: var(--font-poppins), sans-serif;
+  font-style: italic;
+}
+
+/* Blockquotes */
+blockquote {
+  font-family: var(--font-poppins), sans-serif;
+  font-style: italic;
+  margin: 1.5rem 0;
+  padding-left: 20px;
+  border-left: 4px solid #741052;
+}
+
+/* Code blocks and inline code */
+code, pre {
+  font-family: 'Courier New', monospace;
+  background-color: #f4f4f4;
+  padding: 0.2rem;
+  border-radius: 5px;
+}
+
+pre {
+  padding: 1rem;
+  overflow-x: auto;
+}
+
+/* Tables */
+table {
+  font-family: var(--font-poppins), sans-serif;
+  border-collapse: collapse;
+  width: 100%;
+  margin: 1rem 0;
+}
+
+th, td {
+  padding: 1rem;
+  border: 1px solid #ddd;
+}
+
+th {
+  font-weight: 600;
+  text-align: left;
+}
+
+/* Block and inline elements */
+div, span, section, article {
+  font-family: var(--font-poppins), sans-serif;
+}
+
+
+
+
 /* Add this to your global stylesheet (e.g., tailwind.css or in a separate file) */
 @keyframes fadeIn {
   0% {
@@ -188,6 +314,9 @@ body {
 @media (max-width: 768px) {
   .pt-16 {
     padding-top: 0;  /* No extra space on mobile */
+  }
+  .hero{
+    margin-top: 1em;
   }
 }
 

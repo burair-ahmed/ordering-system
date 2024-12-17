@@ -135,7 +135,7 @@ export default function MenuPage() {
                   {category}
                 </h1>
               </div>
-              <div className="grid grid-cols-2 gap-4 px-4 sm:px-6 lg:px-8 w-full max-w-6xl mx-auto sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 mt-4">
+              <div className="grid grid-cols-2 gap-4 pr-6 pl-1 sm:px-6 lg:px-8 w-full max-w-6xl mx-auto sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 mt-4">
   {/* Display skeleton loaders if the menu is still loading */}
   {loading && filteredItems.length === 0 ? (
     [...Array(4)].map((_, i) => (

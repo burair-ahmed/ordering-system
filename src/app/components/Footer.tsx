@@ -3,7 +3,7 @@
 import { FC, useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { FaFacebook, FaTwitter, FaInstagram, FaLinkedin } from "react-icons/fa"; // Optional for social media icons
+import { FaFacebook, FaInstagram } from "react-icons/fa"; // Optional for social media icons
 
 const Footer: FC = () => {
   const [tableId, setTableId] = useState<string>('');
@@ -23,7 +23,7 @@ const Footer: FC = () => {
   }, []);
 
   return (
-    <footer className="bg-[#741052] text-white py-8">
+    <footer className="bg-[#741052] text-white py-8 w-full">
       <div className="container mx-auto px-6">
         <div className="flex flex-col lg:flex-row justify-between items-center">
           {/* Left Section: Logo */}
@@ -46,15 +46,15 @@ const Footer: FC = () => {
             <a href="#" className="text-white hover:text-gray-200 transition duration-300">
               <FaFacebook size={24} />
             </a>
-            <a href="#" className="text-white hover:text-gray-200 transition duration-300">
+            {/* <a href="#" className="text-white hover:text-gray-200 transition duration-300">
               <FaTwitter size={24} />
-            </a>
+            </a> */}
             <a href="#" className="text-white hover:text-gray-200 transition duration-300">
               <FaInstagram size={24} />
             </a>
-            <a href="#" className="text-white hover:text-gray-200 transition duration-300">
+            {/* <a href="#" className="text-white hover:text-gray-200 transition duration-300">
               <FaLinkedin size={24} />
-            </a>
+            </a> */}
           </div>
         </div>
 
