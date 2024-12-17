@@ -14,6 +14,7 @@ interface MenuItemData {
   image: string;
   variations: Variation[];
   category: string;
+  status: "in stock" | "out of stock"; // Add the status field
 }
 
 interface Variation {

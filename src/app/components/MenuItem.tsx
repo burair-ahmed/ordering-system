@@ -14,6 +14,7 @@ interface MenuItemData {
   price: number;
   image: string;
   variations: Variation[];
+  status: "in stock" | "out of stock"; // Add status field
 }
 
 interface MenuItemProps {
@@ -23,7 +24,7 @@ interface MenuItemProps {
 const MenuItem: FC<MenuItemProps> = ({ item }) => {
   const [showModal, setShowModal] = useState(false);
   const [selectedVariation, setSelectedVariation] = useState<Variation | null>(null);
-  const [showAddedMessage, setShowAddedMessage] = useState(false); // State for showing the added message
+  const [showAddedMessage, setShowAddedMessage] = useState(false);
 
   const itemId = item.id ? item.id.toString() : "0";
   const basePrice = typeof item.price === "number" ? item.price : 0;
@@ -34,48 +35,60 @@ const MenuItem: FC<MenuItemProps> = ({ item }) => {
     setSelectedVariation(variation);
   };
 
-  // Function to trigger the "Item added" message
   const handleItemAdded = () => {
     setShowAddedMessage(true);
     setTimeout(() => {
       setShowAddedMessage(false);
-      setTimeout(() => setShowModal(false), 200); // Close modal after 500ms delay to allow message to disappear
-    }, 200); // Show the "added" message for 3 seconds
+      setTimeout(() => setShowModal(false), 200);
+    }, 200);
   };
 
   return (
     <>
       {/* Menu Item Card */}
       <div
-  className="menu-item-card bg-white rounded-lg shadow-lg p-4 cursor-pointer hover:shadow-xl transition-transform transform hover:scale-105 flex flex-col"
-  onClick={() => setShowModal(true)}
-  style={{ height: "24rem" }} // Fixed height for uniformity
->
-  <Image
-    src={item.image || "/fallback-image.jpg"}
-    alt={item.title}
-    className="rounded-lg object-cover w-full h-40 mb-4"
-    width={450}
-    height={150}
-  />
-  <h2 className="font-bold text-xl text-gray-800 mb-2">{item.title}</h2>
-  <p
-    className="text-sm text-gray-600 mb-4 overflow-hidden text-ellipsis"
-    style={{
-      display: "-webkit-box",
-      WebkitBoxOrient: "vertical",
-      WebkitLineClamp: 3, // Limit to 3 lines
-      overflow: "hidden",
-    }}
-  >
-    {item.description}
-  </p>
-  <p className="font-semibold text-lg text-[#741052] mt-auto">Rs.{basePrice.toFixed(2)}</p>
-  <button className="mt-2 py-2 px-4 bg-[#741052] text-white rounded-lg hover:bg-[#5e0d41] transition">
-    ADD TO CART
-  </button>
-</div>
+        className="menu-item-card bg-white rounded-lg shadow-lg p-4 cursor-pointer hover:shadow-xl transition-transform transform hover:scale-105 flex flex-col"
+        onClick={() => setShowModal(true)}
+        style={{ height: "24rem" }}
+      >
+        <Image
+          src={item.image || "/fallback-image.jpg"}
+          alt={item.title}
+          className="rounded-lg object-cover w-full h-40 mb-4"
+          width={450}
+          height={150}
+        />
+        <h2 className="font-bold text-xl text-gray-800 mb-2">{item.title}</h2>
+        <p
+          className="text-sm text-gray-600 mb-4 overflow-hidden text-ellipsis"
+          style={{
+            display: "-webkit-box",
+            WebkitBoxOrient: "vertical",
+            WebkitLineClamp: 3,
+            overflow: "hidden",
+          }}
+        >
+          {item.description}
+        </p>
+        <p className="font-semibold text-lg text-[#741052] mt-auto">Rs.{basePrice.toFixed(2)}</p>
 
+        {/* Conditionally disable the button based on item stock */}
+        <button
+          className={`mt-2 py-2 px-4 rounded-lg transition ${
+            item.status === "out of stock"
+              ? "bg-gray-400 cursor-not-allowed"
+              : "bg-[#741052] hover:bg-[#5e0d41]"
+          } text-white`}
+          disabled={item.status === "out of stock"}
+        >
+          ADD TO CART
+        </button>
+
+        {/* Display "Out of Stock" message if the item is out of stock */}
+        {item.status === "out of stock" && (
+          <p className="mt-2 text-center text-red-500 font-semibold">Out of Stock</p>
+        )}
+      </div>
 
       {/* Modal */}
       {showModal && (
@@ -144,16 +157,13 @@ const MenuItem: FC<MenuItemProps> = ({ item }) => {
                   title={item.title}
                   price={totalPrice}
                   image={item.image}
-                  selectedVariations={
-                    selectedVariation
-                      ? [`${selectedVariation.name}`]
-                      : undefined
-                  }
-                  onClick={handleItemAdded} // Trigger the message when clicked
-                  className="" // No color change on button
+                  selectedVariations={selectedVariation ? [`${selectedVariation.name}`] : undefined}
+                  onClick={handleItemAdded}
+                  className=""
+                  disabled={item.status === "out of stock"} // Disable the Add to Cart button in modal as well
                 />
                 {showAddedMessage && (
-                  <p className="text-sm text-green-500 flex items-center text-center mt-4">{item.title} added to cart</p> // Aligns the text vertically
+                  <p className="text-sm text-green-500 flex items-center text-center mt-4">{item.title} added to cart</p>
                 )}
               </div>
             </div>

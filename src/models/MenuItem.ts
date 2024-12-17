@@ -10,6 +10,7 @@ interface IMenuItem extends Document {
   variations: { name: string; price: number; id: string }[]; // Ensure 'id' is part of the variation type
   category: string; // Use 'string' instead of 'String'
   createdAt: Date;
+  status: 'in stock' | 'out of stock'; // New status field
 }
 
 const MenuItemSchema: Schema = new Schema({
@@ -27,6 +28,7 @@ const MenuItemSchema: Schema = new Schema({
   ],
   category: { type: String, required: true }, // Change 'String' to 'string'
   createdAt: { type: Date, default: Date.now },
+  status: { type: String, enum: ['in stock', 'out of stock'], required: true, default: 'in stock' }, // New status field
 });
 
 export default mongoose.models.MenuItems || mongoose.model<IMenuItem>('MenuItems', MenuItemSchema);

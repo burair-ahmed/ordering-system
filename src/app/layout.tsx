@@ -32,7 +32,7 @@ const poppins = localFont({
 });
 
 export const metadata: Metadata = {
-  title: "Ordering System",
+  title: "CLK Ordering System",
   description: "Cafe Little Karachi Ordering System",
 };
 

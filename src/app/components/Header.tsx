@@ -42,7 +42,7 @@ export default function Header() {
   return (
     <div className="p-0">
       {/* Desktop Header */}
-      <div className="hidden lg:block">
+      <div className="hidden lg:block pb-8">
         <div className="fading-gradient">
           <div
             className="background-repeat p-0 -mt-5"
