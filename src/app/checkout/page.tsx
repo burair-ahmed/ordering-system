@@ -4,8 +4,10 @@ import React, { FC, useState, useEffect, Suspense } from 'react';
 import { useCart } from '../context/CartContext';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Image from 'next/image';
+import Preloader from '../components/Preloader';
 
 const CheckoutPageContent: FC = () => {
+  const [isProcessing, setIsProcessing] = useState(false);
   const { cartItems, totalAmount, clearCart } = useCart();
   const [formData, setFormData] = useState({
     name: '',
@@ -51,10 +53,12 @@ const CheckoutPageContent: FC = () => {
   };
 
   const handlePlaceOrder = async () => {
+    setIsProcessing(true); // Indicate that the request is being processed
+  
     const newOrder = {
       orderNumber: `ORD-${Math.floor(Math.random() * 1000000)}`,
       customerName: formData.name,
-      email: formData.email || '', // Email is optional
+      email: formData.email || '',
       tableNumber: formData.tableNumber,
       paymentMethod: formData.paymentMethod,
       items: cartItems.map((item) => ({
@@ -68,23 +72,27 @@ const CheckoutPageContent: FC = () => {
       totalAmount: totalAmount,
       status: 'Received',
     };
-
-    const response = await fetch('/api/orders', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(newOrder),
-    });
-
-    if (response.ok) {
-      clearCart();
-      router.push(`/thank-you?tableId=${formData.tableNumber}`);
-    } else {
-      alert('Failed to place the order.');
+  
+    try {
+      const response = await fetch('/api/orders', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(newOrder),
+      });
+  
+      if (response.ok) {
+        clearCart();
+        router.push(`/thank-you?tableId=${formData.tableNumber}`);
+      } else {
+        alert('Failed to place the order. Please try again.');
+      }
+    } catch (error) {
+      console.error('Error placing the order:', error);
+      alert('Something went wrong. Please try again.');
+    } finally {
+      setIsProcessing(false); // Reset the processing state
     }
   };
-
   const handleCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setIsChecked(e.target.checked);
   };
@@ -219,15 +227,20 @@ const CheckoutPageContent: FC = () => {
             </div>
 
             <div className="flex flex-col space-y-4">
-              <button
-                onClick={handlePlaceOrder}
-                disabled={!isChecked}
-                className={`w-full py-3 text-white rounded-lg font-semibold text-lg ${
-                  !isChecked ? 'bg-gray-400 cursor-not-allowed' : 'bg-[#741052] hover:bg-[#5e0d41]'
-                } transition-colors duration-200`}
-              >
-                Place Order
-              </button>
+            <button
+  onClick={handlePlaceOrder}
+  disabled={!isChecked || isProcessing}
+  className={`w-full py-3 text-white rounded-lg font-semibold text-lg ${
+    !isChecked || isProcessing ? 'bg-gray-400 cursor-not-allowed' : 'bg-[#741052] hover:bg-[#5e0d41]'
+  } transition-colors duration-200 flex items-center justify-center`}
+>
+  {isProcessing ? (
+    <span className="loader"><Preloader/></span> 
+  ) : (
+    'Place Order'
+  )}
+</button>
+
               <button
                 onClick={() => setIsModalOpen(false)}
                 className="w-full py-3 bg-gray-200 text-[#333] rounded-lg font-semibold text-lg hover:bg-gray-300 transition-colors duration-200"
