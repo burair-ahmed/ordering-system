@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import MenuItem from "../components/MenuItem";
+import PlatterItem from "../components/PlatterItem";  // Assuming you have a PlatterItem component
 import Hero from "../components/Hero";
 import { v4 as uuidv4 } from 'uuid';
 import SkeletonLoader from "../components/SkeletonLoader";
@@ -14,7 +15,7 @@ interface MenuItemData {
   image: string;
   variations: Variation[];
   category: string;
-  status: "in stock" | "out of stock"; // Add the status field
+  status: "in stock" | "out of stock";
 }
 
 interface Variation {
@@ -22,8 +23,36 @@ interface Variation {
   price: string;
 }
 
-// Define the fixed order of categories
-const orderedCategories = [
+interface Platter {
+  id: string;
+  title: string;
+  description: string;
+  basePrice: number;
+  image: string;
+  platterCategory: string;  // New field for platter category
+  status: "in stock" | "out of stock";
+  categories: Category[];
+}
+
+interface CategoryOption {
+  name: string;
+  title: string;
+  price: number;
+}
+
+interface Category {
+  categoryName: string;
+  options: CategoryOption[];
+}
+
+const defaultPlatterCategoryOrder = [
+  "Sharing Platters",
+  "BBQ Deals",
+  "Fast Food Deals",
+  
+];
+
+const defaultMenuCategoryOrder = [
   "Sharing Platters",
   "BBQ Deals",
   "Fast Food Deals",
@@ -50,14 +79,20 @@ const orderedCategories = [
 ];
 
 export default function MenuPage() {
-  const [menu, setMenu] = useState<{ [key: string]: MenuItemData[] }>({}); // Object to store menu items by category
+  const [menu, setMenu] = useState<{ [key: string]: MenuItemData[] }>({});
+  const [platters, setPlatters] = useState<{ [key: string]: Platter[] }>({});  // State for platters grouped by category
   const [loading, setLoading] = useState<boolean>(false);
-  const [page, setPage] = useState<{ [key: string]: number }>({});  // Track the current page for each category
-  const [hasMore, setHasMore] = useState<{ [key: string]: boolean }>({}); // Track if more items exist for each category
+  const [page, setPage] = useState<{ [key: string]: number }>({});
+  const [hasMore, setHasMore] = useState<{ [key: string]: boolean }>({});
 
-  const observer = useRef<IntersectionObserver | null>(null); // Ref for the IntersectionObserver
+  // Separate category orders for menu items and platters
+  const [platterCategoryOrder, setPlatterCategoryOrder] = useState<string[]>(defaultPlatterCategoryOrder);
+  const [menuCategoryOrder, setMenuCategoryOrder] = useState<string[]>(defaultMenuCategoryOrder);
+
+  const observer = useRef<IntersectionObserver | null>(null);
 
   useEffect(() => {
+    // Fetch Menu Items
     const fetchMenu = async (category: string) => {
       setLoading(true);
       const currentPage = page[category] || 1;
@@ -74,18 +109,17 @@ export default function MenuPage() {
 
         setMenu((prevMenu) => ({
           ...prevMenu,
-          [category]: [...(prevMenu[category] || []), ...data], // Append new items to existing ones for the category
+          [category]: [...(prevMenu[category] || []), ...data],
         }));
 
         setPage((prevPage) => ({
           ...prevPage,
-          [category]: currentPage + 1, // Increment page for the category
+          [category]: currentPage + 1,
         }));
 
-        // Check if there are more items to load
         setHasMore((prevHasMore) => ({
           ...prevHasMore,
-          [category]: data.length === 10, // If we received less than 10, there are no more items
+          [category]: data.length === 10,
         }));
       } catch (err) {
         console.error("Error fetching menu items:", err);
@@ -94,41 +128,93 @@ export default function MenuPage() {
       }
     };
 
-    // Fetch menu for each category on initial render
-    orderedCategories.forEach((category) => {
+    // Fetch Platters
+    const fetchPlatters = async () => {
+      setLoading(true);
+      try {
+        const response = await fetch("/api/platter");
+        if (!response.ok) {
+          throw new Error("Failed to fetch platters");
+        }
+        const data: Platter[] = await response.json();
+        
+        // Group platters by their platterCategory
+        const groupedPlatters: { [key: string]: Platter[] } = data.reduce((acc, platter) => {
+          const category = platter.platterCategory;
+          if (!acc[category]) {
+            acc[category] = [];
+          }
+          acc[category].push(platter);
+          return acc;
+        }, {} as { [key: string]: Platter[] });
+
+        setPlatters(groupedPlatters);
+      } catch (err) {
+        console.error("Error fetching platters:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    // Fetch menu and platters on initial render
+    menuCategoryOrder.forEach((category) => {
       fetchMenu(category);
     });
-  }, []);  // Only run once when component mounts
+    fetchPlatters();  // Fetch platters grouped by category
+  }, [menuCategoryOrder, platterCategoryOrder]); // Re-fetch whenever category order changes
 
   const lastMenuItemRef = (category: string, node: HTMLDivElement | null) => {
-    if (loading || !hasMore[category]) return; // Prevent loading if already loading or no more items
-    if (observer.current) observer.current.disconnect(); // Disconnect the previous observer
-  
-    // Add null check before observing the node
+    if (loading || !hasMore[category]) return;
+    if (observer.current) observer.current.disconnect();
+
     if (node) {
       observer.current = new IntersectionObserver((entries) => {
         if (entries[0].isIntersecting) {
-          setPage((prevPage) => ( {
+          setPage((prevPage) => ({
             ...prevPage,
-            [category]: (prevPage[category] || 1) + 1, // Increment page when last item is in view
+            [category]: (prevPage[category] || 1) + 1,
           }));
         }
       });
-  
-      observer.current.observe(node); // Start observing the last item in the list
+
+      observer.current.observe(node);
     }
+  };
+
+  // Function to handle the reordering of platter categories
+  const handleReorderPlatters = (newOrder: string[]) => {
+    setPlatterCategoryOrder(newOrder);
+  };
+
+  // Function to handle the reordering of menu categories
+  const handleReorderMenu = (newOrder: string[]) => {
+    setMenuCategoryOrder(newOrder);
   };
 
   return (
     <div className="bg-white text-black">
-      {/* Hero component */}
       <Hero />
 
-      {/* Menu items with loading state */}
-      <div>
-        {orderedCategories.map((category) => {
-          const filteredItems = menu[category] || [];
+      {/* Custom Category Order Button for Platters and Menu Items */}
+      <div className="flex justify-center mt-4 gap-4">
+        {/* <button 
+          onClick={() => handleReorderPlatters([...platterCategoryOrder].reverse())}  // Reverse platter category order
+          className="px-4 py-2 bg-blue-600 text-white rounded-lg shadow-md"
+        >
+          Reverse Platter Order
+        </button>
+        <button 
+          onClick={() => handleReorderMenu([...menuCategoryOrder].reverse())}  // Reverse menu category order
+          className="px-4 py-2 bg-green-600 text-white rounded-lg shadow-md"
+        >
+          Reverse Menu Order
+        </button> */}
+      </div>
 
+      {/* Platters First */}
+      <div>
+        {platterCategoryOrder.map((category) => {
+          const filteredPlatters = platters[category] || [];
           return (
             <div key={category} className="mt-8">
               <div className="w-full flex justify-center mb-4">
@@ -137,48 +223,50 @@ export default function MenuPage() {
                 </h1>
               </div>
               <div className="grid grid-cols-2 gap-4 pr-6 pl-1 sm:px-6 lg:px-8 w-full max-w-6xl mx-auto sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 mt-4">
-  {/* Display skeleton loaders if the menu is still loading */}
-  {loading && filteredItems.length === 0 ? (
-    [...Array(4)].map((_, i) => (
-      <SkeletonLoader key={i} />
-    ))
-  ) : (
-    filteredItems.map((item, index) => (
-      <div
-        ref={index === filteredItems.length - 1 ? (node) => lastMenuItemRef(category, node) : null}
-        key={uuidv4()}
-      >
-        <MenuItem item={item} />
-      </div>
-    ))
-  )}
-</div>
-
+                {loading && filteredPlatters.length === 0 ? (
+                  [...Array(4)].map((_, i) => <SkeletonLoader key={i} />)
+                ) : (
+                  filteredPlatters.map((platter) => (
+                    <div key={uuidv4()}>
+                      <PlatterItem platter={platter} />
+                    </div>
+                  ))
+                )}
+              </div>
             </div>
           );
         })}
       </div>
 
-      {/* Skeleton Loader */}
-      {loading && (
-        <div>
-          {orderedCategories.map((category, index) => (
-            <div key={index} className="mt-8">
+      {/* Menu Items Below Platters */}
+      <div>
+        {menuCategoryOrder.map((category) => {
+          const filteredItems = menu[category] || [];
+          return (
+            <div key={category} className="mt-8">
               <div className="w-full flex justify-center mb-4">
-                <div className="bg-gray-300 w-1/2 h-10 rounded-lg animate-pulse"></div> {/* Skeleton heading */}
+                <h1 className="text-3xl font-semibold text-white bg-[#741052] py-3 px-6 rounded-lg shadow-md text-center">
+                  {category}
+                </h1>
               </div>
-              <div className="grid grid-cols-2 gap-4 w-11/12 mx-auto sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 mt-4">
-                {[...Array(4)].map((_, i) => (
-                  <SkeletonLoader key={i} />
-                ))}
+              <div className="grid grid-cols-2 gap-4 pr-6 pl-1 sm:px-6 lg:px-8 w-full max-w-6xl mx-auto sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 mt-4">
+                {loading && filteredItems.length === 0 ? (
+                  [...Array(4)].map((_, i) => <SkeletonLoader key={i} />)
+                ) : (
+                  filteredItems.map((item, index) => (
+                    <div
+                      ref={index === filteredItems.length - 1 ? (node) => lastMenuItemRef(category, node) : null}
+                      key={uuidv4()}
+                    >
+                      <MenuItem item={item} />
+                    </div>
+                  ))
+                )}
               </div>
             </div>
-          ))}
-        </div>
-      )}
-
-      {/* Error handling */}
-      {menu && Object.keys(menu).length === 0 && !loading && <div className="text-red-500">No menu items found.</div>}
+          );
+        })}
+      </div>
     </div>
   );
 }

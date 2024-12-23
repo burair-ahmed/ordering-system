@@ -1,19 +1,16 @@
-'use client'
-
 import { FC, useState, useEffect } from "react";
 import Image from "next/image";
-import AddToCartButtonForPlatters from "./AddToCartButtonForPlatters"; // Import the AddToCartButtonForPlatters component
+import AddToCartButtonForPlatters from "./AddToCartButtonForPlatters";
 
-// Define CategoryOption and Category types
 interface CategoryOption {
-    name: string; 
+  name: string;
   title: string;
   price: number;
 }
 
 interface Category {
   categoryName: string;
-  options: CategoryOption[]; // Initially empty, will be populated with API data
+  options: CategoryOption[];
 }
 
 interface PlatterItemProps {
@@ -23,7 +20,8 @@ interface PlatterItemProps {
     description: string;
     basePrice: number;
     image: string;
-    categories: Category[]; // The structure you expect for categories in the platter
+    categories: Category[];
+    status: "in stock" | "out of stock";
   };
 }
 
@@ -33,41 +31,34 @@ const PlatterItem: FC<PlatterItemProps> = ({ platter }) => {
   const [totalPrice, setTotalPrice] = useState<number>(platter.basePrice);
   const [categoryItems, setCategoryItems] = useState<{ [key: string]: CategoryOption[] }>({});
 
-  // Function to fetch items for a category
   const fetchCategoryItems = async (categoryName: string) => {
     try {
       const response = await fetch(`/api/getitems?category=${categoryName}`);
       const data = await response.json();
-      return data; // This will be the menu items for that category
+      return data;
     } catch (error) {
       console.error("Error fetching menu items:", error);
       return [];
     }
   };
 
-  // Fetch items when modal opens
   useEffect(() => {
     if (showModal) {
-      // Loop through platter categories and fetch items for each
       const fetchItemsForCategories = async () => {
         const itemsForCategories: { [key: string]: CategoryOption[] } = {};
         for (const category of platter.categories) {
           const items = await fetchCategoryItems(category.categoryName);
           itemsForCategories[category.categoryName] = items;
         }
-        setCategoryItems(itemsForCategories); // Set fetched items in state
+        setCategoryItems(itemsForCategories);
       };
-
       fetchItemsForCategories();
     }
   }, [showModal]);
 
-  // Handle option change for each category
   const handleOptionChange = (categoryName: string, optionName: string) => {
     setSelectedOptions((prev) => {
       const updatedOptions = { ...prev, [categoryName]: optionName };
-
-      // Recalculate total price based on selected options
       let newTotalPrice = platter.basePrice;
       Object.entries(updatedOptions).forEach(([key, value]) => {
         const selectedCategory = platter.categories.find((category) => category.categoryName === key);
@@ -76,17 +67,15 @@ const PlatterItem: FC<PlatterItemProps> = ({ platter }) => {
           newTotalPrice += selectedOption.price;
         }
       });
-
-      setTotalPrice(newTotalPrice); // Update total price
+      setTotalPrice(newTotalPrice);
       return updatedOptions;
     });
   };
 
-  // When the modal is opened, reset the selected options to the default
   useEffect(() => {
     if (showModal) {
       setSelectedOptions({});
-      setTotalPrice(platter.basePrice); // Reset to base price when modal opens
+      setTotalPrice(platter.basePrice);
     }
   }, [showModal]);
 
@@ -98,15 +87,38 @@ const PlatterItem: FC<PlatterItemProps> = ({ platter }) => {
         style={{ height: "24rem" }}
       >
         <Image
-          src={platter.image}
+          src={platter.image || "/fallback-image.jpg"}
           alt={platter.title}
           className="rounded-lg object-cover w-full h-40 mb-4"
           width={450}
           height={150}
         />
         <h2 className="font-bold text-xl text-gray-800 mb-2">{platter.title}</h2>
-        <p className="text-sm text-gray-600 mb-4">{platter.description}</p>
+        <p
+          className="text-sm text-gray-600 mb-4 overflow-hidden text-ellipsis"
+          style={{
+            display: "-webkit-box",
+            WebkitBoxOrient: "vertical",
+            WebkitLineClamp: 3,
+            overflow: "hidden",
+          }}
+        >
+          {platter.description}
+        </p>
         <p className="font-semibold text-lg text-[#741052] mt-auto">Rs.{totalPrice.toFixed(2)}</p>
+        <button
+          className={`mt-2 py-2 px-4 rounded-lg transition ${
+            platter.status === "out of stock"
+              ? "bg-gray-400 cursor-not-allowed"
+              : "bg-[#741052] hover:bg-[#5e0d41]"
+          } text-white`}
+          disabled={platter.status === "out of stock"}
+        >
+          ADD TO CART
+        </button>
+        {platter.status === "out of stock" && (
+          <p className="mt-2 text-center text-red-500 font-semibold">Out of Stock</p>
+        )}
       </div>
 
       {showModal && (
@@ -118,23 +130,19 @@ const PlatterItem: FC<PlatterItemProps> = ({ platter }) => {
             >
               ✕
             </button>
-
             <div className="lg:w-1/2 flex justify-center items-center mb-4 lg:mb-0">
               <Image
-                src={platter.image}
+                src={platter.image || "/fallback-image.jpg"}
                 alt={platter.title}
                 className="p-2 g-0 rounded-[15px] object-cover w-full h-[350px]"
                 width={356}
                 height={350}
               />
             </div>
-
             <div className="lg:w-1/2 px-4">
               <h2 className="text-xl font-bold mt-4 lg:mt-0">{platter.title}</h2>
               <p className="text-gray-600 mt-2">{platter.description}</p>
               <p className="text-lg font-semibold mt-4 text-[#741052]">Rs.{totalPrice.toFixed(2)}</p>
-
-              {/* Dropdowns for Category Selections */}
               <div className="mt-4">
                 {platter.categories?.map((category, index) => (
                   <div key={index}>
@@ -154,15 +162,13 @@ const PlatterItem: FC<PlatterItemProps> = ({ platter }) => {
                   </div>
                 ))}
               </div>
-
-              {/* Add to Cart Button */}
-              <div className="flex gap-4 items-center align-center mt-4">
+              <div className="flex gap-4 items-center align-center">
                 <AddToCartButtonForPlatters
-                  platter={platter} // Pass platter data to the AddToCartButtonForPlatters
-                  selectedOptions={selectedOptions} // Pass the selected options
-                  onClick={() => setShowModal(false)} // Close the modal after adding to cart
-                  className="w-full" // Optional className for styling
-                  disabled={false} // Set to true if button should be disabled
+                  platter={platter}
+                  selectedOptions={selectedOptions}
+                  onClick={() => setShowModal(false)}
+                  className="w-full"
+                  disabled={false}
                 />
               </div>
             </div>

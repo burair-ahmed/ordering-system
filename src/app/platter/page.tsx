@@ -23,6 +23,7 @@ interface Platter {
   basePrice: number;
   image: string;
   categories: Category[];
+  status: "in stock" | "out of stock";
 }
 
 const PlattersPage = () => {
