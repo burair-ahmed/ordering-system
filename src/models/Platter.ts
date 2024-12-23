@@ -8,6 +8,7 @@ interface IPlatter extends Document {
   description: string;
   image: string;
   categories: { categoryName: string; options: { name: string }[] }[]; // Categories with options, no price for options
+  platterCategory: string; // New field for platter category
   createdAt: Date;
   status: 'in stock' | 'out of stock'; // Stock status
 }
@@ -28,6 +29,7 @@ const PlatterSchema: Schema = new Schema({
       ],
     },
   ],
+  platterCategory: { type: String, required: true }, // The platter's category (e.g., "Sharing", "Chinese")
   createdAt: { type: Date, default: Date.now },
   status: { type: String, enum: ['in stock', 'out of stock'], required: true, default: 'in stock' }, // In-stock status
 });

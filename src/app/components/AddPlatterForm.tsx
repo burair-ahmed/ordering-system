@@ -3,7 +3,7 @@
 import { useState } from "react";
 
 interface Category {
-  categoryName: string;
+  categoryName: string; // Only store category name (no options needed)
 }
 
 const AddPlatterForm = () => {
@@ -11,6 +11,7 @@ const AddPlatterForm = () => {
   const [description, setDescription] = useState("");
   const [basePrice, setBasePrice] = useState<number>(0);
   const [image, setImage] = useState("");
+  const [platterCategory, setPlatterCategory] = useState(""); // Category for the platter
   const [categories, setCategories] = useState<Category[]>([
     { categoryName: "" },
   ]);
@@ -42,6 +43,7 @@ const AddPlatterForm = () => {
       description,
       basePrice,
       image,
+      platterCategory, // Include platterCategory in the form submission
       categories,
     };
 
@@ -125,24 +127,39 @@ const AddPlatterForm = () => {
         </div>
 
         <div className="mb-4">
+          <label htmlFor="platterCategory" className="block text-sm font-medium text-gray-700">
+            Platter Category
+          </label>
+          <input
+            id="platterCategory"
+            type="text"
+            value={platterCategory}
+            onChange={(e) => setPlatterCategory(e.target.value)}
+            placeholder="e.g., Sharing Platter, Chinese Platter"
+            className="mt-1 p-2 border rounded w-full"
+            required
+          />
+        </div>
+
+        <div className="mb-4">
           <label className="block text-sm font-medium text-gray-700">Categories</label>
-          {categories.map((category, index) => (
-            <div key={index} className="mb-4">
+          {categories.map((category, categoryIndex) => (
+            <div key={categoryIndex} className="mb-4">
               <div className="flex gap-4">
                 <input
                   type="text"
                   value={category.categoryName}
-                  onChange={(e) => handleCategoryChange(index, e.target.value)}
+                  onChange={(e) => handleCategoryChange(categoryIndex, e.target.value)}
                   placeholder="Category Name"
                   className="p-2 border rounded w-full"
                   required
                 />
                 <button
                   type="button"
-                  onClick={() => handleRemoveCategory(index)}
+                  onClick={() => handleRemoveCategory(categoryIndex)}
                   className="p-2 bg-red-500 text-white rounded"
                 >
-                  Remove
+                  Remove Category
                 </button>
               </div>
             </div>
