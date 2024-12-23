@@ -10,6 +10,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       // Destructure platter details from the request body
       const { title, description, basePrice, image, categories, platterCategory } = req.body;
 
+      // Check if the image is a valid base64 string
+      const validBase64Regex = /^data:image\/(png|jpg|jpeg|gif);base64,/;
+      if (!validBase64Regex.test(image)) {
+        return res.status(400).json({ message: "Invalid image format" });
+      }
+
       // Create a new platter with the platterCategory
       const newPlatter = new Platter({
         title,

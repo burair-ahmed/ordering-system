@@ -1,4 +1,4 @@
-'use client'
+'use client';
 
 import { useState } from "react";
 
@@ -10,7 +10,7 @@ const AddPlatterForm = () => {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [basePrice, setBasePrice] = useState<number>(0);
-  const [image, setImage] = useState("");
+  const [image, setImage] = useState<string | null>(null); // Image as base64 string
   const [platterCategory, setPlatterCategory] = useState(""); // Category for the platter
   const [categories, setCategories] = useState<Category[]>([
     { categoryName: "" },
@@ -35,6 +35,18 @@ const AddPlatterForm = () => {
     setCategories(updatedCategories);
   };
 
+  // Handle image upload
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0] || null;
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImage(reader.result as string); // Set image as base64 string
+      };
+      reader.readAsDataURL(file); // Read file as base64 string
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -42,7 +54,7 @@ const AddPlatterForm = () => {
       title,
       description,
       basePrice,
-      image,
+      image, // Include the image as base64
       platterCategory, // Include platterCategory in the form submission
       categories,
     };
@@ -114,16 +126,20 @@ const AddPlatterForm = () => {
 
         <div className="mb-4">
           <label htmlFor="image" className="block text-sm font-medium text-gray-700">
-            Image URL
+            Image
           </label>
           <input
             id="image"
-            type="text"
-            value={image}
-            onChange={(e) => setImage(e.target.value)}
-            className="mt-1 p-2 border rounded w-full"
-            required
+            type="file"
+            accept="image/*"
+            onChange={handleImageUpload}
+            className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-[#731351] hover:file:bg-blue-100"
           />
+          {image && (
+            <div className="mt-2">
+              <img src={image} alt="Platter Preview" className="w-40 h-40 object-cover rounded" />
+            </div>
+          )}
         </div>
 
         <div className="mb-4">
