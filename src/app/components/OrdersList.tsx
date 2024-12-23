@@ -112,6 +112,28 @@ const OrdersList: FC = () => {
     };
   }, []);
 
+  // Function to update order status
+  const updateOrderStatus = async (orderNumber: string, status: string) => {
+    try {
+      const response = await fetch("/api/updateorderstatus", {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ orderNumber, status }),
+      });
+
+      if (response.ok) {
+        console.log("Order status updated successfully.");
+        fetchOrders(); // Refresh orders after updating status
+      } else {
+        console.error("Failed to update order status:", response.statusText);
+      }
+    } catch (error) {
+      console.error("Error updating order status:", error);
+    }
+  };
+
   return (
     <div className="p-4">
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-4">
@@ -144,7 +166,7 @@ const OrdersList: FC = () => {
                   <select
                     className="ml-2 p-1 border rounded"
                     value={order.status}
-                    onChange={() => console.log("Status update not implemented yet")}
+                    onChange={(e) => updateOrderStatus(order.orderNumber, e.target.value)}
                   >
                     <option value="Pending">Pending</option>
                     <option value="In Progress">In Progress</option>
