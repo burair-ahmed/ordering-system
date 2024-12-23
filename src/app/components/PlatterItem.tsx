@@ -2,17 +2,18 @@
 
 import { FC, useState, useEffect } from "react";
 import Image from "next/image";
-import AddToCartButton from "./AddToCartButton";
+import AddToCartButtonForPlatters from "./AddToCartButtonForPlatters"; // Import the AddToCartButtonForPlatters component
 
 // Define CategoryOption and Category types
 interface CategoryOption {
+    name: string; 
   title: string;
   price: number;
 }
 
 interface Category {
   categoryName: string;
-  options: CategoryOption[];  // Initially empty, will be populated with API data
+  options: CategoryOption[]; // Initially empty, will be populated with API data
 }
 
 interface PlatterItemProps {
@@ -146,7 +147,7 @@ const PlatterItem: FC<PlatterItemProps> = ({ platter }) => {
                       <option value="">Select {category.categoryName}</option>
                       {categoryItems[category.categoryName]?.map((option, idx) => (
                         <option key={idx} value={option.title}>
-                          {option.title}
+                          {option.title} (+Rs.{option.price.toFixed(2)})
                         </option>
                       ))}
                     </select>
@@ -156,7 +157,13 @@ const PlatterItem: FC<PlatterItemProps> = ({ platter }) => {
 
               {/* Add to Cart Button */}
               <div className="flex gap-4 items-center align-center mt-4">
-                {/* <AddToCartButton platter={platter} selectedOptions={selectedOptions} totalPrice={totalPrice} /> */}
+                <AddToCartButtonForPlatters
+                  platter={platter} // Pass platter data to the AddToCartButtonForPlatters
+                  selectedOptions={selectedOptions} // Pass the selected options
+                  onClick={() => setShowModal(false)} // Close the modal after adding to cart
+                  className="w-full" // Optional className for styling
+                  disabled={false} // Set to true if button should be disabled
+                />
               </div>
             </div>
           </div>

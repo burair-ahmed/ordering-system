@@ -6,6 +6,7 @@ import AddPlatterForm from "../components/AddPlatterForm";
 
 // Define the Category type for each category option
 interface CategoryOption {
+    name: string; 
   title: string;
   price: number;
 }
