@@ -24,6 +24,11 @@ interface Platter {
   image: string;
   categories: Category[];
   status: "in stock" | "out of stock";
+  additionalChoices: AdditionalChoice[];
+}
+interface AdditionalChoice {
+  heading: string;
+  options: CategoryOption[];
 }
 
 const PlattersPage = () => {

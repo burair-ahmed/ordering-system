@@ -6,6 +6,11 @@ interface Category {
   categoryName: string; // Only store category name (no options needed)
 }
 
+interface AdditionalChoice {
+  heading: string;
+  options: { name: string }[];
+}
+
 const AddPlatterForm = () => {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
@@ -14,6 +19,9 @@ const AddPlatterForm = () => {
   const [platterCategory, setPlatterCategory] = useState(""); // Category for the platter
   const [categories, setCategories] = useState<Category[]>([
     { categoryName: "" },
+  ]);
+  const [additionalChoices, setAdditionalChoices] = useState<AdditionalChoice[]>([
+    { heading: "", options: [{ name: "" }] },
   ]);
 
   // Handle category name input
@@ -47,6 +55,32 @@ const AddPlatterForm = () => {
     }
   };
 
+  // Handle additional choice heading change
+  const handleChoiceHeadingChange = (index: number, value: string) => {
+    const updatedChoices = [...additionalChoices];
+    updatedChoices[index].heading = value;
+    setAdditionalChoices(updatedChoices);
+  };
+
+  // Handle option name change
+  const handleOptionNameChange = (choiceIndex: number, optionIndex: number, value: string) => {
+    const updatedChoices = [...additionalChoices];
+    updatedChoices[choiceIndex].options[optionIndex].name = value;
+    setAdditionalChoices(updatedChoices);
+  };
+
+  // Add new option under a choice
+  const handleAddOption = (choiceIndex: number) => {
+    const updatedChoices = [...additionalChoices];
+    updatedChoices[choiceIndex].options.push({ name: "" });
+    setAdditionalChoices(updatedChoices);
+  };
+
+  // Add new additional choice section
+  const handleAddChoice = () => {
+    setAdditionalChoices([...additionalChoices, { heading: "", options: [{ name: "" }] }]);
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -54,9 +88,10 @@ const AddPlatterForm = () => {
       title,
       description,
       basePrice,
-      image, // Include the image as base64
-      platterCategory, // Include platterCategory in the form submission
+      image,
+      platterCategory,
       categories,
+      additionalChoices, // Include additional choices
     };
 
     try {
@@ -186,6 +221,49 @@ const AddPlatterForm = () => {
             className="mt-2 p-2 bg-green-500 text-white rounded"
           >
             Add Category
+          </button>
+        </div>
+
+        {/* Additional Choices Section */}
+        <div className="mb-4">
+          <label className="block text-sm font-medium text-gray-700">Additional Choices</label>
+          {additionalChoices.map((choice, index) => (
+            <div key={index} className="border p-4 mb-4 rounded">
+              <input
+                type="text"
+                value={choice.heading}
+                onChange={(e) => handleChoiceHeadingChange(index, e.target.value)}
+                placeholder="Choice Heading"
+                className="p-2 border rounded w-full mb-2"
+                required
+              />
+              {choice.options.map((option, optIndex) => (
+                <div key={optIndex} className="flex gap-4 mb-2">
+                  <input
+                    type="text"
+                    value={option.name}
+                    onChange={(e) => handleOptionNameChange(index, optIndex, e.target.value)}
+                    placeholder="Option Name"
+                    className="p-2 border rounded w-full"
+                    required
+                  />
+                </div>
+              ))}
+              <button
+                type="button"
+                onClick={() => handleAddOption(index)}
+                className="mt-2 p-2 bg-blue-500 text-white rounded"
+              >
+                Add Option
+              </button>
+            </div>
+          ))}
+          <button
+            type="button"
+            onClick={handleAddChoice}
+            className="mt-2 p-2 bg-green-500 text-white rounded"
+          >
+            Add Choice
           </button>
         </div>
 

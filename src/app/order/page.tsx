@@ -32,6 +32,7 @@ interface Platter {
   platterCategory: string;  // New field for platter category
   status: "in stock" | "out of stock";
   categories: Category[];
+  additionalChoices: AdditionalChoice[];
 }
 
 interface CategoryOption {
@@ -42,6 +43,10 @@ interface CategoryOption {
 
 interface Category {
   categoryName: string;
+  options: CategoryOption[];
+}
+interface AdditionalChoice {
+  heading: string;
   options: CategoryOption[];
 }
 

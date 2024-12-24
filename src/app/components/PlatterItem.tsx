@@ -13,6 +13,11 @@ interface Category {
   options: CategoryOption[];
 }
 
+interface AdditionalChoice {
+  heading: string;
+  options: CategoryOption[];
+}
+
 interface PlatterItemProps {
   platter: {
     id: string;
@@ -21,6 +26,7 @@ interface PlatterItemProps {
     basePrice: number;
     image: string;
     categories: Category[];
+    additionalChoices: AdditionalChoice[]; // Added additional choices here
     status: "in stock" | "out of stock";
   };
 }
@@ -67,6 +73,7 @@ const PlatterItem: FC<PlatterItemProps> = ({ platter }) => {
           newTotalPrice += selectedOption.price;
         }
       });
+
       setTotalPrice(newTotalPrice);
       return updatedOptions;
     });
@@ -155,10 +162,32 @@ const PlatterItem: FC<PlatterItemProps> = ({ platter }) => {
                       <option value="">Select {category.categoryName}</option>
                       {categoryItems[category.categoryName]?.map((option, idx) => (
                         <option key={idx} value={option.title}>
-                          {option.title} (+Rs.{option.price.toFixed(2)})
+                          {option.title}
                         </option>
                       ))}
                     </select>
+                  </div>
+                ))}
+
+                {/* Additional Choices Section */}
+                {platter.additionalChoices?.map((choice, index) => (
+                  <div key={index} className="mt-4">
+                    <label className="block text-sm font-medium mb-2 text-gray-700">{choice.heading}</label>
+                    <div className="flex flex-col">
+                      {choice.options.map((option, idx) => (
+                        <label key={idx} className="flex items-center mb-2">
+                          <input
+                            type="radio"
+                            name={choice.heading}
+                            value={option.title}
+                            checked={selectedOptions[choice.heading] === option.title}
+                            onChange={(e) => handleOptionChange(choice.heading, e.target.value)}
+                            className="mr-2"
+                          />
+                          {option.name}
+                        </label>
+                      ))}
+                    </div>
                   </div>
                 ))}
               </div>

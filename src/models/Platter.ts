@@ -1,6 +1,17 @@
 import mongoose, { Schema, Document } from 'mongoose';
 import { v4 as uuidv4 } from 'uuid'; // Import UUID generator
 
+interface IOption {
+  name: string; // Option name (e.g., "Chicken", "Beef Gravy")
+  price: number; // Price for the option
+  uuid: string; // Unique identifier for the option
+}
+
+interface IAdditionalChoice {
+  heading: string; // Heading for the choice (e.g., "Meat", "Soup")
+  options: IOption[]; // List of options under the heading
+}
+
 interface IPlatter extends Document {
   id: string;
   title: string;
@@ -11,6 +22,7 @@ interface IPlatter extends Document {
   platterCategory: string; // New field for platter category
   createdAt: Date;
   status: 'in stock' | 'out of stock'; // Stock status
+  additionalChoices: IAdditionalChoice[]; // Additional choices like meat, soup, etc.
 }
 
 const PlatterSchema: Schema = new Schema({
@@ -32,6 +44,19 @@ const PlatterSchema: Schema = new Schema({
   platterCategory: { type: String, required: true }, // The platter's category (e.g., "Sharing", "Chinese")
   createdAt: { type: Date, default: Date.now },
   status: { type: String, enum: ['in stock', 'out of stock'], required: true, default: 'in stock' }, // In-stock status
+  
+  // Additional choices like sauces, meat cuts, etc.
+  additionalChoices: [
+    {
+      heading: { type: String, required: true }, // Heading for the additional choice (e.g., "Meat", "Soup")
+      options: [
+        {
+          name: { type: String, required: true }, // Option name (e.g., "Chicken", "Beef")
+          uuid: { type: String, required: true, default: uuidv4 }, // UUID for the option
+        },
+      ],
+    },
+  ],
 });
 
-export default mongoose.models.Platters || mongoose.model<IPlatter>('Platters', PlatterSchema);
+export default mongoose.models.Platters || mongoose.model<IPlatter>('Platters', PlatterSchema); 
