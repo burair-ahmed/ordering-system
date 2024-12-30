@@ -5,7 +5,7 @@ interface Item {
   title: string;
   quantity: number;
   price: number;
-  variations?: { name: string; value: string }[] | string[];
+  variations?: { name: string; value: string }[] | string[]; // variations can be a string array or an object array
 }
 
 interface Order {
@@ -23,9 +23,8 @@ const OrdersList: FC = () => {
   const [orders, setOrders] = useState<Order[]>([]);
   const audioContextRef = useRef<AudioContext | null>(null);
   const audioBufferRef = useRef<AudioBuffer | null>(null);
-  const previousOrdersRef = useRef<Order[]>([]); // To track previous orders
+  const previousOrdersRef = useRef<Order[]>([]);
 
-  // Load and decode audio buffer on mount
   useEffect(() => {
     const loadAudioBuffer = async () => {
       try {
@@ -46,7 +45,6 @@ const OrdersList: FC = () => {
     loadAudioBuffer();
   }, []);
 
-  // Function to play the notification sound
   const playNotificationSound = () => {
     if (audioContextRef.current && audioBufferRef.current) {
       try {
@@ -64,7 +62,6 @@ const OrdersList: FC = () => {
     }
   };
 
-  // Function to fetch orders from the server
   const fetchOrders = async () => {
     try {
       const response = await fetch("/api/orders");
@@ -72,12 +69,10 @@ const OrdersList: FC = () => {
 
       if (response.ok) {
         const newOrders = data.orders || [];
-
-        // Check if there are new orders by comparing lengths or order numbers
         const previousOrders = previousOrdersRef.current;
         if (newOrders.length > previousOrders.length) {
           console.log("New order detected!");
-          playNotificationSound(); // Play sound if a new order is fetched
+          playNotificationSound();
         } else if (
           newOrders.some(
             (order: Order) =>
@@ -91,7 +86,7 @@ const OrdersList: FC = () => {
         }
 
         setOrders(newOrders);
-        previousOrdersRef.current = newOrders; // Update previous orders
+        previousOrdersRef.current = newOrders;
       } else {
         console.error("Failed to fetch orders:", data.message);
       }
@@ -100,19 +95,16 @@ const OrdersList: FC = () => {
     }
   };
 
-  // Polling for orders periodically
   useEffect(() => {
     const interval = setInterval(() => {
-      fetchOrders(); // Check for new orders every 5 seconds
+      fetchOrders();
     }, 5000);
 
-    // Cleanup polling interval
     return () => {
       clearInterval(interval);
     };
   }, []);
 
-  // Function to update order status
   const updateOrderStatus = async (orderNumber: string, status: string) => {
     try {
       const response = await fetch("/api/updateorderstatus", {
@@ -125,7 +117,7 @@ const OrdersList: FC = () => {
 
       if (response.ok) {
         console.log("Order status updated successfully.");
-        fetchOrders(); // Refresh orders after updating status
+        fetchOrders();
       } else {
         console.error("Failed to update order status:", response.statusText);
       }
@@ -182,10 +174,33 @@ const OrdersList: FC = () => {
                     key={index}
                     className="flex justify-between items-center border-b pb-4"
                   >
-                    <span>
-                      {item.title} x{item.quantity} - Rs.{" "}
-                      {item.price * item.quantity}
-                    </span>
+                    <div>
+                      <span className="block font-medium">{item.title}</span>
+                      <span className="text-sm text-gray-500">
+                        x{item.quantity} - Rs. {item.price * item.quantity}
+                      </span>
+                      {item.variations && (
+                        <div className="mt-2 text-sm text-gray-600">
+                          <strong>Choices:</strong>
+                          <ul className="list-disc pl-5">
+                          {Array.isArray(item.variations) && item.variations.length > 0 ? (
+  item.variations.map((variation, idx) => (
+    <li key={idx}>
+      {typeof variation === "string" ? (
+        variation // Directly render string variations
+      ) : (
+        `${variation.name}: ${variation.value}` // Render object variations
+      )}
+    </li>
+  ))
+) : (
+  <li>No variations available</li>
+)}
+
+                          </ul>
+                        </div>
+                      )}
+                    </div>
                   </li>
                 ))}
               </ul>

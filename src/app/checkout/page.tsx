@@ -56,9 +56,9 @@ const CheckoutPageContent: FC = () => {
     setIsProcessing(true); // Indicate that the request is being processed
   
     const newOrder = {
-      orderNumber: `ORD-${Math.floor(Math.random() * 1000000)}`,
+      orderNumber: `ORD-${Math.floor(Math.random() * 1000000)}`,  // You may want to implement a more unique order number generator
       customerName: formData.name,
-      email: formData.email || '',
+      email: formData.email || '',  // Optional email
       tableNumber: formData.tableNumber,
       paymentMethod: formData.paymentMethod,
       items: cartItems.map((item) => ({
@@ -66,11 +66,11 @@ const CheckoutPageContent: FC = () => {
         title: item.title,
         quantity: item.quantity,
         price: item.price,
-        image: item.image,
-        variations: item.variations,
+        image: item.image || '',  // Ensure that image is always passed
+        variations: item.variations || []  // Ensure variations is passed as an array
       })),
       totalAmount: totalAmount,
-      status: 'Received',
+      status: 'Received',  // You can customize this depending on the state of the order
     };
   
     try {

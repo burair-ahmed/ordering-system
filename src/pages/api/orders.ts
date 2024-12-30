@@ -45,13 +45,21 @@ const ordersHandler = async (req: NextApiRequest, res: NextApiResponse) => {
       await connectToDatabase();
       const orderNumber = await generateOrderNumber();
 
+      // Save the new order in the database
       const newOrder = new Order({
         orderNumber,
         customerName,
         email,
         tableNumber,
         paymentMethod,
-        items,
+        items: items.map((item: any) => ({
+          id: item.id,
+          title: item.title,
+          price: item.price,
+          quantity: item.quantity,
+          image: item.image,
+          variations: item.variations || [],  // Ensure variations is saved as an array
+        })),
         totalAmount,
         status,
       });

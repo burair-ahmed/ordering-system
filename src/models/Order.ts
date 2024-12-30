@@ -18,8 +18,11 @@ const orderSchema = new mongoose.Schema({
   tableNumber: { type: String, required: true },
   paymentMethod: { type: String, required: true },
   items: [{ 
-    type: Object, 
-    required: true 
+    id: { type: String, required: true },
+    title: { type: String, required: true },
+    price: { type: Number, required: true },
+    quantity: { type: Number, required: true },
+    variations: { type: [String], default: [] }, // Array to store variations
   }],
   totalAmount: { type: Number, required: true },
   status: { type: String, required: true },
