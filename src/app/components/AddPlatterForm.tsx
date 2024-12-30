@@ -3,7 +3,7 @@
 import { useState } from "react";
 
 interface Category {
-  categoryName: string; // Only store category name (no options needed)
+  categoryName: string;
 }
 
 interface AdditionalChoice {
@@ -15,8 +15,8 @@ const AddPlatterForm = () => {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [basePrice, setBasePrice] = useState<number>(0);
-  const [image, setImage] = useState<string | null>(null); // Image as base64 string
-  const [platterCategory, setPlatterCategory] = useState(""); // Category for the platter
+  const [image, setImage] = useState<string | null>(null);
+  const [platterCategory, setPlatterCategory] = useState("");
   const [categories, setCategories] = useState<Category[]>([
     { categoryName: "" },
   ]);
@@ -24,61 +24,65 @@ const AddPlatterForm = () => {
     { heading: "", options: [{ name: "" }] },
   ]);
 
-  // Handle category name input
   const handleCategoryChange = (index: number, value: string) => {
     const updatedCategories = [...categories];
     updatedCategories[index].categoryName = value;
     setCategories(updatedCategories);
   };
 
-  // Add a new category input
   const handleAddCategory = () => {
     setCategories([...categories, { categoryName: "" }]);
   };
 
-  // Remove a category input
   const handleRemoveCategory = (index: number) => {
     const updatedCategories = [...categories];
     updatedCategories.splice(index, 1);
     setCategories(updatedCategories);
   };
 
-  // Handle image upload
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0] || null;
     if (file) {
       const reader = new FileReader();
       reader.onloadend = () => {
-        setImage(reader.result as string); // Set image as base64 string
+        setImage(reader.result as string);
       };
-      reader.readAsDataURL(file); // Read file as base64 string
+      reader.readAsDataURL(file);
     }
   };
 
-  // Handle additional choice heading change
   const handleChoiceHeadingChange = (index: number, value: string) => {
     const updatedChoices = [...additionalChoices];
     updatedChoices[index].heading = value;
     setAdditionalChoices(updatedChoices);
   };
 
-  // Handle option name change
   const handleOptionNameChange = (choiceIndex: number, optionIndex: number, value: string) => {
     const updatedChoices = [...additionalChoices];
     updatedChoices[choiceIndex].options[optionIndex].name = value;
     setAdditionalChoices(updatedChoices);
   };
 
-  // Add new option under a choice
   const handleAddOption = (choiceIndex: number) => {
     const updatedChoices = [...additionalChoices];
     updatedChoices[choiceIndex].options.push({ name: "" });
     setAdditionalChoices(updatedChoices);
   };
 
-  // Add new additional choice section
   const handleAddChoice = () => {
     setAdditionalChoices([...additionalChoices, { heading: "", options: [{ name: "" }] }]);
+  };
+
+  const handleRemoveChoice = (index: number) => {
+    const updatedChoices = [...additionalChoices];
+    updatedChoices.splice(index, 1);
+    setAdditionalChoices(updatedChoices);
+  };
+
+  const handleRemoveOption = (choiceIndex: number, optionIndex: number) => {
+    const updatedChoices = [...additionalChoices];
+    updatedChoices[choiceIndex].options.splice(optionIndex, 1);
+    setAdditionalChoices(updatedChoices);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -91,7 +95,7 @@ const AddPlatterForm = () => {
       image,
       platterCategory,
       categories,
-      additionalChoices, // Include additional choices
+      additionalChoices,
     };
 
     try {
@@ -224,7 +228,6 @@ const AddPlatterForm = () => {
           </button>
         </div>
 
-        {/* Additional Choices Section */}
         <div className="mb-4">
           <label className="block text-sm font-medium text-gray-700">Additional Choices</label>
           {additionalChoices.map((choice, index) => (
@@ -235,8 +238,14 @@ const AddPlatterForm = () => {
                 onChange={(e) => handleChoiceHeadingChange(index, e.target.value)}
                 placeholder="Choice Heading"
                 className="p-2 border rounded w-full mb-2"
-                
               />
+              <button
+                type="button"
+                onClick={() => handleRemoveChoice(index)}
+                className="mb-2 p-2 bg-red-500 text-white rounded"
+              >
+                Remove Heading
+              </button>
               {choice.options.map((option, optIndex) => (
                 <div key={optIndex} className="flex gap-4 mb-2">
                   <input
@@ -245,8 +254,14 @@ const AddPlatterForm = () => {
                     onChange={(e) => handleOptionNameChange(index, optIndex, e.target.value)}
                     placeholder="Option Name"
                     className="p-2 border rounded w-full"
-                    
                   />
+                  <button
+                    type="button"
+                    onClick={() => handleRemoveOption(index, optIndex)}
+                    className="p-2 bg-red-500 text-white rounded"
+                  >
+                    Remove Option
+                  </button>
                 </div>
               ))}
               <button
@@ -267,10 +282,7 @@ const AddPlatterForm = () => {
           </button>
         </div>
 
-        <button
-          type="submit"
-          className="mt-4 p-3 bg-blue-600 text-white rounded w-full"
-        >
+        <button type="submit" className="mt-4 p-3 bg-blue-600 text-white rounded w-full">
           Add Platter
         </button>
       </form>

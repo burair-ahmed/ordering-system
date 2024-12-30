@@ -59,9 +59,6 @@ const defaultPlatterCategoryOrder = [
 ];
 
 const defaultMenuCategoryOrder = [
-  "Sharing Platters",
-  "BBQ Deals",
-  "Fast Food Deals",
   "Soup",
   "Gravy",
   "Beast BBQ",
