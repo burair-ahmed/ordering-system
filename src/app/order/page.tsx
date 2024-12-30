@@ -92,8 +92,8 @@ export default function MenuPage() {
   const [hasMore, setHasMore] = useState<{ [key: string]: boolean }>({});
 
   // Separate category orders for menu items and platters
-  const [platterCategoryOrder, setPlatterCategoryOrder] = useState<string[]>(defaultPlatterCategoryOrder);
-  const [menuCategoryOrder, setMenuCategoryOrder] = useState<string[]>(defaultMenuCategoryOrder);
+  const [platterCategoryOrder] = useState<string[]>(defaultPlatterCategoryOrder);
+  const [menuCategoryOrder] = useState<string[]>(defaultMenuCategoryOrder);
 
   const observer = useRef<IntersectionObserver | null>(null);
 
