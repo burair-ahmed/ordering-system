@@ -235,7 +235,7 @@ const AddPlatterForm = () => {
                 onChange={(e) => handleChoiceHeadingChange(index, e.target.value)}
                 placeholder="Choice Heading"
                 className="p-2 border rounded w-full mb-2"
-                required
+                
               />
               {choice.options.map((option, optIndex) => (
                 <div key={optIndex} className="flex gap-4 mb-2">
@@ -245,7 +245,7 @@ const AddPlatterForm = () => {
                     onChange={(e) => handleOptionNameChange(index, optIndex, e.target.value)}
                     placeholder="Option Name"
                     className="p-2 border rounded w-full"
-                    required
+                    
                   />
                 </div>
               ))}

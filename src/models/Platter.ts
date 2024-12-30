@@ -33,10 +33,10 @@ const PlatterSchema: Schema = new Schema({
   image: { type: String, required: true },
   categories: [
     {
-      categoryName: { type: String, required: true }, // Name of the category (e.g., "Soup", "Meat Cut")
+      categoryName: { type: String, required: false }, // Name of the category (e.g., "Soup", "Meat Cut")
       options: [
         {
-          name: { type: String, required: true }, // Options for the category (e.g., "Chicken Tikka", "Beef Gravy")
+          name: { type: String, required: false }, // Options for the category (e.g., "Chicken Tikka", "Beef Gravy")
         },
       ],
     },
@@ -48,11 +48,11 @@ const PlatterSchema: Schema = new Schema({
   // Additional choices like sauces, meat cuts, etc.
   additionalChoices: [
     {
-      heading: { type: String, required: true }, // Heading for the additional choice (e.g., "Meat", "Soup")
+      heading: { type: String, required: false }, // Heading for the additional choice (e.g., "Meat", "Soup")
       options: [
         {
-          name: { type: String, required: true }, // Option name (e.g., "Chicken", "Beef")
-          uuid: { type: String, required: true, default: uuidv4 }, // UUID for the option
+          name: { type: String, required: false }, // Option name (e.g., "Chicken", "Beef")
+          uuid: { type: String, required: false, default: uuidv4 }, // UUID for the option
         },
       ],
     },
