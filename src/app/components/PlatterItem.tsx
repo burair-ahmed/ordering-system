@@ -176,25 +176,25 @@ const PlatterItem: FC<PlatterItemProps> = ({ platter }) => {
 
                 {/* Additional Choices Section */}
                 {platter.additionalChoices?.map((choice, index) => (
-                  <div key={index} className="mt-4">
-                    <label className="block text-sm font-medium mb-2 text-gray-700">{choice.heading}</label>
-                    <div className="flex flex-col">
-                      {choice.options.map((option, idx) => (
-                        <label key={idx} className="flex items-center mb-2">
-                          <input
-                            type="radio"
-                            name={choice.heading}
-                            value={option.uuid}
-                            checked={selectedAdditionalChoices[choice.heading] === option.uuid}
-                            onChange={(e) => handleAdditionalChoiceChange(choice.heading, e.target.value)}
-                            className="mr-2"
-                          />
-                          {option.name}
-                        </label>
-                      ))}
-                    </div>
-                  </div>
-                ))}
+  <div key={index} className="mt-4">
+    <label className="block text-sm font-medium mb-2 text-gray-700">{choice.heading}</label>
+    <div className="flex flex-col">
+      {choice.options.map((option, idx) => (
+        <label key={idx} className="flex items-center mb-2">
+          <input
+            type="radio"
+            name={choice.heading}
+            value={option.uuid}
+            checked={selectedAdditionalChoices[choice.heading] === option.name} // Fix comparison to check against the name
+            onChange={(e) => handleAdditionalChoiceChange(choice.heading, e.target.value)}
+            className="mr-2"
+          />
+          {option.name}
+        </label>
+      ))}
+    </div>
+  </div>
+))}
               </div>
               <div className="flex gap-4 items-center align-center">
                 <AddToCartButtonForPlatters
