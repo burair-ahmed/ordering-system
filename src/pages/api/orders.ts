@@ -103,7 +103,7 @@ const ordersHandler = async (req: NextApiRequest, res: NextApiResponse) => {
       await connectToDatabase();
 
       // Fetch orders from the database
-      const orders = await Order.find({}).sort({ createdAt: -1 });
+      const orders = await Order.find({ status: { $ne: "Completed" } }).sort({ createdAt: -1 });
 
       // Check if there are no orders
       if (!orders || orders.length === 0) {

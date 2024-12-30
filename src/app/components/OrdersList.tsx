@@ -1,5 +1,8 @@
 import { FC, useEffect, useRef, useState } from "react";
 
+// Assuming you have a preloader component
+import Preloader from "../components/Preloader"; 
+
 interface Item {
   id: string;
   title: string;
@@ -21,6 +24,7 @@ interface Order {
 
 const OrdersList: FC = () => {
   const [orders, setOrders] = useState<Order[]>([]);
+  const [loadingOrders, setLoadingOrders] = useState<Set<string>>(new Set()); // Tracks loading state per order
   const audioContextRef = useRef<AudioContext | null>(null);
   const audioBufferRef = useRef<AudioBuffer | null>(null);
   const previousOrdersRef = useRef<Order[]>([]);
@@ -106,6 +110,7 @@ const OrdersList: FC = () => {
   }, []);
 
   const updateOrderStatus = async (orderNumber: string, status: string) => {
+    setLoadingOrders((prev) => new Set(prev.add(orderNumber))); // Add orderNumber to the loading state
     try {
       const response = await fetch("/api/updateorderstatus", {
         method: "PUT",
@@ -123,6 +128,12 @@ const OrdersList: FC = () => {
       }
     } catch (error) {
       console.error("Error updating order status:", error);
+    } finally {
+      setLoadingOrders((prev) => {
+        const updated = new Set(prev);
+        updated.delete(orderNumber); // Remove the orderNumber from the loading state
+        return updated;
+      });
     }
   };
 
@@ -183,20 +194,19 @@ const OrdersList: FC = () => {
                         <div className="mt-2 text-sm text-gray-600">
                           <strong>Choices:</strong>
                           <ul className="list-disc pl-5">
-                          {Array.isArray(item.variations) && item.variations.length > 0 ? (
-  item.variations.map((variation, idx) => (
-    <li key={idx}>
-      {typeof variation === "string" ? (
-        variation // Directly render string variations
-      ) : (
-        `${variation.name}: ${variation.value}` // Render object variations
-      )}
-    </li>
-  ))
-) : (
-  <li>No variations available</li>
-)}
-
+                            {Array.isArray(item.variations) && item.variations.length > 0 ? (
+                              item.variations.map((variation, idx) => (
+                                <li key={idx}>
+                                  {typeof variation === "string" ? (
+                                    variation // Directly render string variations
+                                  ) : (
+                                    `${variation.name}: ${variation.value}` // Render object variations
+                                  )}
+                                </li>
+                              ))
+                            ) : (
+                              <li>No variations available</li>
+                            )}
                           </ul>
                         </div>
                       )}
@@ -207,6 +217,9 @@ const OrdersList: FC = () => {
               <div className="mt-4 font-bold text-xl text-[#741052]">
                 Total: Rs. {order.totalAmount}
               </div>
+
+              {/* Show preloader only for the specific order being updated */}
+              {loadingOrders.has(order.orderNumber) && <Preloader />}
             </div>
           ))
         )}
