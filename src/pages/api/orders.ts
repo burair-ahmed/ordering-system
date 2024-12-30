@@ -76,7 +76,6 @@ const ordersHandler = async (req: NextApiRequest, res: NextApiResponse) => {
           title: item.title,
           price: item.price,
           quantity: item.quantity,
-          image: item.image,
           variations: item.variations || [],  // Ensure variations is saved as an array
         })),
         totalAmount,

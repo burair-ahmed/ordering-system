@@ -66,7 +66,6 @@ const CheckoutPageContent: FC = () => {
         title: item.title,
         quantity: item.quantity,
         price: item.price,
-        image: item.image || '',  // Ensure that image is always passed
         variations: item.variations || []  // Ensure variations is passed as an array
       })),
       totalAmount: totalAmount,
