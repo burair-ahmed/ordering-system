@@ -36,6 +36,7 @@ interface Platter {
 }
 
 interface CategoryOption {
+  uuid: string;
   name: string;
   title: string;
   price: number;
@@ -187,14 +188,14 @@ export default function MenuPage() {
   };
 
   // Function to handle the reordering of platter categories
-  const handleReorderPlatters = (newOrder: string[]) => {
-    setPlatterCategoryOrder(newOrder);
-  };
+  // const handleReorderPlatters = (newOrder: string[]) => {
+  //   setPlatterCategoryOrder(newOrder);
+  // };
 
   // Function to handle the reordering of menu categories
-  const handleReorderMenu = (newOrder: string[]) => {
-    setMenuCategoryOrder(newOrder);
-  };
+  // const handleReorderMenu = (newOrder: string[]) => {
+  //   setMenuCategoryOrder(newOrder);
+  // };
 
   return (
     <div className="bg-white text-black">

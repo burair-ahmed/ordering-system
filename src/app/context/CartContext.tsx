@@ -97,23 +97,23 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
     });
   };
 
-  const addPlatterToCart = (platter: {
-    id: string;
-    title: string;
-    basePrice: number;
-    image: string;
-    selectedOptions: string[];
-    selectedAdditionalChoices: string[];
-  }) => {
-    addToCart({
-      id: platter.id,
-      title: platter.title,
-      price: platter.basePrice,
-      quantity: 1,
-      image: platter.image,
-      variations: [...platter.selectedOptions, ...platter.selectedAdditionalChoices],
-    });
-  };
+  // const addPlatterToCart = (platter: {
+  //   id: string;
+  //   title: string;
+  //   basePrice: number;
+  //   image: string;
+  //   selectedOptions: string[];
+  //   selectedAdditionalChoices: string[];
+  // }) => {
+  //   addToCart({
+  //     id: platter.id,
+  //     title: platter.title,
+  //     price: platter.basePrice,
+  //     quantity: 1,
+  //     image: platter.image,
+  //     variations: [...platter.selectedOptions, ...platter.selectedAdditionalChoices],
+  //   });
+  // };
 
   const removeFromCart = (id: string, variations?: string[]) => {
     setCartItems((prevItems) =>
