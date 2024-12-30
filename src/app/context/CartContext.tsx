@@ -1,7 +1,6 @@
-"use client"; // Mark this file as a client-side component
+'use client'; // Mark this file as a client-side component
 
 import { createContext, useContext, useState, useEffect, ReactNode } from "react";
-
 
 interface CartItem {
   id: string;
@@ -40,7 +39,6 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
   const [totalAmount, setTotalAmount] = useState<number>(0);
   const [tableId, setTableId] = useState<string | null>(null);
 
-  // Access the router only in the client environment
   useEffect(() => {
     if (typeof window !== "undefined") {
       const urlParams = new URLSearchParams(window.location.search);
@@ -49,13 +47,11 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
     }
   }, []);
 
-  // Helper function to calculate total amount
   const updateTotalAmount = (items: CartItem[]) => {
     const total = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
     setTotalAmount(total);
   };
 
-  // Load cart from localStorage when tableId changes
   useEffect(() => {
     if (tableId) {
       const savedCartItems = localStorage.getItem(`cart-${tableId}`);
@@ -70,7 +66,6 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
     }
   }, [tableId]);
 
-  // Save cart to localStorage and update total amount whenever cartItems change
   useEffect(() => {
     if (tableId) {
       if (cartItems.length > 0) {
@@ -82,7 +77,6 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
     }
   }, [cartItems, tableId]);
 
-  // Add item to cart
   const addToCart = (item: CartItem) => {
     setCartItems((prevItems) => {
       const existingItemIndex = prevItems.findIndex(
@@ -103,7 +97,24 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
     });
   };
 
-  // Remove item from cart
+  const addPlatterToCart = (platter: {
+    id: string;
+    title: string;
+    basePrice: number;
+    image: string;
+    selectedOptions: string[];
+    selectedAdditionalChoices: string[];
+  }) => {
+    addToCart({
+      id: platter.id,
+      title: platter.title,
+      price: platter.basePrice,
+      quantity: 1,
+      image: platter.image,
+      variations: [...platter.selectedOptions, ...platter.selectedAdditionalChoices],
+    });
+  };
+
   const removeFromCart = (id: string, variations?: string[]) => {
     setCartItems((prevItems) =>
       prevItems.filter(
@@ -112,7 +123,6 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
     );
   };
 
-  // Update item quantity
   const updateQuantity = (id: string, quantity: number, variations?: string[]) => {
     setCartItems((prevItems) =>
       prevItems.map((item) =>
@@ -124,7 +134,6 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
     );
   };
 
-  // Clear the entire cart
   const clearCart = () => {
     setCartItems([]);
   };

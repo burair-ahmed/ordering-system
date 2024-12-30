@@ -6,12 +6,21 @@ import { useCart } from "../context/CartContext"; // Assuming you're using a Car
 // Define CategoryOption and Category types
 interface CategoryOption {
   name: string;
-  price: number;
 }
 
 interface Category {
   categoryName: string;
   options: CategoryOption[];
+}
+
+interface AdditionalChoiceOption {
+  name: string;
+  uuid: string;
+}
+
+interface AdditionalChoice {
+  heading: string;
+  options: AdditionalChoiceOption[];
 }
 
 interface AddToCartButtonForPlattersProps {
@@ -22,8 +31,10 @@ interface AddToCartButtonForPlattersProps {
     image: string;
     description: string;
     categories: Category[]; // Ensure platter has categories
+    additionalChoices: AdditionalChoice[];
   };
-  selectedOptions: { [key: string]: string }; // The selected options (variations)
+  selectedOptions: { [key: string]: string }; // The selected options (categories)
+  selectedAdditionalChoices: { [key: string]: string }; // Selected additional choices by UUID
   onClick: () => void; // Function to trigger the action when clicked (e.g., close the modal)
   className: string; // Add any custom class for styling
   disabled: boolean; // Disable the button if required
@@ -32,39 +43,24 @@ interface AddToCartButtonForPlattersProps {
 const AddToCartButtonForPlatters: FC<AddToCartButtonForPlattersProps> = ({
   platter,
   selectedOptions,
+  selectedAdditionalChoices,
   onClick,
   className,
   disabled,
 }) => {
-  const { addToCart } = useCart(); // Assuming this is a hook to handle cart operations
-
-  // Calculate the total price based on selected options
-  const calculateTotalPrice = (): number => {
-    let totalPrice = platter.basePrice;
-
-    // Loop through selected options and calculate price adjustments
-    Object.entries(selectedOptions).forEach(([categoryName, optionName]) => {
-      const category = platter.categories.find((cat) => cat.categoryName === categoryName);
-      if (category) {
-        const selectedOption = category.options.find((opt) => opt.name === optionName);
-        if (selectedOption) {
-          totalPrice += selectedOption.price;
-        }
-      }
-    });
-
-    return totalPrice;
-  };
+  const { addToCart } = useCart();
 
   const handleAddToCart = () => {
-    const totalPrice = calculateTotalPrice();
     addToCart({
       id: platter.id,
       title: platter.title,
-      price: totalPrice,
+      price: platter.basePrice, // No price adjustment for additional choices
       quantity: 1,
       image: platter.image,
-      variations: Object.values(selectedOptions), // Pass selected options as variations
+      variations: [
+        ...Object.values(selectedOptions),
+        ...Object.values(selectedAdditionalChoices),
+      ],
     });
     onClick(); // Trigger parent action after adding to cart (e.g., closing the modal)
   };
@@ -72,8 +68,8 @@ const AddToCartButtonForPlatters: FC<AddToCartButtonForPlattersProps> = ({
   return (
     <button
       onClick={handleAddToCart}
-      className={`bg-[#741052] rounded-[5px] px-4 py-1 mt-4 ${className} ${disabled ? "bg-gray-400 cursor-not-allowed" : ""}`} // Apply disabled styles
-      disabled={disabled} // Disable the button if `disabled` is true
+      className={`bg-[#741052] rounded-[5px] px-4 py-1 mt-4 ${className} ${disabled ? "bg-gray-400 cursor-not-allowed" : ""}`}
+      disabled={disabled}
     >
       <div className="flex items-center gap-2 mx-auto">
         <h1 className="text-[18px] font-bold text-white">Add to Cart</h1>

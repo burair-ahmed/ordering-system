@@ -76,12 +76,17 @@ const CartSidebar = ({ closeSidebar, tableId }: { closeSidebar: () => void; tabl
                   <div className="w-3/4 sm:w-3/5 pl-4">
                     <p className="font-medium text-sm">
                       {item.title}
-                      {item.variations && item.variations.length > 0 && ` (${item.variations.join(", ")})`}
+                      {item.variations && item.variations.length > 0 && (
+                        <span className="text-xs text-gray-300">
+                          {" "}
+                          ({item.variations.join(", ")})
+                        </span>
+                      )}
                     </p>
                     <p className="text-sm">Rs. {item.price}</p>
 
-                    <div className="flex gap-2">
-                      {/* Quantity Controls */}
+                    {/* Display Quantity Controls */}
+                    <div className="flex gap-2 mt-2">
                       <div className="mt-2 flex items-center justify-between bg-gray-100 border border-gray-200 rounded-full px-2 py-1 shadow-sm w-fit">
                         <button
                           onClick={() => updateQuantity(item.id, item.quantity - 1, item.variations)}
@@ -108,6 +113,18 @@ const CartSidebar = ({ closeSidebar, tableId }: { closeSidebar: () => void; tabl
                     </div>
                   </div>
                 </div>
+
+                {/* Display Additional Choices */}
+                {item.variations && item.variations.length > 0 && (
+                  <div className="mt-2 text-sm text-gray-300">
+                    <strong>Choices:</strong>
+                    <ul>
+                      {item.variations.map((variation, idx) => (
+                        <li key={idx}>{variation}</li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
               </li>
             ))}
           </ul>

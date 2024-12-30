@@ -3,6 +3,7 @@ import Image from "next/image";
 import AddToCartButtonForPlatters from "./AddToCartButtonForPlatters";
 
 interface CategoryOption {
+  uuid: string;
   name: string;
   title: string;
   price: number;
@@ -34,7 +35,7 @@ interface PlatterItemProps {
 const PlatterItem: FC<PlatterItemProps> = ({ platter }) => {
   const [showModal, setShowModal] = useState(false);
   const [selectedOptions, setSelectedOptions] = useState<{ [key: string]: string }>({});
-  const [totalPrice, setTotalPrice] = useState<number>(platter.basePrice);
+  const [selectedAdditionalChoices, setSelectedAdditionalChoices] = useState<{ [key: string]: string }>({});
   const [categoryItems, setCategoryItems] = useState<{ [key: string]: CategoryOption[] }>({});
 
   const fetchCategoryItems = async (categoryName: string) => {
@@ -65,24 +66,28 @@ const PlatterItem: FC<PlatterItemProps> = ({ platter }) => {
   const handleOptionChange = (categoryName: string, optionName: string) => {
     setSelectedOptions((prev) => {
       const updatedOptions = { ...prev, [categoryName]: optionName };
-      let newTotalPrice = platter.basePrice;
-      Object.entries(updatedOptions).forEach(([key, value]) => {
-        const selectedCategory = platter.categories.find((category) => category.categoryName === key);
-        const selectedOption = selectedCategory?.options.find((option) => option.title === value);
-        if (selectedOption) {
-          newTotalPrice += selectedOption.price;
-        }
-      });
-
-      setTotalPrice(newTotalPrice);
       return updatedOptions;
     });
   };
 
+  const handleAdditionalChoiceChange = (choiceHeading: string, selectedOptionUuid: string) => {
+    const selectedChoice = platter.additionalChoices
+      .flatMap((choice) => choice.options)
+      .find((option) => option.uuid === selectedOptionUuid);
+  
+    // Store the name of the selected additional choice instead of the UUID
+    if (selectedChoice) {
+      setSelectedAdditionalChoices((prev) => ({
+        ...prev,
+        [choiceHeading]: selectedChoice.name, // Store the name here
+      }));
+    }
+  };
+  
   useEffect(() => {
     if (showModal) {
       setSelectedOptions({});
-      setTotalPrice(platter.basePrice);
+      setSelectedAdditionalChoices({});
     }
   }, [showModal]);
 
@@ -112,7 +117,7 @@ const PlatterItem: FC<PlatterItemProps> = ({ platter }) => {
         >
           {platter.description}
         </p>
-        <p className="font-semibold text-lg text-[#741052] mt-auto">Rs.{totalPrice.toFixed(2)}</p>
+        <p className="font-semibold text-lg text-[#741052] mt-auto">Rs.{platter.basePrice.toFixed(2)}</p>
         <button
           className={`mt-2 py-2 px-4 rounded-lg transition ${
             platter.status === "out of stock"
@@ -149,7 +154,7 @@ const PlatterItem: FC<PlatterItemProps> = ({ platter }) => {
             <div className="lg:w-1/2 px-4">
               <h2 className="text-xl font-bold mt-4 lg:mt-0">{platter.title}</h2>
               <p className="text-gray-600 mt-2">{platter.description}</p>
-              <p className="text-lg font-semibold mt-4 text-[#741052]">Rs.{totalPrice.toFixed(2)}</p>
+              <p className="text-lg font-semibold mt-4 text-[#741052]">Rs.{platter.basePrice.toFixed(2)}</p>
               <div className="mt-4">
                 {platter.categories?.map((category, index) => (
                   <div key={index}>
@@ -179,9 +184,9 @@ const PlatterItem: FC<PlatterItemProps> = ({ platter }) => {
                           <input
                             type="radio"
                             name={choice.heading}
-                            value={option.title}
-                            checked={selectedOptions[choice.heading] === option.title}
-                            onChange={(e) => handleOptionChange(choice.heading, e.target.value)}
+                            value={option.uuid}
+                            checked={selectedAdditionalChoices[choice.heading] === option.uuid}
+                            onChange={(e) => handleAdditionalChoiceChange(choice.heading, e.target.value)}
                             className="mr-2"
                           />
                           {option.name}
@@ -195,6 +200,7 @@ const PlatterItem: FC<PlatterItemProps> = ({ platter }) => {
                 <AddToCartButtonForPlatters
                   platter={platter}
                   selectedOptions={selectedOptions}
+                  selectedAdditionalChoices={selectedAdditionalChoices} // This is the fix
                   onClick={() => setShowModal(false)}
                   className="w-full"
                   disabled={false}
