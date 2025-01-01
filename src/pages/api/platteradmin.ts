@@ -4,8 +4,8 @@ import Platter from '../../models/Platter'; // Assuming you have a Platter model
 
 const handler = async (req: NextApiRequest, res: NextApiResponse) => {
   try {
-   
-    await testMongoConnection();
+    // Establish the MongoDB connection but don't store it if not needed
+    await testMongoConnection(); // Only call the function if you need to test the connection
 
     // Perform different actions based on the HTTP method
     if (req.method === 'GET') {
