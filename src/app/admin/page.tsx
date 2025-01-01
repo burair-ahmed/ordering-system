@@ -12,7 +12,6 @@ import Image from "next/image";
 import AddPlatterForm from "../components/AddPlatterForm";
 import EditPlatterForm from "../components/EditPlatterForm";
 
-
 interface Variation {
   name: string;
   price: number;
@@ -28,6 +27,23 @@ interface MenuItem {
   variations: Variation[];
   status: "in stock" | "out of stock";
 }
+
+interface Option {
+  name: string;
+  uuid: string;
+}
+
+interface AdditionalChoice {
+  heading: string;
+  options: Option[];
+}
+
+interface Category {
+  _id: string;
+  categoryName: string;
+  options: Option[]; // Defining the type of options as an array of Option objects
+}
+
 interface PlatterItem {
   _id: string;
   title: string;
@@ -36,13 +52,8 @@ interface PlatterItem {
   platterCategory: string;
   image: string; // Base64 image string
   status: "in stock" | "out of stock";
-  additionalChoices: any[];
+  additionalChoices: AdditionalChoice[]; // Defining additionalChoices as an array of AdditionalChoice objects
   categories: Category[];  
-}
-interface Category {
-  _id: string;
-  categoryName: string;   // Ensure this property exists
-  options: any[];         // Ensure this property exists (options could be an array of additional choices or something else)
 }
 
 const AdminDashboard: FC = () => {
