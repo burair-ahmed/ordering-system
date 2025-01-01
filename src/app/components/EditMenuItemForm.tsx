@@ -30,6 +30,8 @@ const EditMenuItemForm: React.FC<EditMenuItemFormProps> = ({ item, onClose, onUp
     variations: item.variations || [],
     status: item.status || "in stock", // Set initial status
   });
+  
+  const [loading, setLoading] = useState(false); // Loading state
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -73,6 +75,7 @@ const EditMenuItemForm: React.FC<EditMenuItemFormProps> = ({ item, onClose, onUp
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setLoading(true); // Set loading to true when update starts
 
     try {
       const response = await fetch("/api/updateItem", {
@@ -94,6 +97,8 @@ const EditMenuItemForm: React.FC<EditMenuItemFormProps> = ({ item, onClose, onUp
       onClose();
     } catch (error) {
       console.error("Error updating item:", error);
+    } finally {
+      setLoading(false); // Reset loading state after the update completes
     }
   };
 
@@ -222,9 +227,16 @@ const EditMenuItemForm: React.FC<EditMenuItemFormProps> = ({ item, onClose, onUp
             </button>
             <button
               type="submit"
-              className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600"
+              disabled={loading} // Disable the button when loading
+              className={`bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 ${
+                loading ? "opacity-50 cursor-not-allowed" : ""
+              }`}
             >
-              Update
+              {loading ? (
+                <span className="animate-spin">Updating...</span>
+              ) : (
+                "Update"
+              )}
             </button>
           </div>
         </form>

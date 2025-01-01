@@ -61,9 +61,10 @@ const AdminDashboard: FC = () => {
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(true); // Sidebar toggle state
   const [menuItems, setMenuItems] = useState<MenuItem[]>([]); // Menu items state
   const [selectedMenuItem, setSelectedMenuItem] = useState<MenuItem | null>(null); // Selected menu item for editing
-  const [showEditModal, setShowEditModal] = useState(false); // Edit modal visibility
+  const [selectedPlatterItem, setSelectedPlatterItem] = useState<PlatterItem | null>(null); // Selected platter item for editing
+  const [showEditMenuItemModal, setShowEditMenuItemModal] = useState(false); // Edit menu item modal visibility
+  const [showEditPlatterItemModal, setShowEditPlatterItemModal] = useState(false); // Edit platter item modal visibility
   const [platterItems, setPlatterItems] = useState<PlatterItem[]>([]);
-  const [selectedPlatterItem, setSelectedPlatterItem] = useState<PlatterItem | null>(null);
 
   // Fetch menu items
   useEffect(() => {
@@ -92,16 +93,28 @@ const AdminDashboard: FC = () => {
     setIsSidebarCollapsed(!isSidebarCollapsed);
   };
 
-  // Open Edit Modal
-  const handleEditItem = (item: MenuItem) => {
+  // Open Edit Menu Item Modal
+  const handleEditMenuItem = (item: MenuItem) => {
     setSelectedMenuItem(item);
-    setShowEditModal(true);
+    setShowEditMenuItemModal(true);
   };
 
-  // Close Edit Modal
-  const handleCloseEditModal = () => {
-    setShowEditModal(false);
+  // Close Edit Menu Item Modal
+  const handleCloseEditMenuItemModal = () => {
+    setShowEditMenuItemModal(false);
     setSelectedMenuItem(null);
+  };
+
+  // Open Edit Platter Item Modal
+  const handleEditPlatterItem = (item: PlatterItem) => {
+    setSelectedPlatterItem(item);
+    setShowEditPlatterItemModal(true);
+  };
+
+  // Close Edit Platter Item Modal
+  const handleCloseEditPlatterItemModal = () => {
+    setShowEditPlatterItemModal(false);
+    setSelectedPlatterItem(null);
   };
 
   // Refresh Menu Items
@@ -114,40 +127,34 @@ const AdminDashboard: FC = () => {
       console.error("Error refreshing menu items:", error);
     }
   };
-    // Refresh Platter Items after update
-    const refreshPlatterItems = async () => {
+
+  // Refresh Platter Items after update
+  const refreshPlatterItems = async () => {
+    try {
+      const response = await fetch("/api/platteradmin");
+      const data: PlatterItem[] = await response.json();
+      setPlatterItems(data);
+    } catch (error) {
+      console.error("Error refreshing platter items:", error);
+    }
+  };
+
+  // Fetch Platter Items from API
+  useEffect(() => {
+    const fetchPlatterItems = async () => {
       try {
-        const response = await fetch("/api/platteradmin");
+        const response = await fetch("/api/platteradmin"); // Endpoint to fetch platters
         const data: PlatterItem[] = await response.json();
         setPlatterItems(data);
       } catch (error) {
-        console.error("Error refreshing platter items:", error);
+        console.error("Error fetching platter items:", error);
       }
     };
-  // Handle Edit Button Click
-  const handleEditPlatter = (item: PlatterItem) => {
-    setSelectedPlatterItem(item);
-    setShowEditModal(true);
-  };
 
-    // Fetch Platter Items from API
-    useEffect(() => {
-      const fetchPlatterItems = async () => {
-        try {
-          const response = await fetch("/api/platteradmin"); // Endpoint to fetch platters
-          const data: PlatterItem[] = await response.json();
-          setPlatterItems(data);
-        } catch (error) {
-          console.error("Error fetching platter items:", error);
-        }
-      };
-  
-      if (activeTab === "platter") {
-        fetchPlatterItems();
-      }
-    }, [activeTab]);
-
-    
+    if (activeTab === "platter") {
+      fetchPlatterItems();
+    }
+  }, [activeTab]);
 
   return (
     <div className="flex h-screen">
@@ -205,7 +212,7 @@ const AdminDashboard: FC = () => {
           </button>
           <button
             className={`flex items-center gap-2 ${
-              activeTab === "addmenu" ? "text-gray-300" : "hover:text-gray-300"
+              activeTab === "addplatter" ? "text-gray-300" : "hover:text-gray-300"
             }`}
             onClick={() => handleTabClick("addplatter")}
           >
@@ -271,21 +278,13 @@ const AdminDashboard: FC = () => {
                 menuItems.map((item) => (
                   <div key={item._id} className="border p-4 rounded-lg shadow-md">
                     <div className="flex justify-center mb-4">
-                      <Image
-                        src={item.image || "/fallback-image.jpg"}
-                        alt={item.title || "Menu Item"}
-                        width={150}
-                        height={150}
-                        className="rounded-md"
-                      />
+                      <Image src={item.image} alt={item.title} width={100} height={100} />
                     </div>
-                    <h3 className="text-lg font-semibold">{item.title}</h3>
-                    <p className="text-sm text-gray-600">{item.description}</p>
-                    <p className="font-bold mt-2">Price: Rs.{item.price}</p>
-                    <p className="text-xs text-gray-500 mt-2">Category: {item.category}</p>
+                    <h3 className="text-xl font-semibold text-[#741052]">{item.title}</h3>
+                    <p className="text-gray-600 mb-4">{item.description}</p>
                     <button
-                      onClick={() => handleEditItem(item)}
-                      className="mt-4 bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600"
+                      className="bg-blue-500 text-white px-4 py-2 rounded-lg"
+                      onClick={() => handleEditMenuItem(item)}
                     >
                       Edit
                     </button>
@@ -297,69 +296,60 @@ const AdminDashboard: FC = () => {
             </div>
           </div>
         )}
-         {activeTab === "platter" && (
-        <div>
-          <h2 className="text-2xl font-semibold text-[#741052] mb-4">Platter Management</h2>
-          {/* Platter Items List */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {platterItems.length > 0 ? (
-              platterItems.map((item) => (
-                <div key={item._id} className="border p-4 rounded-lg shadow-md">
-                  <div className="flex justify-center mb-4">
-                    <Image
-                      src={item.image || "/fallback-image.jpg"}
-                      alt={item.title || "Platter Item"}
-                      width={150}
-                      height={150}
-                      className="rounded-md"
-                    />
+
+        {activeTab === "platter" && (
+          <div>
+            <h2 className="text-2xl font-semibold text-[#741052] mb-4">Platter Management</h2>
+            {/* Platter Items List */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              {platterItems.length > 0 ? (
+                platterItems.map((item) => (
+                  <div key={item._id} className="border p-4 rounded-lg shadow-md">
+                    <div className="flex justify-center mb-4">
+                      <Image src={item.image} alt={item.title} width={100} height={100} />
+                    </div>
+                    <h3 className="text-xl font-semibold text-[#741052]">{item.title}</h3>
+                    <p className="text-gray-600 mb-4">{item.description}</p>
+                    <button
+                      className="bg-blue-500 text-white px-4 py-2 rounded-lg"
+                      onClick={() => handleEditPlatterItem(item)}
+                    >
+                      Edit
+                    </button>
                   </div>
-                  <h3 className="text-lg font-semibold">{item.title}</h3>
-                  <p className="text-sm text-gray-600">{item.description}</p>
-                  <p className="font-bold mt-2">Price: Rs.{item.basePrice}</p>
-                  <p className="text-xs text-gray-500 mt-2">Category: {item.platterCategory}</p>
-                  <button
-                    onClick={() => handleEditPlatter(item)}
-                    className="mt-4 bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600"
-                  >
-                    Edit
-                  </button>
-                </div>
-              ))
-            ) : (
-              <p>No platter items available.</p>
-            )}
+                ))
+              ) : (
+                <p>No platter items available.</p>
+              )}
+            </div>
           </div>
-        </div>
-      )}
+        )}
 
         {activeTab === "addmenu" && <AddMenuItemForm />}
         {activeTab === "addplatter" && <AddPlatterForm/>}
         {activeTab === "tables" && <TableManagement />}
-        {activeTab === "completedOrders" && (
-          <div>
-            <h2 className="text-2xl font-semibold text-[#741052] mb-4">Completed Orders</h2>
-            <CompletedOrders />
-          </div>
-        )}
+        {activeTab === "completedOrders" && <CompletedOrders />}
         {activeTab === "analytics" && <AnalyticsPage />}
-        {activeTab === "settings" && <div>Settings</div>}
-      </div>
+        {activeTab === "settings" && <div>Settings Content</div>}
 
-      {/* Edit Modal */}
-      {showEditModal && selectedMenuItem && (
-        <EditMenuItemForm
-          item={selectedMenuItem}
-          onClose={handleCloseEditModal}
-          onUpdate={refreshMenuItems}
-        />
-      )} {showEditModal && selectedPlatterItem && (
-        <EditPlatterForm
-          item={selectedPlatterItem}
-          onClose={handleCloseEditModal}
-          onUpdate={refreshPlatterItems}
-        />
-      )}
+        {/* Edit Menu Item Modal */}
+        {showEditMenuItemModal && selectedMenuItem && (
+          <EditMenuItemForm
+            item={selectedMenuItem}
+            onClose={handleCloseEditMenuItemModal}
+            onUpdate={refreshPlatterItems}
+          />
+        )}
+
+        {/* Edit Platter Item Modal */}
+        {showEditPlatterItemModal && selectedPlatterItem && (
+          <EditPlatterForm
+            item={selectedPlatterItem}
+            onClose={handleCloseEditPlatterItemModal}
+            onUpdate={refreshPlatterItems}
+          />
+        )}
+      </div>
     </div>
   );
 };
