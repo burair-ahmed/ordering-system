@@ -337,7 +337,7 @@ const AdminDashboard: FC = () => {
           <EditMenuItemForm
             item={selectedMenuItem}
             onClose={handleCloseEditMenuItemModal}
-            onUpdate={refreshPlatterItems}
+            onUpdate={refreshMenuItems}
           />
         )}
 
