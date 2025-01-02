@@ -27,7 +27,7 @@ interface PlatterItemProps {
     basePrice: number;
     image: string;
     categories: Category[];
-    additionalChoices: AdditionalChoice[]; // Added additional choices here
+    additionalChoices: AdditionalChoice[];
     status: "in stock" | "out of stock";
   };
 }
@@ -63,19 +63,18 @@ const PlatterItem: FC<PlatterItemProps> = ({ platter }) => {
     }
   }, [showModal]);
 
-  const handleOptionChange = (categoryName: string, optionName: string) => {
-    setSelectedOptions((prev) => {
-      const updatedOptions = { ...prev, [categoryName]: optionName };
-      return updatedOptions;
-    });
+  const handleOptionChange = (categoryKey: string, optionName: string) => {
+    setSelectedOptions((prev) => ({
+      ...prev,
+      [categoryKey]: optionName, // Use a unique key for each category instance
+    }));
   };
 
   const handleAdditionalChoiceChange = (choiceHeading: string, selectedOptionUuid: string) => {
     const selectedChoice = platter.additionalChoices
       .flatMap((choice) => choice.options)
       .find((option) => option.uuid === selectedOptionUuid);
-  
-    // Store the name of the selected additional choice instead of the UUID
+
     if (selectedChoice) {
       setSelectedAdditionalChoices((prev) => ({
         ...prev,
@@ -83,7 +82,7 @@ const PlatterItem: FC<PlatterItemProps> = ({ platter }) => {
       }));
     }
   };
-  
+
   useEffect(() => {
     if (showModal) {
       setSelectedOptions({});
@@ -156,51 +155,55 @@ const PlatterItem: FC<PlatterItemProps> = ({ platter }) => {
               <p className="text-gray-600 mt-2">{platter.description}</p>
               <p className="text-lg font-semibold mt-4 text-[#741052]">Rs.{platter.basePrice.toFixed(2)}</p>
               <div className="mt-4">
-                {platter.categories?.map((category, index) => (
-                  <div key={index}>
-                    <label className="block text-sm font-medium mb-2 text-gray-700">{category.categoryName}</label>
-                    <select
-                      className="block w-full p-2 border rounded"
-                      value={selectedOptions[category.categoryName] || ""}
-                      onChange={(e) => handleOptionChange(category.categoryName, e.target.value)}
-                    >
-                      <option value="">Select {category.categoryName}</option>
-                      {categoryItems[category.categoryName]?.map((option, idx) => (
-                        <option key={idx} value={option.title}>
-                          {option.title}
-                        </option>
+                {platter.categories?.map((category, categoryIndex) => {
+                  const categoryKey = `${category.categoryName}-${categoryIndex}`; // Unique key
+                  return (
+                    <div key={categoryIndex}>
+                      <label className="block text-sm font-medium mb-2 text-gray-700">
+                        {category.categoryName}
+                      </label>
+                      <select
+                        className="block w-full p-2 border rounded"
+                        value={selectedOptions[categoryKey] || ""}
+                        onChange={(e) => handleOptionChange(categoryKey, e.target.value)}
+                      >
+                        <option value="">Select {category.categoryName}</option>
+                        {categoryItems[category.categoryName]?.map((option, idx) => (
+                          <option key={idx} value={option.title}>
+                            {option.title}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  );
+                })}
+
+                {platter.additionalChoices?.map((choice, index) => (
+                  <div key={index} className="mt-4">
+                    <label className="block text-sm font-medium mb-2 text-gray-700">{choice.heading}</label>
+                    <div className="flex flex-col">
+                      {choice.options.map((option, idx) => (
+                        <label key={idx} className="flex items-center mb-2">
+                          <input
+                            type="radio"
+                            name={choice.heading}
+                            value={option.uuid}
+                            checked={selectedAdditionalChoices[choice.heading] === option.name}
+                            onChange={(e) => handleAdditionalChoiceChange(choice.heading, e.target.value)}
+                            className="mr-2"
+                          />
+                          {option.name}
+                        </label>
                       ))}
-                    </select>
+                    </div>
                   </div>
                 ))}
-
-                {/* Additional Choices Section */}
-                {platter.additionalChoices?.map((choice, index) => (
-  <div key={index} className="mt-4">
-    <label className="block text-sm font-medium mb-2 text-gray-700">{choice.heading}</label>
-    <div className="flex flex-col">
-      {choice.options.map((option, idx) => (
-        <label key={idx} className="flex items-center mb-2">
-          <input
-            type="radio"
-            name={choice.heading}
-            value={option.uuid}
-            checked={selectedAdditionalChoices[choice.heading] === option.name} // Fix comparison to check against the name
-            onChange={(e) => handleAdditionalChoiceChange(choice.heading, e.target.value)}
-            className="mr-2"
-          />
-          {option.name}
-        </label>
-      ))}
-    </div>
-  </div>
-))}
               </div>
               <div className="flex gap-4 items-center align-center">
                 <AddToCartButtonForPlatters
                   platter={platter}
                   selectedOptions={selectedOptions}
-                  selectedAdditionalChoices={selectedAdditionalChoices} // This is the fix
+                  selectedAdditionalChoices={selectedAdditionalChoices}
                   onClick={() => setShowModal(false)}
                   className="w-full"
                   disabled={false}
