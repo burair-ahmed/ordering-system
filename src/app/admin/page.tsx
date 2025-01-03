@@ -72,7 +72,7 @@ const AdminDashboard: FC = () => {
     const [password, setPassword] = useState("");
     const [errorMessage, setErrorMessage] = useState("");
   
-    const correctPassword = "admin123"; // Hardcoded password
+    const correctPassword = "123-$CLK-Admin-$Panel-786"; // Hardcoded password
   // Fetch menu items
   useEffect(() => {
     const fetchMenuItems = async () => {

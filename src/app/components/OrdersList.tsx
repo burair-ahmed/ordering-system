@@ -1,14 +1,12 @@
 import { FC, useEffect, useRef, useState } from "react";
-
-// Assuming you have a preloader component
-import Preloader from "../components/Preloader"; 
+import Preloader from "../components/Preloader";
 
 interface Item {
   id: string;
   title: string;
   quantity: number;
   price: number;
-  variations?: { name: string; value: string }[] | string[]; // variations can be a string array or an object array
+  variations?: { name: string; value: string }[] | string[];
 }
 
 interface Order {
@@ -24,30 +22,29 @@ interface Order {
 
 const OrdersList: FC = () => {
   const [orders, setOrders] = useState<Order[]>([]);
-  const [loadingOrders, setLoadingOrders] = useState<Set<string>>(new Set()); // Tracks loading state per order
+  const [loadingOrders, setLoadingOrders] = useState<Set<string>>(new Set());
   const audioContextRef = useRef<AudioContext | null>(null);
   const audioBufferRef = useRef<AudioBuffer | null>(null);
   const previousOrdersRef = useRef<Order[]>([]);
+  const [audioInitialized, setAudioInitialized] = useState(false);
+  const [checkboxChecked, setCheckboxChecked] = useState(false);
 
-  useEffect(() => {
-    const loadAudioBuffer = async () => {
-      try {
-        const audioContext = new AudioContext();
-        const response = await fetch("/notification/notification.mp3");
-        const arrayBuffer = await response.arrayBuffer();
-        const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
+  const initializeAudioContext = async () => {
+    try {
+      const audioContext = new AudioContext();
+      const response = await fetch("/notification/notification.mp3");
+      const arrayBuffer = await response.arrayBuffer();
+      const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
 
-        audioContextRef.current = audioContext;
-        audioBufferRef.current = audioBuffer;
+      audioContextRef.current = audioContext;
+      audioBufferRef.current = audioBuffer;
 
-        console.log("Audio loaded and decoded successfully.");
-      } catch (error) {
-        console.error("Error loading notification sound:", error);
-      }
-    };
-
-    loadAudioBuffer();
-  }, []);
+      console.log("AudioContext initialized and notification sound loaded.");
+      setAudioInitialized(true);
+    } catch (error) {
+      console.error("Error initializing AudioContext:", error);
+    }
+  };
 
   const playNotificationSound = () => {
     if (audioContextRef.current && audioBufferRef.current) {
@@ -110,7 +107,7 @@ const OrdersList: FC = () => {
   }, []);
 
   const updateOrderStatus = async (orderNumber: string, status: string) => {
-    setLoadingOrders((prev) => new Set(prev.add(orderNumber))); // Add orderNumber to the loading state
+    setLoadingOrders((prev) => new Set(prev.add(orderNumber)));
     try {
       const response = await fetch("/api/updateorderstatus", {
         method: "PUT",
@@ -131,7 +128,7 @@ const OrdersList: FC = () => {
     } finally {
       setLoadingOrders((prev) => {
         const updated = new Set(prev);
-        updated.delete(orderNumber); // Remove the orderNumber from the loading state
+        updated.delete(orderNumber);
         return updated;
       });
     }
@@ -139,6 +136,36 @@ const OrdersList: FC = () => {
 
   return (
     <div className="p-4">
+      {!audioInitialized && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white p-8 rounded-lg text-center space-y-4">
+            <h2 className="text-xl font-semibold">Enable Notification Sound</h2>
+            <div className="flex items-center justify-center space-x-2">
+              <input
+                type="checkbox"
+                id="enable-sound-checkbox"
+                checked={checkboxChecked}
+                onChange={(e) => setCheckboxChecked(e.target.checked)}
+              />
+              <label htmlFor="enable-sound-checkbox" className="text-gray-700">
+                I agree to enable notification sound
+              </label>
+            </div>
+            <button
+              onClick={initializeAudioContext}
+              disabled={!checkboxChecked}
+              className={`px-4 py-2 rounded-lg ${
+                checkboxChecked
+                  ? "bg-blue-500 text-white"
+                  : "bg-gray-300 text-gray-600 cursor-not-allowed"
+              }`}
+            >
+              Enable Sound
+            </button>
+          </div>
+        </div>
+      )}
+
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-4">
         {orders.length === 0 ? (
           <p className="text-xl text-gray-600 text-center">No orders yet.</p>
@@ -169,7 +196,9 @@ const OrdersList: FC = () => {
                   <select
                     className="ml-2 p-1 border rounded"
                     value={order.status}
-                    onChange={(e) => updateOrderStatus(order.orderNumber, e.target.value)}
+                    onChange={(e) =>
+                      updateOrderStatus(order.orderNumber, e.target.value)
+                    }
                   >
                     <option value="Pending">Pending</option>
                     <option value="In Progress">In Progress</option>
@@ -194,14 +223,13 @@ const OrdersList: FC = () => {
                         <div className="mt-2 text-sm text-gray-600">
                           <strong>Choices:</strong>
                           <ul className="list-disc pl-5">
-                            {Array.isArray(item.variations) && item.variations.length > 0 ? (
+                            {Array.isArray(item.variations) &&
+                            item.variations.length > 0 ? (
                               item.variations.map((variation, idx) => (
                                 <li key={idx}>
-                                  {typeof variation === "string" ? (
-                                    variation // Directly render string variations
-                                  ) : (
-                                    `${variation.name}: ${variation.value}` // Render object variations
-                                  )}
+                                  {typeof variation === "string"
+                                    ? variation
+                                    : `${variation.name}: ${variation.value}`}
                                 </li>
                               ))
                             ) : (
@@ -217,8 +245,6 @@ const OrdersList: FC = () => {
               <div className="mt-4 font-bold text-xl text-[#741052]">
                 Total: Rs. {order.totalAmount}
               </div>
-
-              {/* Show preloader only for the specific order being updated */}
               {loadingOrders.has(order.orderNumber) && <Preloader />}
             </div>
           ))
