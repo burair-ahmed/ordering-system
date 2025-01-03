@@ -20,6 +20,8 @@ interface Order {
   totalAmount: number;
 }
 
+
+
 const OrdersList: FC = () => {
   const [orders, setOrders] = useState<Order[]>([]);
   const [loadingOrders, setLoadingOrders] = useState<Set<string>>(new Set());
@@ -67,34 +69,33 @@ const OrdersList: FC = () => {
     try {
       const response = await fetch("/api/orders");
       const data = await response.json();
-
+  
       if (response.ok) {
         const newOrders = data.orders || [];
         const previousOrders = previousOrdersRef.current;
-        if (newOrders.length > previousOrders.length) {
-          console.log("New order detected!");
-          playNotificationSound();
-        } else if (
-          newOrders.some(
-            (order: Order) =>
-              !previousOrders.some(
-                (prevOrder) => prevOrder.orderNumber === order.orderNumber
-              )
-          )
+  
+        // Detect new orders
+        if (newOrders.length > previousOrders.length || 
+            newOrders.some(
+              (order: Order) =>
+                !previousOrders.some(
+                  (prevOrder) => prevOrder.orderNumber === order.orderNumber
+                )
+            )
         ) {
           console.log("New order detected!");
           playNotificationSound();
         }
-
-        setOrders(newOrders);
+  
+        // Update state
+        setOrders(newOrders.filter((order: Order) => order.status !== "Completed"));
         previousOrdersRef.current = newOrders;
-      } else {
-        console.error("Failed to fetch orders:", data.message);
       }
     } catch (error) {
       console.error("Error fetching orders:", error);
     }
   };
+  
 
   useEffect(() => {
     const interval = setInterval(() => {
