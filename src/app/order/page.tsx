@@ -52,33 +52,12 @@ interface AdditionalChoice {
 }
 
 const defaultPlatterCategoryOrder = [
-  "Sharing Platters",
-  "BBQ Deals",
-  "Fast Food Deals",
+  "Sharing Platters","BBQ Deals","Fast Food Deals",
   
 ];
 
 const defaultMenuCategoryOrder = [
-  "Soup",
-  "Gravy",
-  "Beast BBQ",
-  "Rolls Royce",
-  "Woodfired Pizza",
-  "Burger-E-Karachi",
-  "Chicken Karahis",
-  "Mutton Karahis",
-  "Handi and Qeema",
-  "Marvellous Matka Biryani Chicken/Beef",
-  "Charming Chai",
-  "Paratha Performance",
-  "Very Fast Food",
-  "Shawarmania",
-  "French Boys Fries",
-  "Rice",
-  "Dashing Desserts",
-  "Beverages",
-  "Juicy Lucy",
-  "Very Extra"
+  "Soup","Gravy","Beast BBQ","Rolls Royce","Woodfired Pizza","Burger-E-Karachi","Chicken Karahis","Mutton Karahis","Handi and Qeema","Marvellous Matka Biryani Chicken/Beef","Charming Chai","Paratha Performance","Very Fast Food","Shawarmania","French Boys Fries","Rice","Dashing Desserts","Beverages","Juicy Lucy","Very Extra"
 ];
 
 export default function MenuPage() {
@@ -159,12 +138,11 @@ export default function MenuPage() {
       }
     };
 
-    // Fetch menu and platters on initial render
     menuCategoryOrder.forEach((category) => {
       fetchMenu(category);
     });
-    fetchPlatters();  // Fetch platters grouped by category
-  }, [menuCategoryOrder, platterCategoryOrder]); // Re-fetch whenever category order changes
+    fetchPlatters();  
+  }, [menuCategoryOrder, platterCategoryOrder]);
 
   const lastMenuItemRef = (category: string, node: HTMLDivElement | null) => {
     if (loading || !hasMore[category]) return;
@@ -183,35 +161,10 @@ export default function MenuPage() {
       observer.current.observe(node);
     }
   };
-
-  // Function to handle the reordering of platter categories
-  // const handleReorderPlatters = (newOrder: string[]) => {
-  //   setPlatterCategoryOrder(newOrder);
-  // };
-
-  // Function to handle the reordering of menu categories
-  // const handleReorderMenu = (newOrder: string[]) => {
-  //   setMenuCategoryOrder(newOrder);
-  // };
-
   return (
     <div className="bg-white text-black">
       <Hero />
-
-      {/* Custom Category Order Button for Platters and Menu Items */}
       <div className="flex justify-center mt-4 gap-4">
-        {/* <button 
-          onClick={() => handleReorderPlatters([...platterCategoryOrder].reverse())}  // Reverse platter category order
-          className="px-4 py-2 bg-blue-600 text-white rounded-lg shadow-md"
-        >
-          Reverse Platter Order
-        </button>
-        <button 
-          onClick={() => handleReorderMenu([...menuCategoryOrder].reverse())}  // Reverse menu category order
-          className="px-4 py-2 bg-green-600 text-white rounded-lg shadow-md"
-        >
-          Reverse Menu Order
-        </button> */}
       </div>
 
       {/* Platters First */}
