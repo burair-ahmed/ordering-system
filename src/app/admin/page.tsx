@@ -66,6 +66,13 @@ const AdminDashboard: FC = () => {
   const [showEditPlatterItemModal, setShowEditPlatterItemModal] = useState(false); // Edit platter item modal visibility
   const [platterItems, setPlatterItems] = useState<PlatterItem[]>([]);
 
+
+    // States for the password overlay
+    const [showPasswordOverlay, setShowPasswordOverlay] = useState(true);
+    const [password, setPassword] = useState("");
+    const [errorMessage, setErrorMessage] = useState("");
+  
+    const correctPassword = "admin123"; // Hardcoded password
   // Fetch menu items
   useEffect(() => {
     const fetchMenuItems = async () => {
@@ -156,8 +163,42 @@ const AdminDashboard: FC = () => {
     }
   }, [activeTab]);
 
+
+        // Handle password submission
+        const handlePasswordSubmit = (e: React.FormEvent) => {
+          e.preventDefault();
+          if (password === correctPassword) {
+            setShowPasswordOverlay(false); // Hide overlay if correct password is entered
+          } else {
+            setErrorMessage("Incorrect password. Please try again.");
+          }
+        };
   return (
     <div className="flex h-screen">
+
+            {/* Password Overlay */}
+            {showPasswordOverlay && (
+        <div className="absolute inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+          <div className="bg-white p-6 rounded-lg shadow-lg">
+            <h2 className="text-2xl font-bold mb-4">Enter Password</h2>
+            <form onSubmit={handlePasswordSubmit}>
+              <input
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="border p-2 w-full mb-4"
+                placeholder="Enter password"
+              />
+              {errorMessage && <p className="text-red-500">{errorMessage}</p>}
+              <button type="submit" className="bg-blue-500 text-white px-4 py-2 rounded-lg w-full">
+                Submit
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
+
+
       {/* Sidebar */}
       <div
         className={`${
