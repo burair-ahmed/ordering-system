@@ -74,31 +74,57 @@ export default function MenuPage() {
   const observer = useRef<IntersectionObserver | null>(null);
 
   useEffect(() => {
-    // Fetch Menu Items
+    const fetchPlatters = async () => {
+      setLoading(true);
+      try {
+        const response = await fetch("/api/platter");
+        if (!response.ok) {
+          throw new Error("Failed to fetch platters");
+        }
+        const data: Platter[] = await response.json();
+  
+        // Group platters by their platterCategory
+        const groupedPlatters: { [key: string]: Platter[] } = data.reduce((acc, platter) => {
+          const category = platter.platterCategory;
+          if (!acc[category]) {
+            acc[category] = [];
+          }
+          acc[category].push(platter);
+          return acc;
+        }, {} as { [key: string]: Platter[] });
+  
+        setPlatters(groupedPlatters);
+      } catch (err) {
+        console.error("Error fetching platters:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+  
     const fetchMenu = async (category: string) => {
       setLoading(true);
       const currentPage = page[category] || 1;
       const hasMoreItems = hasMore[category] ?? true;
-
+  
       if (!hasMoreItems) return;
-
+  
       try {
         const response = await fetch(`/api/getitems?page=${currentPage}&limit=10&category=${category}`);
         if (!response.ok) {
           throw new Error("Failed to fetch menu items");
         }
         const data: MenuItemData[] = await response.json();
-
+  
         setMenu((prevMenu) => ({
           ...prevMenu,
           [category]: [...(prevMenu[category] || []), ...data],
         }));
-
+  
         setPage((prevPage) => ({
           ...prevPage,
           [category]: currentPage + 1,
         }));
-
+  
         setHasMore((prevHasMore) => ({
           ...prevHasMore,
           [category]: data.length === 10,
@@ -109,40 +135,19 @@ export default function MenuPage() {
         setLoading(false);
       }
     };
-
-    // Fetch Platters
-    const fetchPlatters = async () => {
-      setLoading(true);
-      try {
-        const response = await fetch("/api/platter");
-        if (!response.ok) {
-          throw new Error("Failed to fetch platters");
-        }
-        const data: Platter[] = await response.json();
-        
-        // Group platters by their platterCategory
-        const groupedPlatters: { [key: string]: Platter[] } = data.reduce((acc, platter) => {
-          const category = platter.platterCategory;
-          if (!acc[category]) {
-            acc[category] = [];
-          }
-          acc[category].push(platter);
-          return acc;
-        }, {} as { [key: string]: Platter[] });
-
-        setPlatters(groupedPlatters);
-      } catch (err) {
-        console.error("Error fetching platters:", err);
-      } finally {
-        setLoading(false);
+  
+    const fetchData = async () => {
+      await fetchPlatters(); // Fetch platters first
+  
+      // Then fetch menu items by category
+      for (const category of menuCategoryOrder) {
+        await fetchMenu(category);
       }
     };
-
-    menuCategoryOrder.forEach((category) => {
-      fetchMenu(category);
-    });
-    fetchPlatters();  
+  
+    fetchData(); // Start fetching data
   }, [menuCategoryOrder, platterCategoryOrder]);
+  
 
   const lastMenuItemRef = (category: string, node: HTMLDivElement | null) => {
     if (loading || !hasMore[category]) return;

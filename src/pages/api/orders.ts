@@ -91,8 +91,8 @@ const ordersHandler = async (req: NextApiRequest, res: NextApiResponse) => {
         io.emit("newOrder", newOrder);
       }
 
-      // Return success response
-      return res.status(200).json({ message: "Order received successfully" });
+      // Return success response with the order number
+      return res.status(200).json({ message: "Order received successfully", orderNumber });
     } catch (error) {
       console.error("Error saving order:", error);
       return res.status(500).json({ message: "Failed to save order to database" });

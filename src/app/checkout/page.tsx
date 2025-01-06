@@ -52,13 +52,14 @@ const CheckoutPageContent: FC = () => {
     setIsModalOpen(true);
   };
 
-  const handlePlaceOrder = async () => {
+  
+
+  const handlePlaceOrder = async (): Promise<void> => {
     setIsProcessing(true); // Indicate that the request is being processed
   
     const newOrder = {
-      orderNumber: `ORD-${Math.floor(Math.random() * 1000000)}`,  // You may want to implement a more unique order number generator
       customerName: formData.name,
-      email: formData.email || '',  // Optional email
+      email: formData.email || '', // Optional email
       tableNumber: formData.tableNumber,
       paymentMethod: formData.paymentMethod,
       items: cartItems.map((item) => ({
@@ -66,13 +67,14 @@ const CheckoutPageContent: FC = () => {
         title: item.title,
         quantity: item.quantity,
         price: item.price,
-        variations: item.variations || []  // Ensure variations is passed as an array
+        variations: item.variations || [], // Ensure variations is passed as an array
       })),
       totalAmount: totalAmount,
-      status: 'Received',  // You can customize this depending on the state of the order
+      status: 'Received', // Initial order status
     };
   
     try {
+      // Save order to the backend
       const response = await fetch('/api/orders', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -80,6 +82,12 @@ const CheckoutPageContent: FC = () => {
       });
   
       if (response.ok) {
+        const { orderNumber } = await response.json(); // Get the order number from the API response
+        
+        // Send WhatsApp message with Twilio using the order number returned from the API
+        await sendWhatsAppNotification({ ...newOrder, orderNumber });
+  
+        // Clear the cart and redirect the user
         clearCart();
         router.push(`/thank-you?tableId=${formData.tableNumber}`);
       } else {
@@ -92,6 +100,57 @@ const CheckoutPageContent: FC = () => {
       setIsProcessing(false); // Reset the processing state
     }
   };
+  
+
+  
+  const sendWhatsAppNotification = async (order: {
+    orderNumber: string;
+    customerName: string;
+    email: string;
+    tableNumber: string;
+    paymentMethod: string;
+    items: {
+      id: string;
+      title: string;
+      quantity: number;
+      price: number;
+      variations: string[]; // Adjust based on your data structure
+    }[];
+    totalAmount: number;
+  }): Promise<void> => {
+    const { customerName, tableNumber, paymentMethod, items, totalAmount, orderNumber } = order;
+  
+    // Construct the message
+    const message = `
+    New Order Received:
+    - Order Number: ${orderNumber}
+    - Customer Name: ${customerName}
+    - Table Number: ${tableNumber}
+    - Payment Method: ${paymentMethod}
+    - Total Amount: Rs. ${totalAmount.toFixed(2)}
+    - Items:
+    - ${items.map((item, index) => `   ${index + 1}. ${item.title} x${item.quantity} (Rs. ${item.price * item.quantity})`).join('\n')}
+    `;
+  
+    try {
+      // Call your API endpoint or server function to send the WhatsApp message
+      const twilioResponse = await fetch('/api/send-whatsapp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message }),
+      });
+  
+      if (twilioResponse.ok) {
+        console.log('WhatsApp notification sent successfully.');
+      } else {
+        console.error('Failed to send WhatsApp notification.');
+      }
+    } catch (error) {
+      console.error('Error sending WhatsApp notification:', error);
+    }
+  };
+  
+
   const handleCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setIsChecked(e.target.checked);
   };
