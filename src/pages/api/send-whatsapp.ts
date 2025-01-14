@@ -17,6 +17,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     try {
       const twilioResponse = await client.messages.create({
         from: 'whatsapp:+14155238886', // Twilio WhatsApp sandbox or approved number
+        // to: 'whatsapp:+923331371141',
         to: 'whatsapp:+923077136555',
         body: message,
       });

@@ -190,28 +190,28 @@ const AdminDashboard: FC = () => {
 
             {/* Password Overlay */}
             {showPasswordOverlay && (
-        <div className="absolute inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50 h-screen">
-          <div className="bg-white p-6 rounded-lg shadow-lg">
-            <h2 className="text-2xl font-bold mb-4">Enter Password</h2>
-            <form onSubmit={handlePasswordSubmit}>
-              <input
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="border p-2 w-full mb-4"
-                placeholder="Enter password"
-              />
-              {errorMessage && <p className="text-red-500">{errorMessage}</p>}
-              <button
-                type="submit"
-                className="bg-blue-500 text-white px-4 py-2 rounded-lg w-full"
-              >
-                Submit
-              </button>
-            </form>
-          </div>
-        </div>
-      )}
+  <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+    <div className="bg-white p-6 rounded-lg shadow-lg w-96">
+      <h2 className="text-2xl font-bold mb-4">Enter Password</h2>
+      <form onSubmit={handlePasswordSubmit}>
+        <input
+          type="password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          className="border p-2 w-full mb-4"
+          placeholder="Enter password"
+        />
+        {errorMessage && <p className="text-red-500">{errorMessage}</p>}
+        <button
+          type="submit"
+          className="bg-blue-500 text-white px-4 py-2 rounded-lg w-full"
+        >
+          Submit
+        </button>
+      </form>
+    </div>
+  </div>
+)}
 
 
       {/* Sidebar */}

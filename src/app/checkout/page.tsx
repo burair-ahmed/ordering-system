@@ -206,14 +206,14 @@ const CheckoutPageContent: FC = () => {
             <div className="flex items-center space-x-2">
               <input
                 type="radio"
-                id="card"
+                id="online"
                 name="paymentMethod"
-                value="card"
-                checked={formData.paymentMethod === 'card'}
+                value="online"
+                checked={formData.paymentMethod === 'online'}
                 onChange={handlePaymentChange}
                 className="text-blue-500 focus:ring-blue-500"
               />
-              <label htmlFor="card" className="text-sm text-[#333]">Card</label>
+              <label htmlFor="online" className="text-sm text-[#333]">Online</label>
             </div>
           </div>
         </div>
