@@ -2,19 +2,23 @@ import { NextApiRequest, NextApiResponse } from "next";
 import testMongoConnection from "../../lib/testConnection";
 import Order from "../../models/Order";
 
+const PASSWORD = process.env.DELETE_PASSWORD || "securepassword"; // Use a secure password from environment variables
+
 const deleteOrderHandler = async (req: NextApiRequest, res: NextApiResponse) => {
   if (req.method === "DELETE") {
     const { orderNumber } = req.query;
+    const { password } = req.body;
 
     if (!orderNumber || typeof orderNumber !== "string") {
       return res.status(400).json({ message: "Invalid or missing orderNumber" });
     }
 
-    try {
-      // Ensure the MongoDB connection is established
-      await testMongoConnection();
+    if (password !== PASSWORD) {
+      return res.status(403).json({ message: "Invalid password" });
+    }
 
-      // Find and delete the order
+    try {
+      await testMongoConnection();
       const deletedOrder = await Order.findOneAndDelete({ orderNumber });
 
       if (!deletedOrder) {

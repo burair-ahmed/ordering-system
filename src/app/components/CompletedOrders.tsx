@@ -25,9 +25,11 @@ interface Order {
 
 const CompletedOrders: FC = () => {
   const [completedOrders, setCompletedOrders] = useState<Order[]>([]);
-  const [loading, setLoading] = useState<boolean>(false); // Loading state
-  const [showModal, setShowModal] = useState<boolean>(false); // Modal visibility state
-  const [selectedOrder, setSelectedOrder] = useState<string | null>(null); // Store the selected order for deletion
+  const [loading, setLoading] = useState<boolean>(false);
+  const [showModal, setShowModal] = useState<boolean>(false);
+  const [selectedOrder, setSelectedOrder] = useState<string | null>(null);
+  const [password, setPassword] = useState<string>(""); // Password input
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchCompletedOrders = async () => {
@@ -43,48 +45,56 @@ const CompletedOrders: FC = () => {
     fetchCompletedOrders();
   }, []);
 
-  const handleDeleteOrder = async (orderNumber: string) => {
+  const handleDeleteOrder = (orderNumber: string) => {
     setSelectedOrder(orderNumber);
-    setShowModal(true); // Show the confirmation modal
+    setShowModal(true);
   };
 
   const confirmDelete = async () => {
-    if (!selectedOrder) return;
+    if (!selectedOrder || !password) {
+      setErrorMessage("Password is required.");
+      return;
+    }
 
-    setLoading(true); // Start loading
+    setLoading(true);
 
     try {
       const response = await fetch(`/api/deleteorder?orderNumber=${selectedOrder}`, {
         method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ password }),
       });
 
       if (response.ok) {
         setCompletedOrders((prevOrders) =>
           prevOrders.filter((order) => order.orderNumber !== selectedOrder)
         );
+        setErrorMessage(null);
       } else {
         const data = await response.json();
-        alert(`Failed to delete Order #${selectedOrder}: ${data.message}`);
+        setErrorMessage(data.message || "Failed to delete order.");
       }
     } catch (error) {
       console.error("Error deleting order:", error);
-      alert("An error occurred while deleting the order.");
+      setErrorMessage("An error occurred while deleting the order.");
     } finally {
-      setLoading(false); // Stop loading
-      setShowModal(false); // Close the modal
+      setLoading(false);
+      setShowModal(false);
+      setPassword("");
+      setSelectedOrder(null);
     }
   };
 
   const cancelDelete = () => {
-    setShowModal(false); // Close the modal without deleting
+    setShowModal(false);
     setSelectedOrder(null);
+    setPassword("");
+    setErrorMessage(null);
   };
 
   return (
     <>
-      {loading && (
-        <Preloader />
-      )} {/* Show preloader when deleting */}
+      {loading && <Preloader />}
 
       {/* Confirmation Modal */}
       {showModal && (
@@ -92,6 +102,14 @@ const CompletedOrders: FC = () => {
           <div className="bg-white p-6 rounded-lg shadow-lg w-96 z-50">
             <h2 className="text-xl font-semibold mb-4">Confirm Deletion</h2>
             <p className="mb-4">Are you sure you want to delete Order #{selectedOrder}?</p>
+            <input
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="Enter password"
+              className="border p-2 w-full mb-4"
+            />
+            {errorMessage && <p className="text-red-500 mb-4">{errorMessage}</p>}
             <div className="flex justify-between">
               <button
                 onClick={cancelDelete}
