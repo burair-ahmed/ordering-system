@@ -1,6 +1,6 @@
-'use client'
+'use client';
 
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import PlatterItem from "../components/PlatterItem";
 import AddPlatterForm from "../components/AddPlatterForm";
 
@@ -17,6 +17,11 @@ interface Category {
   options: CategoryOption[];
 }
 
+interface AdditionalChoice {
+  heading: string;
+  options: CategoryOption[];
+}
+
 interface Platter {
   id: string;
   title: string;
@@ -27,12 +32,8 @@ interface Platter {
   status: "in stock" | "out of stock";
   additionalChoices: AdditionalChoice[];
 }
-interface AdditionalChoice {
-  heading: string;
-  options: CategoryOption[];
-}
 
-const PlattersPage = () => {
+function PlattersContent() {
   const [platters, setPlatters] = useState<Platter[]>([]);
 
   useEffect(() => {
@@ -41,18 +42,17 @@ const PlattersPage = () => {
         const res = await fetch("/api/platter");
         const data = await res.json();
 
-        console.log("API Response:", data); // Log the full response to inspect
+        console.log("API Response:", data);
 
-        // Check if the response contains an array with platter objects
         if (data && Array.isArray(data) && data.length > 0) {
-          setPlatters(data); // Directly set the entire array if it's valid
+          setPlatters(data);
         } else {
           console.error("Platters data is not in the expected array format:", data);
-          setPlatters([]); // Set empty array if the data is not as expected
+          setPlatters([]);
         }
       } catch (error) {
         console.error("Error fetching platters:", error);
-        setPlatters([]); // Set empty array in case of an error
+        setPlatters([]);
       }
     };
 
@@ -64,18 +64,27 @@ const PlattersPage = () => {
       <h1 className="text-3xl font-semibold text-center mb-6">Platters</h1>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-4">
         {platters.length === 0 ? (
-          <p className="text-xl text-gray-600 text-center">No platters available.</p>
+          <p className="text-xl text-gray-600 text-center">
+            No platters available.
+          </p>
         ) : (
           platters.map((platter) => (
             <PlatterItem key={platter.id} platter={platter} />
           ))
         )}
       </div>
-        <div>
-            <AddPlatterForm/>
-        </div>
+
+      <div className="mt-8">
+        <AddPlatterForm />
+      </div>
     </div>
   );
-};
+}
 
-export default PlattersPage;
+export default function PlattersPage() {
+  return (
+    <Suspense fallback={<div className="text-center py-8">Loading Platters...</div>}>
+      <PlattersContent />
+    </Suspense>
+  );
+}
