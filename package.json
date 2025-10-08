@@ -50,7 +50,9 @@
     "@types/node": "^20.17.7",
     "@types/react": "^18.3.12",
     "@types/react-dom": "^18.3.0",
+    "@types/react-type-animation": "^1.1.4",
     "@types/twilio": "^3.19.2",
+    "@types/uuid": "^10.0.0",
     "eslint": "^8.57.0",
     "eslint-config-next": "15.0.3",
     "postcss": "^8.4.31",
@@ -58,6 +60,8 @@
     "typescript": "^5.7.2"
   },
   "overrides": {
+    "react": "19.0.0-rc-66855b96-20241106",
+    "react-dom": "19.0.0-rc-66855b96-20241106",
     "framer-motion": {
       "peerDependencies": {
         "react": "*",
@@ -66,6 +70,8 @@
     }
   },
   "resolutions": {
+    "react": "19.0.0-rc-66855b96-20241106",
+    "react-dom": "19.0.0-rc-66855b96-20241106",
     "framer-motion/react": "19.0.0-rc-66855b96-20241106"
   }
 }
