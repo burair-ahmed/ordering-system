@@ -14,26 +14,34 @@ interface EditMenuItemFormProps {
     category: string;
     image: string; // Base64 string
     variations: Variation[];
-    status: "in stock" | "out of stock"; // Add status field
+    status: "in stock" | "out of stock";
   };
   onClose: () => void;
   onUpdate: () => void;
 }
 
-const EditMenuItemForm: React.FC<EditMenuItemFormProps> = ({ item, onClose, onUpdate }) => {
+const EditMenuItemForm: React.FC<EditMenuItemFormProps> = ({
+  item,
+  onClose,
+  onUpdate,
+}) => {
   const [formData, setFormData] = useState({
     title: item.title || "",
     description: item.description || "",
     price: item.price || 0,
     category: item.category || "",
-    image: item.image || "", // Existing image as base64
+    image: item.image || "",
     variations: item.variations || [],
-    status: item.status || "in stock", // Set initial status
+    status: item.status || "in stock",
   });
-  
-  const [loading, setLoading] = useState(false); // Loading state
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+  const [loading, setLoading] = useState(false);
+
+  const handleChange = (
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >
+  ) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
   };
@@ -75,7 +83,7 @@ const EditMenuItemForm: React.FC<EditMenuItemFormProps> = ({ item, onClose, onUp
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true); // Set loading to true when update starts
+    setLoading(true);
 
     try {
       const response = await fetch("/api/updateItem", {
@@ -98,89 +106,127 @@ const EditMenuItemForm: React.FC<EditMenuItemFormProps> = ({ item, onClose, onUp
     } catch (error) {
       console.error("Error updating item:", error);
     } finally {
-      setLoading(false); // Reset loading state after the update completes
+      setLoading(false);
     }
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-      <div className="bg-white p-6 rounded-lg shadow-lg max-w-4xl w-full">
-        <h2 className="text-xl font-semibold mb-4 text-gray-800">Edit Menu Item</h2>
-        <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          {/* Left Column */}
-          <div className="space-y-4">
-            {/* Title */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700">Title</label>
-              <input
-                type="text"
-                name="title"
-                value={formData.title}
-                onChange={handleChange}
-                className="w-full border border-gray-300 rounded-md shadow-sm px-4 py-2"
-              />
-            </div>
-            {/* Description */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700">Description</label>
-              <textarea
-                name="description"
-                value={formData.description}
-                onChange={handleChange}
-                className="w-full border border-gray-300 rounded-md shadow-sm px-4 py-2"
-              ></textarea>
-            </div>
-            {/* Price */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700">Price (Rs.)</label>
-              <input
-                type="number"
-                name="price"
-                value={formData.price}
-                onChange={handleChange}
-                className="w-full border border-gray-300 rounded-md shadow-sm px-4 py-2"
-              />
-            </div>
-            {/* Category */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700">Category</label>
-              <input
-                type="text"
-                name="category"
-                value={formData.category}
-                onChange={handleChange}
-                className="w-full border border-gray-300 rounded-md shadow-sm px-4 py-2"
-              />
-            </div>
-            {/* Image Upload */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700">Image</label>
-              <input
-                type="file"
-                accept="image/*"
-                onChange={handleImageUpload}
-                className="w-full border border-gray-300 rounded-md shadow-sm px-4 py-2"
-              />
-            </div>
-            {/* Status Dropdown */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700">Status</label>
-              <select
-                name="status"
-                value={formData.status}
-                onChange={handleChange}
-                className="w-full border border-gray-300 rounded-md shadow-sm px-4 py-2"
-              >
-                <option value="in stock">In Stock</option>
-                <option value="out of stock">Out of Stock</option>
-              </select>
-            </div>
+<div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex justify-center items-center z-50">
+  <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-2xl w-full max-w-4xl max-h-[90vh] flex flex-col overflow-hidden">
+    {/* Header */}
+    <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+      <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-100">
+        ✏️ Edit Menu Item
+      </h2>
+    </div>
+
+    {/* Body (scrollable) */}
+    <div className="flex-1 overflow-y-auto px-6 py-4 space-y-6">
+      <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        {/* Left Column */}
+        <div className="space-y-4">
+          {/* Title */}
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300">
+              Title
+            </label>
+            <input
+              type="text"
+              name="title"
+              value={formData.title}
+              onChange={handleChange}
+              className="w-full border border-gray-300 dark:border-gray-700 rounded-lg px-4 py-2 
+                         focus:ring-2 focus:ring-[#741052] focus:outline-none transition"
+            />
           </div>
-          {/* Right Column */}
-          <div className="space-y-4">
-            <label className="block text-sm font-medium text-gray-700">Variations</label>
+          {/* Description */}
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300">
+              Description
+            </label>
+            <textarea
+              name="description"
+              value={formData.description}
+              onChange={handleChange}
+              rows={3}
+              className="w-full border border-gray-300 dark:border-gray-700 rounded-lg px-4 py-2 
+                         focus:ring-2 focus:ring-[#741052] focus:outline-none transition"
+            />
+          </div>
+          {/* Price */}
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300">
+              Price (Rs.)
+            </label>
+            <input
+              type="number"
+              name="price"
+              value={formData.price}
+              onChange={handleChange}
+              className="w-full border border-gray-300 dark:border-gray-700 rounded-lg px-4 py-2 
+                         focus:ring-2 focus:ring-[#741052] focus:outline-none transition"
+            />
+          </div>
+          {/* Category */}
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300">
+              Category
+            </label>
+            <input
+              type="text"
+              name="category"
+              value={formData.category}
+              onChange={handleChange}
+              className="w-full border border-gray-300 dark:border-gray-700 rounded-lg px-4 py-2 
+                         focus:ring-2 focus:ring-[#741052] focus:outline-none transition"
+            />
+          </div>
+          {/* Image Upload */}
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300">
+              Image
+            </label>
+            <input
+              type="file"
+              accept="image/*"
+              onChange={handleImageUpload}
+              className="w-full text-sm text-gray-600 dark:text-gray-400 
+                         file:mr-4 file:py-2 file:px-4
+                         file:rounded-lg file:border-0
+                         file:text-sm file:font-semibold
+                         file:bg-[#741052] file:text-white
+                         hover:file:bg-[#5c0d40]"
+            />
+          </div>
+          {/* Status */}
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300">
+              Status
+            </label>
+            <select
+              name="status"
+              value={formData.status}
+              onChange={handleChange}
+              className="w-full border border-gray-300 dark:border-gray-700 rounded-lg px-4 py-2 
+                         focus:ring-2 focus:ring-[#741052] focus:outline-none transition"
+            >
+              <option value="in stock">✅ In Stock</option>
+              <option value="out of stock">❌ Out of Stock</option>
+            </select>
+          </div>
+        </div>
+
+        {/* Right Column (Variations) */}
+        <div className="space-y-4">
+          <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300">
+            Variations
+          </label>
+          <div className="max-h-60 overflow-y-auto pr-2 space-y-3">
             {formData.variations.map((variation, index) => (
-              <div key={index} className="flex items-center gap-4 mb-2">
+              <div
+                key={index}
+                className="flex items-center gap-3 bg-gray-50 dark:bg-gray-800 p-3 rounded-xl shadow-sm"
+              >
                 <input
                   type="text"
                   value={variation.name}
@@ -188,7 +234,8 @@ const EditMenuItemForm: React.FC<EditMenuItemFormProps> = ({ item, onClose, onUp
                     handleVariationChange(index, "name", e.target.value)
                   }
                   placeholder="Variation Name"
-                  className="flex-1 border border-gray-300 rounded-md shadow-sm px-4 py-2"
+                  className="flex-1 border border-gray-300 dark:border-gray-700 rounded-lg px-4 py-2 
+                             focus:ring-2 focus:ring-[#741052] focus:outline-none transition"
                 />
                 <input
                   type="number"
@@ -197,51 +244,63 @@ const EditMenuItemForm: React.FC<EditMenuItemFormProps> = ({ item, onClose, onUp
                     handleVariationChange(index, "price", parseFloat(e.target.value))
                   }
                   placeholder="Price"
-                  className="w-24 border border-gray-300 rounded-md shadow-sm px-4 py-2"
+                  className="w-24 border border-gray-300 dark:border-gray-700 rounded-lg px-4 py-2 
+                             focus:ring-2 focus:ring-[#741052] focus:outline-none transition"
                 />
                 <button
                   type="button"
                   onClick={() => removeVariation(index)}
-                  className="text-red-500 hover:text-red-700"
+                  className="text-red-500 hover:text-red-700 transition text-lg"
                 >
-                  Remove
+                  ✖
                 </button>
               </div>
             ))}
-            <button
-              type="button"
-              onClick={addVariation}
-              className="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600"
-            >
-              Add Variation
-            </button>
           </div>
-          {/* Submit and Cancel */}
-          <div className="col-span-1 md:col-span-2 flex justify-end gap-4 mt-6">
-            <button
-              type="button"
-              onClick={onClose}
-              className="bg-gray-500 text-white px-4 py-2 rounded-md hover:bg-gray-600"
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              disabled={loading} // Disable the button when loading
-              className={`bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 ${
-                loading ? "opacity-50 cursor-not-allowed" : ""
-              }`}
-            >
-              {loading ? (
-                <span className="animate-spin">Updating...</span>
-              ) : (
-                "Update"
-              )}
-            </button>
-          </div>
-        </form>
-      </div>
+          <button
+            type="button"
+            onClick={addVariation}
+            className="bg-gradient-to-r from-green-500 to-green-600 text-white px-4 py-2 rounded-lg shadow 
+                       hover:from-green-600 hover:to-green-700 transition"
+          >
+            Add Variation
+          </button>
+        </div>
+      </form>
     </div>
+
+    {/* Footer (sticky) */}
+    <div className="px-6 py-4 border-t border-gray-200 dark:border-gray-700 flex justify-end gap-4">
+<button
+  type="button"
+  onClick={onClose}
+  className="px-4 py-2 rounded-lg shadow text-white font-semibold
+             bg-gradient-to-r from-[#741052] to-pink-600
+             hover:opacity-90 transition-all duration-200"
+>
+  Cancel
+</button>
+
+<button
+  type="submit"
+  disabled={loading}
+  className={`px-4 py-2 rounded-lg shadow text-white font-semibold
+    bg-gradient-to-r from-[#741052] to-pink-600 
+    hover:opacity-90 transition-all duration-200
+    ${loading ? "opacity-50 cursor-not-allowed" : ""}`}
+>
+  {loading ? (
+    <span className="animate-spin">⏳ Updating...</span>
+  ) : (
+    "Update"
+  )}
+</button>
+
+
+    </div>
+  </div>
+</div>
+
   );
 };
 

@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-unused-vars */
+
 import React, { useState, useEffect } from "react";
 import Preloader from "./Preloader"; // Adjust the import path if needed
 
@@ -38,17 +40,15 @@ const EditPlatterForm: React.FC<EditPlatterFormProps> = ({ item, onClose, onUpda
     description: item.description || "",
     basePrice: item.basePrice || 0,
     platterCategory: item.platterCategory || "",
-    image: item.image || "", // Existing image as base64
+    image: item.image || "",
     additionalChoices: item.additionalChoices || [],
     categories: item.categories || [],
     status: item.status || "in stock",
   });
 
-  const [loading, setLoading] = useState(false); // Loading state
+  const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    // Any logic that you need to perform when the component loads can be added here
-  }, []);
+  useEffect(() => {}, []);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -130,111 +130,111 @@ const EditPlatterForm: React.FC<EditPlatterFormProps> = ({ item, onClose, onUpda
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    setLoading(true); // Start loading state
+    setLoading(true);
 
     try {
-      // Log the formData to ensure the correct values are being sent
-      console.log('Submitting platter data:', {
-        id: item._id,
-        ...formData,
-      });
-
-      const response = await fetch("/api/updatePlatter", {  // Adjust to your correct API path
+      const response = await fetch("/api/updatePlatter", {
         method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          id: item._id,  // Ensure _id or id from props is passed correctly
-          ...formData,   // All form fields
-        }),
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: item._id, ...formData }),
       });
 
       const data = await response.json();
-      
-      if (!response.ok) {
-        console.error("Error details:", data);
-        throw new Error("Failed to update platter");
-      }
+      if (!response.ok) throw new Error("Failed to update platter");
 
-      // Handle the update success
       onUpdate();
       onClose();
     } catch (error) {
       console.error("Error updating platter:", error);
-      alert('There was an issue updating the platter. Please try again.');
+      alert("There was an issue updating the platter. Please try again.");
     } finally {
-      setLoading(false); // End loading state
+      setLoading(false);
     }
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-      <div className="bg-white p-6 rounded-lg shadow-lg max-w-4xl w-full">
-        {/* Render Preloader if loading */}
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50 ">
+      <div className="bg-white dark:bg-gray-900 p-8 rounded-2xl shadow-2xl max-w-5xl w-full max-h-[600px] overflow-y-auto">
         {loading && <Preloader />}
-        
-        <h2 className="text-xl font-semibold mb-4 text-gray-800">Edit Platter</h2>
+        <h2 className="text-2xl font-bold mb-6 text-gray-800 dark:text-white text-center">
+          Edit Platter
+        </h2>
+
         <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          {/* Form Content */}
           {/* Left Column */}
           <div className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700">Title</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                Title
+              </label>
               <input
                 type="text"
                 name="title"
                 value={formData.title}
                 onChange={handleChange}
-                className="w-full border border-gray-300 rounded-md shadow-sm px-4 py-2"
+                className="w-full border border-gray-300 dark:border-gray-700 rounded-lg px-4 py-2 focus:ring-2 focus:ring-[#741052] focus:outline-none"
               />
             </div>
+
             <div>
-              <label className="block text-sm font-medium text-gray-700">Description</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                Description
+              </label>
               <textarea
                 name="description"
                 value={formData.description}
                 onChange={handleChange}
-                className="w-full border border-gray-300 rounded-md shadow-sm px-4 py-2"
+                className="w-full border border-gray-300 dark:border-gray-700 rounded-lg px-4 py-2 focus:ring-2 focus:ring-[#741052] focus:outline-none"
               />
             </div>
+
             <div>
-              <label className="block text-sm font-medium text-gray-700">Price</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                Price
+              </label>
               <input
                 type="number"
                 name="basePrice"
                 value={formData.basePrice}
                 onChange={handleChange}
-                className="w-full border border-gray-300 rounded-md shadow-sm px-4 py-2"
+                className="w-full border border-gray-300 dark:border-gray-700 rounded-lg px-4 py-2 focus:ring-2 focus:ring-[#741052] focus:outline-none"
               />
             </div>
+
             <div>
-              <label className="block text-sm font-medium text-gray-700">Category</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                Category
+              </label>
               <input
                 type="text"
                 name="platterCategory"
                 value={formData.platterCategory}
                 onChange={handleChange}
-                className="w-full border border-gray-300 rounded-md shadow-sm px-4 py-2"
+                className="w-full border border-gray-300 dark:border-gray-700 rounded-lg px-4 py-2 focus:ring-2 focus:ring-[#741052] focus:outline-none"
               />
             </div>
+
             <div>
-              <label className="block text-sm font-medium text-gray-700">Image</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                Image
+              </label>
               <input
                 type="file"
                 accept="image/*"
                 onChange={handleImageUpload}
-                className="w-full border border-gray-300 rounded-md shadow-sm px-4 py-2"
+                className="w-full border border-gray-300 dark:border-gray-700 rounded-lg px-4 py-2 focus:ring-2 focus:ring-[#741052] focus:outline-none"
               />
             </div>
+
             <div>
-              <label className="block text-sm font-medium text-gray-700">Status</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                Status
+              </label>
               <select
                 name="status"
                 value={formData.status}
                 onChange={handleChange}
-                className="w-full border border-gray-300 rounded-md shadow-sm px-4 py-2"
+                className="w-full border border-gray-300 dark:border-gray-700 rounded-lg px-4 py-2 focus:ring-2 focus:ring-[#741052] focus:outline-none"
               >
                 <option value="in stock">In Stock</option>
                 <option value="out of stock">Out of Stock</option>
@@ -243,11 +243,13 @@ const EditPlatterForm: React.FC<EditPlatterFormProps> = ({ item, onClose, onUpda
           </div>
 
           {/* Right Column */}
-          <div className="space-y-4">
-            <label className="block text-sm font-medium text-gray-700">Additional Choices</label>
-            {formData.additionalChoices.map((choice, index) => (
-              <div key={index} className="mb-2">
-                <div>
+          <div className="space-y-6">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                Additional Choices
+              </label>
+              {formData.additionalChoices.map((choice, index) => (
+                <div key={index} className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg shadow-sm mb-4">
                   <input
                     type="text"
                     value={choice.heading}
@@ -255,35 +257,39 @@ const EditPlatterForm: React.FC<EditPlatterFormProps> = ({ item, onClose, onUpda
                       handleAdditionalChoiceChange(index, "heading", e.target.value)
                     }
                     placeholder="Choice Heading"
-                    className="w-full border border-gray-300 rounded-md shadow-sm px-4 py-2 mb-2"
+                    className="w-full border border-gray-300 dark:border-gray-700 rounded-lg px-4 py-2 mb-2 focus:ring-2 focus:ring-[#741052] focus:outline-none"
                   />
-                </div>
-                {choice.options.map((option, i) => (
-                  <div key={i} className="flex items-center gap-4 mb-2">
+                  {choice.options.map((option, i) => (
                     <input
+                      key={i}
                       type="text"
                       value={option.name}
                       onChange={(e) =>
                         handleAdditionalChoiceChange(index, "name", e.target.value, i)
                       }
                       placeholder="Option Name"
-                      className="flex-1 border border-gray-300 rounded-md shadow-sm px-4 py-2"
+                      className="w-full border border-gray-300 dark:border-gray-700 rounded-lg px-4 py-2 mb-2 focus:ring-2 focus:ring-[#741052] focus:outline-none"
                     />
-                  </div>
-                ))}
-              </div>
-            ))}
-            <button
-              type="button"
-              onClick={addChoice}
-              className="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600"
-            >
-              Add Choice
-            </button>
-            <div className="space-y-4 mt-6">
-              <label className="block text-sm font-medium text-gray-700">Categories</label>
+                  ))}
+                </div>
+              ))}
+              <button
+                type="button"
+                onClick={addChoice}
+                className="w-full px-4 py-2 rounded-lg shadow text-white font-semibold
+                           bg-gradient-to-r from-[#741052] to-pink-600 
+                           hover:opacity-90 transition-all duration-200"
+              >
+                + Add Choice
+              </button>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                Categories
+              </label>
               {formData.categories.map((category, categoryIndex) => (
-                <div key={categoryIndex} className="mb-2">
+                <div key={categoryIndex} className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg shadow-sm mb-4">
                   <input
                     type="text"
                     value={category.categoryName}
@@ -291,46 +297,54 @@ const EditPlatterForm: React.FC<EditPlatterFormProps> = ({ item, onClose, onUpda
                       handleCategoryChange(categoryIndex, "categoryName", e.target.value)
                     }
                     placeholder="Category Name"
-                    className="w-full border border-gray-300 rounded-md shadow-sm px-4 py-2 mb-2"
+                    className="w-full border border-gray-300 dark:border-gray-700 rounded-lg px-4 py-2 mb-2 focus:ring-2 focus:ring-[#741052] focus:outline-none"
                   />
                   {category.options.map((option, optionIndex) => (
-                    <div key={optionIndex} className="flex items-center gap-4 mb-2">
-                      <input
-                        type="text"
-                        value={option.name}
-                        onChange={(e) =>
-                          handleCategoryOptionChange(categoryIndex, optionIndex, e.target.value)
-                        }
-                        placeholder="Option Name"
-                        className="flex-1 border border-gray-300 rounded-md shadow-sm px-4 py-2"
-                      />
-                    </div>
+                    <input
+                      key={optionIndex}
+                      type="text"
+                      value={option.name}
+                      onChange={(e) =>
+                        handleCategoryOptionChange(categoryIndex, optionIndex, e.target.value)
+                      }
+                      placeholder="Option Name"
+                      className="w-full border border-gray-300 dark:border-gray-700 rounded-lg px-4 py-2 mb-2 focus:ring-2 focus:ring-[#741052] focus:outline-none"
+                    />
                   ))}
                 </div>
               ))}
               <button
                 type="button"
                 onClick={addCategory}
-                className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600"
+                className="w-full px-4 py-2 rounded-lg shadow text-white font-semibold
+                           bg-gradient-to-r from-[#741052] to-pink-600 
+                           hover:opacity-90 transition-all duration-200"
               >
-                Add Category
+                + Add Category
               </button>
             </div>
           </div>
-          <div className="col-span-2 text-center mt-6 flex justify-center gap-4">
+
+          {/* Actions */}
+          <div className="col-span-2 flex justify-end gap-4 mt-6">
             <button
               type="button"
               onClick={onClose}
-              className="bg-gray-500 text-white px-6 py-3 rounded-md hover:bg-gray-600"
+              className="px-6 py-3 rounded-lg shadow text-white font-semibold
+                         bg-gradient-to-r from-[#741052] to-pink-600 
+                         hover:opacity-90 transition-all duration-200"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={loading}
-              className="bg-blue-500 text-white px-6 py-3 rounded-md hover:bg-blue-600 disabled:bg-gray-400"
+              className={`px-6 py-3 rounded-lg shadow text-white font-semibold
+                          bg-gradient-to-r from-[#741052] to-pink-600 
+                          hover:opacity-90 transition-all duration-200
+                          ${loading ? "opacity-50 cursor-not-allowed" : ""}`}
             >
-              {loading ? "Updating..." : "Update"}
+              {loading ? "⏳ Updating..." : "Update"}
             </button>
           </div>
         </form>

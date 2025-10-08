@@ -1,33 +1,61 @@
 'use client';
 
 import { FC, useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Skeleton } from "@/components/ui/skeleton";
 
-// Define interfaces for the data structures
+import {
+  LineChart,
+  Line,
+  CartesianGrid,
+  XAxis,
+  YAxis,
+  Tooltip,
+  ResponsiveContainer,
+  BarChart,
+  Bar,
+  PieChart,
+  Pie,
+  Cell,
+} from "recharts";
+
+// Interfaces
 interface TableAnalytics {
   tableNumber: string;
   orderCount: number;
   totalRevenue: number;
 }
-
 interface AnalyticsData {
   totalRevenueCombined: number;
   tableAnalytics: TableAnalytics[];
 }
-
 interface TableDetail {
   itemName: string;
   totalQuantity: number;
 }
+
+const COLORS = ["#741052", "#d0269b", "#1f1f1f", "#f9f9f9"];
 
 const AnalyticsPage: FC = () => {
   const [analyticsData, setAnalyticsData] = useState<AnalyticsData | null>(null);
   const [filter, setFilter] = useState<string>("today");
   const [startDate, setStartDate] = useState<string>("");
   const [endDate, setEndDate] = useState<string>("");
-  const [tableDetails, setTableDetails] = useState<TableDetail[] | null>(null); // State for table details
+  const [tableDetails, setTableDetails] = useState<TableDetail[] | null>(null);
+  const [loading, setLoading] = useState(true);
 
-  // Fetch analytics data based on the selected filter and optional date range
+  // Fetch analytics
   const fetchAnalytics = async (filter: string, startDate?: string, endDate?: string) => {
+    setLoading(true);
     try {
       const query = new URLSearchParams();
       query.append("filter", filter);
@@ -35,148 +63,264 @@ const AnalyticsPage: FC = () => {
         query.append("startDate", startDate);
         query.append("endDate", endDate);
       }
-
-      const response = await fetch(`/api/analytics?${query.toString()}`);
-      const data = await response.json();
+      const res = await fetch(`/api/analytics?${query.toString()}`);
+      const data = await res.json();
       setAnalyticsData(data);
-    } catch (error) {
-      console.error("Failed to fetch analytics", error);
+    } catch (err) {
+      console.error("Failed to fetch analytics", err);
+    } finally {
+      setLoading(false);
     }
   };
 
-  // Fetch details for a specific table
   const fetchTableDetails = async (tableNumber: string) => {
     try {
-      const response = await fetch(`/api/analytics/details?tableNumber=${tableNumber}`);
-      const data = await response.json();
+      const res = await fetch(`/api/analytics/details?tableNumber=${tableNumber}`);
+      const data = await res.json();
       setTableDetails(data);
-    } catch (error) {
-      console.error("Failed to fetch table details", error);
+    } catch (err) {
+      console.error("Failed to fetch details", err);
     }
   };
 
-  // Fetch data whenever filter or dates change
   useEffect(() => {
     fetchAnalytics(filter, startDate, endDate);
   }, [filter, startDate, endDate]);
 
-  // Handle custom date filter
-  const handleCustomDateFilter = () => {
+  const handleCustomDate = () => {
     if (startDate && endDate) {
       setFilter("custom");
       fetchAnalytics("custom", startDate, endDate);
     }
   };
 
-  // Handle table click to fetch specific table details
-  const handleTableClick = (tableNumber: string) => {
-    fetchTableDetails(tableNumber);
-  };
-
-  // Display loading state if analytics data is not available
-  if (!analyticsData) return <div>Loading...</div>;
-
   return (
-    <div className="max-w-screen-lg mx-auto px-4 py-8">
-      <h1 className="text-3xl font-semibold mb-8 text-center text-gray-800">Analytics</h1>
+    <div className="p-6 space-y-6 bg-[#f9f9f9] max-h-[500px] overflow-y-auto">
+      {/* Header */}
+      <h1 className="text-3xl font-bold text-[#1f1f1f] text-center">Analytics Dashboard</h1>
 
-      {/* Filter Buttons */}
-      <div className="flex justify-center gap-6 mb-8">
+      {/* Filters */}
+      <div className="flex flex-wrap justify-center gap-3">
         {["today", "week", "last-week", "month", "last-month"].map((item) => (
-          <button
+          <Button
             key={item}
             onClick={() => setFilter(item)}
-            className={`px-6 py-3 rounded-lg text-white font-semibold transition-all duration-300 
-            ${filter === item ? "bg-[#741052] shadow-lg" : "bg-gray-500 hover:bg-[#741052]"}`}
+            className={`${
+              filter === item
+                ? "bg-[#741052] hover:bg-[#d0269b] text-white"
+                : "bg-gray-200 text-[#1f1f1f] hover:bg-gray-300"
+            }`}
           >
-            {item === "last-week" ? "Last Week" : item === "last-month" ? "Last Month" : item[0].toUpperCase() + item.slice(1)}
-          </button>
+            {item === "last-week" ? "Last Week" : item === "last-month" ? "Last Month" : item.charAt(0).toUpperCase() + item.slice(1)}
+          </Button>
         ))}
       </div>
 
-      {/* Custom Date Filter */}
-      <div className="mb-8 text-center">
-        <h3 className="text-lg font-semibold text-gray-700 mb-4">Custom Date Range</h3>
-        <div className="flex justify-center gap-6">
-          <input
-            type="date"
-            value={startDate}
-            onChange={(e) => setStartDate(e.target.value)}
-            className="px-4 py-2 border rounded-lg text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#741052] shadow-md transition-all duration-300 border-[#741052]"
-          />
-          <span className="text-2xl font-bold text-gray-600">to</span>
-          <input
-            type="date"
-            value={endDate}
-            onChange={(e) => setEndDate(e.target.value)}
-            className="px-4 py-2 border rounded-lg text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#741052] shadow-md transition-all duration-300 border-[#741052]"
-          />
-          <button
-            onClick={handleCustomDateFilter}
-            className="px-6 py-3 rounded-lg bg-[#741052] text-white font-semibold transition-all duration-300 hover:bg-[#741052]/90"
-          >
+      {/* Custom Date Range */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Date Range</CardTitle>
+        </CardHeader>
+        <CardContent className="flex flex-wrap gap-4 items-center">
+          <Input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} />
+          <span className="font-semibold">to</span>
+          <Input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} />
+          <Button className="bg-[#741052] hover:bg-[#d0269b] text-white" onClick={handleCustomDate}>
             Apply
-          </button>
-        </div>
+          </Button>
+        </CardContent>
+      </Card>
+
+      {/* Metrics */}
+      <div className="grid md:grid-cols-3 gap-6">
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
+          <Card>
+            <CardHeader>
+              <CardTitle>Total Revenue</CardTitle>
+            </CardHeader>
+            <CardContent>
+              {loading ? (
+                <Skeleton className="h-8 w-32" />
+              ) : (
+                <p className="text-2xl font-bold text-[#741052]">
+                  Rs. {analyticsData?.totalRevenueCombined.toFixed(2)}
+                </p>
+              )}
+            </CardContent>
+          </Card>
+        </motion.div>
+
+        {/* Example: add more metric cards */}
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
+          <Card>
+            <CardHeader>
+              <CardTitle>Orders</CardTitle>
+            </CardHeader>
+            <CardContent>
+              {loading ? (
+                <Skeleton className="h-8 w-20" />
+              ) : (
+                <p className="text-2xl font-bold text-[#741052]">
+                  {analyticsData?.tableAnalytics.reduce((acc, t) => acc + t.orderCount, 0)}
+                </p>
+              )}
+            </CardContent>
+          </Card>
+        </motion.div>
       </div>
 
-      {/* Total Revenue and Table Analytics */}
-      <div className="mb-6">
-        <h2 className="text-xl font-semibold text-gray-800 text-center mb-6">
-          Total Revenue: <span className="text-[#741052]">Rs. {analyticsData.totalRevenueCombined.toFixed(2)}</span>
-        </h2>
+      {/* Charts */}
+      <div className="grid md:grid-cols-2 gap-6">
+        <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }}>
+          <Card>
+            <CardHeader>
+              <CardTitle>Revenue Trends</CardTitle>
+            </CardHeader>
+            <CardContent className="h-64">
+              {loading ? (
+                <Skeleton className="h-full w-full" />
+              ) : (
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart data={analyticsData?.tableAnalytics}>
+                    <Line type="monotone" dataKey="totalRevenue" stroke="#741052" strokeWidth={3} />
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="tableNumber" />
+                    <YAxis />
+                    <Tooltip />
+                  </LineChart>
+                </ResponsiveContainer>
+              )}
+            </CardContent>
+          </Card>
+        </motion.div>
 
-        <h3 className="text-lg font-semibold text-gray-700 text-center mb-4">Orders by Table</h3>
-        <div className="overflow-x-auto rounded-lg shadow-lg bg-white p-4">
-          <table className="min-w-full text-left table-auto">
-            <thead className="bg-gray-100">
-              <tr>
-                <th className="px-6 py-3 text-sm font-medium text-gray-600">Table Number</th>
-                <th className="px-6 py-3 text-sm font-medium text-gray-600">Order Count</th>
-                <th className="px-6 py-3 text-sm font-medium text-gray-600">Total Revenue</th>
-              </tr>
-            </thead>
-            <tbody>
-              {analyticsData.tableAnalytics.map((item: TableAnalytics) => (
-                <tr
-                  key={item.tableNumber}
-                  className="hover:bg-gray-50 cursor-pointer transition-all duration-200"
-                  onClick={() => handleTableClick(item.tableNumber)}
-                >
-                  <td className="px-6 py-4 text-sm text-gray-700">{item.tableNumber}</td>
-                  <td className="px-6 py-4 text-sm text-gray-700">{item.orderCount}</td>
-                  <td className="px-6 py-4 text-sm text-gray-700">Rs. {item.totalRevenue.toFixed(2)}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+        <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }}>
+          <Card>
+            <CardHeader>
+              <CardTitle>Orders by Table</CardTitle>
+            </CardHeader>
+            <CardContent className="h-64">
+              {loading ? (
+                <Skeleton className="h-full w-full" />
+              ) : (
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={analyticsData?.tableAnalytics}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="tableNumber" />
+                    <YAxis />
+                    <Tooltip />
+                    <Bar dataKey="orderCount" fill="#d0269b" />
+                  </BarChart>
+                </ResponsiveContainer>
+              )}
+            </CardContent>
+          </Card>
+        </motion.div>
       </div>
 
-      {/* Display table details when clicked */}
-      {tableDetails && (
-        <div className="mt-8">
-          <h3 className="text-lg font-semibold text-gray-700 mb-4">Table Details</h3>
-          <div className="overflow-x-auto rounded-lg shadow-lg bg-white p-4">
-            <table className="min-w-full text-left table-auto">
-              <thead className="bg-gray-100">
-                <tr>
-                  <th className="px-6 py-3 text-sm font-medium text-gray-600">Item Name</th>
-                  <th className="px-6 py-3 text-sm font-medium text-gray-600">Quantity Ordered</th>
-                </tr>
-              </thead>
-              <tbody>
-                {tableDetails.map((item: TableDetail) => (
-                  <tr key={item.itemName} className="hover:bg-gray-50">
-                    <td className="px-6 py-4 text-sm text-gray-700">{item.itemName}</td>
-                    <td className="px-6 py-4 text-sm text-gray-700">{item.totalQuantity}</td>
-                  </tr>
+      {/* Pie Chart */}
+      <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }}>
+        <Card>
+          <CardHeader>
+            <CardTitle>Revenue Share by Table</CardTitle>
+          </CardHeader>
+          <CardContent className="h-72">
+            {loading ? (
+              <Skeleton className="h-full w-full" />
+            ) : (
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie
+                    data={analyticsData?.tableAnalytics}
+                    dataKey="totalRevenue"
+                    nameKey="tableNumber"
+                    innerRadius={60}
+                    outerRadius={100}
+                    label
+                  >
+                    {analyticsData?.tableAnalytics.map((_, i) => (
+                      <Cell key={i} fill={COLORS[i % COLORS.length]} />
+                    ))}
+                  </Pie>
+                  <Tooltip />
+                </PieChart>
+              </ResponsiveContainer>
+            )}
+          </CardContent>
+        </Card>
+      </motion.div>
+
+      {/* Table Analytics with slide-in details */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Table Analytics</CardTitle>
+        </CardHeader>
+        <CardContent>
+          {loading ? (
+            <Skeleton className="h-40 w-full" />
+          ) : (
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Table</TableHead>
+                  <TableHead>Orders</TableHead>
+                  <TableHead>Revenue</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {analyticsData?.tableAnalytics.map((t) => (
+                  <TableRow
+                    key={t.tableNumber}
+                    className="cursor-pointer hover:bg-gray-100"
+                    onClick={() => fetchTableDetails(t.tableNumber)}
+                  >
+                    <TableCell>{t.tableNumber}</TableCell>
+                    <TableCell>{t.orderCount}</TableCell>
+                    <TableCell>Rs. {t.totalRevenue.toFixed(2)}</TableCell>
+                  </TableRow>
                 ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      )}
+              </TableBody>
+            </Table>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Slide-in panel */}
+      <AnimatePresence>
+        {tableDetails && (
+          <motion.div
+            initial={{ x: "100%" }}
+            animate={{ x: 0 }}
+            exit={{ x: "100%" }}
+            transition={{ duration: 0.3 }}
+            className="fixed top-0 right-0 w-full sm:w-1/3 h-full bg-white shadow-lg p-6 overflow-y-auto z-50"
+          >
+            <h2 className="text-xl font-bold text-[#741052] mb-4">Table Details</h2>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Item</TableHead>
+                  <TableHead>Quantity</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {tableDetails.map((d) => (
+                  <TableRow key={d.itemName}>
+                    <TableCell>{d.itemName}</TableCell>
+                    <TableCell>{d.totalQuantity}</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+            <Button
+              className="mt-6 bg-[#741052] hover:bg-[#d0269b] text-white"
+              onClick={() => setTableDetails(null)}
+            >
+              Close
+            </Button>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };

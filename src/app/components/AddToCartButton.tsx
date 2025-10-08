@@ -41,7 +41,10 @@ const AddToCartButton: FC<AddToCartButtonProps> = ({
   return (
     <button
       onClick={handleAddToCart}
-      className={`bg-[#741052] rounded-[5px] px-4 py-1 mt-4 ${className} ${disabled ? "bg-gray-400 cursor-not-allowed" : ""}`} // Apply disabled styles
+        className={`relative overflow-hidden rounded-full px-6 py-2 mt-4 transition-all duration-300 ease-in-out 
+    ${disabled ? "bg-gray-400 cursor-not-allowed" : "bg-gradient-to-r from-[#5c0d40] to-[#8a1c5a] hover:scale-105 hover:shadow-lg"} 
+    ${className}`}
+ // Apply disabled styles
       disabled={disabled} // Disable the button if `disabled` is true
     >
       <div className="flex items-center gap-2 mx-auto">

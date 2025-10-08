@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-unused-vars */
+
 'use client';
 
 import { useState, useEffect, useRef } from "react";
@@ -62,7 +64,7 @@ const defaultMenuCategoryOrder = [
 
 export default function MenuPage() {
   const [menu, setMenu] = useState<{ [key: string]: MenuItemData[] }>({});
-  const [platters, setPlatters] = useState<{ [key: string]: Platter[] }>({});  // State for platters grouped by category
+  const [platters, setPlatters] = useState<{ [key: string]: Platter[] }>({});  
   const [loading, setLoading] = useState<boolean>(false);
   const [page, setPage] = useState<{ [key: string]: number }>({});
   const [hasMore, setHasMore] = useState<{ [key: string]: boolean }>({});
@@ -137,7 +139,7 @@ export default function MenuPage() {
     };
   
     const fetchData = async () => {
-      await fetchPlatters(); // Fetch platters first
+      await fetchPlatters(); 
   
       // Then fetch menu items by category
       for (const category of menuCategoryOrder) {
@@ -145,7 +147,7 @@ export default function MenuPage() {
       }
     };
   
-    fetchData(); // Start fetching data
+    fetchData(); 
   }, [menuCategoryOrder, platterCategoryOrder]);
   
 
@@ -179,7 +181,7 @@ export default function MenuPage() {
           return (
             <div key={category} className="mt-8">
               <div className="w-full flex justify-center mb-4">
-                <h1 className="text-3xl font-semibold text-white bg-[#741052] py-3 px-6 rounded-lg shadow-md text-center">
+                <h1 className="text-3xl font-semibold text-white bg-gradient-to-r from-[#741052] to-[#d0269b] shadow-lg hover:shadow-pink-500/40 py-3 px-6 rounded-lg shadow-md text-center">
                   {category}
                 </h1>
               </div>

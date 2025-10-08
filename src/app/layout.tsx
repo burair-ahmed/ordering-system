@@ -2,9 +2,13 @@ import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
 import Header from "./components/Header";
-import { CartProvider } from "./context/CartContext";
 import { TableProvider } from "./context/TableContext";
+import { CartProvider } from "./context/CartContext";
+import { OrderProvider } from "./context/OrderContext";
 import Footer from "./components/Footer";
+// import { Toaster } from "@/components/ui/toaster"
+import { ThemeProvider } from "next-themes";
+import { Toaster } from "sonner";
 
 const poppins = localFont({
   src: [
@@ -42,16 +46,22 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body className={`${poppins.variable} antialiased`}>
-        <TableProvider>
-          <CartProvider>
-            <Header />
-            {children}
-            <Footer />
-          </CartProvider>
-        </TableProvider>
-      </body>
-    </html>
+   <html lang="en" suppressHydrationWarning>
+  <body className={`${poppins.variable} antialiased`}>
+    <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+      <TableProvider>
+        <CartProvider>
+        <OrderProvider>
+          <Header />
+          {children}
+          <Footer />
+        </OrderProvider>
+        </CartProvider>
+      </TableProvider>
+      <Toaster richColors/>
+    </ThemeProvider>
+  </body>
+</html>
+
   );
 }

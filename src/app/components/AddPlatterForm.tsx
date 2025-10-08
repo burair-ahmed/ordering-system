@@ -1,6 +1,11 @@
+/* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-unused-vars */
+
 'use client';
 
 import { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { toast } from "sonner";
+import { Plus, Trash, Upload } from "lucide-react";
 
 interface Category {
   categoryName: string;
@@ -17,17 +22,16 @@ const AddPlatterForm = () => {
   const [basePrice, setBasePrice] = useState<number>(0);
   const [image, setImage] = useState<string | null>(null);
   const [platterCategory, setPlatterCategory] = useState("");
-  const [categories, setCategories] = useState<Category[]>([
-    { categoryName: "" },
-  ]);
+  const [categories, setCategories] = useState<Category[]>([{ categoryName: "" }]);
   const [additionalChoices, setAdditionalChoices] = useState<AdditionalChoice[]>([
     { heading: "", options: [{ name: "" }] },
   ]);
 
+  // Category Handlers
   const handleCategoryChange = (index: number, value: string) => {
-    const updatedCategories = [...categories];
-    updatedCategories[index].categoryName = value;
-    setCategories(updatedCategories);
+    const updated = [...categories];
+    updated[index].categoryName = value;
+    setCategories(updated);
   };
 
   const handleAddCategory = () => {
@@ -35,38 +39,36 @@ const AddPlatterForm = () => {
   };
 
   const handleRemoveCategory = (index: number) => {
-    const updatedCategories = [...categories];
-    updatedCategories.splice(index, 1);
-    setCategories(updatedCategories);
+    setCategories(categories.filter((_, i) => i !== index));
   };
 
+  // Image Upload
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0] || null;
     if (file) {
       const reader = new FileReader();
-      reader.onloadend = () => {
-        setImage(reader.result as string);
-      };
+      reader.onloadend = () => setImage(reader.result as string);
       reader.readAsDataURL(file);
     }
   };
 
+  // Choices Handlers
   const handleChoiceHeadingChange = (index: number, value: string) => {
-    const updatedChoices = [...additionalChoices];
-    updatedChoices[index].heading = value;
-    setAdditionalChoices(updatedChoices);
+    const updated = [...additionalChoices];
+    updated[index].heading = value;
+    setAdditionalChoices(updated);
   };
 
-  const handleOptionNameChange = (choiceIndex: number, optionIndex: number, value: string) => {
-    const updatedChoices = [...additionalChoices];
-    updatedChoices[choiceIndex].options[optionIndex].name = value;
-    setAdditionalChoices(updatedChoices);
+  const handleOptionNameChange = (cIndex: number, oIndex: number, value: string) => {
+    const updated = [...additionalChoices];
+    updated[cIndex].options[oIndex].name = value;
+    setAdditionalChoices(updated);
   };
 
-  const handleAddOption = (choiceIndex: number) => {
-    const updatedChoices = [...additionalChoices];
-    updatedChoices[choiceIndex].options.push({ name: "" });
-    setAdditionalChoices(updatedChoices);
+  const handleAddOption = (cIndex: number) => {
+    const updated = [...additionalChoices];
+    updated[cIndex].options.push({ name: "" });
+    setAdditionalChoices(updated);
   };
 
   const handleAddChoice = () => {
@@ -74,17 +76,16 @@ const AddPlatterForm = () => {
   };
 
   const handleRemoveChoice = (index: number) => {
-    const updatedChoices = [...additionalChoices];
-    updatedChoices.splice(index, 1);
-    setAdditionalChoices(updatedChoices);
+    setAdditionalChoices(additionalChoices.filter((_, i) => i !== index));
   };
 
-  const handleRemoveOption = (choiceIndex: number, optionIndex: number) => {
-    const updatedChoices = [...additionalChoices];
-    updatedChoices[choiceIndex].options.splice(optionIndex, 1);
-    setAdditionalChoices(updatedChoices);
+  const handleRemoveOption = (cIndex: number, oIndex: number) => {
+    const updated = [...additionalChoices];
+    updated[cIndex].options.splice(oIndex, 1);
+    setAdditionalChoices(updated);
   };
 
+  // Submit
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -101,192 +102,211 @@ const AddPlatterForm = () => {
     try {
       const res = await fetch("/api/platter", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(platterData),
       });
 
       if (res.ok) {
-        alert("Platter added successfully!");
+        toast.success("✅ Platter added successfully!");
       } else {
-        alert("Failed to add platter.");
+        toast.error("❌ Failed to add platter.");
       }
     } catch (error) {
       console.error("Error adding platter:", error);
-      alert("Error adding platter.");
+      toast.error("⚠️ Error adding platter.");
     }
   };
 
   return (
-    <div className="max-w-2xl mx-auto p-6 border rounded-md shadow-lg">
-      <h2 className="text-2xl font-bold mb-4">Add New Platter</h2>
-      <form onSubmit={handleSubmit}>
-        <div className="mb-4">
-          <label htmlFor="title" className="block text-sm font-medium text-gray-700">
-            Title
-          </label>
-          <input
-            id="title"
-            type="text"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            className="mt-1 p-2 border rounded w-full"
-            required
-          />
-        </div>
+    <motion.div
+      initial={{ opacity: 0, y: 15 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="max-w-5xl mx-auto p-6 space-y-6 h-[550px] overflow-y-auto"
+    >
+      <h2 className="text-3xl font-bold text-gray-800">Add New Platter</h2>
 
-        <div className="mb-4">
-          <label htmlFor="description" className="block text-sm font-medium text-gray-700">
-            Description
-          </label>
-          <textarea
-            id="description"
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            className="mt-1 p-2 border rounded w-full"
-            required
-          />
-        </div>
-
-        <div className="mb-4">
-          <label htmlFor="basePrice" className="block text-sm font-medium text-gray-700">
-            Base Price (in Rs)
-          </label>
-          <input
-            id="basePrice"
-            type="number"
-            value={basePrice}
-            onChange={(e) => setBasePrice(parseFloat(e.target.value))}
-            className="mt-1 p-2 border rounded w-full"
-            required
-          />
-        </div>
-
-        <div className="mb-4">
-          <label htmlFor="image" className="block text-sm font-medium text-gray-700">
-            Image
-          </label>
-          <input
-            id="image"
-            type="file"
-            accept="image/*"
-            onChange={handleImageUpload}
-            className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-[#731351] hover:file:bg-blue-100"
-          />
-          {image && (
-            <div className="mt-2">
-              <img src={image} alt="Platter Preview" className="w-40 h-40 object-cover rounded" />
-            </div>
-          )}
-        </div>
-
-        <div className="mb-4">
-          <label htmlFor="platterCategory" className="block text-sm font-medium text-gray-700">
-            Platter Category
-          </label>
-          <input
-            id="platterCategory"
-            type="text"
-            value={platterCategory}
-            onChange={(e) => setPlatterCategory(e.target.value)}
-            placeholder="e.g., Sharing Platter, Chinese Platter"
-            className="mt-1 p-2 border rounded w-full"
-            required
-          />
-        </div>
-
-        <div className="mb-4">
-          <label className="block text-sm font-medium text-gray-700">Categories</label>
-          {categories.map((category, categoryIndex) => (
-            <div key={categoryIndex} className="mb-4">
-              <div className="flex gap-4">
-                <input
-                  type="text"
-                  value={category.categoryName}
-                  onChange={(e) => handleCategoryChange(categoryIndex, e.target.value)}
-                  placeholder="Category Name"
-                  className="p-2 border rounded w-full"
-                  required
-                />
-                <button
-                  type="button"
-                  onClick={() => handleRemoveCategory(categoryIndex)}
-                  className="p-2 bg-red-500 text-white rounded"
-                >
-                  Remove Category
-                </button>
-              </div>
-            </div>
-          ))}
-          <button
-            type="button"
-            onClick={handleAddCategory}
-            className="mt-2 p-2 bg-green-500 text-white rounded"
+      <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {/* Left Section */}
+        <div className="space-y-6">
+          {/* Basic Details */}
+          <motion.div
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="bg-white rounded-xl shadow p-5 border"
           >
-            Add Category
-          </button>
+            <h3 className="font-semibold text-lg mb-4">Basic Details</h3>
+            <input
+              type="text"
+              placeholder="Title"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              className="w-full p-3 mb-3 border rounded-lg bg-gray-50 focus:ring-2 focus:ring-[#741052]"
+              required
+            />
+            <textarea
+              placeholder="Description"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              className="w-full p-3 mb-3 border rounded-lg bg-gray-50 focus:ring-2 focus:ring-[#741052]"
+              required
+            />
+            <input
+              type="number"
+              placeholder="Base Price (Rs)"
+              value={basePrice}
+              onChange={(e) => setBasePrice(parseFloat(e.target.value))}
+              className="w-full p-3 border rounded-lg bg-gray-50 focus:ring-2 focus:ring-[#741052]"
+              required
+            />
+          </motion.div>
+
+          {/* Image Upload */}
+          <motion.div
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="bg-white rounded-xl shadow p-5 border"
+          >
+            <h3 className="font-semibold text-lg mb-4">Upload Image</h3>
+            <label
+              className="flex flex-col items-center justify-center w-full h-40 border-2 border-dashed rounded-xl cursor-pointer bg-gray-50 hover:bg-gray-100 transition"
+            >
+              <Upload className="h-8 w-8 text-gray-500 mb-2" />
+              <span className="text-sm text-gray-600">Drag & drop or click to upload</span>
+              <input type="file" accept="image/*" className="hidden" onChange={handleImageUpload} />
+            </label>
+            {image && (
+              <div className="mt-4">
+                <img src={image} alt="Preview" className="w-40 h-40 rounded-lg object-cover" />
+              </div>
+            )}
+          </motion.div>
         </div>
 
-        <div className="mb-4">
-          <label className="block text-sm font-medium text-gray-700">Additional Choices</label>
-          {additionalChoices.map((choice, index) => (
-            <div key={index} className="border p-4 mb-4 rounded">
-              <input
-                type="text"
-                value={choice.heading}
-                onChange={(e) => handleChoiceHeadingChange(index, e.target.value)}
-                placeholder="Choice Heading"
-                className="p-2 border rounded w-full mb-2"
-              />
-              <button
-                type="button"
-                onClick={() => handleRemoveChoice(index)}
-                className="mb-2 p-2 bg-red-500 text-white rounded"
-              >
-                Remove Heading
-              </button>
-              {choice.options.map((option, optIndex) => (
-                <div key={optIndex} className="flex gap-4 mb-2">
+        {/* Right Section */}
+        <div className="space-y-6">
+          {/* Categories */}
+          <motion.div
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="bg-white rounded-xl shadow p-5 border"
+          >
+            <h3 className="font-semibold text-lg mb-4">Categories</h3>
+            <AnimatePresence>
+              {categories.map((cat, index) => (
+                <motion.div
+                  key={index}
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: "auto" }}
+                  exit={{ opacity: 0, height: 0 }}
+                  className="flex items-center gap-3 mb-3"
+                >
                   <input
                     type="text"
-                    value={option.name}
-                    onChange={(e) => handleOptionNameChange(index, optIndex, e.target.value)}
-                    placeholder="Option Name"
-                    className="p-2 border rounded w-full"
+                    value={cat.categoryName}
+                    onChange={(e) => handleCategoryChange(index, e.target.value)}
+                    placeholder="Category Name"
+                    className="flex-1 p-3 border rounded-lg bg-gray-50 focus:ring-2 focus:ring-[#741052]"
                   />
                   <button
                     type="button"
-                    onClick={() => handleRemoveOption(index, optIndex)}
-                    className="p-2 bg-red-500 text-white rounded"
+                    onClick={() => handleRemoveCategory(index)}
+                    className="p-2 text-white bg-red-500 rounded-lg hover:bg-red-600 transition"
                   >
-                    Remove Option
+                    <Trash className="w-4 h-4" />
                   </button>
-                </div>
+                </motion.div>
               ))}
-              <button
-                type="button"
-                onClick={() => handleAddOption(index)}
-                className="mt-2 p-2 bg-blue-500 text-white rounded"
-              >
-                Add Option
-              </button>
-            </div>
-          ))}
-          <button
-            type="button"
-            onClick={handleAddChoice}
-            className="mt-2 p-2 bg-green-500 text-white rounded"
+            </AnimatePresence>
+            <button
+              type="button"
+              onClick={handleAddCategory}
+              className="flex items-center justify-center gap-2 w-full p-3 mt-2 rounded-lg text-white bg-gradient-to-r from-[#741052] to-[#d0269b] hover:opacity-90 transition"
+            >
+              <Plus className="w-4 h-4" /> Add Category
+            </button>
+          </motion.div>
+
+          {/* Additional Choices */}
+          <motion.div
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="bg-white rounded-xl shadow p-5 border"
           >
-            Add Choice
-          </button>
+            <h3 className="font-semibold text-lg mb-4">Additional Choices</h3>
+            <AnimatePresence>
+              {additionalChoices.map((choice, index) => (
+                <motion.div
+                  key={index}
+                  initial={{ opacity: 0, y: 15 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -15 }}
+                  className="border rounded-lg p-4 mb-4 bg-gray-50"
+                >
+                  <div className="flex items-center gap-3 mb-3">
+                    <input
+                      type="text"
+                      placeholder="Choice Heading"
+                      value={choice.heading}
+                      onChange={(e) => handleChoiceHeadingChange(index, e.target.value)}
+                      className="flex-1 p-3 border rounded-lg bg-white focus:ring-2 focus:ring-[#741052]"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => handleRemoveChoice(index)}
+                      className="p-2 text-white bg-red-500 rounded-lg hover:bg-red-600"
+                    >
+                      <Trash className="w-4 h-4" />
+                    </button>
+                  </div>
+                  {choice.options.map((opt, optIndex) => (
+                    <div key={optIndex} className="flex items-center gap-3 mb-2">
+                      <input
+                        type="text"
+                        value={opt.name}
+                        placeholder="Option Name"
+                        onChange={(e) => handleOptionNameChange(index, optIndex, e.target.value)}
+                        className="flex-1 p-3 border rounded-lg bg-white focus:ring-2 focus:ring-[#741052]"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveOption(index, optIndex)}
+                        className="p-2 text-white bg-red-500 rounded-lg hover:bg-red-600"
+                      >
+                        <Trash className="w-4 h-4" />
+                      </button>
+                    </div>
+                  ))}
+                  <button
+                    type="button"
+                    onClick={() => handleAddOption(index)}
+                    className="flex items-center justify-center gap-2 w-full p-2 mt-2 rounded-lg text-white bg-gradient-to-r from-[#741052] to-[#d0269b] hover:opacity-90 transition"
+                  >
+                    <Plus className="w-4 h-4" /> Add Option
+                  </button>
+                </motion.div>
+              ))}
+            </AnimatePresence>
+            <button
+              type="button"
+              onClick={handleAddChoice}
+              className="flex items-center justify-center gap-2 w-full p-3 mt-2 rounded-lg text-white bg-gradient-to-r from-[#741052] to-[#d0269b] hover:opacity-90 transition"
+            >
+              <Plus className="w-4 h-4" /> Add Choice
+            </button>
+          </motion.div>
         </div>
 
-        <button type="submit" className="mt-4 p-3 bg-blue-600 text-white rounded w-full">
-          Add Platter
-        </button>
+        {/* Submit Button */}
+        <div className="col-span-1 md:col-span-2">
+          <button
+            type="submit"
+            className="w-full p-4 font-semibold text-white rounded-xl bg-gradient-to-r from-[#741052] to-[#d0269b] shadow hover:opacity-90 transition"
+          >
+            Add Platter
+          </button>
+        </div>
       </form>
-    </div>
+    </motion.div>
   );
 };
 
