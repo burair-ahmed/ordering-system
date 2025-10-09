@@ -6,35 +6,28 @@ import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
 import CartSidebar from './CartSidebar';
 import { useCart } from '../context/CartContext';
+import { useOrder } from '../context/OrderContext'; 
 
 export default function Header() {
   const [isCartOpen, setIsCartOpen] = useState(false);
-  const [tableId, setTableId] = useState<string>('');
+  // const [tableId, setTableId] = useState<string>('');
   const [isClient, setIsClient] = useState(false);
   const { cartItems, totalAmount } = useCart();
+  const { orderType, tableId, area } = useOrder(); 
 
   useEffect(() => {
     setIsClient(true);
-    const urlParams = new URLSearchParams(window.location.search);
-    const tableIdFromUrl = urlParams.get('tableId');
-
-    if (tableIdFromUrl) {
-      setTableId(tableIdFromUrl);
-    } else {
-      const tableIdFromStorage = localStorage.getItem('tableId');
-      if (tableIdFromStorage) {
-        setTableId(tableIdFromStorage);
-      }
-    }
   }, []);
 
-  const toggleCartSidebar = () => {
-    if (tableId) {
-      setIsCartOpen((prevState) => !prevState);
+ const toggleCartSidebar = () => {
+    // Allow sidebar for any valid order type
+    if (orderType === 'dinein' || orderType === 'delivery' || orderType === 'pickup') {
+      setIsCartOpen((prev) => !prev);
     } else {
-      console.log('Table ID is missing');
+      console.warn('No valid order type found in context');
     }
   };
+
 
   if (!isClient) return null;
 
@@ -163,7 +156,7 @@ export default function Header() {
             />
 
             {/* Sidebar */}
-        <CartSidebar closeSidebar={toggleCartSidebar} tableId={tableId} />
+        <CartSidebar closeSidebar={toggleCartSidebar} tableId={tableId ?? ''} />
 
           </>
         )}
