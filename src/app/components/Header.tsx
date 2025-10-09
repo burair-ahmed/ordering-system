@@ -113,7 +113,7 @@ export default function Header() {
               className="relative p-3 rounded-full bg-white/20 hover:bg-white/30 transition"
               aria-label="Cart"
             >
-              <Image src="/cart-icon.png" alt="Cart" width={22} height={22} />
+              <Image src="/Cart-icon.png" alt="Cart" width={22} height={22} />
               {totalItems > 0 && (
                 <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
                   {totalItems}
