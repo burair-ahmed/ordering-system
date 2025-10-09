@@ -47,7 +47,7 @@ export default function Header() {
         <div
           className="hidden lg:block h-[80px] bg-repeat-x"
           style={{
-            backgroundImage: 'url(/group426.png)',
+            backgroundImage: 'url(/Group426.png)',
             backgroundSize: '360px 65px',
             backgroundPosition: 'center',
           }}
@@ -89,7 +89,7 @@ export default function Header() {
               className="relative flex items-center gap-2 px-5 py-2 rounded-full bg-white/20 hover:bg-white/30 text-white font-semibold text-sm transition shadow"
               aria-label="Cart"
             >
-              <Image src="/cart-icon.png" alt="Cart" width={20} height={20} />
+              <Image src="/Cart-icon.png" alt="Cart" width={20} height={20} />
               <span>Cart</span>
               {totalItems > 0 && (
                 <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center shadow">
