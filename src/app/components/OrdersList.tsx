@@ -1,26 +1,31 @@
-/* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-unused-vars, @typescript-eslint/no-unused-expressions */
-
+/* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-unused-vars */
 "use client";
 
 import { FC, useEffect, useRef, useState } from "react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select"; // shadcn/ui select
-import { Badge } from "@/components/ui/badge"; // shadcn/ui badge
+} from "@/components/ui/select";
+import { Badge } from "@/components/ui/badge";
 import {
   User,
   Mail,
   CreditCard,
   Utensils,
+  MapPin,
+  Tag,
   ChevronDown,
   ChevronUp,
+  Box,
 } from "lucide-react";
 import Preloader from "../components/Preloader";
+
+const BRAND_COLOR = "#741052";
+const BRAND_GRADIENT = "from-[#741052] via-fuchsia-600 to-pink-600";
 
 interface Item {
   id: string;
@@ -30,36 +35,54 @@ interface Item {
   variations?: { name: string; value: string }[] | string[];
 }
 
+export type OrderType = "dinein" | "pickup" | "delivery";
+
 interface Order {
   orderNumber: string;
   customerName: string;
   email: string;
-  tableNumber: string;
+  area?: string;
+  phone?: string;
+  tableNumber?: string;
+  ordertype: OrderType;
   status: string;
   paymentMethod: string;
   items: Item[];
   totalAmount: number;
+  createdAt: string;
 }
 
 const statusColors: Record<string, string> = {
-  Completed: "bg-green-100 text-green-700",
-  Pending: "bg-yellow-100 text-yellow-700",
-  "In Progress": "bg-orange-100 text-orange-700",
-  Cancelled: "bg-red-100 text-red-700",
+  Completed: "bg-green-100/80 text-green-800",
+  Pending: "bg-yellow-100/80 text-yellow-800",
+  "In Progress": "bg-orange-100/80 text-orange-800",
+  Cancelled: "bg-red-100/80 text-red-800",
+  Received: "bg-purple-100/80 text-purple-800",
+};
+
+const timeAgo = (dateStr: string) => {
+  const date = new Date(dateStr);
+  const seconds = Math.floor((Date.now() - date.getTime()) / 1000);
+  if (seconds < 60) return `${seconds}s ago`;
+  const minutes = Math.floor(seconds / 60);
+  if (minutes < 60) return `${minutes}m ago`;
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return `${hours}h ago`;
+  const days = Math.floor(hours / 24);
+  return `${days}d ago`;
 };
 
 const OrdersList: FC = () => {
   const [orders, setOrders] = useState<Order[]>([]);
   const [loadingOrders, setLoadingOrders] = useState<Set<string>>(new Set());
   const [expandedOrders, setExpandedOrders] = useState<Set<string>>(new Set());
-
   const audioContextRef = useRef<AudioContext | null>(null);
   const audioBufferRef = useRef<AudioBuffer | null>(null);
   const previousOrdersRef = useRef<Order[]>([]);
   const [audioInitialized, setAudioInitialized] = useState(false);
   const [checkboxChecked, setCheckboxChecked] = useState(false);
 
-  // ✅ Audio setup
+  // 🎵 Audio setup
   const initializeAudioContext = async () => {
     try {
       const audioContext = new AudioContext();
@@ -70,7 +93,7 @@ const OrdersList: FC = () => {
       audioBufferRef.current = audioBuffer;
       setAudioInitialized(true);
     } catch (error) {
-      console.error("Error initializing AudioContext:", error);
+      console.error("AudioContext error:", error);
     }
   };
 
@@ -83,7 +106,7 @@ const OrdersList: FC = () => {
     }
   };
 
-  // ✅ Fetch Orders
+  // 🔄 Fetch Orders
   const fetchOrders = async () => {
     try {
       const response = await fetch("/api/orders");
@@ -93,24 +116,22 @@ const OrdersList: FC = () => {
         const newOrders = data.orders || [];
         const previousOrders = previousOrdersRef.current;
 
-        // Detect new orders
-        if (
+        const isNewOrder =
           newOrders.length > previousOrders.length ||
           newOrders.some(
-            (order: Order) =>
+            (o: Order) =>
               !previousOrders.some(
-                (prevOrder) => prevOrder.orderNumber === order.orderNumber
+                (p) => p.orderNumber === o.orderNumber
               )
-          )
-        ) {
-          playNotificationSound();
-        }
+          );
 
-        setOrders(newOrders.filter((o: Order) => o.status !== "Completed"));
+        if (isNewOrder) playNotificationSound();
+
+        setOrders(newOrders);
         previousOrdersRef.current = newOrders;
       }
     } catch (error) {
-      console.error("Error fetching orders:", error);
+      console.error("Fetch orders error:", error);
     }
   };
 
@@ -119,204 +140,277 @@ const OrdersList: FC = () => {
     return () => clearInterval(interval);
   }, []);
 
-  // ✅ Update status
+  // 🔁 Update Status
   const updateOrderStatus = async (orderNumber: string, status: string) => {
     setLoadingOrders((prev) => new Set(prev.add(orderNumber)));
     try {
-      const response = await fetch("/api/updateorderstatus", {
+      await fetch("/api/updateorderstatus", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ orderNumber, status }),
       });
-
-      if (response.ok) {
-        fetchOrders();
-      }
-    } catch (error) {
-      console.error("Error updating order status:", error);
+      fetchOrders();
+    } catch (err) {
+      console.error(err);
     } finally {
       setLoadingOrders((prev) => {
-        const updated = new Set(prev);
-        updated.delete(orderNumber);
-        return updated;
+        const u = new Set(prev);
+        u.delete(orderNumber);
+        return u;
       });
     }
   };
 
-  // ✅ Toggle expand
-  const toggleExpand = (orderNumber: string) => {
-    setExpandedOrders((prev) => {
-      const updated = new Set(prev);
-      updated.has(orderNumber)
-        ? updated.delete(orderNumber)
-        : updated.add(orderNumber);
-      return updated;
-    });
-  };
+  // ⬇️ Toggle expand
+const toggleExpand = (orderNumber: string) => {
+  setExpandedOrders((prev) => {
+    const updated = new Set(prev);
+    if (updated.has(orderNumber)) {
+      updated.delete(orderNumber);
+    } else {
+      updated.add(orderNumber);
+    }
+    return updated;
+  });
+};
 
   return (
-    <div className="p-4">
-      {/* 🔔 Enable Sound Modal */}
+    <div className="p-6">
+      {/* 🔔 Enable Sound Dialog */}
       {!audioInitialized && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
-          <div className="bg-white/90 dark:bg-gray-900/90 p-8 rounded-2xl shadow-2xl max-w-md w-full text-center space-y-6">
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
-              🔔 Enable Notification Sound
-            </h2>
-            <p className="text-gray-600 dark:text-gray-400">
-              Allow sound alerts when new orders arrive.
-            </p>
-            <div className="flex items-center justify-center space-x-3">
-              <input
-                type="checkbox"
-                checked={checkboxChecked}
-                onChange={(e) => setCheckboxChecked(e.target.checked)}
-                className="w-5 h-5 accent-[#741052]"
-              />
-              <span className="text-gray-800 dark:text-gray-200">
-                I agree to enable notification sound
-              </span>
+        <div
+          role="dialog"
+          aria-modal="true"
+          className="fixed inset-0 z-50 flex items-end sm:items-center justify-center pointer-events-none"
+        >
+          <div className="w-full max-w-xl mx-4 pointer-events-auto">
+            <div className="bg-white/10 dark:bg-neutral-900/30 backdrop-blur-md rounded-2xl p-4 shadow-lg border border-white/6">
+              <div className="flex items-center gap-3">
+                <div
+                  className="w-12 h-12 rounded-lg flex items-center justify-center"
+                  style={{
+                    background: "linear-gradient(90deg,#74105222,#d0269b22)",
+                  }}
+                >
+                  <Box className="text-[#741052]" />
+                </div>
+                <div className="flex-1">
+                  <h3
+                    className="text-sm font-semibold"
+                    style={{ color: BRAND_COLOR }}
+                  >
+                    Enable Order Notifications
+                  </h3>
+                  <p className="text-xs text-black/70 dark:text-neutral-300">
+                    Allow short sounds when new orders arrive.
+                  </p>
+                </div>
+                <div className="flex items-center gap-2">
+                  <label className="inline-flex items-center gap-2 text-xs text-black dark:text-neutral-200">
+                    <input
+                      type="checkbox"
+                      checked={checkboxChecked}
+                      onChange={(e) => setCheckboxChecked(e.target.checked)}
+                      className="accent-[#741052]"
+                    />
+                    <span>Enable</span>
+                  </label>
+                  <button
+                    onClick={initializeAudioContext}
+                    disabled={!checkboxChecked}
+                    className={`inline-flex items-center gap-2 rounded-full px-3 py-2 text-xs font-medium shadow-sm transition ${
+                      checkboxChecked
+                        ? `bg-gradient-to-r ${BRAND_GRADIENT} text-white hover:scale-[1.02]`
+                        : "bg-white/10 text-black/40 cursor-not-allowed"
+                    }`}
+                  >
+                    Enable Sound
+                  </button>
+                </div>
+              </div>
             </div>
-            <button
-              onClick={initializeAudioContext}
-              disabled={!checkboxChecked}
-              className={`w-full px-6 py-3 rounded-xl font-semibold transition-all duration-200 ${
-                checkboxChecked
-                  ? "bg-gradient-to-r from-[#741052] to-pink-600 text-white hover:opacity-90 shadow-lg"
-                  : "bg-gray-300 text-gray-500 cursor-not-allowed"
-              }`}
-            >
-              Enable Sound
-            </button>
           </div>
         </div>
       )}
 
-      {/* ✅ Orders Grid */}
-      <div className="max-h-[500px] overflow-y-auto pr-2">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-4">
+      {/* 🧾 Orders Grid */}
+      <div className="max-h-[500px] overflow-y-auto pr-2 pb-2 pl-2 pt-2 mt-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {orders.length === 0 ? (
-            <p className="text-xl text-gray-600 text-center">No orders yet.</p>
-          ) : (
-            orders.map((order) => (
-              <motion.div
-                key={order.orderNumber}
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.3 }}
-                className="rounded-2xl border border-[#741052] bg-white dark:bg-neutral-900 shadow-md hover:shadow-xl hover:border-[#d0269b] hover:scale-[1.02] transition-all"
+            <div className="col-span-full flex flex-col items-center justify-center text-center py-12">
+              <div
+                className={`w-20 h-20 rounded-xl flex items-center justify-center bg-gradient-to-br ${BRAND_GRADIENT} text-white shadow-lg`}
               >
-                {/* Card Header */}
-                <div className="flex justify-between items-center p-4 border-b">
-                  <h2 className="text-xl font-bold text-[#741052]">
-                    Order #{order.orderNumber}
-                  </h2>
-                  <Badge
-                    className={`${statusColors[order.status]} rounded-full px-3 py-1 text-sm`}
-                  >
-                    {order.status}
-                  </Badge>
-                </div>
-
-                {/* Customer Info */}
-                <div className="grid grid-cols-2 gap-4 p-4 text-gray-700 dark:text-gray-300">
-                  <div>
-                    <p className="text-sm text-gray-500 flex items-center gap-1">
-                      <User size={14} /> Customer
-                    </p>
-                    <p className="font-medium">{order.customerName}</p>
-                    <p className="text-sm text-gray-500 flex items-center gap-1 mt-2">
-                      <Mail size={14} /> Email
-                    </p>
-                    <p className="font-medium">{order.email}</p>
+                <Tag size={36} />
+              </div>
+              <h3 className="mt-4 text-lg font-semibold text-black dark:text-neutral-200">
+                No new orders yet.
+              </h3>
+              <p className="text-sm text-black/70 dark:text-neutral-400">
+                Orders will appear here when received.
+              </p>
+            </div>
+          ) : (
+            <AnimatePresence>
+              {orders.map((order) => (
+                <motion.div
+                  key={order.orderNumber}
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ type: "spring", stiffness: 260, damping: 22 }}
+                  className="relative rounded-2xl border border-white/10 bg-white/10 dark:bg-neutral-900/30 backdrop-blur-md p-4 shadow-[0_8px_30px_rgba(116,16,82,0.1)] hover:scale-[1.02] transition-all"
+                >
+                  {/* Header */}
+                  <div className="flex justify-between items-start">
+                    <div>
+                      <h2
+                        className="text-base font-semibold"
+                        style={{ color: BRAND_COLOR }}
+                      >
+                        Order #{order.orderNumber}
+                      </h2>
+                      <p className="text-xs text-black/60 dark:text-neutral-400">
+                        {timeAgo(order.createdAt)}
+                      </p>
+                    </div>
+                    <Badge
+                      className={`${statusColors[order.status] || "bg-gray-100 text-gray-800"} rounded-full px-3 py-1 text-xs`}
+                    >
+                      {order.status}
+                    </Badge>
                   </div>
-                  <div>
-                    <p className="text-sm text-gray-500 flex items-center gap-1">
-                      <Utensils size={14} /> Table
-                    </p>
-                    <p className="font-medium">{order.tableNumber}</p>
-                    <p className="text-sm text-gray-500 flex items-center gap-1 mt-2">
-                      <CreditCard size={14} /> Payment
-                    </p>
-                    <p className="font-medium">{order.paymentMethod}</p>
-                  </div>
-                </div>
 
-                {/* Items Section */}
-                <div className="p-4 border-t">
-                  <button
-                    onClick={() => toggleExpand(order.orderNumber)}
-                    className="flex justify-between w-full items-center text-sm font-semibold text-[#741052] hover:text-[#d0269b]"
-                  >
-                    Items ({order.items.length})
-                    {expandedOrders.has(order.orderNumber) ? (
-                      <ChevronUp size={18} />
-                    ) : (
-                      <ChevronDown size={18} />
+                  {/* Customer Info */}
+                  <div className="mt-4 text-sm text-black dark:text-neutral-200 space-y-2">
+                    <div className="flex items-center gap-2">
+                      <User size={14} className="text-pink-500" />
+                      <span className="font-medium">{order.customerName}</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Mail size={14} className="text-pink-500" />
+                      <span>{order.email}</span>
+                    </div>
+
+                    {order.ordertype === "dinein" && order.tableNumber && (
+                      <div className="flex items-center gap-2">
+                        <Utensils size={14} className="text-pink-500" />
+                        <span>Table {order.tableNumber}</span>
+                      </div>
                     )}
-                  </button>
+                    {order.ordertype === "pickup" && (
+                      <div className="flex items-center gap-2">
+                        <Tag size={14} className="text-pink-500" />
+                        <span>Pickup Order</span>
+                      </div>
+                    )}
+                    {order.ordertype === "delivery" && (
+                      <div className="flex items-center gap-2">
+                        <MapPin size={14} className="text-pink-500" />
+                        <span>
+                          {order.area} — {order.phone}
+                        </span>
+                      </div>
+                    )}
+                    <div className="flex items-center gap-2">
+                      <CreditCard size={14} className="text-pink-500" />
+                      <span>{order.paymentMethod}</span>
+                    </div>
+                  </div>
 
-                  {expandedOrders.has(order.orderNumber) && (
-                    <div className="mt-3 space-y-2">
-                      {order.items.map((item, i) => (
-                        <div
-                          key={i}
-                          className="flex justify-between items-center bg-gray-100 dark:bg-gray-800 rounded-lg px-3 py-2"
+                  {/* Items */}
+                  <div className="mt-4 border-t border-white/10 pt-3">
+                    <button
+                      onClick={() => toggleExpand(order.orderNumber)}
+                      className="w-full flex justify-between items-center text-sm font-medium text-[#741052] hover:text-pink-600 transition"
+                    >
+                      Items ({order.items.length})
+                      {expandedOrders.has(order.orderNumber) ? (
+                        <ChevronUp size={16} />
+                      ) : (
+                        <ChevronDown size={16} />
+                      )}
+                    </button>
+
+                    <AnimatePresence>
+                      {expandedOrders.has(order.orderNumber) && (
+                        <motion.div
+                          initial={{ opacity: 0, height: 0 }}
+                          animate={{ opacity: 1, height: "auto" }}
+                          exit={{ opacity: 0, height: 0 }}
+                          transition={{ duration: 0.25 }}
+                          className="mt-3 space-y-2"
                         >
-                          <div>
-                            <p className="font-medium">
-                              {item.title} × {item.quantity}
-                            </p>
-                            {item.variations && (
-                              <div className="flex flex-wrap gap-2 mt-1">
-                                {item.variations.map((variation, idx) => (
-                                  <span
-                                    key={idx}
-                                    className="bg-[#d0269b] text-white text-xs px-2 py-1 rounded-full"
-                                  >
-                                    {typeof variation === "string"
-                                      ? variation
-                                      : `${variation.name}: ${variation.value}`}
-                                  </span>
-                                ))}
+                          {order.items.map((item) => (
+                            <div
+                              key={item.id}
+                              className="flex justify-between items-center bg-white/5 rounded-lg px-3 py-2"
+                            >
+                              <div>
+                                <p className="font-medium text-black dark:text-neutral-100">
+                                  {item.title} × {item.quantity}
+                                </p>
+                                {item.variations && (
+                                  <div className="flex flex-wrap gap-2 mt-1">
+                                    {item.variations.map((v, idx) => (
+                                      <span
+                                        key={idx}
+                                        className="text-xs px-2 py-1 rounded-full bg-gradient-to-r from-pink-500/20 to-fuchsia-600/20 text-pink-600"
+                                      >
+                                        {typeof v === "string"
+                                          ? v
+                                          : `${v.name}: ${v.value}`}
+                                      </span>
+                                    ))}
+                                  </div>
+                                )}
                               </div>
-                            )}
-                          </div>
-                          <p className="font-semibold text-[#741052]">
-                            Rs. {item.price * item.quantity}
-                          </p>
-                        </div>
-                      ))}
+                              <p
+                                className="font-semibold"
+                                style={{ color: BRAND_COLOR }}
+                              >
+                                Rs. {item.price * item.quantity}
+                              </p>
+                            </div>
+                          ))}
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </div>
+
+                  {/* Footer */}
+                  <div className="mt-4 flex justify-between items-center border-t border-white/10 pt-3">
+                    <p
+                      className="text-lg font-bold bg-clip-text text-transparent bg-gradient-to-r from-[#741052] to-pink-600"
+                    >
+                      Rs. {order.totalAmount}
+                    </p>
+                    <Select
+                      defaultValue={order.status}
+                      onValueChange={(val) =>
+                        updateOrderStatus(order.orderNumber, val)
+                      }
+                    >
+                      <SelectTrigger className="w-[160px] bg-white/5 border-white/10 text-black dark:text-neutral-100 focus:ring-[#741052]/30">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="Pending">Pending</SelectItem>
+                        <SelectItem value="In Progress">In Progress</SelectItem>
+                        <SelectItem value="Received">Received</SelectItem>
+                        <SelectItem value="Completed">Completed</SelectItem>
+                        <SelectItem value="Cancelled">Cancelled</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  {loadingOrders.has(order.orderNumber) && (
+                    <div className="absolute inset-0 bg-black/10 backdrop-blur-sm flex items-center justify-center rounded-2xl">
+                      <Preloader />
                     </div>
                   )}
-                </div>
-
-                {/* Footer */}
-                <div className="flex justify-between items-center p-4 border-t">
-                  <p className="text-lg font-bold text-[#741052]">
-                    Rs. {order.totalAmount}
-                  </p>
-                  <Select
-                    defaultValue={order.status}
-                    onValueChange={(val) =>
-                      updateOrderStatus(order.orderNumber, val)
-                    }
-                  >
-                    <SelectTrigger className="w-[160px] border-[#741052] focus:ring-[#741052]">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="Pending">Pending</SelectItem>
-                      <SelectItem value="In Progress">In Progress</SelectItem>
-                      <SelectItem value="Completed">Completed</SelectItem>
-                      <SelectItem value="Cancelled">Cancelled</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                {loadingOrders.has(order.orderNumber) && <Preloader />}
-              </motion.div>
-            ))
+                </motion.div>
+              ))}
+            </AnimatePresence>
           )}
         </div>
       </div>
