@@ -92,12 +92,12 @@ export default function Header() {
                 </span>
               )}
             </button>
-            <button
+            {/* <button
               className="p-3 rounded-full bg-black/40 hover:bg-black/60 transition shadow"
               aria-label="Menu"
             >
               <Image src="/sidebar.svg" alt="Menu" width={20} height={20} />
-            </button>
+            </button> */}
           </div>
         </div>
 

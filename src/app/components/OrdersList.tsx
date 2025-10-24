@@ -23,6 +23,8 @@ import {
   Box,
 } from "lucide-react";
 import Preloader from "../components/Preloader";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 
 const BRAND_COLOR = "#741052";
 const BRAND_GRADIENT = "from-[#741052] via-fuchsia-600 to-pink-600";
@@ -177,61 +179,58 @@ const toggleExpand = (orderNumber: string) => {
   return (
     <div className="p-6">
       {/* 🔔 Enable Sound Dialog */}
-      {!audioInitialized && (
-        <div
-          role="dialog"
-          aria-modal="true"
-          className="fixed inset-0 z-50 flex items-end sm:items-center justify-center pointer-events-none"
-        >
-          <div className="w-full max-w-xl mx-4 pointer-events-auto">
-            <div className="bg-white/10 dark:bg-neutral-900/30 backdrop-blur-md rounded-2xl p-4 shadow-lg border border-white/6">
-              <div className="flex items-center gap-3">
-                <div
-                  className="w-12 h-12 rounded-lg flex items-center justify-center"
-                  style={{
-                    background: "linear-gradient(90deg,#74105222,#d0269b22)",
-                  }}
-                >
-                  <Box className="text-[#741052]" />
-                </div>
-                <div className="flex-1">
-                  <h3
-                    className="text-sm font-semibold"
-                    style={{ color: BRAND_COLOR }}
-                  >
-                    Enable Order Notifications
-                  </h3>
-                  <p className="text-xs text-black/70 dark:text-neutral-300">
-                    Allow short sounds when new orders arrive.
-                  </p>
-                </div>
-                <div className="flex items-center gap-2">
-                  <label className="inline-flex items-center gap-2 text-xs text-black dark:text-neutral-200">
-                    <input
-                      type="checkbox"
-                      checked={checkboxChecked}
-                      onChange={(e) => setCheckboxChecked(e.target.checked)}
-                      className="accent-[#741052]"
-                    />
-                    <span>Enable</span>
-                  </label>
-                  <button
-                    onClick={initializeAudioContext}
-                    disabled={!checkboxChecked}
-                    className={`inline-flex items-center gap-2 rounded-full px-3 py-2 text-xs font-medium shadow-sm transition ${
-                      checkboxChecked
-                        ? `bg-gradient-to-r ${BRAND_GRADIENT} text-white hover:scale-[1.02]`
-                        : "bg-white/10 text-black/40 cursor-not-allowed"
-                    }`}
-                  >
-                    Enable Sound
-                  </button>
-                </div>
-              </div>
-            </div>
+{!audioInitialized && (
+  <motion.div
+    className="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-sm bg-black/40"
+    initial={{ opacity: 0 }}
+    animate={{ opacity: 1 }}
+    exit={{ opacity: 0 }}
+  >
+    <motion.div
+      className="w-full max-w-md"
+      initial={{ y: 30, opacity: 0 }}
+      animate={{ y: 0, opacity: 1 }}
+      exit={{ y: 20, opacity: 0 }}
+      transition={{ type: 'spring', stiffness: 160, damping: 16 }}
+    >
+      <Card className="border-0 shadow-2xl">
+        <CardHeader className="space-y-1 text-center">
+          <div className="mx-auto mb-2 flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-fuchsia-600 to-pink-600">
+            <Box className="h-6 w-6 text-white" />
           </div>
-        </div>
-      )}
+          <CardTitle className="text-xl">Enable Order Notifications</CardTitle>
+          <CardDescription>Allow short sounds when new orders arrive</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            <label className="flex items-center justify-between">
+              <span className="text-sm text-muted-foreground">Enable Sound Alerts</span>
+              <input
+                type="checkbox"
+                checked={checkboxChecked}
+                onChange={(e) => setCheckboxChecked(e.target.checked)}
+                className="accent-fuchsia-600 w-4 h-4"
+              />
+            </label>
+
+            <Button
+              onClick={initializeAudioContext}
+              disabled={!checkboxChecked}
+              className={`h-11 w-full ${
+                checkboxChecked
+                  ? 'bg-gradient-to-r from-fuchsia-600 to-pink-600 text-white hover:opacity-95'
+                  : 'bg-gray-200 text-gray-400 cursor-not-allowed'
+              }`}
+            >
+              Enable Sound
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+    </motion.div>
+  </motion.div>
+)}
+
 
       {/* 🧾 Orders Grid */}
       <div className="max-h-[500px] overflow-y-auto pr-2 pb-2 pl-2 pt-2 mt-4">

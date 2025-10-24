@@ -4,7 +4,18 @@
 
 import { FC, useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Search, User, Mail, CreditCard, Hash, Trash2, Download } from 'lucide-react';
+import {
+  Search,
+  User,
+  Mail,
+  CreditCard,
+  Hash,
+  Trash2,
+  Download,
+  MapPin,
+  Phone,
+  UtensilsCrossed,
+} from 'lucide-react';
 import Preloader from './Preloader';
 
 interface Item {
@@ -15,16 +26,21 @@ interface Item {
   variations?: { name: string; value: string }[] | string[];
 }
 
+export type OrderType = 'dinein' | 'pickup' | 'delivery';
+
 interface Order {
   orderNumber: string;
   customerName: string;
   email: string;
-  tableNumber: string;
+  area?: string;
+  phone?: string;
+  tableNumber?: string;
+  ordertype: OrderType;
   status: string;
   paymentMethod: string;
   items: Item[];
   totalAmount: number;
-  completedAt: string;
+  createdAt: string;
 }
 
 const CompletedOrders: FC = () => {
@@ -38,12 +54,16 @@ const CompletedOrders: FC = () => {
 
   useEffect(() => {
     const fetchCompletedOrders = async () => {
-      const response = await fetch('/api/fetchCompletedOrders');
-      const data = await response.json();
-      if (response.ok) {
-        setCompletedOrders(data.orders);
-      } else {
-        alert('Failed to fetch completed orders.');
+      try {
+        const response = await fetch('/api/fetchCompletedOrders');
+        const data = await response.json();
+        if (response.ok) {
+          setCompletedOrders(data.orders);
+        } else {
+          alert('Failed to fetch completed orders.');
+        }
+      } catch (error) {
+        console.error('Error fetching completed orders:', error);
       }
     };
     fetchCompletedOrders();
@@ -99,11 +119,24 @@ const CompletedOrders: FC = () => {
     Cancelled: 'bg-red-100 text-red-700',
   };
 
+  const formatOrderType = (type: OrderType) => {
+    switch (type) {
+      case 'dinein':
+        return 'Dine In';
+      case 'pickup':
+        return 'Pickup';
+      case 'delivery':
+        return 'Delivery';
+      default:
+        return 'N/A';
+    }
+  };
+
   return (
     <>
       {loading && <Preloader />}
 
-      {/* Confirmation Modal */}
+      {/* 🔒 Confirmation Modal */}
       <AnimatePresence>
         {showModal && (
           <motion.div
@@ -119,9 +152,7 @@ const CompletedOrders: FC = () => {
               exit={{ scale: 0.9, opacity: 0 }}
             >
               <h2 className="text-lg font-semibold mb-3 text-[#5c0d40]">Confirm Deletion</h2>
-              <p className="mb-4">
-                Are you sure you want to delete Order #{selectedOrder}?
-              </p>
+              <p className="mb-4">Are you sure you want to delete Order #{selectedOrder}?</p>
               <input
                 type="password"
                 value={password}
@@ -149,7 +180,7 @@ const CompletedOrders: FC = () => {
         )}
       </AnimatePresence>
 
-      {/* Orders Grid */}
+      {/* 📦 Orders Grid */}
       <div className="max-h-[60vh] overflow-y-auto px-2">
         {completedOrders.length === 0 ? (
           <p className="text-xl text-gray-600 text-center py-10">
@@ -162,9 +193,7 @@ const CompletedOrders: FC = () => {
             animate="visible"
             variants={{
               hidden: {},
-              visible: {
-                transition: { staggerChildren: 0.1 },
-              },
+              visible: { transition: { staggerChildren: 0.1 } },
             }}
           >
             {completedOrders.map((order) => (
@@ -177,21 +206,30 @@ const CompletedOrders: FC = () => {
                 }}
               >
                 {/* Header */}
-                <div className="flex justify-between items-start p-4 border-b border-gray-100 dark:border-neutral-700">
-                  <div>
-                    <h2 className="text-lg font-bold text-[#5c0d40]">
-                      Order #{order.orderNumber}
-                    </h2>
-                    <span
-                      className={`mt-1 inline-block px-2 py-0.5 text-xs font-medium rounded-full ${statusColors[order.status] || 'bg-gray-100 text-gray-700'}`}
-                    >
-                      {order.status}
-                    </span>
-                  </div>
-                  <p className="text-[#5c0d40] font-bold text-lg">
-                    Rs. {order.totalAmount}
-                  </p>
-                </div>
+    <div className="p-4 border-b border-gray-100 dark:border-neutral-700">
+  {/* Order Number on top */}
+  <h2 className="text-lg font-bold text-[#5c0d40] mb-3">
+    Order <span className="text-sm text-[#5c0d10]">#{order.orderNumber}</span>
+  </h2>
+
+  {/* Status and Price Row */}
+  <div className="flex justify-between items-center border-t border-gray-100 dark:border-neutral-700 pt-3">
+    <span
+      className={`inline-flex items-center justify-center px-2.5 py-1 text-xs font-medium rounded-full leading-none ${
+        statusColors[order.status] || "bg-gray-100 text-gray-700"
+      }`}
+      style={{ minHeight: "26px" }}
+    >
+      {order.status}
+    </span>
+
+    <p className="text-[#5c0d40] font-bold text-base leading-none pt-3">
+      Rs. {order.totalAmount}
+    </p>
+  </div>
+</div>
+
+
 
                 {/* Customer Info */}
                 <div className="grid grid-cols-2 gap-3 p-4 text-sm">
@@ -199,10 +237,24 @@ const CompletedOrders: FC = () => {
                     <User size={16} />
                     <span className="truncate">{order.customerName}</span>
                   </div>
-                  <div className="flex items-center gap-2 text-gray-700 dark:text-gray-300">
-                    <Hash size={16} />
-                    <span>Table {order.tableNumber}</span>
-                  </div>
+                  {order.tableNumber && (
+                    <div className="flex items-center gap-2 text-gray-700 dark:text-gray-300">
+                      <Hash size={16} />
+                      <span>Table {order.tableNumber}</span>
+                    </div>
+                  )}
+                  {order.area && (
+                    <div className="flex items-center gap-2 text-gray-700 dark:text-gray-300">
+                      <MapPin size={16} />
+                      <span>{order.area}</span>
+                    </div>
+                  )}
+                  {order.phone && (
+                    <div className="flex items-center gap-2 text-gray-700 dark:text-gray-300">
+                      <Phone size={16} />
+                      <span>{order.phone}</span>
+                    </div>
+                  )}
                   <div className="flex items-center gap-2 text-gray-700 dark:text-gray-300">
                     <Mail size={16} />
                     <span className="truncate">{order.email}</span>
@@ -211,9 +263,16 @@ const CompletedOrders: FC = () => {
                     <CreditCard size={16} />
                     <span>{order.paymentMethod}</span>
                   </div>
+                  <div className="flex items-center gap-2 text-gray-700 dark:text-gray-300 col-span-2">
+                    <UtensilsCrossed size={16} />
+                    <span>Order Type: {formatOrderType(order.ordertype)}</span>
+                  </div>
+                  <div className="text-xs text-gray-500 dark:text-gray-400 col-span-2">
+                    Placed on: {new Date(order.createdAt).toLocaleString()}
+                  </div>
                 </div>
 
-                {/* Collapsible Items */}
+                {/* Items Collapse */}
                 <div className="border-t border-gray-100 dark:border-neutral-700">
                   <button
                     onClick={() =>
@@ -267,7 +326,7 @@ const CompletedOrders: FC = () => {
                   </AnimatePresence>
                 </div>
 
-                {/* Footer Actions */}
+                {/* Footer */}
                 <div className="flex justify-between items-center gap-3 p-4 border-t border-gray-100 dark:border-neutral-700">
                   <button
                     onClick={() => handleDeleteOrder(order.orderNumber)}
