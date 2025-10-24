@@ -11,12 +11,10 @@ export default function OrderTypeModal() {
   const [selectedArea, setSelectedArea] = useState("");
   const [tableNumber, setTableNumber] = useState("");
   const router = useRouter();
-const { setOrder } = useOrder();
+  const { setOrder } = useOrder();
 
-  // Hardcoded delivery areas
   const deliveryAreas = ["DHA Phase 5", "Clifton", "PECHS", "Gulshan", "Nazimabad"];
 
-  // Generate table numbers (1–30 + OT-1–30)
   const generateTableOptions = () => {
     const tables: string[] = [];
     for (let i = 1; i <= 30; i++) {
@@ -26,32 +24,39 @@ const { setOrder } = useOrder();
     return tables;
   };
 
-const handleSubmit = (e: React.FormEvent) => {
-  e.preventDefault();
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
 
-  if (orderType === "delivery" && selectedArea) {
-    setOrder({ orderType: "delivery", area: selectedArea });
-    router.push(`/order?type=delivery&area=${encodeURIComponent(selectedArea)}`);
-  } else if (orderType === "pickup") {
-    setOrder({ orderType: "pickup" });
-    router.push(`/order?type=pickup`);
-  } else if (orderType === "dinein" && tableNumber) {
-    setOrder({ orderType: "dinein", tableId: tableNumber });
-    router.push(`/order?type=dinein&tableId=${encodeURIComponent(tableNumber)}`);
-  }
+    if (orderType === "delivery" && selectedArea) {
+      setOrder({ orderType: "delivery", area: selectedArea });
+      router.push(`/order?type=delivery&area=${encodeURIComponent(selectedArea)}`);
+    } else if (orderType === "pickup") {
+      setOrder({ orderType: "pickup" });
+      router.push(`/order?type=pickup`);
+    } else if (orderType === "dinein" && tableNumber) {
+      setOrder({ orderType: "dinein", tableId: tableNumber });
+      router.push(`/order?type=dinein&tableId=${encodeURIComponent(tableNumber)}`);
+    }
 
-  setIsOpen(false);
-};
-
+    setIsOpen(false);
+  };
 
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-2xl shadow-lg w-11/12 max-w-md p-6">
+    <div className="fixed inset-0 z-50 flex items-center justify-center">
+      {/* Deep blur background */}
+      <div
+        className="absolute inset-0 backdrop-blur-lg bg-black/30"
+        style={{
+          filter: "blur(6px)",
+        }}
+      ></div>
+
+      {/* Modal content */}
+      <div className="relative bg-white rounded-2xl shadow-2xl w-11/12 max-w-md p-6 z-10">
         <h2 className="text-xl font-bold text-center mb-4">Select your order type</h2>
 
-        {/* Order Type Buttons */}
         <div className="flex justify-center gap-4 mb-6">
           <button
             onClick={() => setOrderType("delivery")}
@@ -79,7 +84,6 @@ const handleSubmit = (e: React.FormEvent) => {
           </button>
         </div>
 
-        {/* Conditional Inputs */}
         <form onSubmit={handleSubmit} className="flex flex-col items-center space-y-4">
           {orderType === "delivery" && (
             <select
@@ -109,7 +113,6 @@ const handleSubmit = (e: React.FormEvent) => {
             </select>
           )}
 
-          {/* Submit */}
           {orderType && (
             <button
               type="submit"

@@ -177,8 +177,8 @@ const PlatterItem: FC<PlatterItemProps> = ({ platter }) => {
       {/* Modal */}
       <AnimatePresence>
         {showModal && (
-          <motion.div
-            className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50"
+<motion.div
+  className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4 sm:p-6 overflow-hidden"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -188,8 +188,8 @@ const PlatterItem: FC<PlatterItemProps> = ({ platter }) => {
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.9, opacity: 0 }}
               transition={{ type: "spring", stiffness: 200, damping: 20 }}
-              className="relative bg-white/90 dark:bg-neutral-900/90 backdrop-blur-xl 
-              rounded-2xl p-6 max-w-4xl w-full flex flex-col lg:flex-row shadow-2xl"
+className="relative bg-white/90 dark:bg-neutral-900/90 backdrop-blur-xl 
+rounded-2xl p-4 sm:p-6 max-w-4xl w-full max-h-[90vh] overflow-y-auto flex flex-col lg:flex-row shadow-2xl"
             >
               {/* Close Button */}
               <button

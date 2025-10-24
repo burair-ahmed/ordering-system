@@ -233,12 +233,12 @@ const toggleExpand = (orderNumber: string) => {
 
 
       {/* 🧾 Orders Grid */}
-      <div className="max-h-[500px] overflow-y-auto pr-2 pb-2 pl-2 pt-2 mt-4">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="max-h-[500px] overflow-y-auto lg:pr-2 lg:pb-2 lg:pl-2 lg:pt-2 mt-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 lg:gap-6">
           {orders.length === 0 ? (
             <div className="col-span-full flex flex-col items-center justify-center text-center py-12">
               <div
-                className={`w-20 h-20 rounded-xl flex items-center justify-center bg-gradient-to-br ${BRAND_GRADIENT} text-white shadow-lg`}
+                className={`lg:w-20 w-40 h-20 rounded-xl flex items-center justify-center bg-gradient-to-br ${BRAND_GRADIENT} text-white shadow-lg`}
               >
                 <Tag size={36} />
               </div>
