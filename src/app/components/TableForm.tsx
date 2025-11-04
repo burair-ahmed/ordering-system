@@ -13,7 +13,46 @@ export default function OrderTypeModal() {
   const router = useRouter();
   const { setOrder } = useOrder();
 
-  const deliveryAreas = ["DHA Phase 5", "Clifton", "PECHS", "Gulshan", "Nazimabad"];
+  const deliveryAreas = [
+    "Gulistan-e-Johar (All Blocks)",
+    "Johor Block 7",
+    "Johor Block 8",
+    "Johor Block 9",
+    "Johor Block 10",
+    "Dalmia Road",
+    "Askari 4",
+    "NHS Phase 1",
+    "NHS Phase 2",
+    "NHS Phase 3",
+    "NHS Phase 4",
+    "Scheme 33",
+    "Saadi Town (All Areas)",
+    "Malir Checkpost 5",
+    "Malir Checkpost 6",
+    "Malir (All Areas)",
+    "Gulshan-e-Iqbal Block 1",
+    "Gulshan-e-Iqbal Block 2",
+    "Gulshan-e-Iqbal Block 3",
+    "Gulshan-e-Iqbal Block 4",
+    "Gulshan-e-Iqbal Block 5",
+    "Gulshan-e-Iqbal Block 6",
+    "Gulshan-e-Iqbal Block 7",
+    "Gulshan-e-Iqbal Block 8",
+    "Gulshan-e-Iqbal Block 9",
+    "Gulshan-e-Iqbal Block 10",
+    "Gulshan-e-Iqbal Block 11",
+    "Gulshan-e-Iqbal Block 13",
+    "Gulshan-e-Iqbal Block 14",
+    "Gulshan-e-Iqbal Block 15",
+    "Gulshan-e-Iqbal Block 16",
+    "Gulshan-e-Iqbal Block 17",
+    "Gulshan-e-Iqbal Block 18",
+    "Gulshan-e-Iqbal Block 19",
+    "FB Area (All Blocks)",
+    "Shah Faisal Colony",
+    "Bahadurabad (All Areas)",
+    "Shahrah-e-Faisal (On Demand)",
+  ];
 
   const generateTableOptions = () => {
     const tables: string[] = [];
