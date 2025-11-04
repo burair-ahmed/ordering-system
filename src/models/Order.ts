@@ -13,7 +13,7 @@ const orderSchema = new mongoose.Schema({
     enum: ['dinein', 'pickup', 'delivery'], 
     required: true 
   },
-
+  deliveryCharge: { type: Number, default: 0 },
   tableNumber: { type: String, default: null }, // for dine-in
   area: { type: String, default: null },        // for delivery
   phone: { type: String, default: null },       // for delivery

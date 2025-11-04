@@ -195,6 +195,14 @@ if (typeParam) {
   });
 };
 
+// Define delivery charge at the top of the component
+const DELIVERY_CHARGE = 250; // hardcoded value
+
+// Inside the component, before return:
+const finalAmount =
+  formData.ordertype === "delivery"
+    ? totalAmount + DELIVERY_CHARGE
+    : totalAmount;
 
 
   // preserves your existing order placement logic
@@ -208,6 +216,7 @@ const handlePlaceOrder = async (): Promise<void> => {
     area: formData.area || "",
     tableNumber: formData.tableNumber,
     ordertype: formData.ordertype,
+    deliveryCharge:formData.ordertype === "delivery" ? DELIVERY_CHARGE : 0,
     paymentMethod: formData.paymentMethod,
     items: cartItems.map((item) => ({
       id: item.id,
@@ -704,19 +713,39 @@ ${items
                     "linear-gradient(180deg, rgba(116,16,82,0.06), rgba(208,38,155,0.02))",
                 }}
               >
-                <div className="flex items-center justify-between">
-                  <div className="text-sm text-gray-500">Total Payable</div>
-                  <div
-                    className="text-2xl font-bold"
-                    style={{
-                      background: BRAND_GRADIENT_CSS,
-                      WebkitBackgroundClip: "text",
-                      color: "transparent",
-                    }}
-                  >
-                    Rs. {totalAmount.toFixed(2)}
-                  </div>
-                </div>
+   {/* Total Summary Section */}
+<div className="space-y-2">
+  <div className="flex items-center justify-between">
+    <div className="text-sm text-gray-500">Subtotal</div>
+    <div className="text-base font-semibold">Rs. {totalAmount.toFixed(2)}</div>
+  </div>
+
+  {formData.ordertype === "delivery" && (
+    <div className="flex items-center justify-between">
+      <div className="text-sm text-gray-500">Delivery Charges</div>
+      <div className="text-base font-semibold">Rs. {DELIVERY_CHARGE.toFixed(2)}</div>
+    </div>
+  )}
+
+  <hr className="my-2 border-neutral-300 dark:border-neutral-700" />
+
+  <div className="flex items-center justify-between">
+    <div className="text-sm font-medium text-gray-700 dark:text-gray-300">
+      Total Payable
+    </div>
+    <div
+      className="text-2xl font-bold"
+      style={{
+        background: BRAND_GRADIENT_CSS,
+        WebkitBackgroundClip: "text",
+        color: "transparent",
+      }}
+    >
+      Rs. {finalAmount.toFixed(2)}
+    </div>
+  </div>
+</div>
+
 
                 {/* Confirmation */}
                 <div className="mt-4 flex items-center gap-3">

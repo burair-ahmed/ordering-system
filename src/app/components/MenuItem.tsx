@@ -58,7 +58,7 @@ const MenuItem: FC<MenuItemProps> = ({ item }) => {
         className="relative flex flex-col p-4 rounded-2xl cursor-pointer 
         bg-white/70 dark:bg-neutral-900/70 backdrop-blur-lg shadow-lg 
         border border-transparent hover:border-[#741052] transition-all duration-300"
-        style={{ height: "26rem" }}
+        style={{ height: "28rem" }}
       >
         {/* Out of stock badge */}
         {item.status === "out of stock" && (
@@ -81,13 +81,13 @@ const MenuItem: FC<MenuItemProps> = ({ item }) => {
           />
         </motion.div>
 
-        <h2 className="text-xl font-semibold text-[#741052] mb-2">
+        <h2 className="text-xl font-semibold text-[#741052] mb-4">
           {item.title}
         </h2>
 
         {/* Truncated description with fade-out */}
         <div className="relative flex-1 mb-4">
-          <p className="text-sm text-gray-600 line-clamp-3">{item.description}</p>
+          <p className="text-sm text-gray-600 line-clamp-1">{item.description}</p>
           <div className="absolute bottom-0 left-0 w-full h-6 bg-gradient-to-t from-white dark:from-neutral-900 to-transparent"></div>
         </div>
 

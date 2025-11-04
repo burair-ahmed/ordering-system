@@ -16,13 +16,13 @@ const AddMenuItemForm = () => {
   });
 
   const categories = [
-    "Charming Chai", "Paratha Performance", "Beast BBQ", "Rolls Royce",
+    "Mini Pancakes", "Chinese", "Ice Cream and Gola", "Flavoured Feast", "Waffles", "Roti Shoti", "Pulao.com","Charming Chai", "Paratha Performance", "Beast BBQ", "Rolls Royce",
     "Very Fast Food", "Burger-E-Karachi", "Woodfired Pizza", "Shawarmania",
     "French Boys Fries", "Dashing Desserts", "Chicken Karahis",
     "Mutton Karahis", "Handi and Qeema", "Beverages", "Juicy Lucy", "Very Extra", 
     "Marvellous Matka Biryani Chicken/Beef", "BBQ Deals", "Fast Food Deals",
     "Fast Food Platter", "Dawat Deal", "Dhamaka Discount Platter", "Sharing Platters", 
-    "Soup", "Gravy", "Rice",
+    "Soup", "Gravy", "Rice", 
   ];
 
   const handleInputChange = (
@@ -306,6 +306,7 @@ const AddMenuItemForm = () => {
     </form>
   <button
     type="submit"
+    onClick={handleSubmit}
     className="w-full mt-4 px-6 py-3 rounded-xl font-semibold shadow-lg 
       bg-gradient-to-r from-[#5c0d40] to-pink-600 text-white 
       hover:opacity-90 transition-all"

@@ -149,7 +149,7 @@ const PlatterItem: FC<PlatterItemProps> = ({ platter }) => {
         </h2>
 
         <div className="relative flex-1 mb-4">
-          <p className="text-sm text-gray-600 line-clamp-3">
+          <p className="text-sm text-gray-600 line-clamp-1">
             {platter.description}
           </p>
           <div className="absolute bottom-0 left-0 w-full h-6 bg-gradient-to-t from-white dark:from-neutral-900 to-transparent"></div>

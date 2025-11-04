@@ -338,6 +338,7 @@ const EditPlatterForm: React.FC<EditPlatterFormProps> = ({ item, onClose, onUpda
             </button>
             <button
               type="submit"
+              onClick={handleSubmit}
               disabled={loading}
               className={`px-6 py-3 rounded-lg shadow text-white font-semibold
                           bg-gradient-to-r from-[#741052] to-pink-600 

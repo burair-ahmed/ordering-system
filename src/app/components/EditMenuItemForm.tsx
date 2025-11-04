@@ -284,6 +284,7 @@ const EditMenuItemForm: React.FC<EditMenuItemFormProps> = ({
 <button
   type="submit"
   disabled={loading}
+ onClick={handleSubmit}
   className={`px-4 py-2 rounded-lg shadow text-white font-semibold
     bg-gradient-to-r from-[#741052] to-pink-600 
     hover:opacity-90 transition-all duration-200
