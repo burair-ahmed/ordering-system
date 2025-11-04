@@ -59,9 +59,8 @@ const defaultPlatterCategoryOrder = [
 ];
 
 
-const icecreamgola = "Ice Cream and Gola";
 const defaultMenuCategoryOrder = [
-  "Pulao.com", "Soup","Chinese","Beast BBQ","Rolls Royce","Flavoured Feast","Burger-E-Karachi", icecreamgola,"Waffles","Mini Pancakes","Chicken Karahis","Mutton Karahis","Handi and Qeema","Marvellous Matka Biryani Chicken/Beef","Charming Chai","Paratha Performance","Very Fast Food","Shawarmania","French Boys Fries","Rice","Dashing Desserts","Beverages","Juicy Lucy","Roti Shoti","Very Extra"
+  "Pulao.com", "Soup","Chinese","Beast BBQ","Rolls Royce","Flavoured Feast","Burger-E-Karachi", "Ice Cream and Gola","Waffles","Mini Pancakes","Chicken Karahis","Mutton Karahis","Handi and Qeema","Marvellous Matka Biryani Chicken/Beef","Charming Chai","Paratha Performance","Very Fast Food","Shawarmania","French Boys Fries","Rice","Beverages","Juicy Lucy","Roti Shoti","Very Extra"
 ];
 
 export default function MenuPage() {
