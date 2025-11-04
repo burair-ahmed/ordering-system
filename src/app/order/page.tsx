@@ -209,7 +209,7 @@ export default function MenuPage() {
           return (
             <div key={category} className="mt-8">
               <div className="w-full flex justify-center mb-4">
-                <h1 className="text-3xl font-semibold text-white bg-[#741052] py-3 px-6 rounded-lg shadow-md text-center">
+                <h1 className="text-3xl font-semibold text-white bg-gradient-to-r from-[#741052] to-[#d0269b] py-3 px-6 rounded-lg shadow-md text-center">
                   {category}
                 </h1>
               </div>
