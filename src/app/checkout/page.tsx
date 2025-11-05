@@ -21,6 +21,7 @@ import { FiChevronLeft, FiCheck, FiX } from "react-icons/fi";
 // import PickupForm from "./forms/PickupForm";
 // import DeliveryForm from "./forms/DeliveryForm";
 import { toast } from "sonner";
+import { useOrder } from "../context/OrderContext";
 
 const BRAND_FROM = "#741052";
 const BRAND_TO = "#d0269b";
@@ -59,11 +60,13 @@ const CheckoutPageContent: FC = () => {
   const [isProcessing, setIsProcessing] = useState(false);
   const [confirmChecked, setConfirmChecked] = useState(false);
   const [mounted, setMounted] = useState(false);
+const [detectedArea, setDetectedArea] = useState("");
 
   // refs for GSAP timeline (optional)
   const formRef = useRef<HTMLDivElement | null>(null);
   const cartRef = useRef<HTMLDivElement | null>(null);
   const modalRef = useRef<HTMLDivElement | null>(null);
+    const { orderType, area, tableId } = useOrder();
 
   // preserve tableId from query or local storage
   useEffect(() => {
@@ -89,6 +92,15 @@ if (typeParam) {
       } catch {}
     }
   }, [searchParams]);
+useEffect(() => {
+  if (!searchParams) return;
+
+  const encodedArea = searchParams.get("area");
+  if (encodedArea) {
+    const decodedArea = decodeURIComponent(encodedArea);
+    setDetectedArea(decodedArea); // ONLY STORE HERE
+  }
+}, [searchParams]);
 
   // GSAP timeline on mount (optional). Dynamically import so build won't fail if gsap is missing.
   useEffect(() => {
@@ -194,15 +206,55 @@ if (typeParam) {
     description: "Please confirm your order in the next step.",
   });
 };
+const DELIVERY_CHARGES: Record<string, number> = {
+  "Gulistan-e-Johar (All Blocks)": 150,
+  "Johor Block 7": 200,
+  "Johor Block 8": 200,
+  "Johor Block 9": 200,
+  "Johor Block 10": 200,
+  "Dalmia Road": 200,
+  "Askari 4": 200,
+  "NHS Phase 1": 250,
+  "NHS Phase 2": 250,
+  "NHS Phase 3": 350,
+  "NHS Phase 4": 350,
+  "Scheme 33": 280,
+  "Saadi Town (All Areas)": 350,
+  "Malir Checkpost 5": 350,
+  "Malir Checkpost 6": 350,
+  "Malir (All Areas)": 450,
+  "Gulshan-e-Iqbal Block 1": 200,
+  "Gulshan-e-Iqbal Block 2": 200,
+  "Gulshan-e-Iqbal Block 3": 200,
+  "Gulshan-e-Iqbal Block 4": 200,
+  "Gulshan-e-Iqbal Block 5": 200,
+  "Gulshan-e-Iqbal Block 6": 200,
+  "Gulshan-e-Iqbal Block 7": 200,
+  "Gulshan-e-Iqbal Block 10": 200,
+  "Gulshan-e-Iqbal Block 11": 200,
+  "Gulshan-e-Iqbal Block 8": 250,
+  "Gulshan-e-Iqbal Block 9": 250,
+  "Gulshan-e-Iqbal Block 13": 250,
+  "Gulshan-e-Iqbal Block 14": 250,
+  "Gulshan-e-Iqbal Block 15": 250,
+  "Gulshan-e-Iqbal Block 16": 250,
+  "Gulshan-e-Iqbal Block 17": 250,
+  "Gulshan-e-Iqbal Block 18": 250,
+  "Gulshan-e-Iqbal Block 19": 250,
+  "FB Area (All Blocks)": 350,
+  "Shah Faisal Colony": 450,
+  "Bahadurabad (All Areas)": 450,
+  "Shahrah-e-Faisal (On Demand)": 0, // or handle manually
+};
 
 // Define delivery charge at the top of the component
-const DELIVERY_CHARGE = 250; // hardcoded value
+const deliveryCharge = formData.ordertype === "delivery"
+  ? DELIVERY_CHARGES[detectedArea] || 0
+  : 0;
+
+const finalAmount = totalAmount + deliveryCharge;
 
 // Inside the component, before return:
-const finalAmount =
-  formData.ordertype === "delivery"
-    ? totalAmount + DELIVERY_CHARGE
-    : totalAmount;
 
 
   // preserves your existing order placement logic
@@ -216,7 +268,7 @@ const handlePlaceOrder = async (): Promise<void> => {
     area: formData.area || "",
     tableNumber: formData.tableNumber,
     ordertype: formData.ordertype,
-    deliveryCharge:formData.ordertype === "delivery" ? DELIVERY_CHARGE : 0,
+    deliveryCharge: deliveryCharge, 
     paymentMethod: formData.paymentMethod,
     items: cartItems.map((item) => ({
       id: item.id,
@@ -253,7 +305,7 @@ const handlePlaceOrder = async (): Promise<void> => {
         router.push(`/thank-you?type=pickup&order=${orderNumber}`);
       } else if (orderType === "delivery") {
         router.push(
-          `/thank-you?type=delivery&order=${orderNumber}&phone=${formData.phone}`
+          `/thank-you?type=delivery&order=${orderNumber}&phone=${formData.phone}&area=${encodeURIComponent(formData.area)}`
         );
       }
     } else {
@@ -468,10 +520,10 @@ ${items
         <input
           name="area"
           type="address"
-          value={formData.area ?? ""}
+          value={`${formData.area}`}
           onChange={handleInputChange}
           required
-          placeholder="Enter delivery address or area"
+          placeholder={`Enter delivery address or area ${area}`}
           className="w-full px-4 py-3 rounded-lg border border-neutral-200 dark:border-neutral-800 
                      bg-white/80 dark:bg-neutral-900/50 focus:outline-none focus:ring-2 
                      focus:ring-[#741052] transition"
@@ -723,7 +775,7 @@ ${items
   {formData.ordertype === "delivery" && (
     <div className="flex items-center justify-between">
       <div className="text-sm text-gray-500">Delivery Charges</div>
-      <div className="text-base font-semibold">Rs. {DELIVERY_CHARGE.toFixed(2)}</div>
+      <div className="text-base font-semibold">Rs. {deliveryCharge}</div>
     </div>
   )}
 
