@@ -417,10 +417,10 @@ ${items
         transition={{ duration: 0.5 }}
         className="mb-6"
       >
-        <h1 className="text-3xl sm:text-4xl font-semibold tracking-wide text-gray-900 dark:text-gray-100">
+        <h1 className="text-3xl sm:text-4xl font-semibold tracking-wide text-gray-900">
           Checkout
         </h1>
-        <p className="mt-2 text-sm text-gray-600 dark:text-gray-300 max-w-2xl">
+        <p className="mt-2 text-sm text-gray-600 -300 max-w-2xl">
           Review your order, choose payment method and confirm. We’ll notify you
           shortly.
         </p>
@@ -429,7 +429,7 @@ ${items
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         {/* LEFT: Checkout form */}
         <motion.section
-          className="lg:col-span-7 bg-white/70 dark:bg-neutral-900/60 backdrop-blur-md rounded-2xl p-6 shadow"
+          className="lg:col-span-7 bg-white/70  backdrop-blur-md rounded-2xl p-6 shadow"
           initial="hidden"
           animate="show"
           variants={containerFade}
@@ -448,7 +448,7 @@ ${items
             >
               Customer & Payment
             </h2>
-            <p className="text-sm text-gray-600 dark:text-gray-300 mt-1">
+            <p className="text-sm text-gray-600 mt-1">
               Enter details to complete your order
             </p>
           </div>
@@ -458,7 +458,7 @@ ${items
 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
   {/* Full Name */}
   <div className="field-stagger">
-    <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
+    <label className="block text-sm font-medium text-gray-700 mb-2">
       Full Name <span className="text-rose-500">*</span>
     </label>
     <input
@@ -467,15 +467,15 @@ ${items
       onChange={handleInputChange}
       required
       placeholder="e.g. John Doe"
-      className="w-full px-4 py-3 rounded-lg border border-neutral-200 dark:border-neutral-800 
-                 bg-white/80 dark:bg-neutral-900/50 focus:outline-none focus:ring-2 
+      className="w-full px-4 py-3 rounded-lg border border-neutral-200  
+                 bg-white/80 focus:outline-none focus:ring-2 
                  focus:ring-[#741052] transition"
     />
   </div>
 
   {/* Email */}
   <div className="field-stagger">
-    <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
+    <label className="block text-sm font-medium text-gray-700 mb-2">
       Email (optional)
     </label>
     <input
@@ -484,8 +484,8 @@ ${items
       value={formData.email ?? ""}
       onChange={handleInputChange}
       placeholder="you@domain.com"
-      className="w-full px-4 py-3 rounded-lg border border-neutral-200 dark:border-neutral-800 
-                 bg-white/80 dark:bg-neutral-900/50 focus:outline-none focus:ring-2 
+      className="w-full px-4 py-3 rounded-lg border border-neutral-200  
+                 bg-white/80 focus:outline-none focus:ring-2 
                  focus:ring-[#741052] transition"
     />
   </div>
@@ -493,7 +493,7 @@ ${items
   {/* Dine-In specific field */}
   {formData.ordertype === "dinein" && (
     <div className="field-stagger sm:col-span-2">
-      <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
+      <label className="block text-sm font-medium text-gray-700 mb-2">
         Table Number
       </label>
       <input
@@ -502,8 +502,8 @@ ${items
         onChange={handleInputChange}
         placeholder="Enter table number"
         disabled
-        className="w-full px-4 py-3 rounded-lg border border-neutral-200 dark:border-neutral-800 
-                   bg-neutral-100/60 dark:bg-neutral-900/40 text-gray-600 dark:text-gray-300 
+        className="w-full px-4 py-3 rounded-lg border border-neutral-200  
+                   bg-neutral-100/60 text-gray-600 
                    cursor-not-allowed"
       />
     </div>
@@ -514,7 +514,7 @@ ${items
     <>
       {/* Delivery Address / Area */}
       <div className="field-stagger sm:col-span-2">
-        <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
+        <label className="block text-sm font-medium text-gray-700 mb-2">
           Delivery Address / Area <span className="text-rose-500">*</span>
         </label>
         <input
@@ -524,15 +524,15 @@ ${items
           onChange={handleInputChange}
           required
           placeholder={`Enter delivery address or area ${area}`}
-          className="w-full px-4 py-3 rounded-lg border border-neutral-200 dark:border-neutral-800 
-                     bg-white/80 dark:bg-neutral-900/50 focus:outline-none focus:ring-2 
+          className="w-full px-4 py-3 rounded-lg border border-neutral-200  
+                     bg-white/80 focus:outline-none focus:ring-2 
                      focus:ring-[#741052] transition"
         />
       </div>
 
       {/* Phone Number */}
       <div className="field-stagger sm:col-span-2">
-        <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
+        <label className="block text-sm font-medium text-gray-700 mb-2">
           Phone Number <span className="text-rose-500">*</span>
         </label>
         <input
@@ -542,8 +542,8 @@ ${items
           onChange={handleInputChange}
           required
           placeholder="e.g. +92 300 1234567"
-          className="w-full px-4 py-3 rounded-lg border border-neutral-200 dark:border-neutral-800 
-                     bg-white/80 dark:bg-neutral-900/50 focus:outline-none focus:ring-2 
+          className="w-full px-4 py-3 rounded-lg border border-neutral-200  
+                     bg-white/80 focus:outline-none focus:ring-2 
                      focus:ring-[#741052] transition"
         />
       </div>
@@ -554,16 +554,16 @@ ${items
 
           {/* payment method segmented buttons */}
           <div className="mt-6 field-stagger">
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
+            <label className="block text-sm font-medium text-gray-700 mb-2">
               Payment Method
             </label>
-            <div className="inline-flex bg-neutral-100/60 dark:bg-neutral-800/40 rounded-full p-1">
+            <div className="inline-flex bg-neutral-100/60 rounded-full p-1">
               <button
                 onClick={() => handlePaymentChange("cash")}
                 className={`px-4 py-2 rounded-full font-medium transition focus:outline-none ${
                   formData.paymentMethod === "cash"
                     ? "text-white"
-                    : "text-gray-700 dark:text-gray-200"
+                    : "text-gray-700"
                 }`}
                 style={
                   formData.paymentMethod === "cash"
@@ -582,7 +582,7 @@ ${items
                 className={`px-4 py-2 rounded-full font-medium transition focus:outline-none ${
                   formData.paymentMethod === "online"
                     ? "text-white"
-                    : "text-gray-700 dark:text-gray-200"
+                    : "text-gray-700"
                 }`}
                 style={
                   formData.paymentMethod === "online"
@@ -625,7 +625,7 @@ ${items
         </motion.section>
 
         {/* RIGHT: Cart summary (sticky on desktop) */}
-       <motion.aside className="lg:col-span-5" initial={{opacity:0,y:6}} animate={{opacity:1,y:0}} transition={{duration:0.45}} ref={cartRef}><div className="sticky top-20"><div className="bg-white/70 dark:bg-neutral-900/60 backdrop-blur-md rounded-2xl p-4 shadow"><div className="flex items-center justify-between mb-4"><h3 className="text-lg font-semibold">Cart Summary</h3><div className="text-sm text-gray-500">{formattedItems.length} items</div></div><div className="space-y-3"><AnimatePresence mode="sync">{formattedItems.map((it,idx)=>(<motion.div key={`${it.id}-${idx}`} layout variants={itemVariants} initial="hidden" animate="show" exit="exit" transition={{type:"spring",stiffness:300,damping:28}}><div key={idx} className="cart-item-stagger bg-white/60 dark:bg-neutral-800/60 backdrop-blur-sm rounded-xl p-3 flex gap-3 items-center shadow hover:shadow-md "><div className="w-20 h-20 rounded-xl overflow-hidden relative flex-shrink-0"><Image src={it.image||"/placeholder.png"} alt={it.title} fill sizes="80px" className="object-cover"/></div><div className="flex-1 min-w-0"><div className="flex items-start justify-between gap-3"><div className="min-w-0"><div className="text-sm font-semibold truncate">{it.title}</div>{it.variations&&(<div className="text-xs text-rose-800 mt-1">{Array.isArray(it.variations)?it.variations.join(", "):String(it.variations)}</div>)}</div><div className="text-sm font-bold" style={{background:BRAND_GRADIENT_CSS,WebkitBackgroundClip:"text",color:"transparent"}}>Rs. {(it.price*it.quantity).toFixed(2)}</div></div><div className="mt-3 flex items-center gap-2"><button onClick={()=>updateQuantity(it.id,Math.max(1,it.quantity-1),it.variations)} aria-label="Decrease" className="w-8 h-8 rounded-full flex items-center justify-center text-white" style={{background:BRAND_GRADIENT_CSS}}>-</button><div className="px-3 py-1 bg-white/70 dark:bg-neutral-900/40 rounded-full border border-gray-100 text-sm font-medium">{it.quantity}</div><button onClick={()=>updateQuantity(it.id,it.quantity+1,it.variations)} aria-label="Increase" className="w-8 h-8 rounded-full flex items-center justify-center text-white" style={{background:BRAND_GRADIENT_CSS}}>+</button><button onClick={()=>removeFromCart(it.id,it.variations)} aria-label="Remove" className="ml-auto text-sm text-rose-600 hover:text-rose-700">Remove</button></div></div></div></motion.div>))}</AnimatePresence></div><div className="mt-4 pt-4 border-t border-neutral-100 dark:border-neutral-800"><div className="flex items-center justify-between"><div className="text-sm text-gray-500">Subtotal</div><div className="text-sm font-semibold">Rs. {totalAmount.toFixed(2)}</div></div><div className="mt-3"><div className="rounded-xl p-4" style={{background:"linear-gradient(180deg, rgba(116,16,82,0.06), rgba(208,38,155,0.02))"}}><div className="flex items-center justify-between"><div><div className="text-xs text-gray-500">Total</div><div className="text-2xl font-bold" style={{background:BRAND_GRADIENT_CSS,WebkitBackgroundClip:"text",color:"transparent"}}>Rs. {totalAmount.toFixed(2)}</div></div><div><button onClick={()=>{if(!formData.name||!formData.tableNumber){alert("Please fill Name & Table Number before placing order.");return;}setIsModalOpen(true);}} className="px-4 py-2 rounded-full text-white font-semibold shadow" style={{background:BRAND_GRADIENT_CSS}}>Checkout</button></div></div><p className="text-xs text-gray-500 mt-2">Taxes included where applicable.</p></div></div></div></div></div></motion.aside>
+       <motion.aside className="lg:col-span-5" initial={{opacity:0,y:6}} animate={{opacity:1,y:0}} transition={{duration:0.45}} ref={cartRef}><div className="sticky top-20"><div className="bg-white/70 backdrop-blur-md rounded-2xl p-4 shadow"><div className="flex items-center justify-between mb-4"><h3 className="text-lg font-semibold">Cart Summary</h3><div className="text-sm text-gray-500">{formattedItems.length} items</div></div><div className="space-y-3"><AnimatePresence mode="sync">{formattedItems.map((it,idx)=>(<motion.div key={`${it.id}-${idx}`} layout variants={itemVariants} initial="hidden" animate="show" exit="exit" transition={{type:"spring",stiffness:300,damping:28}}><div key={idx} className="cart-item-stagger bg-white/60 backdrop-blur-sm rounded-xl p-3 flex gap-3 items-center shadow hover:shadow-md "><div className="w-20 h-20 rounded-xl overflow-hidden relative flex-shrink-0"><Image src={it.image||"/placeholder.png"} alt={it.title} fill sizes="80px" className="object-cover"/></div><div className="flex-1 min-w-0"><div className="flex items-start justify-between gap-3"><div className="min-w-0"><div className="text-sm font-semibold truncate">{it.title}</div>{it.variations&&(<div className="text-xs text-rose-800 mt-1">{Array.isArray(it.variations)?it.variations.join(", "):String(it.variations)}</div>)}</div><div className="text-sm font-bold" style={{background:BRAND_GRADIENT_CSS,WebkitBackgroundClip:"text",color:"transparent"}}>Rs. {(it.price*it.quantity).toFixed(2)}</div></div><div className="mt-3 flex items-center gap-2"><button onClick={()=>updateQuantity(it.id,Math.max(1,it.quantity-1),it.variations)} aria-label="Decrease" className="w-8 h-8 rounded-full flex items-center justify-center text-white" style={{background:BRAND_GRADIENT_CSS}}>-</button><div className="px-3 py-1 bg-white/70 rounded-full border border-gray-100 text-sm font-medium">{it.quantity}</div><button onClick={()=>updateQuantity(it.id,it.quantity+1,it.variations)} aria-label="Increase" className="w-8 h-8 rounded-full flex items-center justify-center text-white" style={{background:BRAND_GRADIENT_CSS}}>+</button><button onClick={()=>removeFromCart(it.id,it.variations)} aria-label="Remove" className="ml-auto text-sm text-rose-600 hover:text-rose-700">Remove</button></div></div></div></motion.div>))}</AnimatePresence></div><div className="mt-4 pt-4 border-t border-neutral-100"><div className="flex items-center justify-between"><div className="text-sm text-gray-500">Subtotal</div><div className="text-sm font-semibold">Rs. {totalAmount.toFixed(2)}</div></div><div className="mt-3"><div className="rounded-xl p-4" style={{background:"linear-gradient(180deg, rgba(116,16,82,0.06), rgba(208,38,155,0.02))"}}><div className="flex items-center justify-between"><div><div className="text-xs text-gray-500">Total</div><div className="text-2xl font-bold" style={{background:BRAND_GRADIENT_CSS,WebkitBackgroundClip:"text",color:"transparent"}}>Rs. {totalAmount.toFixed(2)}</div></div><div><button onClick={()=>{if(!formData.name||!formData.tableNumber){alert("Please fill Name & Table Number before placing order.");return;}setIsModalOpen(true);}} className="px-4 py-2 rounded-full text-white font-semibold shadow" style={{background:BRAND_GRADIENT_CSS}}>Checkout</button></div></div><p className="text-xs text-gray-500 mt-2">Taxes included where applicable.</p></div></div></div></div></div></motion.aside>
 
       </div>
 
@@ -656,7 +656,7 @@ ${items
         role="dialog"
         aria-modal="true"
       >
-        <div className="bg-white/90 dark:bg-neutral-900/90 backdrop-blur-xl rounded-2xl shadow-2xl p-6 lg:p-8">
+        <div className="bg-white/90 backdrop-blur-xl rounded-2xl shadow-2xl p-6 lg:p-8">
           {/* HEADER */}
           <div className="flex items-start justify-between gap-4">
             <div>
@@ -670,13 +670,13 @@ ${items
               >
                 Confirm Order
               </h3>
-              <p className="text-sm text-gray-600 dark:text-gray-300 mt-1">
+              <p className="text-sm text-gray-600 mt-1">
                 Review your details and place the order.
               </p>
             </div>
             <button
               onClick={() => setIsModalOpen(false)}
-              className="p-2 rounded-full border border-neutral-200 dark:border-neutral-800 hover:shadow transition bg-white/60 dark:bg-neutral-900/60"
+              className="p-2 rounded-full border border-neutral-200 hover:shadow transition bg-white/60"
               aria-label="Close confirm dialog"
             >
               <FiX />
@@ -687,7 +687,7 @@ ${items
           <div className="mt-6 grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* LEFT PANEL — DETAILS */}
             <div>
-              <div className="text-sm text-gray-700 dark:text-gray-200 space-y-1.5">
+              <div className="text-sm text-gray-700 space-y-1.5">
                 <div>
                   <strong>Name:</strong> {formData.name}
                 </div>
@@ -726,14 +726,14 @@ ${items
 
               {/* ITEMS */}
               <div className="mt-4">
-                <h4 className="text-sm font-medium text-gray-700 dark:text-gray-200">
+                <h4 className="text-sm font-medium text-gray-700">
                   Items
                 </h4>
                 <ul className="mt-2 space-y-2 max-h-44 overflow-auto pr-2">
                   {formattedItems.map((it, idx) => (
                     <li
                       key={`${it.id}-${idx}`}
-                      className="text-sm text-gray-700 dark:text-gray-200"
+                      className="text-sm text-gray-700"
                     >
                       <div className="flex items-center justify-between">
                         <div className="min-w-0">
@@ -779,10 +779,10 @@ ${items
     </div>
   )}
 
-  <hr className="my-2 border-neutral-300 dark:border-neutral-700" />
+  <hr className="my-2 border-neutral-300" />
 
   <div className="flex items-center justify-between">
-    <div className="text-sm font-medium text-gray-700 dark:text-gray-300">
+    <div className="text-sm font-medium text-gray-700">
       Total Payable
     </div>
     <div
@@ -810,7 +810,7 @@ ${items
                   />
                   <label
                     htmlFor="confirmOrder"
-                    className="text-sm text-gray-700 dark:text-gray-200"
+                    className="text-sm text-gray-700"
                   >
                     I confirm the details above are correct
                   </label>
@@ -846,7 +846,7 @@ ${items
               </div>
 
               {/* Order Timeline */}
-              <div className="mt-4 text-sm text-gray-600 dark:text-gray-300">
+              <div className="mt-4 text-sm text-gray-600">
                 <h5 className="font-medium mb-2">Order Timeline</h5>
                 <ol className="space-y-2">
                   <li className="flex items-start gap-2">

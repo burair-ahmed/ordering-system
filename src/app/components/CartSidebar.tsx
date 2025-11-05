@@ -136,7 +136,7 @@ const checkoutUrl =
           {/* main panel */}
           <motion.div
             className={`relative ml-auto h-full w-full sm:w-96 lg:w-[420px] 
-              bg-white/80 dark:bg-neutral-900/80 backdrop-blur-xl rounded-l-3xl
+              bg-white/80 backdrop-blur-xl rounded-l-3xl
               border-l-2 border-transparent shadow-2xl overflow-hidden flex flex-col`}
             style={{
               boxShadow:
@@ -182,8 +182,8 @@ const checkoutUrl =
                   whileTap={{ scale: 0.92 }}
                   onClick={handleClose}
                   aria-label="Close cart"
-                  className="p-2 rounded-full border border-gray-200 dark:border-neutral-800 hover:shadow-md transition
-                    bg-white/60 dark:bg-neutral-900/60"
+                  className="p-2 rounded-full border border-gray-200 hover:shadow-md transition
+                    bg-white/60"
                   title="Close"
                 >
                   <X className="w-5 h-5" />
@@ -193,7 +193,7 @@ const checkoutUrl =
 
             {/* progress bar (top) */}
             <div className="px-6">
-              <div className="h-2 rounded-full bg-neutral-200 dark:bg-neutral-800 overflow-hidden">
+              <div className="h-2 rounded-full bg-neutral-200 overflow-hidden">
                 <motion.div
                   initial={{ width: 0 }}
                   animate={{ width: `${progressPercent}%` }}
@@ -229,7 +229,7 @@ const checkoutUrl =
                     initial={{ opacity: 0, y: 6 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.08 }}
-                    className="text-lg font-semibold text-gray-600 dark:text-gray-300"
+                    className="text-lg font-semibold text-gray-600"
                   >
                     Your cart is empty
                   </motion.h4>
@@ -253,7 +253,7 @@ const checkoutUrl =
                           exit="exit"
                           variants={itemVariants}
                           key={itemKey}
-                          className="bg-white/80 dark:bg-neutral-800/80 backdrop-blur-md rounded-xl p-3 flex gap-3 items-start shadow-sm hover:shadow-md transition"
+                          className="bg-white/80 backdrop-blur-md rounded-xl p-3 flex gap-3 items-start shadow-sm hover:shadow-md transition"
                         >
                           {/* Image */}
                           <div className="w-20 h-20 flex-shrink-0 rounded-xl overflow-hidden relative">
@@ -281,7 +281,7 @@ const checkoutUrl =
                                       {item.variations.map((v, i) => (
                                         <span
                                           key={i}
-                                          className="text-xs bg-gray-100 dark:bg-neutral-700/40 text-gray-700 dark:text-gray-200 px-2 py-1 rounded-full"
+                                          className="text-xs bg-gray-100 text-gray-700 px-2 py-1 rounded-full"
                                         >
                                           {v}
                                         </span>
@@ -336,7 +336,7 @@ const checkoutUrl =
                                 -
                               </motion.button>
 
-                              <div className="px-3 py-1 text-sm font-medium bg-white/80 dark:bg-neutral-900/60 rounded-full border border-gray-100">
+                              <div className="px-3 py-1 text-sm font-medium bg-white/80 rounded-full border border-gray-100">
                                 {item.quantity}
                               </div>
 
@@ -369,7 +369,7 @@ const checkoutUrl =
             </div>
 
             {/* Footer (sticky) */}
-            <div className="border-t border-neutral-200 dark:border-neutral-800 p-4 bg-white/40 dark:bg-neutral-900/40 backdrop-blur-sm">
+            <div className="border-t border-neutral-200 p-4 bg-white/40 backdrop-blur-sm">
               <div className="max-w-[100%] mx-auto flex flex-col sm:flex-row items-center gap-3">
                 <div className="flex-1">
                   <div className="text-sm text-gray-500">Total</div>

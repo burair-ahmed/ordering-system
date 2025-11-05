@@ -56,7 +56,7 @@ const MenuItem: FC<MenuItemProps> = ({ item }) => {
         whileTap={{ scale: 0.98 }}
         onClick={() => setShowModal(true)}
         className="relative flex flex-col p-4 rounded-2xl cursor-pointer 
-        bg-white/70 dark:bg-neutral-900/70 backdrop-blur-lg shadow-lg 
+        bg-white/70 backdrop-blur-lg shadow-lg 
         border border-transparent hover:border-[#741052] transition-all duration-300"
         style={{ height: "28rem" }}
       >
@@ -88,7 +88,7 @@ const MenuItem: FC<MenuItemProps> = ({ item }) => {
         {/* Truncated description with fade-out */}
         <div className="relative flex-1 mb-4">
           <p className="text-sm text-gray-600 line-clamp-1">{item.description}</p>
-          <div className="absolute bottom-0 left-0 w-full h-6 bg-gradient-to-t from-white dark:from-neutral-900 to-transparent"></div>
+          <div className="absolute bottom-0 left-0 w-full h-6 bg-gradient-to-t from-white to-transparent"></div>
         </div>
 
         {/* Price */}
@@ -126,13 +126,13 @@ const MenuItem: FC<MenuItemProps> = ({ item }) => {
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.9, opacity: 0 }}
               transition={{ type: "spring", stiffness: 200, damping: 20 }}
-              className="relative bg-white/90 dark:bg-neutral-900/90 backdrop-blur-xl 
+              className="relative bg-white/90 backdrop-blur-xl 
               rounded-2xl p-6 max-w-4xl w-full flex flex-col lg:flex-row shadow-2xl"
             >
               {/* Close Button */}
               <button
                 className="absolute top-3 right-3 w-8 h-8 flex items-center justify-center rounded-full 
-                border border-gray-300 dark:border-gray-700 hover:bg-gradient-to-r from-[#741052] to-[#d0269b] hover:text-white transition"
+                border border-gray-300 hover:bg-gradient-to-r from-[#741052] to-[#d0269b] hover:text-white transition"
                 onClick={() => setShowModal(false)}
               >
                 <X size={18} />
@@ -186,7 +186,7 @@ const MenuItem: FC<MenuItemProps> = ({ item }) => {
                             ${
                               selectedVariation?.name === variation.name
                                 ? "border-2 border-transparent bg-gradient-to-r from-[#741052] to-[#d0269b] text-white"
-                                : "border border-gray-300 dark:border-gray-600 bg-white/60 dark:bg-neutral-800/60 hover:border-[#741052]"
+                                : "border border-gray-300 bg-white/60 hover:border-[#741052]"
                             }`}
                         >
                           {variation.name} (+Rs.
