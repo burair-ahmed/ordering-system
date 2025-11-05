@@ -54,8 +54,7 @@ interface AdditionalChoice {
 }
 
 const defaultPlatterCategoryOrder = [
-  "Sharing Platters","BBQ Deals","Fast Food Deals",
-  
+  "CLK Deals","Sharing Platters","BBQ Deals","Fast Food Deals",
 ];
 
 
