@@ -100,7 +100,7 @@ export default function OrderTypeModal() {
           <button
             onClick={() => setOrderType("delivery")}
             className={`px-4 py-2 rounded-lg font-semibold ${
-              orderType === "delivery" ? "bg-purple-700 text-white" : "bg-gray-200"
+              orderType === "delivery" ? "bg-purple-700 text-white" : "bg-gray-200 text-purple-700"
             }`}
           >
             Delivery
@@ -108,7 +108,7 @@ export default function OrderTypeModal() {
           <button
             onClick={() => setOrderType("pickup")}
             className={`px-4 py-2 rounded-lg font-semibold ${
-              orderType === "pickup" ? "bg-purple-700 text-white" : "bg-gray-200"
+              orderType === "pickup" ? "bg-purple-700 text-white" : "bg-gray-200 text-purple-700"
             }`}
           >
             Pickup
@@ -116,7 +116,7 @@ export default function OrderTypeModal() {
           <button
             onClick={() => setOrderType("dinein")}
             className={`px-4 py-2 rounded-lg font-semibold ${
-              orderType === "dinein" ? "bg-purple-700 text-white" : "bg-gray-200"
+              orderType === "dinein" ? "bg-purple-700 text-white" : "bg-gray-200 text-purple-700"
             }`}
           >
             Dine-In
@@ -129,7 +129,7 @@ export default function OrderTypeModal() {
               value={selectedArea}
               onChange={(e) => setSelectedArea(e.target.value)}
               required
-              className="border border-gray-300 rounded-lg p-2 w-full"
+              className="border border-gray-300 bg-white text-black capitalize rounded-lg p-2 w-full"
             >
               <option value="" disabled>Select your area</option>
               {deliveryAreas.map((area, idx) => (
