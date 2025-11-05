@@ -94,7 +94,7 @@ export default function OrderTypeModal() {
 
       {/* Modal content */}
       <div className="relative bg-white rounded-2xl shadow-2xl w-11/12 max-w-md p-6 z-10">
-        <h2 className="text-xl font-bold text-center mb-4">Select your order type</h2>
+        <h2 className="text-xl font-bold text-center mb-4 text-black">Select your order type</h2>
 
         <div className="flex justify-center gap-4 mb-6">
           <button
@@ -143,7 +143,7 @@ export default function OrderTypeModal() {
               value={tableNumber}
               onChange={(e) => setTableNumber(e.target.value)}
               required
-              className="border border-gray-300 rounded-lg p-2 w-full"
+              className="border border-gray-300 rounded-lg p-2 w-full text-black bg-white"
             >
               <option value="" disabled>Choose a table</option>
               {generateTableOptions().map((table, idx) => (
