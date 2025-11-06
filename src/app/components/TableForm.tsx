@@ -14,7 +14,7 @@ export default function OrderTypeModal() {
   const { setOrder } = useOrder();
 
   const deliveryAreas = [
-    "Gulistan-e-Johar (All Blocks)",
+    "Gulistan-e-Johar-All Blocks",
     "Johor Block 7",
     "Johor Block 8",
     "Johor Block 9",
@@ -26,10 +26,10 @@ export default function OrderTypeModal() {
     "NHS Phase 3",
     "NHS Phase 4",
     "Scheme 33",
-    "Saadi Town (All Areas)",
+    "Saadi Town-All Areas",
     "Malir Checkpost 5",
     "Malir Checkpost 6",
-    "Malir (All Areas)",
+    "Malir-All Areas",
     "Gulshan-e-Iqbal Block 1",
     "Gulshan-e-Iqbal Block 2",
     "Gulshan-e-Iqbal Block 3",
@@ -48,10 +48,10 @@ export default function OrderTypeModal() {
     "Gulshan-e-Iqbal Block 17",
     "Gulshan-e-Iqbal Block 18",
     "Gulshan-e-Iqbal Block 19",
-    "FB Area (All Blocks)",
+    "FB Area-All Blocks",
     "Shah Faisal Colony",
-    "Bahadurabad (All Areas)",
-    "Shahrah-e-Faisal (On Demand)",
+    "Bahadurabad-All Areas",
+    "Shahrah-e-Faisal-On Demand",
   ];
 
   const generateTableOptions = () => {
