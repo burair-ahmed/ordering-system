@@ -41,23 +41,29 @@ function isOpenAt(karachiDate: Date) {
 function nextOpenAndLastCloseFrom(karachiNow: Date) {
   const openStart = new Date(karachiNow);
   openStart.setHours(18, 30, 0, 0);
-  let nextOpen = new Date(openStart);
+
+  const nextOpen = new Date(openStart); // ← changed let → const
+
   if (
     karachiNow.getHours() > 18 ||
     (karachiNow.getHours() === 18 && karachiNow.getMinutes() >= 30)
   ) {
     nextOpen.setDate(nextOpen.getDate() + 1);
   }
+
   const lastClose = new Date(karachiNow);
   lastClose.setHours(2, 0, 0, 0);
+
   if (karachiNow.getHours() < 2) {
     lastClose.setDate(lastClose.getDate() - 1);
   }
   if (lastClose.getTime() > karachiNow.getTime()) {
     lastClose.setDate(lastClose.getDate() - 1);
   }
+
   return { nextOpen, lastClose };
 }
+
 function getLastOrderTime(karachiDate: Date) {
   const day = karachiDate.getDay(); // 0 Sun .. 6 Sat
   const weekend = [5, 6, 0]; // Fri, Sat, Sun
