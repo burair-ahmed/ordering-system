@@ -9,7 +9,7 @@ import Footer from "./components/Footer";
 // import { Toaster } from "@/components/ui/toaster"
 import { ThemeProvider } from "next-themes";
 import { Toaster } from "sonner";
-// import RestaurantStatusPopup from "./components/RestaurantStatusPopup";
+import RestaurantStatusPopup from "./components/RestaurantStatusPopup";
 
 const poppins = localFont({
   src: [
@@ -53,7 +53,7 @@ export default function RootLayout({
       <TableProvider>
         <CartProvider>
         <OrderProvider>
-          {/* <RestaurantStatusPopup/> */}
+          <RestaurantStatusPopup/>
           <Header />
           {children}
           <Footer />
