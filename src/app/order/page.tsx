@@ -65,7 +65,8 @@ const defaultMenuCategoryOrder = [
 export default function MenuPage() {
   const [menu, setMenu] = useState<{ [key: string]: MenuItemData[] }>({});
   const [platters, setPlatters] = useState<{ [key: string]: Platter[] }>({});  
-  const [loading, setLoading] = useState<boolean>(false);
+const [menuLoading, setMenuLoading] = useState<{ [key: string]: boolean }>({});
+const [platterLoading, setPlatterLoading] = useState<boolean>(true);
   const [page, setPage] = useState<{ [key: string]: number }>({});
   const [hasMore, setHasMore] = useState<{ [key: string]: boolean }>({});
 
@@ -73,101 +74,63 @@ export default function MenuPage() {
   const [platterCategoryOrder] = useState<string[]>(defaultPlatterCategoryOrder);
   const [menuCategoryOrder] = useState<string[]>(defaultMenuCategoryOrder);
 
-  const observer = useRef<IntersectionObserver | null>(null);
+const observers = useRef<{[key: string]: IntersectionObserver}>({});
 
-  useEffect(() => {
-    const fetchPlatters = async () => {
-      setLoading(true);
-      try {
-        const response = await fetch("/api/platter");
-        if (!response.ok) {
-          throw new Error("Failed to fetch platters");
-        }
-        const data: Platter[] = await response.json();
-  
-        // Group platters by their platterCategory
-        const groupedPlatters: { [key: string]: Platter[] } = data.reduce((acc, platter) => {
-          const category = platter.platterCategory;
-          if (!acc[category]) {
-            acc[category] = [];
-          }
-          acc[category].push(platter);
-          return acc;
-        }, {} as { [key: string]: Platter[] });
-  
-        setPlatters(groupedPlatters);
-      } catch (err) {
-        console.error("Error fetching platters:", err);
-      } finally {
-        setLoading(false);
-      }
-    };
-  
-    const fetchMenu = async (category: string) => {
-      setLoading(true);
-      const currentPage = page[category] || 1;
-      const hasMoreItems = hasMore[category] ?? true;
-  
-      if (!hasMoreItems) return;
-  
-      try {
-        const response = await fetch(`/api/getitems?page=${currentPage}&limit=10&category=${category}`);
-        if (!response.ok) {
-          throw new Error("Failed to fetch menu items");
-        }
-        const data: MenuItemData[] = await response.json();
-  
-        setMenu((prevMenu) => ({
-          ...prevMenu,
-          [category]: [...(prevMenu[category] || []), ...data],
-        }));
-  
-        setPage((prevPage) => ({
-          ...prevPage,
-          [category]: currentPage + 1,
-        }));
-  
-        setHasMore((prevHasMore) => ({
-          ...prevHasMore,
-          [category]: data.length === 10,
-        }));
-      } catch (err) {
-        console.error("Error fetching menu items:", err);
-      } finally {
-        setLoading(false);
-      }
-    };
-  
-    const fetchData = async () => {
-      await fetchPlatters(); 
-  
-      // Then fetch menu items by category
-      for (const category of menuCategoryOrder) {
-        await fetchMenu(category);
-      }
-    };
-  
-    fetchData(); 
-  }, [menuCategoryOrder, platterCategoryOrder]);
+useEffect(() => {
+  const fetchPlatters = async () => {
+    setPlatterLoading(true);
+    try {
+      const res = await fetch("/api/platter");
+      const data: Platter[] = await res.json();
+      const grouped: { [key: string]: Platter[] } = {};
+
+      data.forEach((p) => {
+        if (!grouped[p.platterCategory]) grouped[p.platterCategory] = [];
+        grouped[p.platterCategory].push(p);
+      });
+
+      setPlatters(grouped);
+    } finally {
+      setPlatterLoading(false);
+    }
+  };
+
+  const fetchMenuCategory = async (category: string) => {
+    setMenuLoading((prev) => ({ ...prev, [category]: true }));
+    try {
+      const res = await fetch(`/api/getitems?page=1&limit=10&category=${category}`);
+      const data = await res.json();
+      setMenu((prev) => ({ ...prev, [category]: data }));
+      setPage((prev) => ({ ...prev, [category]: 2 }));
+      setHasMore((prev) => ({ ...prev, [category]: data.length === 10 }));
+    } finally {
+      setMenuLoading((prev) => ({ ...prev, [category]: false }));
+    }
+  };
+
+  fetchPlatters();
+  menuCategoryOrder.forEach(fetchMenuCategory);
+}, []);
+
   
 
   const lastMenuItemRef = (category: string, node: HTMLDivElement | null) => {
-    if (loading || !hasMore[category]) return;
-    if (observer.current) observer.current.disconnect();
+  if (menuLoading[category] || !hasMore[category]) return;
 
-    if (node) {
-      observer.current = new IntersectionObserver((entries) => {
-        if (entries[0].isIntersecting) {
-          setPage((prevPage) => ({
-            ...prevPage,
-            [category]: (prevPage[category] || 1) + 1,
-          }));
-        }
-      });
+  if (!observers.current[category]) {
+    observers.current[category] = new IntersectionObserver((entries) => {
+      if (entries[0].isIntersecting) {
+        setPage((prev) => ({
+          ...prev,
+          [category]: (prev[category] || 1) + 1,
+        }));
+      }
+    });
+  }
 
-      observer.current.observe(node);
-    }
-  };
+  if (node) observers.current[category].observe(node);
+};
+
   return (
     <div className="bg-white text-black">
       <Hero />
@@ -186,11 +149,11 @@ export default function MenuPage() {
                 </h1>
               </div>
               <div className="grid grid-cols-2 gap-4 pr-6 pl-1 sm:px-6 lg:px-8 w-full max-w-6xl mx-auto sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 mt-4">
-                {loading && filteredPlatters.length === 0 ? (
+                {platterLoading && filteredPlatters.length === 0 ? (
                   [...Array(4)].map((_, i) => <SkeletonLoader key={i} />)
                 ) : (
                   filteredPlatters.map((platter) => (
-                    <div key={uuidv4()}>
+                    <div key={platter.id}>
                       <PlatterItem platter={platter} />
                     </div>
                   ))
@@ -213,13 +176,13 @@ export default function MenuPage() {
                 </h1>
               </div>
               <div className="grid grid-cols-2 gap-4 pr-6 pl-1 sm:px-6 lg:px-8 w-full max-w-6xl mx-auto sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 mt-4">
-                {loading && filteredItems.length === 0 ? (
+                {menuLoading[category] && filteredItems.length === 0 ? (
                   [...Array(4)].map((_, i) => <SkeletonLoader key={i} />)
                 ) : (
                   filteredItems.map((item, index) => (
                     <div
                       ref={index === filteredItems.length - 1 ? (node) => lastMenuItemRef(category, node) : null}
-                      key={uuidv4()}
+                      key={item.id}
                     >
                       <MenuItem item={item} />
                     </div>

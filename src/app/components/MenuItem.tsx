@@ -78,6 +78,7 @@ const MenuItem: FC<MenuItemProps> = ({ item }) => {
             className="rounded-xl object-cover w-full h-40 mb-4"
             width={450}
             height={160}
+            unoptimized={true}
           />
         </motion.div>
 
@@ -151,6 +152,7 @@ const MenuItem: FC<MenuItemProps> = ({ item }) => {
                   className="rounded-xl object-cover w-full h-[350px]"
                   width={356}
                   height={350}
+                  unoptimized={true}
                 />
               </motion.div>
 

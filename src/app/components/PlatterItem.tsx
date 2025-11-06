@@ -141,6 +141,7 @@ const PlatterItem: FC<PlatterItemProps> = ({ platter }) => {
             className="rounded-xl object-cover w-full h-40 mb-4"
             width={450}
             height={160}
+            unoptimized={true}
           />
         </motion.div>
 
@@ -213,6 +214,7 @@ rounded-2xl p-4 sm:p-6 max-w-4xl w-full max-h-[90vh] overflow-y-auto flex flex-c
                   className="rounded-xl object-cover w-full h-[350px]"
                   width={356}
                   height={350}
+                  unoptimized={true}
                 />
               </motion.div>
 

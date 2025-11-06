@@ -67,6 +67,19 @@ const [detectedArea, setDetectedArea] = useState("");
   const cartRef = useRef<HTMLDivElement | null>(null);
   const modalRef = useRef<HTMLDivElement | null>(null);
     const { orderType, area, tableId } = useOrder();
+const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  let value = e.target.value.replace(/\D/g, ""); // remove non-digits
+
+  // Force start with 03
+  if (!value.startsWith("03")) {
+    value = "03" + value.replace(/^03*/, "");
+  }
+
+  // Limit to 11 digits
+  value = value.slice(0, 11);
+
+  setFormData(prev => ({ ...prev, phone: value }));
+};
 
   // preserve tableId from query or local storage
   useEffect(() => {
@@ -535,17 +548,19 @@ ${items
         <label className="block text-sm font-medium text-gray-700 mb-2">
           Phone Number <span className="text-rose-500">*</span>
         </label>
-        <input
-          name="phone"
-          type="tel"
-          value={formData.phone ?? ""}
-          onChange={handleInputChange}
-          required
-          placeholder="e.g. +92 300 1234567"
-          className="w-full px-4 py-3 rounded-lg border border-neutral-200  
-                     bg-white/80 focus:outline-none focus:ring-2 
-                     focus:ring-[#741052] transition"
-        />
+<input
+  name="phone"
+  type="tel"
+  value={formData.phone ?? ""}
+  onChange={handlePhoneChange}
+  required
+  placeholder="03XXXXXXXXX"
+  className="w-full px-4 py-3 rounded-lg border border-neutral-200  
+             bg-white/80 focus:outline-none focus:ring-2 
+             focus:ring-[#741052] transition"
+/>
+
+
       </div>
     </>
   )}
