@@ -290,7 +290,7 @@ const handlePlaceOrder = async (): Promise<void> => {
       price: item.price,
       variations: item.variations || [],
     })),
-    totalAmount,
+    totalAmount:finalAmount,
     status: "Received",
   };
 

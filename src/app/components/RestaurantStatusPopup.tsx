@@ -20,23 +20,30 @@ function pad(n: number) {
 }
 
 function isOpenAt(karachiDate: Date) {
-  const day = karachiDate.getDay(); // 0 = Sunday ... 6 = Saturday
+  let day = karachiDate.getDay();
 
   const h = karachiDate.getHours();
   const m = karachiDate.getMinutes();
   const minutes = h * 60 + m;
 
-  const openStart = 18 * 60 + 30; // 6:30 PM (18:30)
+  // If time is *after midnight but before cutoff* → treat as previous day
+  // because we are still in "last night's session"
+  const isEarlyMorning = minutes < 180; // before 3:00 AM safety window
+  if (isEarlyMorning) {
+    day = (day + 6) % 7; // shift to previous day
+  }
 
-  // Weekend cutoff: Fri, Sat, Sun → 02:45 AM
+  const openStart = 18 * 60 + 30; // 6:30 PM
+
+  // Weekend nights (Fri, Sat, Sun)
   const weekendDays = [5, 6, 0];
   const cutoff = weekendDays.includes(day)
     ? 2 * 60 + 45 // 2:45 AM
-    : 0 * 60 + 45; // 12:45 AM (00:45)
+    : 0 * 60 + 45; // 12:45 AM
 
-  // Logic: Open if current time >= open start OR < cutoff next day
   return minutes >= openStart || minutes < cutoff;
 }
+
 
 function nextOpenAndLastCloseFrom(karachiNow: Date) {
   const openStart = new Date(karachiNow);

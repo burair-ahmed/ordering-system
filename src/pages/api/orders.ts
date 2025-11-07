@@ -55,6 +55,7 @@ const ordersHandler = async (req: NextApiRequest, res: NextApiResponse) => {
       paymentMethod,
       items,
       totalAmount,
+      deliveryCharge,
       status,
       ordertype,
       area,
@@ -85,6 +86,7 @@ const ordersHandler = async (req: NextApiRequest, res: NextApiResponse) => {
         area: ordertype === "delivery" ? area : null,
         phone: ordertype === "delivery" ? phone : null,
         paymentMethod,
+        deliveryCharge: ordertype === "delivery" ? deliveryCharge : 0,
         items: items.map((item: OrderItem) => ({
           id: item.id,
           title: item.title,
