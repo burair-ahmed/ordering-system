@@ -21,7 +21,7 @@ function pad(n: number) {
 
 function isOpenAt(karachiDate: Date) {
   let day = karachiDate.getDay();
-
+  
   const h = karachiDate.getHours();
   const m = karachiDate.getMinutes();
   const minutes = h * 60 + m;
@@ -98,6 +98,8 @@ export default function RestaurantStatusPopup() {
     return () => clearInterval(t);
   }, []);
 if (typeof window !== "undefined" && window.location.hostname === "localhost") return null;
+if (typeof window !== "undefined" && window.location.hostname === "ordering-system.littlekarachirestaurant.com") return null;
+
 
   if (pathname.startsWith("/admin")) return null;
   if (isOpenAt(now)) return null;
