@@ -612,30 +612,38 @@ ${items
                 <Banknote size={20} />
                 Cash
               </button>
-              <button
+              <div
                 onClick={() => {
-                  handlePaymentChange("online");
-                  setShowOnlineInfo(true);
-                  // toggle open/close
+                  toast("Online payment is disabled for now");
                 }}
-                className={`flex items-center gap-1 px-4 py-2 rounded-full font-medium transition focus:outline-none ${
-                  formData.paymentMethod === "online"
-                    ? "text-white"
-                    : "text-gray-700"
-                }`}
-                style={
-                  formData.paymentMethod === "online"
-                    ? {
-                        background: BRAND_GRADIENT_CSS,
-                        boxShadow: "0 8px 30px rgba(116,16,82,0.14)",
-                      }
-                    : {}
-                }
-                aria-pressed={formData.paymentMethod === "online"}
+                className="inline-block"
               >
-                <CreditCard size={20} />
-                Online
-              </button>
+                <button
+                  onClick={() => {
+                    handlePaymentChange("online");
+                    setShowOnlineInfo(true);
+                    // toggle open/close
+                  }}
+                  className={`flex items-center gap-1 px-4 py-2 rounded-full font-medium transition focus:outline-none ${
+                    formData.paymentMethod === "online"
+                      ? "text-white"
+                      : "text-gray-700"
+                  }`}
+                  style={
+                    formData.paymentMethod === "online"
+                      ? {
+                          background: BRAND_GRADIENT_CSS,
+                          boxShadow: "0 8px 30px rgba(116,16,82,0.14)",
+                        }
+                      : {}
+                  }
+                  aria-pressed={formData.paymentMethod === "online"}
+                  disabled={false}
+                >
+                  <CreditCard size={20} />
+                  Online
+                </button>
+              </div>
             </div>
 
             <p className="text-xs text-gray-500 mt-2">
@@ -673,10 +681,11 @@ ${items
           transition={{ duration: 0.45 }}
           ref={cartRef}
         >
-          <div className="sticky top-20 flex flex-col lg:flex-col-reverse
-">
-
-        <AnimatePresence>
+          <div
+            className="sticky top-20 flex flex-col lg:flex-col-reverse
+"
+          >
+            <AnimatePresence>
               {showOnlineInfo && (
                 <motion.div
                   initial={{ height: 0, opacity: 0 }}
@@ -914,8 +923,6 @@ ${items
                 </div>
               </div>
             </div>
-
-    
           </div>
         </motion.aside>
       </div>
