@@ -22,6 +22,7 @@ import { FiChevronLeft, FiCheck, FiX } from "react-icons/fi";
 // import DeliveryForm from "./forms/DeliveryForm";
 import { toast } from "sonner";
 import { useOrder } from "../context/OrderContext";
+import { Banknote, CreditCard, Currency } from "lucide-react";
 
 const BRAND_FROM = "#741052";
 const BRAND_TO = "#d0269b";
@@ -583,7 +584,7 @@ useEffect(() => {
             <div className="inline-flex bg-neutral-100/60 rounded-full p-1 gap-2">
               <button
                 onClick={() => handlePaymentChange("cash")}
-                className={`px-4 py-2 rounded-full font-medium transition focus:outline-none ${
+                className={`flex items-center gap-1 px-4 py-2 rounded-full font-medium transition focus:outline-none ${
                   formData.paymentMethod === "cash"
                     ? "text-white"
                     : "text-gray-700"
@@ -598,6 +599,7 @@ useEffect(() => {
                 }
                 aria-pressed={formData.paymentMethod === "cash"}
               >
+                <Banknote size={20}/>
                 Cash
               </button>
 <button
@@ -606,7 +608,7 @@ useEffect(() => {
     setShowOnlineInfo(true);
  // toggle open/close
   }}
-  className={`px-4 py-2 rounded-full font-medium transition focus:outline-none ${
+  className={`flex items-center gap-1 px-4 py-2 rounded-full font-medium transition focus:outline-none ${
     formData.paymentMethod === "online"
       ? "text-white"
       : "text-gray-700"
@@ -621,6 +623,8 @@ useEffect(() => {
   }
   aria-pressed={formData.paymentMethod === "online"}
 >
+                <CreditCard size={20}/>
+
   Online
 </button>
 
