@@ -614,7 +614,7 @@ ${items
               </button>
               <div
                 onClick={() => {
-                  toast("Online payment is disabled for now");
+                  toast.error("Online payment is disabled for now");
                 }}
                 className="inline-block"
               >
