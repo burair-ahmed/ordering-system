@@ -61,12 +61,13 @@ const CheckoutPageContent: FC = () => {
   const [confirmChecked, setConfirmChecked] = useState(false);
   const [mounted, setMounted] = useState(false);
 const [detectedArea, setDetectedArea] = useState("");
+const [showOnlineInfo, setShowOnlineInfo] = useState(false);
 
   // refs for GSAP timeline (optional)
   const formRef = useRef<HTMLDivElement | null>(null);
   const cartRef = useRef<HTMLDivElement | null>(null);
   const modalRef = useRef<HTMLDivElement | null>(null);
-    const { orderType, area, tableId } = useOrder();
+  const { orderType, area, tableId } = useOrder();
 const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
   let value = e.target.value.replace(/\D/g, ""); // remove non-digits
 
@@ -421,6 +422,13 @@ ${items
       transition: { duration: 0.24 },
     },
   };
+useEffect(() => {
+  if (formData.paymentMethod === "online") {
+    setShowOnlineInfo(true);
+  } else {
+    setShowOnlineInfo(false);
+  }
+}, [formData.paymentMethod]);
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -572,7 +580,7 @@ ${items
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Payment Method
             </label>
-            <div className="inline-flex bg-neutral-100/60 rounded-full p-1">
+            <div className="inline-flex bg-neutral-100/60 rounded-full p-1 gap-2">
               <button
                 onClick={() => handlePaymentChange("cash")}
                 className={`px-4 py-2 rounded-full font-medium transition focus:outline-none ${
@@ -592,26 +600,32 @@ ${items
               >
                 Cash
               </button>
-              <button
-                onClick={() => handlePaymentChange("online")}
-                className={`px-4 py-2 rounded-full font-medium transition focus:outline-none ${
-                  formData.paymentMethod === "online"
-                    ? "text-white"
-                    : "text-gray-700"
-                }`}
-                style={
-                  formData.paymentMethod === "online"
-                    ? {
-                        background: BRAND_GRADIENT_CSS,
-                        boxShadow: "0 8px 30px rgba(116,16,82,0.14)",
-                      }
-                    : {}
-                }
-                aria-pressed={formData.paymentMethod === "online"}
-              >
-                Online
-              </button>
+<button
+  onClick={() => {
+    handlePaymentChange("online");
+    setShowOnlineInfo(true);
+ // toggle open/close
+  }}
+  className={`px-4 py-2 rounded-full font-medium transition focus:outline-none ${
+    formData.paymentMethod === "online"
+      ? "text-white"
+      : "text-gray-700"
+  }`}
+  style={
+    formData.paymentMethod === "online"
+      ? {
+          background: BRAND_GRADIENT_CSS,
+          boxShadow: "0 8px 30px rgba(116,16,82,0.14)",
+        }
+      : {}
+  }
+  aria-pressed={formData.paymentMethod === "online"}
+>
+  Online
+</button>
+
             </div>
+
             <p className="text-xs text-gray-500 mt-2">
               Choose the preferred payment method.
             </p>
@@ -640,7 +654,48 @@ ${items
         </motion.section>
 
         {/* RIGHT: Cart summary (sticky on desktop) */}
-       <motion.aside className="lg:col-span-5" initial={{opacity:0,y:6}} animate={{opacity:1,y:0}} transition={{duration:0.45}} ref={cartRef}><div className="sticky top-20"><div className="bg-white/70 backdrop-blur-md rounded-2xl p-4 shadow"><div className="flex items-center justify-between mb-4"><h3 className="text-lg font-semibold">Cart Summary</h3><div className="text-sm text-gray-500">{formattedItems.length} items</div></div><div className="space-y-3"><AnimatePresence mode="sync">{formattedItems.map((it,idx)=>(<motion.div key={`${it.id}-${idx}`} layout variants={itemVariants} initial="hidden" animate="show" exit="exit" transition={{type:"spring",stiffness:300,damping:28}}><div key={idx} className="cart-item-stagger bg-white/60 backdrop-blur-sm rounded-xl p-3 flex gap-3 items-center shadow hover:shadow-md "><div className="w-20 h-20 rounded-xl overflow-hidden relative flex-shrink-0"><Image src={it.image||"/placeholder.png"} alt={it.title} fill sizes="80px" className="object-cover"/></div><div className="flex-1 min-w-0"><div className="flex items-start justify-between gap-3"><div className="min-w-0"><div className="text-sm font-semibold truncate">{it.title}</div>{it.variations&&(<div className="text-xs text-rose-800 mt-1">{Array.isArray(it.variations)?it.variations.join(", "):String(it.variations)}</div>)}</div><div className="text-sm font-bold" style={{background:BRAND_GRADIENT_CSS,WebkitBackgroundClip:"text",color:"transparent"}}>Rs. {(it.price*it.quantity).toFixed(2)}</div></div><div className="mt-3 flex items-center gap-2"><button onClick={()=>updateQuantity(it.id,Math.max(1,it.quantity-1),it.variations)} aria-label="Decrease" className="w-8 h-8 rounded-full flex items-center justify-center text-white" style={{background:BRAND_GRADIENT_CSS}}>-</button><div className="px-3 py-1 bg-white/70 rounded-full border border-gray-100 text-sm font-medium">{it.quantity}</div><button onClick={()=>updateQuantity(it.id,it.quantity+1,it.variations)} aria-label="Increase" className="w-8 h-8 rounded-full flex items-center justify-center text-white" style={{background:BRAND_GRADIENT_CSS}}>+</button><button onClick={()=>removeFromCart(it.id,it.variations)} aria-label="Remove" className="ml-auto text-sm text-rose-600 hover:text-rose-700">Remove</button></div></div></div></motion.div>))}</AnimatePresence></div><div className="mt-4 pt-4 border-t border-neutral-100"><div className="flex items-center justify-between"><div className="text-sm text-gray-500">Subtotal</div><div className="text-sm font-semibold">Rs. {totalAmount.toFixed(2)}</div></div><div className="mt-3"><div className="rounded-xl p-4" style={{background:"linear-gradient(180deg, rgba(116,16,82,0.06), rgba(208,38,155,0.02))"}}><div className="flex items-center justify-between"><div><div className="text-xs text-gray-500">Total</div><div className="text-2xl font-bold" style={{background:BRAND_GRADIENT_CSS,WebkitBackgroundClip:"text",color:"transparent"}}>Rs. {totalAmount.toFixed(2)}</div></div><div><button onClick={()=>{if(!formData.name||!formData.tableNumber){alert("Please fill Name & Table Number before placing order.");return;}setIsModalOpen(true);}} className="px-4 py-2 rounded-full text-white font-semibold shadow" style={{background:BRAND_GRADIENT_CSS}}>Checkout</button></div></div><p className="text-xs text-gray-500 mt-2">Taxes included where applicable.</p></div></div></div></div></div></motion.aside>
+       <motion.aside className="lg:col-span-5" initial={{opacity:0,y:6}} animate={{opacity:1,y:0}} transition={{duration:0.45}} ref={cartRef}><div className="sticky top-20"><div className="bg-white/70 backdrop-blur-md rounded-2xl p-4 shadow"><div className="flex items-center justify-between mb-4"><h3 className="text-lg font-semibold">Cart Summary</h3><div className="text-sm text-gray-500">{formattedItems.length} items</div></div><div className="space-y-3"><AnimatePresence mode="sync">{formattedItems.map((it,idx)=>(<motion.div key={`${it.id}-${idx}`} layout variants={itemVariants} initial="hidden" animate="show" exit="exit" transition={{type:"spring",stiffness:300,damping:28}}><div key={idx} className="cart-item-stagger bg-white/60 backdrop-blur-sm rounded-xl p-3 flex gap-3 items-center shadow hover:shadow-md "><div className="w-20 h-20 rounded-xl overflow-hidden relative flex-shrink-0"><Image src={it.image||"/placeholder.png"} alt={it.title} fill sizes="80px" className="object-cover"/></div><div className="flex-1 min-w-0"><div className="flex items-start justify-between gap-3"><div className="min-w-0"><div className="text-sm font-semibold truncate">{it.title}</div>{it.variations&&(<div className="text-xs text-rose-800 mt-1">{Array.isArray(it.variations)?it.variations.join(", "):String(it.variations)}</div>)}</div><div className="text-sm font-bold" style={{background:BRAND_GRADIENT_CSS,WebkitBackgroundClip:"text",color:"transparent"}}>Rs. {(it.price*it.quantity).toFixed(2)}</div></div><div className="mt-3 flex items-center gap-2"><button onClick={()=>updateQuantity(it.id,Math.max(1,it.quantity-1),it.variations)} aria-label="Decrease" className="w-8 h-8 rounded-full flex items-center justify-center text-white" style={{background:BRAND_GRADIENT_CSS}}>-</button><div className="px-3 py-1 bg-white/70 rounded-full border border-gray-100 text-sm font-medium">{it.quantity}</div><button onClick={()=>updateQuantity(it.id,it.quantity+1,it.variations)} aria-label="Increase" className="w-8 h-8 rounded-full flex items-center justify-center text-white" style={{background:BRAND_GRADIENT_CSS}}>+</button><button onClick={()=>removeFromCart(it.id,it.variations)} aria-label="Remove" className="ml-auto text-sm text-rose-600 hover:text-rose-700">Remove</button></div></div></div></motion.div>))}</AnimatePresence></div><div className="mt-4 pt-4 border-t border-neutral-100"><div className="flex items-center justify-between"><div className="text-sm text-gray-500">Subtotal</div><div className="text-sm font-semibold">Rs. {totalAmount.toFixed(2)}</div></div><div className="mt-3"><div className="rounded-xl p-4" style={{background:"linear-gradient(180deg, rgba(116,16,82,0.06), rgba(208,38,155,0.02))"}}><div className="flex items-center justify-between"><div><div className="text-xs text-gray-500">Total</div><div className="text-2xl font-bold" style={{background:BRAND_GRADIENT_CSS,WebkitBackgroundClip:"text",color:"transparent"}}>Rs. {totalAmount.toFixed(2)}</div></div><div><button onClick={()=>{if(!formData.name||!formData.tableNumber){alert("Please fill Name & Table Number before placing order.");return;}setIsModalOpen(true);}} className="px-4 py-2 rounded-full text-white font-semibold shadow" style={{background:BRAND_GRADIENT_CSS}}>Checkout</button></div></div><p className="text-xs text-gray-500 mt-2">Taxes included where applicable.</p></div></div></div></div>
+       
+                   <AnimatePresence>
+  {showOnlineInfo && formData.paymentMethod === "online" && (
+    <motion.div
+      initial={{ height: 0, opacity: 0 }}
+      animate={{ height: "auto", opacity: 1 }}
+      exit={{ height: 0, opacity: 0 }}
+      transition={{ duration: 0.3 }}
+      className="mt-3 p-4 rounded-xl border border-gray-200 bg-white shadow-sm"
+    >
+      <h3 className="text-sm font-semibold">Online Payment Details</h3>
+
+      <div className="mt-2 space-y-2 text-sm">
+        <div>
+          <p className="font-medium text-gray-700">Bank Transfer</p>
+          <p className="text-gray-600">Bank: Meezan Bank</p>
+          <p className="text-gray-600">Account Title: Your Business</p>
+          <p className="text-gray-600">Account No: 0123456789</p>
+        </div>
+
+        <hr />
+
+        <div>
+          <p className="font-medium text-gray-700">Easypaisa</p>
+          <p className="text-gray-600">Number: 03XX-XXXXXXX</p>
+          <p className="text-gray-600">Name: Your Name</p>
+        </div>
+
+        <hr />
+
+        <div>
+          <p className="font-medium text-gray-700">JazzCash</p>
+          <p className="text-gray-600">Number: 03XX-XXXXXXX</p>
+          <p className="text-gray-600">Name: Your Name</p>
+        </div>
+      </div>
+    </motion.div>
+  )}
+</AnimatePresence>
+
+       </div></motion.aside>
 
       </div>
 
