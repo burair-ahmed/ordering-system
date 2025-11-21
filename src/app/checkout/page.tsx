@@ -549,7 +549,7 @@ ${items
                 {/* Delivery Address / Area */}
                 <div className="field-stagger sm:col-span-2">
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Delivery Address / Area{" "}
+                    Delivery Address / {area}
                     <span className="text-rose-500">*</span>
                   </label>
                   <input
@@ -900,15 +900,7 @@ ${items
                       </div>
                       <div>
                         <button
-                          onClick={() => {
-                            if (!formData.name || !formData.tableNumber) {
-                              alert(
-                                "Please fill Name & Table Number before placing order."
-                              );
-                              return;
-                            }
-                            setIsModalOpen(true);
-                          }}
+                          onClick={handleCheckout}
                           className="px-4 py-2 rounded-full text-white font-semibold shadow"
                           style={{ background: BRAND_GRADIENT_CSS }}
                         >
