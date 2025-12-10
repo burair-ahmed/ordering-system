@@ -15,8 +15,12 @@ import {
   MapPin,
   Phone,
   UtensilsCrossed,
+  Check,
+  X,
 } from 'lucide-react';
 import Preloader from './Preloader';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
 
 interface Item {
   id: string;
@@ -45,6 +49,10 @@ interface Order {
 
 const CompletedOrders: FC = () => {
   const [completedOrders, setCompletedOrders] = useState<Order[]>([]);
+  const [selectedOrders, setSelectedOrders] = useState<Set<string>>(new Set());
+  const [page, setPage] = useState<number>(1);
+  const [totalPages, setTotalPages] = useState<number>(1);
+  const [searchTerm, setSearchTerm] = useState<string>('');
   const [loading, setLoading] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [selectedOrder, setSelectedOrder] = useState<string | null>(null);
@@ -52,21 +60,27 @@ const CompletedOrders: FC = () => {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [expanded, setExpanded] = useState<string | null>(null);
 
-  useEffect(() => {
-    const fetchCompletedOrders = async () => {
-      try {
-        const response = await fetch('/api/fetchCompletedOrders');
-        const data = await response.json();
-        if (response.ok) {
-          setCompletedOrders(data.orders);
-        } else {
-          alert('Failed to fetch completed orders.');
-        }
-      } catch (error) {
-        console.error('Error fetching completed orders:', error);
+  const fetchCompletedOrders = async (targetPage = 1) => {
+    try {
+      setLoading(true);
+      const response = await fetch(`/api/fetchorders?status=completed&page=${targetPage}&limit=12`);
+      const data = await response.json();
+      if (response.ok) {
+        setCompletedOrders(data.orders || []);
+        setPage(data.page || targetPage);
+        setTotalPages(data.totalPages || 1);
+      } else {
+        alert('Failed to fetch completed orders.');
       }
-    };
-    fetchCompletedOrders();
+    } catch (error) {
+      console.error('Error fetching completed orders:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchCompletedOrders(1);
   }, []);
 
   const handleDeleteOrder = (orderNumber: string) => {
@@ -104,6 +118,71 @@ const CompletedOrders: FC = () => {
       setPassword('');
       setSelectedOrder(null);
     }
+  };
+
+  const toggleSelect = (orderNumber: string) => {
+    setSelectedOrders((prev) => {
+      const next = new Set(prev);
+      if (next.has(orderNumber)) next.delete(orderNumber);
+      else next.add(orderNumber);
+      return next;
+    });
+  };
+
+  const selectAllVisible = () => {
+    setSelectedOrders(new Set(completedOrders.map((o) => o.orderNumber)));
+  };
+
+  const clearSelection = () => setSelectedOrders(new Set());
+
+  const filtered = completedOrders.filter((o) => {
+    const term = searchTerm.trim().toLowerCase();
+    if (!term) return true;
+    return (
+      o.orderNumber.toLowerCase().includes(term) ||
+      o.customerName.toLowerCase().includes(term) ||
+      (o.phone || '').toLowerCase().includes(term)
+    );
+  });
+
+  const bulkDelete = () => {
+    if (selectedOrders.size === 0) return;
+    setSelectedOrder(Array.from(selectedOrders)[0]);
+    setShowModal(true);
+  };
+
+  const bulkExportCsv = () => {
+    if (filtered.length === 0) return;
+    const headers = [
+      "orderNumber",
+      "customerName",
+      "email",
+      "ordertype",
+      "status",
+      "paymentMethod",
+      "totalAmount",
+      "area",
+      "phone",
+      "tableNumber",
+      "createdAt",
+    ];
+    const rows = filtered.map((o) =>
+      headers
+        .map((h) => {
+          const val = (o as any)[h] ?? "";
+          if (typeof val === "string" && val.includes(",")) return `"${val}"`;
+          return val;
+        })
+        .join(",")
+    );
+    const csv = [headers.join(","), ...rows].join("\n");
+    const blob = new Blob([csv], { type: "text/csv" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `completed-orders-page-${page}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
   };
 
   const cancelDelete = () => {
@@ -180,9 +259,37 @@ const CompletedOrders: FC = () => {
         )}
       </AnimatePresence>
 
+      <div className="mb-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 px-2">
+        <div className="flex items-center gap-2">
+          <Input
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            placeholder="Search by order #, name, phone"
+            className="h-10"
+          />
+          <Button variant="outline" onClick={() => fetchCompletedOrders(1)}>
+            Refresh
+          </Button>
+        </div>
+        <div className="flex items-center gap-2 text-xs text-neutral-600">
+          <Button variant="outline" size="sm" onClick={selectAllVisible}>
+            Select all
+          </Button>
+          <Button variant="outline" size="sm" onClick={clearSelection}>
+            Clear
+          </Button>
+          <Button variant="outline" size="sm" onClick={bulkDelete} disabled={selectedOrders.size === 0}>
+            Delete selected
+          </Button>
+          <Button variant="outline" size="sm" onClick={bulkExportCsv}>
+            Export CSV
+          </Button>
+        </div>
+      </div>
+
       {/* 📦 Orders Grid */}
       <div className="max-h-[60vh] overflow-y-auto px-2">
-        {completedOrders.length === 0 ? (
+        {filtered.length === 0 ? (
           <p className="text-xl text-gray-600 text-center py-10">
             No completed orders yet.
           </p>
@@ -196,7 +303,7 @@ const CompletedOrders: FC = () => {
               visible: { transition: { staggerChildren: 0.1 } },
             }}
           >
-            {completedOrders.map((order) => (
+            {filtered.map((order) => (
               <motion.div
                 key={order.orderNumber}
                 className="rounded-2xl border border-[#5c0d40]/30 bg-white dark:bg-neutral-800 shadow-md hover:shadow-xl hover:scale-[1.01] transition relative"
@@ -206,28 +313,35 @@ const CompletedOrders: FC = () => {
                 }}
               >
                 {/* Header */}
-    <div className="p-4 border-b border-gray-100 dark:border-neutral-700">
-  {/* Order Number on top */}
-  <h2 className="text-lg font-bold text-[#5c0d40] mb-3">
-    Order <span className="text-sm text-[#5c0d10]">#{order.orderNumber}</span>
-  </h2>
-
-  {/* Status and Price Row */}
-  <div className="flex justify-between items-center border-t border-gray-100 dark:border-neutral-700 pt-3">
-    <span
-      className={`inline-flex items-center justify-center px-2.5 py-1 text-xs font-medium rounded-full leading-none ${
-        statusColors[order.status] || "bg-gray-100 text-gray-700"
-      }`}
-      style={{ minHeight: "26px" }}
-    >
-      {order.status}
-    </span>
-
-    <p className="text-[#5c0d40] font-bold text-base leading-none pt-3">
-      Rs. {order.totalAmount}
-    </p>
-  </div>
-</div>
+                <div className="p-4 border-b border-gray-100 dark:border-neutral-700 flex justify-between items-start gap-3">
+                  <div className="flex items-center gap-3">
+                    <input
+                      type="checkbox"
+                      checked={selectedOrders.has(order.orderNumber)}
+                      onChange={() => toggleSelect(order.orderNumber)}
+                      className="accent-emerald-600"
+                    />
+                    <div>
+                      <h2 className="text-lg font-bold text-[#5c0d40]">
+                        Order <span className="text-sm text-[#5c0d10]">#{order.orderNumber}</span>
+                      </h2>
+                      <p className="text-xs text-neutral-500">{new Date(order.createdAt).toLocaleString()}</p>
+                    </div>
+                  </div>
+                  <div className="flex flex-col items-end gap-2">
+                    <span
+                      className={`inline-flex items-center justify-center px-2.5 py-1 text-xs font-medium rounded-full leading-none ${
+                        statusColors[order.status] || "bg-gray-100 text-gray-700"
+                      }`}
+                      style={{ minHeight: "26px" }}
+                    >
+                      {order.status}
+                    </span>
+                    <p className="text-[#5c0d40] font-bold text-base leading-none">
+                      Rs. {order.totalAmount}
+                    </p>
+                  </div>
+                </div>
 
 
 
@@ -334,7 +448,40 @@ const CompletedOrders: FC = () => {
                   >
                     <Trash2 size={16} /> Delete
                   </button>
-                  <button className="flex items-center gap-2 px-4 py-2 rounded-full bg-[#741052] text-white text-sm font-medium hover:bg-[#d0269b] transition">
+                  <button
+                    onClick={() => {
+                      const blob = new Blob(
+                        [
+                          JSON.stringify(
+                            {
+                              orderNumber: order.orderNumber,
+                              customerName: order.customerName,
+                              email: order.email,
+                              ordertype: order.ordertype,
+                              status: order.status,
+                              paymentMethod: order.paymentMethod,
+                              totalAmount: order.totalAmount,
+                              area: order.area,
+                              phone: order.phone,
+                              tableNumber: order.tableNumber,
+                              items: order.items,
+                              createdAt: order.createdAt,
+                            },
+                            null,
+                            2
+                          ),
+                        ],
+                        { type: 'application/json' }
+                      );
+                      const url = URL.createObjectURL(blob);
+                      const a = document.createElement('a');
+                      a.href = url;
+                      a.download = `order-${order.orderNumber}.json`;
+                      a.click();
+                      URL.revokeObjectURL(url);
+                    }}
+                    className="flex items-center gap-2 px-4 py-2 rounded-full bg-[#741052] text-white text-sm font-medium hover:bg-[#d0269b] transition"
+                  >
                     <Download size={16} /> Invoice
                   </button>
                 </div>

@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-unused-vars */
 "use client";
 
-import { FC, useEffect, useRef, useState } from "react";
+import { FC, useEffect, useMemo, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Select,
@@ -11,6 +11,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
 import {
   User,
   Mail,
@@ -21,10 +22,16 @@ import {
   ChevronDown,
   ChevronUp,
   Box,
+  Eye,
+  X,
+  Phone,
+  MessageCircle,
+  Download,
 } from "lucide-react";
 import Preloader from "../components/Preloader";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { toast } from "sonner";
 
 const BRAND_COLOR = "#741052";
 const BRAND_GRADIENT = "from-[#741052] via-fuchsia-600 to-pink-600";
@@ -51,6 +58,18 @@ interface Order {
   paymentMethod: string;
   items: Item[];
   totalAmount: number;
+  createdAt: string;
+}
+
+interface FeedbackEntry {
+  rating: number;
+  comment: string;
+  createdAt: string;
+}
+
+interface ConsentEntry {
+  channel: string;
+  consent: boolean;
   createdAt: string;
 }
 
@@ -83,6 +102,15 @@ const OrdersList: FC = () => {
   const previousOrdersRef = useRef<Order[]>([]);
   const [audioInitialized, setAudioInitialized] = useState(false);
   const [checkboxChecked, setCheckboxChecked] = useState(false);
+  const [statusFilter, setStatusFilter] = useState<string>("all");
+  const [typeFilter, setTypeFilter] = useState<OrderType | "all">("all");
+  const [paymentFilter, setPaymentFilter] = useState<string>("all");
+  const [searchTerm, setSearchTerm] = useState<string>("");
+  const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
+  const [detailOpen, setDetailOpen] = useState<boolean>(false);
+  const [feedbackList, setFeedbackList] = useState<FeedbackEntry[]>([]);
+  const [consents, setConsents] = useState<ConsentEntry[]>([]);
+  const [loadingDetail, setLoadingDetail] = useState<boolean>(false);
 
   // 🎵 Audio setup
   const initializeAudioContext = async () => {
@@ -164,20 +192,195 @@ const OrdersList: FC = () => {
   };
 
   // ⬇️ Toggle expand
-const toggleExpand = (orderNumber: string) => {
-  setExpandedOrders((prev) => {
-    const updated = new Set(prev);
-    if (updated.has(orderNumber)) {
-      updated.delete(orderNumber);
-    } else {
-      updated.add(orderNumber);
+  const toggleExpand = (orderNumber: string) => {
+    setExpandedOrders((prev) => {
+      const updated = new Set(prev);
+      if (updated.has(orderNumber)) {
+        updated.delete(orderNumber);
+      } else {
+        updated.add(orderNumber);
+      }
+      return updated;
+    });
+  };
+
+  const filteredOrders = useMemo(() => {
+    return orders.filter((order) => {
+      const matchesStatus = statusFilter === "all" || order.status === statusFilter;
+      const matchesType = typeFilter === "all" || order.ordertype === typeFilter;
+      const matchesPayment =
+        paymentFilter === "all" ||
+        order.paymentMethod.toLowerCase() === paymentFilter.toLowerCase();
+      const term = searchTerm.trim().toLowerCase();
+      const matchesTerm =
+        term.length === 0 ||
+        order.orderNumber.toLowerCase().includes(term) ||
+        order.customerName.toLowerCase().includes(term) ||
+        (order.phone || "").toLowerCase().includes(term);
+      return matchesStatus && matchesType && matchesPayment && matchesTerm;
+    });
+  }, [orders, statusFilter, typeFilter, paymentFilter, searchTerm]);
+
+  // Allowed transitions to reduce accidental jumps
+  const allowedStatusMap: Record<string, string[]> = {
+    Pending: ["Pending", "Received", "In Progress", "Completed", "Cancelled"],
+    Received: ["Received", "In Progress", "Completed", "Cancelled"],
+    "In Progress": ["In Progress", "Completed", "Cancelled"],
+    Completed: ["Completed"],
+    Cancelled: ["Cancelled"],
+  };
+
+  const safeUpdateStatus = (order: Order, next: string) => {
+    const allowed = allowedStatusMap[order.status] || [];
+    if (!allowed.includes(next)) {
+      toast.error("Not allowed", {
+        description: `Cannot move from ${order.status} to ${next}`,
+      });
+      return;
     }
-    return updated;
-  });
-};
+    updateOrderStatus(order.orderNumber, next);
+  };
+
+  const openDetail = async (order: Order) => {
+    setSelectedOrder(order);
+    setDetailOpen(true);
+    setLoadingDetail(true);
+    try {
+      const [fbRes, consentRes] = await Promise.all([
+        fetch(`/api/order-feedback?orderNumber=${order.orderNumber}`),
+        fetch(`/api/notification-consent?orderNumber=${order.orderNumber}`),
+      ]);
+      if (fbRes.ok) {
+        const fbJson = await fbRes.json();
+        setFeedbackList(fbJson.feedback || []);
+      } else {
+        setFeedbackList([]);
+      }
+      if (consentRes.ok) {
+        const cJson = await consentRes.json();
+        setConsents(cJson.consents || []);
+      } else {
+        setConsents([]);
+      }
+    } catch (e) {
+      setFeedbackList([]);
+      setConsents([]);
+    } finally {
+      setLoadingDetail(false);
+    }
+  };
+
+  const closeDetail = () => {
+    setDetailOpen(false);
+    setSelectedOrder(null);
+    setFeedbackList([]);
+    setConsents([]);
+  };
+
+  const downloadReceipt = (order: Order) => {
+    const lines = [
+      `Order: ${order.orderNumber}`,
+      `Type: ${order.ordertype}`,
+      order.tableNumber ? `Table: ${order.tableNumber}` : "",
+      order.area ? `Area: ${order.area}` : "",
+      order.phone ? `Phone: ${order.phone}` : "",
+      `Payment: ${order.paymentMethod}`,
+      `Status: ${order.status}`,
+      "",
+      "Items:",
+      ...order.items.map(
+        (it, idx) =>
+          `${idx + 1}. ${it.title} x${it.quantity} @ Rs.${it.price} = Rs.${
+            it.price * it.quantity
+          }`
+      ),
+      "",
+      `Total: Rs.${order.totalAmount}`,
+    ]
+      .filter(Boolean)
+      .join("\n");
+    const blob = new Blob([lines], { type: "text/plain" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `receipt-${order.orderNumber}.txt`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
 
   return (
     <div className="p-6">
+      {/* Filters */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-3 items-end">
+        <div className="space-y-1">
+          <p className="text-xs text-neutral-500">Search</p>
+          <Input
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            placeholder="Order #, name, phone"
+            className="h-10"
+            aria-label="Search orders"
+          />
+        </div>
+        <div className="space-y-1">
+          <p className="text-xs text-neutral-500">Status</p>
+          <Select value={statusFilter} onValueChange={setStatusFilter}>
+            <SelectTrigger className="h-10 bg-white/70 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#741052]" aria-label="Filter by status">
+              <SelectValue placeholder="All" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All</SelectItem>
+              <SelectItem value="Pending">Pending</SelectItem>
+              <SelectItem value="Received">Received</SelectItem>
+              <SelectItem value="In Progress">In Progress</SelectItem>
+              <SelectItem value="Completed">Completed</SelectItem>
+              <SelectItem value="Cancelled">Cancelled</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+        <div className="space-y-1">
+          <p className="text-xs text-neutral-500">Order type</p>
+          <Select value={typeFilter} onValueChange={(v) => setTypeFilter(v as OrderType | "all")}>
+            <SelectTrigger className="h-10 bg-white/70 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#741052]" aria-label="Filter by order type">
+              <SelectValue placeholder="All" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All</SelectItem>
+              <SelectItem value="dinein">Dine-in</SelectItem>
+              <SelectItem value="pickup">Pickup</SelectItem>
+              <SelectItem value="delivery">Delivery</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+        <div className="space-y-1">
+          <p className="text-xs text-neutral-500">Payment</p>
+          <Select value={paymentFilter} onValueChange={setPaymentFilter}>
+            <SelectTrigger className="h-10 bg-white/70 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#741052]" aria-label="Filter by payment method">
+              <SelectValue placeholder="All" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All</SelectItem>
+              <SelectItem value="cash">Cash</SelectItem>
+              <SelectItem value="online">Online</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
+
+      <div className="mt-2 flex gap-3 text-xs text-neutral-600">
+        <span>{filteredOrders.length} showing</span>
+        <button
+          onClick={() => {
+            setStatusFilter("all");
+            setTypeFilter("all");
+            setPaymentFilter("all");
+            setSearchTerm("");
+          }}
+          className="underline text-[#741052] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#741052]"
+        >
+          Clear filters
+        </button>
+      </div>
       {/* 🔔 Enable Sound Dialog */}
 {!audioInitialized && (
   <motion.div
@@ -235,7 +438,7 @@ const toggleExpand = (orderNumber: string) => {
       {/* 🧾 Orders Grid */}
       <div className="max-h-[500px] overflow-y-auto lg:pr-2 lg:pb-2 lg:pl-2 lg:pt-2 mt-4">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 lg:gap-6">
-          {orders.length === 0 ? (
+          {filteredOrders.length === 0 ? (
             <div className="col-span-full flex flex-col items-center justify-center text-center py-12">
               <div
                 className={`lg:w-20 w-40 h-20 rounded-xl flex items-center justify-center bg-gradient-to-br ${BRAND_GRADIENT} text-white shadow-lg`}
@@ -251,13 +454,13 @@ const toggleExpand = (orderNumber: string) => {
             </div>
           ) : (
             <AnimatePresence>
-              {orders.map((order) => (
+              {filteredOrders.map((order) => (
                 <motion.div
                   key={order.orderNumber}
                   initial={{ opacity: 0, scale: 0.9 }}
                   animate={{ opacity: 1, scale: 1 }}
                   transition={{ type: "spring", stiffness: 260, damping: 22 }}
-                  className="relative rounded-2xl border border-white/10 bg-white/10 dark:bg-neutral-900/30 backdrop-blur-md p-4 shadow-[0_8px_30px_rgba(116,16,82,0.1)] hover:scale-[1.02] transition-all"
+                  className="relative rounded-2xl border border-white/10 bg-white/10 dark:bg-neutral-900/30 backdrop-blur-md p-4 shadow-[0_8px_30px_rgba(116,16,82,0.1)] hover:scale-[1.02] transition-all focus-within:ring-2 focus-within:ring-[#741052]/30"
                 >
                   {/* Header */}
                   <div className="flex justify-between items-start">
@@ -320,7 +523,7 @@ const toggleExpand = (orderNumber: string) => {
                   <div className="mt-4 border-t border-white/10 pt-3">
                     <button
                       onClick={() => toggleExpand(order.orderNumber)}
-                      className="w-full flex justify-between items-center text-sm font-medium text-[#741052] hover:text-pink-600 transition"
+                      className="w-full flex justify-between items-center text-sm font-medium text-[#741052] hover:text-pink-600 transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#741052]"
                     >
                       Items ({order.items.length})
                       {expandedOrders.has(order.orderNumber) ? (
@@ -377,29 +580,41 @@ const toggleExpand = (orderNumber: string) => {
                   </div>
 
                   {/* Footer */}
-                  <div className="mt-4 flex justify-between items-center border-t border-white/10 pt-3">
+                  <div className="mt-4 flex justify-between items-center border-t border-white/10 pt-3 gap-2">
                     <p
                       className="text-lg font-bold bg-clip-text text-transparent bg-gradient-to-r from-[#741052] to-pink-600"
                     >
                       Rs. {order.totalAmount}
                     </p>
-                    <Select
-                      defaultValue={order.status}
-                      onValueChange={(val) =>
-                        updateOrderStatus(order.orderNumber, val)
-                      }
-                    >
-                      <SelectTrigger className="w-[160px] bg-white/5 border-white/10 text-black dark:text-neutral-100 focus:ring-[#741052]/30">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="Pending">Pending</SelectItem>
-                        <SelectItem value="In Progress">In Progress</SelectItem>
-                        <SelectItem value="Received">Received</SelectItem>
-                        <SelectItem value="Completed">Completed</SelectItem>
-                        <SelectItem value="Cancelled">Cancelled</SelectItem>
-                      </SelectContent>
-                    </Select>
+                    <div className="flex items-center gap-2">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => openDetail(order)}
+                        className="h-9 w-9"
+                        aria-label={`Open details for order ${order.orderNumber}`}
+                      >
+                        <Eye className="h-4 w-4" />
+                      </Button>
+                      <Select
+                        defaultValue={order.status}
+                        onValueChange={(val) => safeUpdateStatus(order, val)}
+                      >
+                        <SelectTrigger
+                          className="w-[160px] bg-white/5 border-white/10 text-black dark:text-neutral-100 focus:ring-[#741052]/30 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#741052]"
+                          aria-label={`Change status for order ${order.orderNumber}`}
+                        >
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="Pending">Pending</SelectItem>
+                          <SelectItem value="Received">Received</SelectItem>
+                          <SelectItem value="In Progress">In Progress</SelectItem>
+                          <SelectItem value="Completed">Completed</SelectItem>
+                          <SelectItem value="Cancelled">Cancelled</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
                   </div>
 
                   {loadingOrders.has(order.orderNumber) && (
@@ -413,6 +628,204 @@ const toggleExpand = (orderNumber: string) => {
           )}
         </div>
       </div>
+
+      {/* Detail drawer */}
+      <AnimatePresence>
+        {detailOpen && selectedOrder && (
+          <motion.div
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm px-4"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+          >
+            <motion.div
+              className="relative w-full max-w-3xl rounded-2xl bg-white dark:bg-neutral-900 shadow-2xl p-6"
+              initial={{ y: 30, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              exit={{ y: 20, opacity: 0 }}
+            >
+              <button
+                onClick={closeDetail}
+                className="absolute right-4 top-4 text-neutral-500 hover:text-neutral-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#741052]"
+                aria-label="Close details"
+              >
+                <X className="h-5 w-5" />
+              </button>
+
+              <div className="space-y-4">
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <p className="text-xs text-neutral-500">Order</p>
+                    <h3 className="text-xl font-semibold text-[#741052]">
+                      #{selectedOrder.orderNumber}
+                    </h3>
+                    <p className="text-xs text-neutral-500">{timeAgo(selectedOrder.createdAt)}</p>
+                  </div>
+                  <Badge
+                    className={`${statusColors[selectedOrder.status] || "bg-gray-100 text-gray-800"} rounded-full px-3 py-1 text-xs`}
+                  >
+                    {selectedOrder.status}
+                  </Badge>
+                </div>
+
+                <div className="grid sm:grid-cols-2 gap-3 text-sm text-neutral-700 dark:text-neutral-200">
+                  <div className="space-y-1">
+                    <p className="font-semibold">Customer</p>
+                    <p>{selectedOrder.customerName}</p>
+                    <p className="text-xs text-neutral-500">{selectedOrder.email || "—"}</p>
+                  </div>
+                  <div className="space-y-1">
+                    <p className="font-semibold">Order type</p>
+                    <p className="capitalize">{selectedOrder.ordertype}</p>
+                    {selectedOrder.tableNumber && <p>Table: {selectedOrder.tableNumber}</p>}
+                    {selectedOrder.area && <p>Area: {selectedOrder.area}</p>}
+                    {selectedOrder.phone && <p>Phone: {selectedOrder.phone}</p>}
+                  </div>
+                  <div className="space-y-1">
+                    <p className="font-semibold">Payment</p>
+                    <p>{selectedOrder.paymentMethod}</p>
+                    <p>Total: Rs. {selectedOrder.totalAmount}</p>
+                  </div>
+                  <div className="space-y-2">
+                    <p className="font-semibold">Quick actions</p>
+                    <div className="flex flex-wrap gap-2">
+                      {selectedOrder.phone && (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => window.open(`tel:${selectedOrder.phone}`, "_blank")}
+                          className="gap-2"
+                        >
+                          <Phone className="h-4 w-4" /> Call
+                        </Button>
+                      )}
+                      {selectedOrder.phone && (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() =>
+                            window.open(
+                              `https://wa.me/${selectedOrder.phone}?text=Hello%20regarding%20order%20${selectedOrder.orderNumber}`,
+                              "_blank"
+                            )
+                          }
+                          className="gap-2"
+                        >
+                          <MessageCircle className="h-4 w-4" /> WhatsApp
+                        </Button>
+                      )}
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => downloadReceipt(selectedOrder)}
+                        className="gap-2"
+                      >
+                        <Download className="h-4 w-4" /> Receipt
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border rounded-xl p-3 bg-neutral-50 dark:bg-neutral-900/60">
+                  <div>
+                    <p className="text-sm font-semibold">Update status</p>
+                    <p className="text-xs text-neutral-500">Allowed moves only</p>
+                  </div>
+                  <Select
+                    defaultValue={selectedOrder.status}
+                    onValueChange={(val) => safeUpdateStatus(selectedOrder, val)}
+                  >
+                    <SelectTrigger className="w-[200px] bg-white/70 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#741052]">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Pending">Pending</SelectItem>
+                      <SelectItem value="Received">Received</SelectItem>
+                      <SelectItem value="In Progress">In Progress</SelectItem>
+                      <SelectItem value="Completed">Completed</SelectItem>
+                      <SelectItem value="Cancelled">Cancelled</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="space-y-2">
+                  <p className="text-sm font-semibold">Items</p>
+                  <div className="space-y-2 max-h-56 overflow-auto pr-1">
+                    {selectedOrder.items.map((it) => (
+                      <div
+                        key={it.id}
+                        className="flex justify-between items-start rounded-lg border border-neutral-100 dark:border-neutral-800 bg-white/70 dark:bg-neutral-800/50 px-3 py-2"
+                      >
+                        <div>
+                          <p className="font-medium">{it.title}</p>
+                          <p className="text-xs text-neutral-500">Qty: {it.quantity}</p>
+                          {it.variations && (
+                            <div className="flex flex-wrap gap-1 mt-1">
+                              {it.variations.map((v, idx) => (
+                                <span key={idx} className="text-[11px] px-2 py-1 rounded-full bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-300">
+                                  {typeof v === "string" ? v : `${v.name}: ${v.value}`}
+                                </span>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                        <p className="text-sm font-semibold">Rs. {it.price * it.quantity}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="grid sm:grid-cols-2 gap-3">
+                  <div className="rounded-xl border border-neutral-100 dark:border-neutral-800 p-3 bg-white/70 dark:bg-neutral-800/40">
+                    <p className="text-sm font-semibold mb-2">Feedback</p>
+                    {loadingDetail ? (
+                      <p className="text-xs text-neutral-500">Loading…</p>
+                    ) : feedbackList.length === 0 ? (
+                      <p className="text-xs text-neutral-500">No feedback yet.</p>
+                    ) : (
+                      <div className="space-y-2">
+                        {feedbackList.map((f, idx) => (
+                          <div key={idx} className="rounded-lg border border-neutral-100 dark:border-neutral-700 p-2">
+                            <p className="text-sm font-semibold">Rating: {f.rating}/5</p>
+                            {f.comment && <p className="text-xs text-neutral-600 dark:text-neutral-300">{f.comment}</p>}
+                            <p className="text-[11px] text-neutral-500">{timeAgo(f.createdAt)}</p>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                  <div className="rounded-xl border border-neutral-100 dark:border-neutral-800 p-3 bg-white/70 dark:bg-neutral-800/40">
+                    <p className="text-sm font-semibold mb-2">Notification consent</p>
+                    {loadingDetail ? (
+                      <p className="text-xs text-neutral-500">Loading…</p>
+                    ) : consents.length === 0 ? (
+                      <p className="text-xs text-neutral-500">No consents recorded.</p>
+                    ) : (
+                      <div className="space-y-2">
+                        {consents.map((c, idx) => (
+                          <div key={idx} className="rounded-lg border border-neutral-100 dark:border-neutral-700 p-2 text-sm">
+                            <p className="font-semibold capitalize">{c.channel}</p>
+                            <p className="text-xs text-neutral-600">
+                              {c.consent ? "Opted in" : "Opted out"} — {timeAgo(c.createdAt)}
+                            </p>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              <button
+                onClick={closeDetail}
+                className="mt-4 w-full rounded-full border border-neutral-200 dark:border-neutral-700 py-2 text-sm font-semibold hover:bg-neutral-100 dark:hover:bg-neutral-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#741052]"
+              >
+                Close
+              </button>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };

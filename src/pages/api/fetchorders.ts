@@ -15,18 +15,25 @@ async function connectToDatabase() {
 
 const fetchOrdersHandler = async (req: NextApiRequest, res: NextApiResponse) => {
   if (req.method === "GET") {
+    const { page = "1", limit = "20", status = "active" } = req.query;
+    const pageNum = Math.max(parseInt(page as string, 10) || 1, 1);
+    const pageSize = Math.min(Math.max(parseInt(limit as string, 10) || 20, 1), 200);
+
+    const isCompleted = status === "completed";
+    const match = isCompleted ? { status: "Completed" } : { status: { $ne: "Completed" } };
+
     try {
-      // Connect to the database
       await connectToDatabase();
 
-      // Fetch orders excluding "Completed", sorted by orderNumber (latest orders first)
-      const orders = await Order.find({ status: { $ne: "Completed" } }).sort({ orderNumber: -1 });
+      const orders = await Order.find(match)
+        .sort({ orderNumber: -1 })
+        .skip((pageNum - 1) * pageSize)
+        .limit(pageSize);
 
-      if (!orders || orders.length === 0) {
-        return res.status(404).json({ message: "No orders found." });
-      }
+      const total = await Order.countDocuments(match);
+      const totalPages = Math.ceil(total / pageSize);
 
-      return res.status(200).json({ orders }); // Return the orders array
+      return res.status(200).json({ orders, page: pageNum, total, totalPages });
     } catch (error) {
       console.error("Error fetching orders:", error);
       return res.status(500).json({ message: "Failed to fetch orders" });

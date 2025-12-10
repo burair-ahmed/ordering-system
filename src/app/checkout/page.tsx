@@ -75,11 +75,16 @@ const CheckoutPageContent: FC = () => {
   const [mounted, setMounted] = useState(false);
   const [detectedArea, setDetectedArea] = useState("");
   const [showOnlineInfo, setShowOnlineInfo] = useState(false);
+  const [tipAmount, setTipAmount] = useState<string>("");
+  const [cashPreference, setCashPreference] = useState<
+    "none" | "exact" | "need-change"
+  >("none");
 
   // refs for GSAP timeline (optional)
   const formRef = useRef<HTMLDivElement | null>(null);
   const cartRef = useRef<HTMLDivElement | null>(null);
   const modalRef = useRef<HTMLDivElement | null>(null);
+  const areaInputRef = useRef<HTMLInputElement | null>(null);
   const { orderType, area, tableId } = useOrder();
   const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     let value = e.target.value.replace(/\D/g, ""); // remove non-digits
@@ -197,6 +202,23 @@ const CheckoutPageContent: FC = () => {
 
   const handlePaymentChange = (method: "cash" | "online") => {
     setFormData((s) => ({ ...s, paymentMethod: method }));
+  };
+
+  const focusAreaInput = () => {
+    setIsModalOpen(false);
+    setTimeout(() => {
+      areaInputRef.current?.focus();
+      areaInputRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+    }, 150);
+  };
+
+  const handleCopy = async (text: string, label: string) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      toast.success(`${label} copied`, { description: text });
+    } catch (e) {
+      toast.error("Copy failed", { description: "Please copy manually." });
+    }
   };
 
   // your original checkout handler (opens confirmation modal)
@@ -553,6 +575,7 @@ ${items
                     <span className="text-rose-500">*</span>
                   </label>
                   <input
+                    ref={areaInputRef}
                     name="area"
                     type="address"
                     value={`${formData.area}`}
@@ -649,6 +672,66 @@ ${items
             <p className="text-xs text-gray-500 mt-2">
               Choose the preferred payment method.
             </p>
+
+            {formData.paymentMethod === "cash" && (
+              <div className="mt-3 space-y-3 text-sm text-gray-700">
+                <div className="flex items-center gap-2">
+                  <input
+                    type="radio"
+                    id="cash-none"
+                    name="cash-pref"
+                    checked={cashPreference === "none"}
+                    onChange={() => setCashPreference("none")}
+                    className="accent-[#741052]"
+                  />
+                  <label htmlFor="cash-none">No preference</label>
+                </div>
+                <div className="flex items-center gap-2">
+                  <input
+                    type="radio"
+                    id="cash-exact"
+                    name="cash-pref"
+                    checked={cashPreference === "exact"}
+                    onChange={() => setCashPreference("exact")}
+                    className="accent-[#741052]"
+                  />
+                  <label htmlFor="cash-exact">I have exact cash</label>
+                </div>
+                <div className="flex items-center gap-2">
+                  <input
+                    type="radio"
+                    id="cash-change"
+                    name="cash-pref"
+                    checked={cashPreference === "need-change"}
+                    onChange={() => setCashPreference("need-change")}
+                    className="accent-[#741052]"
+                  />
+                  <label htmlFor="cash-change">I might need change</label>
+                </div>
+                <div className="flex flex-col gap-1">
+                  <label className="text-xs text-gray-600">
+                    Tip (optional, cash on delivery)
+                  </label>
+                  <input
+                    value={tipAmount}
+                    onChange={(e) => setTipAmount(e.target.value.replace(/[^0-9.]/g, ""))}
+                    placeholder="Enter tip amount"
+                    className="w-full px-3 py-2 rounded-lg border border-neutral-200 bg-white/80 focus:outline-none focus:ring-2 focus:ring-[#741052]"
+                    inputMode="decimal"
+                  />
+                </div>
+                <p className="text-xs text-gray-500">
+                  We’ll inform staff of your cash preference; tip is optional and paid in cash.
+                </p>
+              </div>
+            )}
+
+            {formData.paymentMethod === "online" && (
+              <div className="mt-3 text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded-lg p-3">
+                Online payment is coming soon; meanwhile you can pay via bank/ wallet and share proof
+                on arrival.
+              </div>
+            )}
           </div>
 
           {/* Place order CTA */}
@@ -716,7 +799,18 @@ ${items
                         <p className="text-gray-600">
                           Account Title: Your Business
                         </p>
-                        <p className="text-gray-600">Account No: 0123456789</p>
+                        <div className="flex items-center gap-2">
+                          <p className="text-gray-600">Account No: 0123456789</p>
+                          <button
+                            onClick={() =>
+                              handleCopy("Meezan Bank - Account No: 0123456789", "Bank details")
+                            }
+                            className="text-xs text-[#741052] underline"
+                            aria-label="Copy bank details"
+                          >
+                            Copy
+                          </button>
+                        </div>
                       </div>
                     </div>
 
@@ -733,7 +827,18 @@ ${items
                       />
                       <div>
                         <p className="font-medium text-gray-800">Easypaisa</p>
-                        <p className="text-gray-600">Number: 03XX-XXXXXXX</p>
+                        <div className="flex items-center gap-2">
+                          <p className="text-gray-600">Number: 03XX-XXXXXXX</p>
+                          <button
+                            onClick={() =>
+                              handleCopy("Easypaisa Number: 03XX-XXXXXXX", "Easypaisa number")
+                            }
+                            className="text-xs text-[#741052] underline"
+                            aria-label="Copy Easypaisa number"
+                          >
+                            Copy
+                          </button>
+                        </div>
                         <p className="text-gray-600">Name: Your Name</p>
                       </div>
                     </div>
@@ -751,7 +856,18 @@ ${items
                       />
                       <div>
                         <p className="font-medium text-gray-800">JazzCash</p>
-                        <p className="text-gray-600">Number: 03XX-XXXXXXX</p>
+                        <div className="flex items-center gap-2">
+                          <p className="text-gray-600">Number: 03XX-XXXXXXX</p>
+                          <button
+                            onClick={() =>
+                              handleCopy("JazzCash Number: 03XX-XXXXXXX", "JazzCash number")
+                            }
+                            className="text-xs text-[#741052] underline"
+                            aria-label="Copy JazzCash number"
+                          >
+                            Copy
+                          </button>
+                        </div>
                         <p className="text-gray-600">Name: Your Name</p>
                       </div>
                     </div>
@@ -999,8 +1115,18 @@ ${items
                       )}
 
                       {formData.ordertype === "delivery" && (
-                        <div className="">
-                          <strong>Delivery Area:</strong> {formData.area || "—"}
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <div>
+                            <strong>Delivery Area:</strong> {formData.area || "—"}
+                          </div>
+                          <button
+                            type="button"
+                            onClick={focusAreaInput}
+                            className="text-xs text-[#741052] underline"
+                            aria-label="Change delivery area"
+                          >
+                            Change area
+                          </button>
                         </div>
                       )}
                       {formData.ordertype === "delivery" && (
