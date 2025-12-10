@@ -33,8 +33,7 @@ interface AddToCartButtonForPlattersProps {
     categories: Category[]; // Ensure platter has categories
     additionalChoices: AdditionalChoice[];
   };
-  selectedOptions: { [key: string]: string }; // The selected options (categories)
-  selectedAdditionalChoices: { [key: string]: string }; // Selected additional choices by UUID
+  selectedVariations: string[]; // Flattened variations array
   onClick: () => void; // Function to trigger the action when clicked (e.g., close the modal)
   className: string; // Add any custom class for styling
   disabled: boolean; // Disable the button if required
@@ -42,8 +41,7 @@ interface AddToCartButtonForPlattersProps {
 
 const AddToCartButtonForPlatters: FC<AddToCartButtonForPlattersProps> = ({
   platter,
-  selectedOptions,
-  selectedAdditionalChoices,
+  selectedVariations,
   onClick,
   className,
   disabled,
@@ -51,26 +49,13 @@ const AddToCartButtonForPlatters: FC<AddToCartButtonForPlattersProps> = ({
   const { addToCart } = useCart();
 
   const handleAddToCart = () => {
-    const variations = [
-      ...Object.entries(selectedOptions).map(([key, value]) => {
-        const category = platter.categories.find((cat) => cat.categoryName === key);
-        return category ? `${category.categoryName}: ${value}` : value;
-      }),
-      ...Object.entries(selectedAdditionalChoices).map(([uuid, value]) => {
-        const additionalChoice = platter.additionalChoices.find((choice) => 
-          choice.options.some((opt) => opt.uuid === uuid)
-        );
-        return additionalChoice ? `${additionalChoice.heading}: ${value}` : value;
-      }),
-    ];
-
     addToCart({
       id: platter.id,
       title: platter.title,
-      price: platter.basePrice, // No price adjustment for additional choices
+      price: platter.basePrice,
       quantity: 1,
       image: platter.image,
-      variations,
+      variations: selectedVariations,
     });
     onClick(); // Trigger parent action after adding to cart (e.g., closing the modal)
   };

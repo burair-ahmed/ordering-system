@@ -1,6 +1,8 @@
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
+import { VariationConfig, SimpleVariation } from "../../types/variations";
+import { toast } from "sonner";
 
-interface Variation {
+interface LegacyVariation {
   name: string;
   price: number;
 }
@@ -13,7 +15,7 @@ interface EditMenuItemFormProps {
     price: number;
     category: string;
     image: string; // Base64 string
-    variations: Variation[];
+    variations: LegacyVariation[];
     status: "in stock" | "out of stock";
   };
   onClose: () => void;
@@ -25,17 +27,32 @@ const EditMenuItemForm: React.FC<EditMenuItemFormProps> = ({
   onClose,
   onUpdate,
 }) => {
+  // Convert legacy variations to VariationConfig
+  const variationConfig = useMemo((): VariationConfig => ({
+    simpleVariations: (item.variations || []).map((v, index) => ({
+      id: `variation-${index}`,
+      name: v.name,
+      price: v.price
+    })),
+    simpleSelection: 'single',
+    allowMultipleCategories: false,
+  }), [item.variations]);
+
+  const [currentVariationConfig, setCurrentVariationConfig] = useState<VariationConfig>(variationConfig);
+
   const [formData, setFormData] = useState({
     title: item.title || "",
     description: item.description || "",
     price: item.price || 0,
     category: item.category || "",
     image: item.image || "",
-    variations: item.variations || [],
     status: item.status || "in stock",
   });
 
   const [loading, setLoading] = useState(false);
+
+  // Computed properties for backward compatibility
+  const variations = currentVariationConfig.simpleVariations || [];
 
   const handleChange = (
     e: React.ChangeEvent<
@@ -60,25 +77,39 @@ const EditMenuItemForm: React.FC<EditMenuItemFormProps> = ({
 
   const handleVariationChange = (
     index: number,
-    field: keyof Variation,
+    field: keyof SimpleVariation,
     value: string | number
   ) => {
-    const updatedVariations = formData.variations.map((variation, i) =>
-      i === index ? { ...variation, [field]: value } : variation
-    );
-    setFormData({ ...formData, variations: updatedVariations });
-  };
-
-  const addVariation = () => {
-    setFormData({
-      ...formData,
-      variations: [...formData.variations, { name: "", price: 0 }],
+    setCurrentVariationConfig(prev => {
+      const currentVariations = prev.simpleVariations || [];
+      const updatedVariations = currentVariations.map((variation, i) =>
+        i === index ? {
+          ...variation,
+          [field]: field === 'price' ? (typeof value === 'string' ? parseFloat(value) || 0 : value) : value
+        } : variation
+      );
+      return {
+        ...prev,
+        simpleVariations: updatedVariations
+      };
     });
   };
 
+  const addVariation = () => {
+    setCurrentVariationConfig(prev => ({
+      ...prev,
+      simpleVariations: [
+        ...(prev.simpleVariations || []),
+        { id: `variation-${Date.now()}`, name: "", price: 0 }
+      ]
+    }));
+  };
+
   const removeVariation = (index: number) => {
-    const updatedVariations = formData.variations.filter((_, i) => i !== index);
-    setFormData({ ...formData, variations: updatedVariations });
+    setCurrentVariationConfig(prev => ({
+      ...prev,
+      simpleVariations: (prev.simpleVariations || []).filter((_, i) => i !== index)
+    }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -86,6 +117,11 @@ const EditMenuItemForm: React.FC<EditMenuItemFormProps> = ({
     setLoading(true);
 
     try {
+      // Convert VariationConfig to API format
+      const apiVariations = variations
+        .filter((v) => v.name.trim() !== "" && v.price > 0)
+        .map((v) => ({ name: v.name, price: v.price }));
+
       const response = await fetch("/api/updateItem", {
         method: "PUT",
         headers: {
@@ -94,6 +130,7 @@ const EditMenuItemForm: React.FC<EditMenuItemFormProps> = ({
         body: JSON.stringify({
           id: item._id,
           ...formData,
+          variations: apiVariations,
         }),
       });
 
@@ -101,10 +138,12 @@ const EditMenuItemForm: React.FC<EditMenuItemFormProps> = ({
         throw new Error("Failed to update item");
       }
 
+      toast.success("Menu item updated successfully!");
       onUpdate();
       onClose();
     } catch (error) {
       console.error("Error updating item:", error);
+      toast.error("Failed to update menu item. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -222,9 +261,9 @@ const EditMenuItemForm: React.FC<EditMenuItemFormProps> = ({
             Variations
           </label>
           <div className="max-h-60 overflow-y-auto pr-2 space-y-3">
-            {formData.variations.map((variation, index) => (
+            {variations.map((variation, index) => (
               <div
-                key={index}
+                key={variation.id}
                 className="flex items-center gap-3 bg-gray-50 dark:bg-gray-800 p-3 rounded-xl shadow-sm"
               >
                 <input
@@ -234,17 +273,17 @@ const EditMenuItemForm: React.FC<EditMenuItemFormProps> = ({
                     handleVariationChange(index, "name", e.target.value)
                   }
                   placeholder="Variation Name"
-                  className="flex-1 border border-gray-300 dark:border-gray-700 rounded-lg px-4 py-2 
+                  className="flex-1 border border-gray-300 dark:border-gray-700 rounded-lg px-4 py-2
                              focus:ring-2 focus:ring-[#741052] focus:outline-none transition"
                 />
                 <input
                   type="number"
                   value={variation.price}
                   onChange={(e) =>
-                    handleVariationChange(index, "price", parseFloat(e.target.value))
+                    handleVariationChange(index, "price", e.target.value)
                   }
                   placeholder="Price"
-                  className="w-24 border border-gray-300 dark:border-gray-700 rounded-lg px-4 py-2 
+                  className="w-24 border border-gray-300 dark:border-gray-700 rounded-lg px-4 py-2
                              focus:ring-2 focus:ring-[#741052] focus:outline-none transition"
                 />
                 <button

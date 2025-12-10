@@ -1,9 +1,12 @@
 "use client";
 
-import { FC, useState } from "react";
+import { FC, useState, useMemo } from "react";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import AddToCartButton from "./AddToCartButton";
+import { VariationSelector } from "../../components/variations/VariationSelector";
+import { useVariationSelector } from "../../hooks/useVariationSelector";
+import { VariationConfig } from "../../types/variations";
 import { X, Check } from "lucide-react";
 
 interface Variation {
@@ -27,21 +30,31 @@ interface MenuItemProps {
 
 const MenuItem: FC<MenuItemProps> = ({ item }) => {
   const [showModal, setShowModal] = useState(false);
-  const [selectedVariation, setSelectedVariation] = useState<Variation | null>(
-    null
-  );
   const [showAddedMessage, setShowAddedMessage] = useState(false);
 
   const itemId = item.id ? item.id.toString() : "0";
   const basePrice = typeof item.price === "number" ? item.price : 0;
-  const variationPrice = selectedVariation
-    ? parseFloat(selectedVariation.price || "0")
-    : 0;
-  const totalPrice = basePrice + variationPrice;
 
-  const handleVariationChange = (variation: Variation) => {
-    setSelectedVariation(variation);
-  };
+  // Convert legacy variations to new format
+  const variationConfig: VariationConfig = useMemo(() => ({
+    simpleVariations: item.variations?.map((v, index) => ({
+      id: `variation-${index}`,
+      name: v.name,
+      price: parseFloat(v.price) || 0
+    })),
+    simpleSelection: 'single', // Menu items typically allow single variation selection
+    allowMultipleCategories: false, // Not applicable for simple variations
+  }), [item.variations]);
+
+  // Use the new variation selector hook
+  const {
+    selections,
+    totalPrice,
+    validation,
+    selectSimpleVariation,
+    getFlattenedVariations,
+    isValid
+  } = useVariationSelector(variationConfig, basePrice);
 
   const handleItemAdded = () => {
     setShowAddedMessage(true);
@@ -173,29 +186,16 @@ const MenuItem: FC<MenuItemProps> = ({ item }) => {
                 </p>
 
                 {/* Variations */}
-                {item.variations?.length > 0 && (
+                {variationConfig.simpleVariations && variationConfig.simpleVariations.length > 0 && (
                   <div className="mt-6">
-                    <p className="text-sm font-medium text-gray-700 mb-2">
-                      Variations
-                    </p>
-                    <div className="flex flex-wrap gap-2">
-                      {item.variations.map((variation, index) => (
-                        <motion.button
-                          key={index}
-                          whileTap={{ scale: 0.95 }}
-                          onClick={() => handleVariationChange(variation)}
-                          className={`px-4 py-2 rounded-full text-sm font-medium border transition-all
-                            ${
-                              selectedVariation?.name === variation.name
-                                ? "border-2 border-transparent bg-gradient-to-r from-[#741052] to-[#d0269b] text-white"
-                                : "border border-gray-300 bg-white/60 hover:border-[#741052]"
-                            }`}
-                        >
-                          {variation.name} (+Rs.
-                          {parseFloat(variation.price).toFixed(2)})
-                        </motion.button>
-                      ))}
-                    </div>
+                    <VariationSelector
+                      config={variationConfig}
+                      selections={selections}
+                      onSimpleSelect={selectSimpleVariation}
+                      onCategorySelect={() => {}} // Not used for simple variations
+                      errors={validation.errors}
+                      warnings={validation.warnings}
+                    />
                   </div>
                 )}
 
@@ -206,11 +206,9 @@ const MenuItem: FC<MenuItemProps> = ({ item }) => {
                     title={item.title}
                     price={totalPrice}
                     image={item.image}
-                    selectedVariations={
-                      selectedVariation ? [selectedVariation.name] : undefined
-                    }
+                    selectedVariations={getFlattenedVariations()}
                     onClick={handleItemAdded}
-                    disabled={item.status === "out of stock"}
+                    disabled={item.status === "out of stock" || !isValid}
                     className=""
                   />
                   {showAddedMessage && (

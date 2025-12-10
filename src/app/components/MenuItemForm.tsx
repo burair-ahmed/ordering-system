@@ -1,12 +1,16 @@
 "use client";
 
 import { useState } from "react";
+import { VariationConfig, SimpleVariation } from "../../types/variations";
+import { toast } from "sonner";
 
 const AddMenuItemForm = () => {
-  const [enableVariations, setEnableVariations] = useState(false);
-  const [variations, setVariations] = useState<{ name: string; price: string }[]>([
-    { name: "", price: "" },
-  ]);
+  const [variationConfig, setVariationConfig] = useState<VariationConfig>({
+    simpleVariations: [],
+    simpleSelection: 'single',
+    allowMultipleCategories: false,
+  });
+
   const [formData, setFormData] = useState({
     title: "",
     price: "",
@@ -14,6 +18,10 @@ const AddMenuItemForm = () => {
     description: "",
     category: "",
   });
+
+  // Computed properties for backward compatibility
+  const enableVariations = variationConfig.simpleVariations && variationConfig.simpleVariations.length > 0;
+  const variations = variationConfig.simpleVariations || [];
 
   const categories = [
     "Mini Pancakes", "Chinese", "Ice Cream and Gola", "Flavoured Feast", "Waffles", "Roti Shoti", "Pulao.com","Charming Chai", "Paratha Performance", "Beast BBQ", "Rolls Royce",
@@ -51,35 +59,63 @@ const AddMenuItemForm = () => {
 
   const handleVariationChange = (
     index: number,
-    field: keyof { name: string; price: string },
-    value: string
+    field: keyof SimpleVariation,
+    value: string | number
   ) => {
-    const updatedVariations = [...variations];
-    updatedVariations[index][field] = value;
-    setVariations(updatedVariations);
+    setVariationConfig(prev => {
+      const currentVariations = prev.simpleVariations || [];
+      const updatedVariations = currentVariations.map((variation, i) =>
+        i === index ? { ...variation, [field]: field === 'price' ? parseFloat(value as string) || 0 : value } : variation
+      );
+      return {
+        ...prev,
+        simpleVariations: updatedVariations
+      };
+    });
   };
 
   const addVariation = () => {
-    setVariations((prev) => [...prev, { name: "", price: "" }]);
+    setVariationConfig(prev => ({
+      ...prev,
+      simpleVariations: [
+        ...(prev.simpleVariations || []),
+        { id: `variation-${Date.now()}`, name: "", price: 0 }
+      ]
+    }));
   };
 
   const removeVariation = (index: number) => {
-    setVariations((prev) => prev.filter((_, i) => i !== index));
+    setVariationConfig(prev => ({
+      ...prev,
+      simpleVariations: (prev.simpleVariations || []).filter((_, i) => i !== index)
+    }));
+  };
+
+  const toggleVariations = (enabled: boolean) => {
+    setVariationConfig(prev => ({
+      ...prev,
+      simpleVariations: enabled ? [{ id: `variation-${Date.now()}`, name: "", price: 0 }] : []
+    }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!formData.title || !formData.price || !formData.image || !formData.description || !formData.category) {
-      alert("All fields except variations are required!");
+      toast.error("All fields except variations are required!");
       return;
     }
 
+    // Convert VariationConfig to API format
+    const apiVariations = enableVariations
+      ? variations
+          .filter((v) => v.name.trim() !== "" && v.price > 0)
+          .map((v) => ({ name: v.name, price: v.price.toString() }))
+      : [];
+
     const menuItemData = {
       ...formData,
-      variations: enableVariations
-        ? variations.filter((v) => v.name.trim() !== "" && v.price.trim() !== "")
-        : [],
+      variations: apiVariations,
     };
 
     try {
@@ -90,7 +126,7 @@ const AddMenuItemForm = () => {
       });
 
       if (response.ok) {
-        alert("Menu item added successfully!");
+        toast.success("Menu item added successfully!");
         setFormData({
           title: "",
           price: "",
@@ -98,15 +134,18 @@ const AddMenuItemForm = () => {
           description: "",
           category: "",
         });
-        setEnableVariations(false);
-        setVariations([{ name: "", price: "" }]);
+        setVariationConfig({
+          simpleVariations: [],
+          simpleSelection: 'single',
+          allowMultipleCategories: false,
+        });
       } else {
         const errorData = await response.json();
-        alert(`Failed to add menu item: ${errorData.error}`);
+        toast.error(`Failed to add menu item: ${errorData.error}`);
       }
     } catch (error) {
       console.error("Error submitting form:", error);
-      alert("An error occurred. Please try again.");
+      toast.error("An error occurred. Please try again.");
     }
   };
 
@@ -242,8 +281,8 @@ const AddMenuItemForm = () => {
         <input
           type="checkbox"
           checked={enableVariations}
-          onChange={(e) => setEnableVariations(e.target.checked)}
-          className="w-4 h-4 rounded border-neutral-300 dark:border-neutral-700 
+          onChange={(e) => toggleVariations(e.target.checked)}
+          className="w-4 h-4 rounded border-neutral-300 dark:border-neutral-700
             text-[#5c0d40] focus:ring-[#5c0d40]"
         />
         <span className="text-sm font-medium text-neutral-700 dark:text-neutral-300">
@@ -259,8 +298,8 @@ const AddMenuItemForm = () => {
           </label>
           {variations.map((variation, index) => (
             <div
-              key={index}
-              className="flex items-center gap-2 p-2 rounded-xl bg-white/60 dark:bg-neutral-800/60 
+              key={variation.id}
+              className="flex items-center gap-2 p-2 rounded-xl bg-white/60 dark:bg-neutral-800/60
                 shadow-sm hover:shadow-md transition-all"
             >
               <input
@@ -270,7 +309,7 @@ const AddMenuItemForm = () => {
                   handleVariationChange(index, "name", e.target.value)
                 }
                 placeholder={`Variation ${index + 1}`}
-                className="flex-1 rounded-lg px-3 py-2 border border-neutral-300 dark:border-neutral-700 
+                className="flex-1 rounded-lg px-3 py-2 border border-neutral-300 dark:border-neutral-700
                   bg-transparent focus:ring-2 focus:ring-[#5c0d40] focus:outline-none"
               />
               <input
@@ -280,7 +319,7 @@ const AddMenuItemForm = () => {
                   handleVariationChange(index, "price", e.target.value)
                 }
                 placeholder="Price"
-                className="w-28 rounded-lg px-3 py-2 border border-neutral-300 dark:border-neutral-700 
+                className="w-28 rounded-lg px-3 py-2 border border-neutral-300 dark:border-neutral-700
                   bg-transparent focus:ring-2 focus:ring-[#5c0d40] focus:outline-none"
               />
               {variations.length > 1 && (

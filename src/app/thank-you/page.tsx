@@ -480,7 +480,7 @@ const ThankYouPage: FC = () => {
         }
       });
       toast.success('Items added back to cart. You can adjust or checkout.');
-    } catch (e) {
+    } catch {
       toast.error('Could not reorder right now.');
     } finally {
       setIsReordering(false);

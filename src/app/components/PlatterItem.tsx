@@ -2,10 +2,13 @@
 
 "use client";
 
-import { FC, useState, useEffect } from "react";
+import { FC, useState, useEffect, useMemo, useCallback } from "react";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import AddToCartButtonForPlatters from "./AddToCartButtonForPlatters";
+import { VariationSelector } from "../../components/variations/VariationSelector";
+import { useVariationSelector } from "../../hooks/useVariationSelector";
+import { VariationConfig } from "../../types/variations";
 import { X, Check } from "lucide-react";
 
 interface CategoryOption {
@@ -40,32 +43,70 @@ interface PlatterItemProps {
 
 const PlatterItem: FC<PlatterItemProps> = ({ platter }) => {
   const [showModal, setShowModal] = useState(false);
-  const [selectedOptions, setSelectedOptions] = useState<{
-    [key: string]: string;
-  }>({});
-  const [selectedAdditionalChoices, setSelectedAdditionalChoices] = useState<{
-    [key: string]: string;
-  }>({});
-  const [categoryItems, setCategoryItems] = useState<{
-    [key: string]: CategoryOption[];
-  }>({});
   const [showAddedMessage, setShowAddedMessage] = useState(false);
+  const [categoryItems, setCategoryItems] = useState<{
+    [key: string]: any[];
+  }>({});
 
-  const fetchCategoryItems = async (categoryName: string) => {
+  // Convert platter structure to unified variation config
+  const variationConfig: VariationConfig = useMemo(() => ({
+    categories: [
+      // Main categories (dynamic from API)
+      ...platter.categories.map((category, index) => ({
+        id: `category-${index}`,
+        name: category.categoryName,
+        type: 'single' as const,
+        required: true, // Platter categories are typically required
+        options: categoryItems[category.categoryName] || []
+      })),
+      // Additional choices as optional categories
+      ...platter.additionalChoices.map((choice, index) => ({
+        id: `additional-${index}`,
+        name: choice.heading,
+        type: 'single' as const,
+        required: false,
+        options: choice.options.map(opt => ({
+          id: opt.uuid,
+          name: opt.name,
+          price: opt.price || 0,
+          available: true
+        }))
+      }))
+    ],
+    allowMultipleCategories: true, // Platters can have multiple category types
+  }), [platter.categories, platter.additionalChoices, categoryItems]);
+
+  // Use the variation selector hook
+  const {
+    selections,
+    totalPrice,
+    validation,
+    selectCategoryVariation,
+    getFlattenedVariations,
+    isValid
+  } = useVariationSelector(variationConfig, platter.basePrice);
+
+  // Fetch category items when modal opens
+  const fetchCategoryItems = useCallback(async (categoryName: string) => {
     try {
       const response = await fetch(`/api/getitems?category=${categoryName}`);
       const data = await response.json();
-      return data;
+      return data.map((item: any) => ({
+        id: item.id?.toString() || item._id,
+        name: item.title,
+        price: item.price || 0,
+        available: item.status === 'in stock'
+      }));
     } catch (error) {
       console.error("Error fetching menu items:", error);
       return [];
     }
-  };
+  }, []);
 
   useEffect(() => {
     if (showModal) {
       const fetchItemsForCategories = async () => {
-        const itemsForCategories: { [key: string]: CategoryOption[] } = {};
+        const itemsForCategories: { [key: string]: any[] } = {};
         for (const category of platter.categories) {
           const items = await fetchCategoryItems(category.categoryName);
           itemsForCategories[category.categoryName] = items;
@@ -74,37 +115,7 @@ const PlatterItem: FC<PlatterItemProps> = ({ platter }) => {
       };
       fetchItemsForCategories();
     }
-  }, [showModal]);
-
-  const handleOptionChange = (categoryKey: string, optionName: string) => {
-    setSelectedOptions((prev) => ({
-      ...prev,
-      [categoryKey]: optionName,
-    }));
-  };
-
-  const handleAdditionalChoiceChange = (
-    choiceHeading: string,
-    selectedOptionUuid: string
-  ) => {
-    const selectedChoice = platter.additionalChoices
-      .flatMap((choice) => choice.options)
-      .find((option) => option.uuid === selectedOptionUuid);
-
-    if (selectedChoice) {
-      setSelectedAdditionalChoices((prev) => ({
-        ...prev,
-        [choiceHeading]: selectedChoice.name,
-      }));
-    }
-  };
-
-  useEffect(() => {
-    if (showModal) {
-      setSelectedOptions({});
-      setSelectedAdditionalChoices({});
-    }
-  }, [showModal]);
+  }, [showModal, fetchCategoryItems, platter.categories]);
 
   const handleItemAdded = () => {
     setShowAddedMessage(true);
@@ -230,80 +241,29 @@ rounded-2xl p-4 sm:p-6 max-w-4xl w-full max-h-[90vh] overflow-y-auto flex flex-c
                 </h2>
                 <p className="text-gray-600 mt-3">{platter.description}</p>
                 <p className="text-xl font-bold mt-4 bg-gradient-to-r from-[#741052] to-[#d0269b] text-transparent bg-clip-text">
-                  Rs.{platter.basePrice.toFixed(2)}
+                  Rs.{totalPrice.toFixed(2)}
                 </p>
 
-                {/* Categories */}
-                <div className="mt-4 space-y-4">
-                  {platter.categories?.map((category, categoryIndex) => {
-                    const categoryKey = `${category.categoryName}-${categoryIndex}`;
-                    return (
-                      <div key={categoryIndex}>
-                        <label className="block text-sm font-medium mb-2 text-gray-700">
-                          {category.categoryName}
-                        </label>
-                        <select
-                          className="block w-full p-2 border rounded-xl bg-white/70"
-                          value={selectedOptions[categoryKey] || ""}
-                          onChange={(e) =>
-                            handleOptionChange(categoryKey, e.target.value)
-                          }
-                        >
-                          <option value="">Select {category.categoryName}</option>
-                          {categoryItems[category.categoryName]?.map(
-                            (option, idx) => (
-                              <option key={idx} value={option.title}>
-                                {option.title}
-                              </option>
-                            )
-                          )}
-                        </select>
-                      </div>
-                    );
-                  })}
-
-                  {/* Additional Choices */}
-                  {platter.additionalChoices?.map((choice, index) => (
-                    <div key={index} className="mt-4">
-                      <label className="block text-sm font-medium mb-2 text-gray-700">
-                        {choice.heading}
-                      </label>
-                      <div className="flex flex-wrap gap-2">
-                        {choice.options.map((option, idx) => (
-                          <motion.button
-                            key={idx}
-                            whileTap={{ scale: 0.95 }}
-                            onClick={() =>
-                              handleAdditionalChoiceChange(
-                                choice.heading,
-                                option.uuid
-                              )
-                            }
-                            className={`px-4 py-2 rounded-full text-sm font-medium border transition-all
-                              ${
-                                selectedAdditionalChoices[choice.heading] ===
-                                option.name
-                                  ? "border-2 border-transparent bg-gradient-to-r from-[#741052] to-[#d0269b] text-white"
-                                  : "border border-gray-300 bg-white/60 hover:border-[#741052]"
-                              }`}
-                          >
-                            {option.name}
-                          </motion.button>
-                        ))}
-                      </div>
-                    </div>
-                  ))}
+                {/* Variations */}
+                <div className="mt-6">
+                  <VariationSelector
+                    config={variationConfig}
+                    selections={selections}
+                    onSimpleSelect={() => {}} // Not used for platters
+                    onCategorySelect={selectCategoryVariation}
+                    errors={validation.errors}
+                    warnings={validation.warnings}
+                  />
                 </div>
 
                 {/* Add to Cart */}
                 <div className="mt-6 flex items-center gap-4">
                   <AddToCartButtonForPlatters
                     platter={platter}
-                    selectedOptions={selectedOptions}
-                    selectedAdditionalChoices={selectedAdditionalChoices}
+                    selectedVariations={getFlattenedVariations()}
                     onClick={handleItemAdded}
                     className=""
-                    disabled={platter.status === "out of stock"}
+                    disabled={platter.status === "out of stock" || !isValid}
                   />
                   {showAddedMessage && (
                     <motion.div

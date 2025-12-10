@@ -1,0 +1,336 @@
+# Ordering System - Global Project Rules & Guidelines
+
+## 🎨 DESIGN SYSTEM & CONSISTENCY
+
+### Color Theme
+**PRIMARY THEME:** Pink/Magenta Gradient (#741052 to #d0269b)
+- Primary Color: `#741052` (Deep Pink)
+- Secondary Color: `#d0269b` (Bright Magenta)
+- Accent Color: `#5c0d40` (Darker Pink)
+- Success: `#10b981` (Emerald)
+- Warning: `#f59e0b` (Amber)
+- Error: `#ef4444` (Red)
+- Background: White/Neutral gradients
+- Text: `#741052` for headings, neutral grays for body
+
+### Button Design Standards
+**PRIMARY BUTTONS:**
+```jsx
+className="bg-gradient-to-r from-[#741052] to-[#d0269b] text-white font-semibold px-6 py-3 rounded-xl shadow-lg hover:opacity-90 transition-all duration-200"
+```
+
+**SECONDARY BUTTONS:**
+```jsx
+className="bg-white border-2 border-[#741052] text-[#741052] font-semibold px-6 py-3 rounded-xl hover:bg-[#741052] hover:text-white transition-all duration-200"
+```
+
+**OUTLINE BUTTONS:**
+```jsx
+className="border border-[#741052] text-[#741052] px-4 py-2 rounded-lg hover:bg-[#741052] hover:text-white transition-colors"
+```
+
+**GHOST BUTTONS:**
+```jsx
+className="text-[#741052] hover:bg-[#741052]/10 px-4 py-2 rounded-lg transition-colors"
+```
+
+### Heading Design Standards
+**MAIN HEADINGS (H1):**
+```jsx
+className="text-4xl font-bold bg-gradient-to-r from-[#741052] to-[#d0269b] bg-clip-text text-transparent mb-6"
+```
+
+**SECTION HEADINGS (H2):**
+```jsx
+className="text-3xl font-bold text-[#741052] mb-4"
+```
+
+**SUB-HEADINGS (H3):**
+```jsx
+className="text-2xl font-semibold text-[#741052] mb-3"
+```
+
+**CARD HEADINGS:**
+```jsx
+className="text-xl font-semibold text-[#741052] mb-2"
+```
+
+## 🏗️ ARCHITECTURE & BEST PRACTICES
+
+### Component Structure
+- Use functional components with TypeScript
+- Implement proper error boundaries
+- Use custom hooks for complex logic
+- Follow atomic design principles (atoms, molecules, organisms)
+
+### State Management
+- Use React Context for global state (CartContext, OrderContext, TableContext)
+- Implement proper state normalization
+- Use useReducer for complex state logic
+- Prefer server state with SWR for API data
+
+### API Integration
+- Use RESTful API patterns
+- Implement proper error handling
+- Add loading states for all async operations
+- Use TypeScript interfaces for API responses
+
+### Database & Data Flow
+- MongoDB with Mongoose schemas
+- Implement data validation at schema level
+- Use consistent field naming (camelCase)
+- Maintain referential integrity
+
+## 📁 PROJECT STRUCTURE
+
+### Folder Organization
+```
+src/
+├── app/                    # Next.js App Router
+├── components/             # Reusable UI components
+│   ├── ui/                # Shadcn/ui components
+│   ├── variations/        # Variation system components
+│   └── ...
+├── hooks/                 # Custom React hooks
+├── types/                 # TypeScript type definitions
+├── contexts/              # React contexts
+├── lib/                   # Utility functions
+└── styles/                # Global styles
+
+docs/                      # Documentation folder
+├── features/             # Feature documentation
+├── api/                  # API documentation
+├── components/           # Component documentation
+└── updates/              # Update logs
+```
+
+## 🎯 FEATURE DEVELOPMENT GUIDELINES
+
+### New Feature Implementation
+1. **Create documentation first** in `docs/features/`
+2. **Define TypeScript interfaces** in appropriate types file
+3. **Implement backend API** if needed
+4. **Create frontend components** with proper error handling
+5. **Add comprehensive tests**
+6. **Update documentation** with implementation details
+
+### Component Development
+- **Always use TypeScript** with proper interfaces
+- **Implement accessibility** (ARIA labels, keyboard navigation)
+- **Add loading states** for async operations
+- **Use consistent styling** from design system
+- **Handle edge cases** and error states
+- **Add proper comments** for complex logic
+
+## 🔄 ADMIN PANEL CORRESPONDENCE RULES
+
+### When Working on Admin-Related Components
+
+**MANDATORY SCENARIO ANALYSIS:**
+When implementing any component that interacts with or relates to admin panel functionality, you MUST:
+
+1. **Identify Both Ends:**
+   - Admin Panel Side: How admins create/manage the data
+   - Customer Side: How customers consume/use the data
+
+2. **Create Comprehensive Scenarios:**
+   ```
+   Scenario: [Feature Name]
+   Admin Side: [What admin does]
+   Customer Side: [What customer experiences]
+   Data Flow: [How data moves between systems]
+   Edge Cases: [Potential issues and resolutions]
+   ```
+
+3. **Implementation Planning:**
+   - Design data structures that work for both sides
+   - Ensure API endpoints serve both admin and customer needs
+   - Implement proper validation on both ends
+   - Consider permission/access control
+   - Plan for real-time updates if applicable
+
+4. **Examples of Admin-Customer Relationships:**
+   ```
+   Menu Items: Admin creates → Customer orders
+   Platters: Admin configures → Customer customizes
+   Orders: Admin manages → Customer tracks
+   Tables: Admin assigns → Customer occupies
+   Categories: Admin organizes → Customer browses
+   ```
+
+### Admin-Customer Component Pairs
+- **MenuItemForm ↔ MenuItem**: Admin creates menu items, customers see them
+- **PlatterForm ↔ PlatterItem**: Admin configures platters, customers customize
+- **OrdersList ↔ OrderTracking**: Admin manages orders, customers track them
+- **TableManagement ↔ TableSelection**: Admin assigns tables, customers select them
+
+## 📚 DOCUMENTATION REQUIREMENTS
+
+### Documentation Structure
+```
+docs/
+├── README.md              # Project overview
+├── features/             # Feature documentation
+│   ├── menu-system.md
+│   ├── order-tracking.md
+│   ├── admin-panel.md
+│   └── variation-system.md
+├── api/                  # API documentation
+│   ├── endpoints.md
+│   └── schemas.md
+├── components/           # Component documentation
+│   ├── ui-components.md
+│   └── business-components.md
+└── updates/              # Change logs
+    ├── v1.0.0.md
+    ├── v1.1.0.md
+    └── latest.md
+```
+
+### Documentation Standards
+- **Use Markdown** for all documentation
+- **Include code examples** with syntax highlighting
+- **Add screenshots/diagrams** where helpful
+- **Document breaking changes** clearly
+- **Update docs before** implementing features
+- **Maintain changelog** for each release
+
+## 🧪 TESTING & QUALITY
+
+### Code Quality
+- **ESLint** and **TypeScript** must pass
+- **No console.log** in production code
+- **Proper error handling** for all async operations
+- **Use meaningful variable names**
+- **Add JSDoc comments** for complex functions
+
+### Testing Requirements
+- **Unit tests** for utility functions
+- **Integration tests** for API endpoints
+- **E2E tests** for critical user flows
+- **Accessibility testing** for all components
+
+## 🚀 PERFORMANCE & OPTIMIZATION
+
+### Frontend Performance
+- **Use Next.js Image** component for images
+- **Implement proper loading states**
+- **Lazy load non-critical components**
+- **Optimize bundle size** with code splitting
+- **Use proper caching strategies**
+
+### Backend Performance
+- **Implement proper indexing** in MongoDB
+- **Use pagination** for large datasets
+- **Cache frequently accessed data**
+- **Optimize database queries**
+
+## 🔒 SECURITY & VALIDATION
+
+### Data Validation
+- **Validate all inputs** on client and server
+- **Use Zod schemas** for runtime validation
+- **Sanitize user inputs** to prevent XSS
+- **Implement proper authentication** where needed
+
+### API Security
+- **Validate request parameters**
+- **Implement rate limiting** if needed
+- **Use proper error messages** (no sensitive data)
+- **Log security events** appropriately
+
+## 🎨 UI/UX PRINCIPLES
+
+### User Experience
+- **Consistent navigation** patterns
+- **Clear feedback** for all user actions
+- **Accessible design** for all users
+- **Mobile-first** responsive design
+- **Intuitive workflows** and user flows
+
+### Accessibility (WCAG 2.1 AA)
+- **Keyboard navigation** support
+- **Screen reader** compatibility
+- **Proper color contrast** ratios
+- **Focus indicators** on interactive elements
+- **Semantic HTML** structure
+
+## 🔄 WORKFLOW & PROCESSES
+
+### Development Workflow
+1. **Create feature branch** from main
+2. **Write documentation** first
+3. **Implement with tests**
+4. **Code review** and feedback
+5. **Merge to main** after approval
+
+### Code Review Checklist
+- [ ] TypeScript types are correct
+- [ ] Tests are written and passing
+- [ ] Documentation is updated
+- [ ] Design system is followed
+- [ ] Accessibility is considered
+- [ ] Performance impact assessed
+- [ ] Security implications reviewed
+
+## 📋 NAMING CONVENTIONS
+
+### Files & Folders
+- **Components**: PascalCase (MenuItem.tsx)
+- **Hooks**: camelCase with 'use' prefix (useVariationSelector.ts)
+- **Types**: PascalCase with descriptive names (VariationConfig.ts)
+- **Utils**: camelCase (formatPrice.ts)
+- **API routes**: kebab-case (order-status.ts)
+
+### Variables & Functions
+- **Constants**: SCREAMING_SNAKE_CASE
+- **Functions**: camelCase
+- **Components**: PascalCase
+- **Props**: camelCase
+- **State**: camelCase with descriptive names
+
+## 🔧 TOOLS & DEPENDENCIES
+
+### Required Dependencies
+- **Next.js 15+** with App Router
+- **TypeScript** for type safety
+- **Tailwind CSS** for styling
+- **Framer Motion** for animations
+- **React Hook Form** for complex forms
+- **Zod** for validation
+- **SWR** for data fetching
+
+### Development Tools
+- **ESLint** with strict rules
+- **Prettier** for code formatting
+- **Husky** for git hooks
+- **Commitlint** for commit messages
+
+## 🚨 BREAKING CHANGES
+
+### When Making Breaking Changes
+1. **Document the change** clearly
+2. **Provide migration guide**
+3. **Update all affected components**
+4. **Test thoroughly** before release
+5. **Communicate** to stakeholders
+
+---
+
+## 📞 SUPPORT & MAINTENANCE
+
+### Getting Help
+- Check existing documentation first
+- Review similar components for patterns
+- Ask in team discussions for clarification
+- Create issues for bugs/features
+
+### Maintenance
+- **Regular dependency updates**
+- **Security patches** applied promptly
+- **Performance monitoring** and optimization
+- **Code refactoring** for technical debt
+
+---
+
+*This document is living and should be updated as the project evolves. Always refer to the latest version before implementing new features.*

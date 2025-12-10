@@ -1,7 +1,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-unused-vars */
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import Preloader from "./Preloader"; // Adjust the import path if needed
+import { VariationConfig } from "../../types/variations";
+import { toast } from "sonner";
+import { v4 as uuidv4 } from "uuid";
 
 interface Option {
   name: string;
@@ -35,20 +38,78 @@ interface EditPlatterFormProps {
 }
 
 const EditPlatterForm: React.FC<EditPlatterFormProps> = ({ item, onClose, onUpdate }) => {
+  // Convert existing platter data to VariationConfig format
+  const initialVariationConfig: VariationConfig = useMemo(() => {
+    const categories: any[] = [];
+    const additionalCategories: any[] = [];
+
+    // Convert main categories (required)
+    (item.categories || []).forEach((category, index) => {
+      categories.push({
+        id: `category-${index}`,
+        name: category.categoryName,
+        type: 'single' as const,
+        required: true,
+        options: category.options.map((opt: any) => ({
+          id: opt.name, // Use name as ID for backward compatibility
+          name: opt.name,
+          price: 0,
+          available: true
+        }))
+      });
+    });
+
+    // Convert additional choices (optional)
+    (item.additionalChoices || []).forEach((choice, index) => {
+      additionalCategories.push({
+        id: `additional-${index}`,
+        name: choice.heading,
+        type: 'single' as const,
+        required: false,
+        options: choice.options.map((opt: any) => ({
+          id: opt.uuid || `option-${index}-${Math.random()}`,
+          name: opt.name,
+          price: 0,
+          available: true
+        }))
+      });
+    });
+
+    return {
+      categories: [...categories, ...additionalCategories],
+      allowMultipleCategories: true,
+    };
+  }, [item.categories, item.additionalChoices]);
+
+  const [variationConfig, setVariationConfig] = useState<VariationConfig>(initialVariationConfig);
+
   const [formData, setFormData] = useState({
     title: item.title || "",
     description: item.description || "",
     basePrice: item.basePrice || 0,
     platterCategory: item.platterCategory || "",
     image: item.image || "",
-    additionalChoices: item.additionalChoices || [],
-    categories: item.categories || [],
     status: item.status || "in stock",
   });
 
   const [loading, setLoading] = useState(false);
 
-  useEffect(() => {}, []);
+  // Computed properties for backward compatibility with existing UI
+  const categories = useMemo(() =>
+    variationConfig.categories?.filter(cat => cat.required).map(cat => ({
+      categoryName: cat.name,
+      options: cat.options.map(opt => ({ name: opt.name }))
+    })) || [],
+    [variationConfig.categories]
+  );
+
+  const additionalChoices = useMemo(() =>
+    variationConfig.categories?.filter(cat => !cat.required).map(cat => ({
+      heading: cat.name,
+      options: cat.options.map(opt => ({ name: opt.name, uuid: opt.id }))
+    })) || [],
+    [variationConfig.categories]
+  );
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -66,66 +127,150 @@ const EditPlatterForm: React.FC<EditPlatterFormProps> = ({ item, onClose, onUpda
     }
   };
 
-  const handleAdditionalChoiceChange = (index: number, field: string, value: string, optionIndex?: number) => {
-    if (optionIndex !== undefined) {
-      const updatedChoices = formData.additionalChoices.map((choice, i) =>
-        i === index
-          ? {
-              ...choice,
-              options: choice.options.map((option, j) =>
-                j === optionIndex ? { ...option, name: value } : option
-              ),
-            }
-          : choice
-      );
-      setFormData({ ...formData, additionalChoices: updatedChoices });
-    } else {
-      const updatedChoices = formData.additionalChoices.map((choice, i) =>
-        i === index ? { ...choice, [field]: value } : choice
-      );
-      setFormData({ ...formData, additionalChoices: updatedChoices });
-    }
+  const handleCategoryChange = (index: number, value: string) => {
+    setVariationConfig(prev => {
+      const updatedCategories = [...(prev.categories || [])];
+      if (updatedCategories[index]) {
+        updatedCategories[index] = {
+          ...updatedCategories[index],
+          name: value
+        };
+      }
+      return {
+        ...prev,
+        categories: updatedCategories
+      };
+    });
   };
 
-  const addChoice = () => {
-    setFormData({
-      ...formData,
-      additionalChoices: [
-        ...formData.additionalChoices,
-        { heading: "", options: [{ name: "", uuid: "" }] },
-      ],
+  const handleCategoryOptionChange = (categoryIndex: number, optionIndex: number, value: string) => {
+    setVariationConfig(prev => {
+      const updatedCategories = [...(prev.categories || [])];
+      if (updatedCategories[categoryIndex] && updatedCategories[categoryIndex].options[optionIndex]) {
+        const updatedOptions = [...updatedCategories[categoryIndex].options];
+        updatedOptions[optionIndex] = {
+          ...updatedOptions[optionIndex],
+          name: value
+        };
+        updatedCategories[categoryIndex] = {
+          ...updatedCategories[categoryIndex],
+          options: updatedOptions
+        };
+      }
+      return {
+        ...prev,
+        categories: updatedCategories
+      };
     });
   };
 
   const addCategory = () => {
-    setFormData({
-      ...formData,
+    setVariationConfig(prev => ({
+      ...prev,
       categories: [
-        ...formData.categories,
-        { categoryName: "", options: [{ name: "" }] },
-      ],
+        ...(prev.categories || []),
+        {
+          id: `category-${Date.now()}`,
+          name: "",
+          type: 'single' as const,
+          required: true,
+          options: []
+        }
+      ]
+    }));
+  };
+
+  const handleAdditionalChoiceChange = (index: number, field: string, value: string, optionIndex?: number) => {
+    setVariationConfig(prev => {
+      const updatedCategories = [...(prev.categories || [])];
+      // Additional choices start after main categories
+      const additionalChoiceIndex = (prev.categories?.filter(cat => cat.required).length || 0) + index;
+
+      if (optionIndex !== undefined) {
+        // Update option name
+        if (updatedCategories[additionalChoiceIndex] && updatedCategories[additionalChoiceIndex].options[optionIndex]) {
+          const updatedOptions = [...updatedCategories[additionalChoiceIndex].options];
+          updatedOptions[optionIndex] = {
+            ...updatedOptions[optionIndex],
+            name: value
+          };
+          updatedCategories[additionalChoiceIndex] = {
+            ...updatedCategories[additionalChoiceIndex],
+            options: updatedOptions
+          };
+        }
+      } else {
+        // Update heading
+        if (updatedCategories[additionalChoiceIndex]) {
+          updatedCategories[additionalChoiceIndex] = {
+            ...updatedCategories[additionalChoiceIndex],
+            name: value
+          };
+        }
+      }
+      return {
+        ...prev,
+        categories: updatedCategories
+      };
     });
   };
 
-  const handleCategoryChange = (index: number, field: string, value: string) => {
-    const updatedCategories = formData.categories.map((category, i) =>
-      i === index ? { ...category, [field]: value } : category
-    );
-    setFormData({ ...formData, categories: updatedCategories });
+  const addChoice = () => {
+    setVariationConfig(prev => ({
+      ...prev,
+      categories: [
+        ...(prev.categories || []),
+        {
+          id: `additional-${Date.now()}`,
+          name: "",
+          type: 'single' as const,
+          required: false,
+          options: [{
+            id: uuidv4(),
+            name: "",
+            price: 0,
+            available: true
+          }]
+        }
+      ]
+    }));
   };
 
-  const handleCategoryOptionChange = (categoryIndex: number, optionIndex: number, value: string) => {
-    const updatedCategories = formData.categories.map((category, i) =>
-      i === categoryIndex
-        ? {
-            ...category,
-            options: category.options.map((option, j) =>
-              j === optionIndex ? { ...option, name: value } : option
-            ),
-          }
-        : category
-    );
-    setFormData({ ...formData, categories: updatedCategories });
+  const handleRemoveCategory = (index: number) => {
+    setVariationConfig(prev => ({
+      ...prev,
+      categories: (prev.categories || []).filter((_, i) => i !== index)
+    }));
+  };
+
+  const handleRemoveChoice = (index: number) => {
+    setVariationConfig(prev => {
+      const requiredCategories = prev.categories?.filter(cat => cat.required) || [];
+      const additionalCategories = prev.categories?.filter(cat => !cat.required) || [];
+      additionalCategories.splice(index, 1);
+      return {
+        ...prev,
+        categories: [...requiredCategories, ...additionalCategories]
+      };
+    });
+  };
+
+  const handleRemoveOption = (choiceIndex: number, optionIndex: number) => {
+    setVariationConfig(prev => {
+      const updatedCategories = [...(prev.categories || [])];
+      const additionalChoiceIndex = (prev.categories?.filter(cat => cat.required).length || 0) + choiceIndex;
+      if (updatedCategories[additionalChoiceIndex]) {
+        const updatedOptions = updatedCategories[additionalChoiceIndex].options.filter((_, i) => i !== optionIndex);
+        updatedCategories[additionalChoiceIndex] = {
+          ...updatedCategories[additionalChoiceIndex],
+          options: updatedOptions
+        };
+      }
+      return {
+        ...prev,
+        categories: updatedCategories
+      };
+    });
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -133,20 +278,40 @@ const EditPlatterForm: React.FC<EditPlatterFormProps> = ({ item, onClose, onUpda
     setLoading(true);
 
     try {
+      // Convert VariationConfig back to API format
+      const requiredCategories = variationConfig.categories?.filter(cat => cat.required) || [];
+      const additionalCategories = variationConfig.categories?.filter(cat => !cat.required) || [];
+
+      const apiCategories = requiredCategories.map(cat => ({
+        categoryName: cat.name,
+        options: cat.options.map(opt => ({ name: opt.name }))
+      }));
+
+      const apiAdditionalChoices = additionalCategories.map(cat => ({
+        heading: cat.name,
+        options: cat.options.map(opt => ({ name: opt.name, uuid: opt.id }))
+      }));
+
       const response = await fetch("/api/updatePlatter", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ id: item._id, ...formData }),
+        body: JSON.stringify({
+          id: item._id,
+          ...formData,
+          categories: apiCategories,
+          additionalChoices: apiAdditionalChoices
+        }),
       });
 
       const data = await response.json();
       if (!response.ok) throw new Error("Failed to update platter");
 
+      toast.success("Platter updated successfully!");
       onUpdate();
       onClose();
     } catch (error) {
       console.error("Error updating platter:", error);
-      alert("There was an issue updating the platter. Please try again.");
+      toast.error("There was an issue updating the platter. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -248,7 +413,7 @@ const EditPlatterForm: React.FC<EditPlatterFormProps> = ({ item, onClose, onUpda
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                 Additional Choices
               </label>
-              {formData.additionalChoices.map((choice, index) => (
+              {additionalChoices.map((choice, index) => (
                 <div key={index} className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg shadow-sm mb-4">
                   <input
                     type="text"
@@ -288,13 +453,13 @@ const EditPlatterForm: React.FC<EditPlatterFormProps> = ({ item, onClose, onUpda
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                 Categories
               </label>
-              {formData.categories.map((category, categoryIndex) => (
+              {categories.map((category, categoryIndex) => (
                 <div key={categoryIndex} className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg shadow-sm mb-4">
                   <input
                     type="text"
                     value={category.categoryName}
                     onChange={(e) =>
-                      handleCategoryChange(categoryIndex, "categoryName", e.target.value)
+                      handleCategoryChange(categoryIndex, e.target.value)
                     }
                     placeholder="Category Name"
                     className="w-full border border-gray-300 dark:border-gray-700 rounded-lg px-4 py-2 mb-2 focus:ring-2 focus:ring-[#741052] focus:outline-none"
