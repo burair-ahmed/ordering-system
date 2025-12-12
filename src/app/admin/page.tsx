@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-unused-vars */
 'use client';
 
-import { FC, useEffect, useMemo, useState } from 'react';
+import { FC, useEffect, useMemo, useState, useRef } from 'react';
 import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
@@ -21,6 +21,7 @@ import {
   ShieldCheck,
   Menu as MenuIcon,
   X,
+  Box,
 } from 'lucide-react';
 import { useTheme } from 'next-themes';
 
@@ -146,10 +147,63 @@ const AdminDashboard: FC = () => {
   const [showEditMenuItemModal, setShowEditMenuItemModal] = useState(false);
   const [showEditPlatterItemModal, setShowEditPlatterItemModal] = useState(false);
 
-  const [showPasswordOverlay, setShowPasswordOverlay] = useState(true);
-  const [password, setPassword] = useState('');
-  const [errorMessage, setErrorMessage] = useState('');
+  // Authentication & Setup State
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
+  const [showAuthDialog, setShowAuthDialog] = useState<boolean>(true);
+  const [authStep, setAuthStep] = useState<'password' | 'notifications'>('password');
+  const [password, setPassword] = useState<string>('');
+  const [authError, setAuthError] = useState<string>('');
+  const [checkboxChecked, setCheckboxChecked] = useState<boolean>(false);
+  const [audioInitialized, setAudioInitialized] = useState<boolean>(false);
+
   const correctPassword = '123-$CLK-Admin-$Panel-786';
+
+  // Audio context for notifications
+  const audioContextRef = useRef<AudioContext | null>(null);
+  const audioBufferRef = useRef<AudioBuffer | null>(null);
+
+  // Authentication & Notification Functions
+  const initializeAudioContext = async () => {
+    try {
+      const audioContext = new AudioContext();
+      const response = await fetch("/notification/notification.mp3");
+      const arrayBuffer = await response.arrayBuffer();
+      const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
+      audioContextRef.current = audioContext;
+      audioBufferRef.current = audioBuffer;
+      setAudioInitialized(true);
+    } catch (error) {
+      console.error("AudioContext error:", error);
+    }
+  };
+
+  const playNotificationSound = () => {
+    if (audioContextRef.current && audioBufferRef.current) {
+      const source = audioContextRef.current.createBufferSource();
+      source.buffer = audioBufferRef.current;
+      source.connect(audioContextRef.current.destination);
+      source.start(0);
+    }
+  };
+
+  const handlePasswordSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (password === correctPassword) {
+      setAuthError('');
+      setAuthStep('notifications');
+    } else {
+      setAuthError('Incorrect password. Please try again.');
+    }
+  };
+
+  const handleNotificationSetup = () => {
+    if (checkboxChecked) {
+      initializeAudioContext();
+    }
+    setIsAuthenticated(true);
+    setShowAuthDialog(false);
+    toast({ title: 'Welcome back', description: 'Admin access granted.' });
+  };
 
   const [menuQuery, setMenuQuery] = useState('');
   const [platterQuery, setPlatterQuery] = useState('');
@@ -172,11 +226,6 @@ const AdminDashboard: FC = () => {
     const refreshMenuItems = async () => fetchMenuItems();
   const refreshPlatterItems = async () => fetchPlatterItems();
 
-  useEffect(() => {
-    if (showPasswordOverlay) document.body.classList.add('overflow-hidden');
-    else document.body.classList.remove('overflow-hidden');
-    return () => document.body.classList.remove('overflow-hidden');
-  }, [showPasswordOverlay]);
 
   const fetchMenuItems = async () => {
     try {
@@ -241,17 +290,6 @@ const AdminDashboard: FC = () => {
       title: 'Logged out',
       description: 'You have been logged out successfully.',
     });
-  };
-
-  const submitPassword = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (password === correctPassword) {
-      setShowPasswordOverlay(false);
-      setErrorMessage('');
-      toast({ title: 'Welcome back', description: 'Admin access granted.' });
-    } else {
-      setErrorMessage('Incorrect password. Please try again.');
-    }
   };
 
   // === Responsive Sidebar Handling ===
@@ -331,39 +369,101 @@ const AdminDashboard: FC = () => {
   return (
     <TooltipProvider>
       <div className="flex h-screen w-full overflow-hidden bg-neutral-50 text-neutral-900 dark:bg-neutral-950 dark:text-neutral-100">
+        {/* Authentication & Notification Setup Dialog */}
         <AnimatePresence>
-          {showPasswordOverlay && (
-            <motion.div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
-              <motion.div className="w-full max-w-md p-4">
+          {showAuthDialog && (
+            <motion.div
+              className="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-sm bg-black/60"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+            >
+              <motion.div
+                className="w-full max-w-md"
+                initial={{ scale: 0.9, opacity: 0, y: 20 }}
+                animate={{ scale: 1, opacity: 1, y: 0 }}
+                exit={{ scale: 0.9, opacity: 0, y: 20 }}
+                transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+              >
                 <Card className="border-0 shadow-2xl">
                   <CardHeader className="space-y-1 text-center">
                     <div className="mx-auto mb-2 flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-fuchsia-600 to-pink-600">
-                      <ShieldCheck className="h-6 w-6 text-white" />
+                      {authStep === 'password' ? (
+                        <ShieldCheck className="h-6 w-6 text-white" />
+                      ) : (
+                        <Box className="h-6 w-6 text-white" />
+                      )}
                     </div>
-                    <CardTitle className="text-xl">Admin Access</CardTitle>
+                    <CardTitle className="text-xl">
+                      {authStep === 'password' ? 'Admin Access Required' : 'Enable Order Notifications'}
+                    </CardTitle>
                     <CardDescription>
-                      Enter your admin password to continue
+                      {authStep === 'password'
+                        ? 'Enter your admin password to access order management'
+                        : 'Allow short sounds when new orders arrive'
+                      }
                     </CardDescription>
                   </CardHeader>
                   <CardContent>
-                    <form onSubmit={submitPassword} className="space-y-4">
-                      <Input
-                        type="password"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        placeholder="••••••••••••••••"
-                        className="h-11"
-                      />
-                      {errorMessage && (
-                        <p className="text-sm text-red-500">{errorMessage}</p>
-                      )}
-                      <Button
-                        type="submit"
-                        className={`h-11 w-full bg-gradient-to-r ${BRAND.primary} text-white hover:opacity-95 ${BRAND.ring}`}
-                      >
-                        Continue
-                      </Button>
-                    </form>
+                    {authStep === 'password' ? (
+                      <form onSubmit={handlePasswordSubmit} className="space-y-4">
+                        <div className="space-y-2">
+                          <Input
+                            type="password"
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
+                            placeholder="••••••••••••••••"
+                            className="h-11"
+                          />
+                          {authError && (
+                            <p className="text-sm text-red-500">{authError}</p>
+                          )}
+                        </div>
+                        <Button
+                          type="submit"
+                          className="h-11 w-full bg-gradient-to-r from-fuchsia-600 to-pink-600 text-white hover:opacity-95"
+                        >
+                          Continue
+                        </Button>
+                      </form>
+                    ) : (
+                      <div className="space-y-4">
+                        <label className="flex items-center justify-between">
+                          <span className="text-sm text-muted-foreground">Enable Sound Alerts</span>
+                          <input
+                            type="checkbox"
+                            checked={checkboxChecked}
+                            onChange={(e) => setCheckboxChecked(e.target.checked)}
+                            className="accent-fuchsia-600 w-4 h-4"
+                          />
+                        </label>
+
+                        <div className="flex gap-2">
+                          <Button
+                            onClick={() => {
+                              setIsAuthenticated(true);
+                              setShowAuthDialog(false);
+                              toast({ title: 'Welcome back', description: 'Admin access granted.' });
+                            }}
+                            variant="outline"
+                            className="flex-1 h-11"
+                          >
+                            Skip
+                          </Button>
+                          <Button
+                            onClick={handleNotificationSetup}
+                            disabled={!checkboxChecked}
+                            className={`flex-1 h-11 ${
+                              checkboxChecked
+                                ? 'bg-gradient-to-r from-fuchsia-600 to-pink-600 text-white hover:opacity-95'
+                                : 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                            }`}
+                          >
+                            Enable Sound
+                          </Button>
+                        </div>
+                      </div>
+                    )}
                   </CardContent>
                 </Card>
               </motion.div>
@@ -374,7 +474,8 @@ const AdminDashboard: FC = () => {
         {Sidebar}
 
         {/* === Main Area === */}
-        <section className="flex flex-1 flex-col overflow-y-auto">
+        {isAuthenticated && (
+          <section className="flex flex-1 flex-col overflow-y-auto">
           {/* Topbar */}
           <div className="sticky top-0 z-30 flex h-16 items-center justify-between border-b bg-white/80 px-4 backdrop-blur dark:bg-neutral-900/70">
             <div className="flex items-center gap-2">
@@ -428,7 +529,12 @@ const AdminDashboard: FC = () => {
                             <CardDescription>Track and process live orders in real-time.</CardDescription>
                           </CardHeader>
                           <CardContent>
-                            <OrdersList />
+                            <OrdersList
+                              audioContextRef={audioContextRef}
+                              audioBufferRef={audioBufferRef}
+                              playNotificationSound={playNotificationSound}
+                              audioInitialized={audioInitialized}
+                            />
                           </CardContent>
                         </Card>
                       )}
@@ -533,7 +639,8 @@ const AdminDashboard: FC = () => {
                         </DialogContent>
                       </Dialog>
           </main>
-        </section>
+          </section>
+        )}
       </div>
     </TooltipProvider>
   );

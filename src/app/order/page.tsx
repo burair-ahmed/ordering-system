@@ -3,6 +3,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import MenuItem from "../components/MenuItem";
 import PlatterItem from "../components/PlatterItem";  // Assuming you have a PlatterItem component
 import Hero from "../components/Hero";
@@ -64,17 +65,62 @@ const defaultMenuCategoryOrder = [
 
 export default function MenuPage() {
   const [menu, setMenu] = useState<{ [key: string]: MenuItemData[] }>({});
-  const [platters, setPlatters] = useState<{ [key: string]: Platter[] }>({});  
-const [menuLoading, setMenuLoading] = useState<{ [key: string]: boolean }>({});
-const [platterLoading, setPlatterLoading] = useState<boolean>(true);
+  const [platters, setPlatters] = useState<{ [key: string]: Platter[] }>({});
+  const [menuLoading, setMenuLoading] = useState<{ [key: string]: boolean }>({});
+  const [platterLoading, setPlatterLoading] = useState<boolean>(true);
   const [page, setPage] = useState<{ [key: string]: number }>({});
   const [hasMore, setHasMore] = useState<{ [key: string]: boolean }>({});
+
+  // Progressive loading states
+  const [loadedItems, setLoadedItems] = useState<{ [key: string]: MenuItemData[] }>({});
+  const [loadedPlatters, setLoadedPlatters] = useState<{ [key: string]: Platter[] }>({});
+  const [animatingItems, setAnimatingItems] = useState<Set<string>>(new Set());
 
   // Separate category orders for menu items and platters
   const [platterCategoryOrder] = useState<string[]>(defaultPlatterCategoryOrder);
   const [menuCategoryOrder] = useState<string[]>(defaultMenuCategoryOrder);
 
-const observers = useRef<{[key: string]: IntersectionObserver}>({});
+  const observers = useRef<{[key: string]: IntersectionObserver}>({});
+  const loadingTimeouts = useRef<{[key: string]: NodeJS.Timeout}>({});
+
+  // Progressive loading functions
+  const addItemWithAnimation = (item: MenuItemData | Platter, category: string, isPlatter: boolean = false) => {
+    const itemKey = `${isPlatter ? 'platter' : 'menu'}-${category}-${item.id}`;
+
+    if (animatingItems.has(itemKey)) return;
+
+    setAnimatingItems(prev => new Set(prev).add(itemKey));
+
+    const timeoutId = setTimeout(() => {
+      if (isPlatter) {
+        setLoadedPlatters(prev => ({
+          ...prev,
+          [category]: [...(prev[category] || []), item as Platter]
+        }));
+      } else {
+        setLoadedItems(prev => ({
+          ...prev,
+          [category]: [...(prev[category] || []), item as MenuItemData]
+        }));
+      }
+
+      setAnimatingItems(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(itemKey);
+        return newSet;
+      });
+    }, Math.random() * 300 + 100); // Random delay between 100-400ms
+
+    loadingTimeouts.current[itemKey] = timeoutId;
+  };
+
+  const loadItemsProgressively = (items: (MenuItemData | Platter)[], category: string, isPlatter: boolean = false) => {
+    items.forEach((item, index) => {
+      setTimeout(() => {
+        addItemWithAnimation(item, category, isPlatter);
+      }, index * (Math.random() * 200 + 150)); // Staggered loading with random delays
+    });
+  };
 
 useEffect(() => {
   const fetchPlatters = async () => {
@@ -82,14 +128,20 @@ useEffect(() => {
     try {
       const res = await fetch("/api/platter");
       const data: Platter[] = await res.json();
-      const grouped: { [key: string]: Platter[] } = {};
 
+      // Group platters by category
+      const grouped: { [key: string]: Platter[] } = {};
       data.forEach((p) => {
         if (!grouped[p.platterCategory]) grouped[p.platterCategory] = [];
         grouped[p.platterCategory].push(p);
       });
 
       setPlatters(grouped);
+
+      // Load platters progressively with animation
+      Object.entries(grouped).forEach(([category, categoryPlatters]) => {
+        loadItemsProgressively(categoryPlatters, category, true);
+      });
     } finally {
       setPlatterLoading(false);
     }
@@ -103,6 +155,9 @@ useEffect(() => {
       setMenu((prev) => ({ ...prev, [category]: data }));
       setPage((prev) => ({ ...prev, [category]: 2 }));
       setHasMore((prev) => ({ ...prev, [category]: data.length === 10 }));
+
+      // Load menu items progressively with animation
+      loadItemsProgressively(data, category, false);
     } finally {
       setMenuLoading((prev) => ({ ...prev, [category]: false }));
     }
@@ -110,26 +165,57 @@ useEffect(() => {
 
   fetchPlatters();
   menuCategoryOrder.forEach(fetchMenuCategory);
+
+  // Cleanup timeouts on unmount
+  return () => {
+    Object.values(loadingTimeouts.current).forEach(timeoutId => {
+      clearTimeout(timeoutId);
+    });
+  };
 }, []);
 
   
 
-  const lastMenuItemRef = (category: string, node: HTMLDivElement | null) => {
-  if (menuLoading[category] || !hasMore[category]) return;
+  const loadMoreItems = async (category: string) => {
+    if (menuLoading[category] || !hasMore[category]) return;
 
-  if (!observers.current[category]) {
-    observers.current[category] = new IntersectionObserver((entries) => {
-      if (entries[0].isIntersecting) {
-        setPage((prev) => ({
+    setMenuLoading((prev) => ({ ...prev, [category]: true }));
+    try {
+      const nextPage = page[category] || 1;
+      const res = await fetch(`/api/getitems?page=${nextPage}&limit=10&category=${category}`);
+      const data = await res.json();
+
+      if (data.length > 0) {
+        setMenu((prev) => ({
           ...prev,
-          [category]: (prev[category] || 1) + 1,
+          [category]: [...(prev[category] || []), ...data]
         }));
-      }
-    });
-  }
+        setPage((prev) => ({ ...prev, [category]: nextPage + 1 }));
+        setHasMore((prev) => ({ ...prev, [category]: data.length === 10 }));
 
-  if (node) observers.current[category].observe(node);
-};
+        // Load new items progressively with animation
+        loadItemsProgressively(data, category, false);
+      } else {
+        setHasMore((prev) => ({ ...prev, [category]: false }));
+      }
+    } finally {
+      setMenuLoading((prev) => ({ ...prev, [category]: false }));
+    }
+  };
+
+  const lastMenuItemRef = (category: string, node: HTMLDivElement | null) => {
+    if (menuLoading[category] || !hasMore[category]) return;
+
+    if (!observers.current[category]) {
+      observers.current[category] = new IntersectionObserver((entries) => {
+        if (entries[0].isIntersecting) {
+          loadMoreItems(category);
+        }
+      });
+    }
+
+    if (node) observers.current[category].observe(node);
+  };
 
   return (
     <div className="bg-white text-black">
@@ -140,7 +226,10 @@ useEffect(() => {
       {/* Platters First */}
       <div>
         {platterCategoryOrder.map((category) => {
-          const filteredPlatters = platters[category] || [];
+          const allPlatters = platters[category] || [];
+          const displayedPlatters = loadedPlatters[category] || [];
+          const isLoading = platterLoading && displayedPlatters.length === 0;
+
           return (
             <div key={category} className="mt-8">
               <div className="w-full flex justify-center mb-4">
@@ -149,13 +238,40 @@ useEffect(() => {
                 </h1>
               </div>
               <div className="grid grid-cols-2 gap-4 pr-6 pl-1 sm:px-6 lg:px-8 w-full max-w-6xl mx-auto sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 mt-4">
-                {platterLoading && filteredPlatters.length === 0 ? (
-                  [...Array(4)].map((_, i) => <SkeletonLoader key={i} />)
-                ) : (
-                  filteredPlatters.map((platter) => (
-                    <div key={platter.id}>
-                      <PlatterItem platter={platter} />
-                    </div>
+                <AnimatePresence>
+                  {isLoading ? (
+                    [...Array(4)].map((_, i) => <SkeletonLoader key={i} />)
+                  ) : (
+                    displayedPlatters.map((platter, index) => (
+                      <motion.div
+                        key={`platter-${category}-${platter.id}`}
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -20 }}
+                        transition={{
+                          duration: 0.5,
+                          delay: index * 0.1,
+                          ease: "easeOut"
+                        }}
+                      >
+                        <PlatterItem platter={platter} />
+                      </motion.div>
+                    ))
+                  )}
+                </AnimatePresence>
+
+                {/* Show skeleton for remaining items that are still loading */}
+                {allPlatters.length > displayedPlatters.length && (
+                  [...Array(Math.min(4, allPlatters.length - displayedPlatters.length))].map((_, i) => (
+                    <motion.div
+                      key={`loading-platter-${category}-${i}`}
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      exit={{ opacity: 0 }}
+                      transition={{ duration: 0.3 }}
+                    >
+                      <SkeletonLoader />
+                    </motion.div>
                   ))
                 )}
               </div>
@@ -167,7 +283,10 @@ useEffect(() => {
       {/* Menu Items Below Platters */}
       <div>
         {menuCategoryOrder.map((category) => {
-          const filteredItems = menu[category] || [];
+          const allItems = menu[category] || [];
+          const displayedItems = loadedItems[category] || [];
+          const isLoading = menuLoading[category] && displayedItems.length === 0;
+
           return (
             <div key={category} className="mt-8">
               <div className="w-full flex justify-center mb-4">
@@ -176,16 +295,48 @@ useEffect(() => {
                 </h1>
               </div>
               <div className="grid grid-cols-2 gap-4 pr-6 pl-1 sm:px-6 lg:px-8 w-full max-w-6xl mx-auto sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 mt-4">
-                {menuLoading[category] && filteredItems.length === 0 ? (
-                  [...Array(4)].map((_, i) => <SkeletonLoader key={i} />)
-                ) : (
-                  filteredItems.map((item, index) => (
-                    <div
-                      ref={index === filteredItems.length - 1 ? (node) => lastMenuItemRef(category, node) : null}
-                      key={item.id}
+                <AnimatePresence>
+                  {isLoading ? (
+                    [...Array(4)].map((_, i) => <SkeletonLoader key={i} />)
+                  ) : (
+                    displayedItems.map((item, index) => (
+                      <motion.div
+                        key={`menu-${category}-${item.id}`}
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -20 }}
+                        transition={{
+                          duration: 0.5,
+                          delay: index * 0.08,
+                          ease: "easeOut"
+                        }}
+                      >
+                        <MenuItem item={item} />
+                      </motion.div>
+                    ))
+                  )}
+                </AnimatePresence>
+
+                {/* Intersection observer for infinite scroll */}
+                {displayedItems.length > 0 && (
+                  <div
+                    ref={(node) => lastMenuItemRef(category, node)}
+                    className="col-span-full h-4"
+                  />
+                )}
+
+                {/* Show skeleton for remaining items that are still loading */}
+                {allItems.length > displayedItems.length && menuLoading[category] && (
+                  [...Array(Math.min(4, allItems.length - displayedItems.length))].map((_, i) => (
+                    <motion.div
+                      key={`loading-menu-${category}-${i}`}
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      exit={{ opacity: 0 }}
+                      transition={{ duration: 0.3 }}
                     >
-                      <MenuItem item={item} />
-                    </div>
+                      <SkeletonLoader />
+                    </motion.div>
                   ))
                 )}
               </div>

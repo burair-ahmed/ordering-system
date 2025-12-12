@@ -94,14 +94,25 @@ const timeAgo = (dateStr: string) => {
   return `${days}d ago`;
 };
 
-const OrdersList: FC = () => {
+interface OrdersListProps {
+  audioContextRef?: React.RefObject<AudioContext | null>;
+  audioBufferRef?: React.RefObject<AudioBuffer | null>;
+  playNotificationSound?: () => void;
+  audioInitialized?: boolean;
+}
+
+const OrdersList: FC<OrdersListProps> = ({
+  audioContextRef: externalAudioContextRef,
+  audioBufferRef: externalAudioBufferRef,
+  playNotificationSound: externalPlayNotificationSound,
+  audioInitialized: externalAudioInitialized = false
+}) => {
   const [orders, setOrders] = useState<Order[]>([]);
   const [loadingOrders, setLoadingOrders] = useState<Set<string>>(new Set());
   const [expandedOrders, setExpandedOrders] = useState<Set<string>>(new Set());
   const audioContextRef = useRef<AudioContext | null>(null);
   const audioBufferRef = useRef<AudioBuffer | null>(null);
   const previousOrdersRef = useRef<Order[]>([]);
-  const [audioInitialized, setAudioInitialized] = useState(false);
   const [checkboxChecked, setCheckboxChecked] = useState(false);
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [typeFilter, setTypeFilter] = useState<OrderType | "all">("all");
@@ -112,30 +123,20 @@ const OrdersList: FC = () => {
   const [feedbackList, setFeedbackList] = useState<FeedbackEntry[]>([]);
   const [consents, setConsents] = useState<ConsentEntry[]>([]);
   const [loadingDetail, setLoadingDetail] = useState<boolean>(false);
+  const [showAllConsents, setShowAllConsents] = useState<boolean>(false);
 
-  // 🎵 Audio setup
-  const initializeAudioContext = async () => {
-    try {
-      const audioContext = new AudioContext();
-      const response = await fetch("/notification/notification.mp3");
-      const arrayBuffer = await response.arrayBuffer();
-      const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
-      audioContextRef.current = audioContext;
-      audioBufferRef.current = audioBuffer;
-      setAudioInitialized(true);
-    } catch (error) {
-      console.error("AudioContext error:", error);
-    }
-  };
-
+  // 🎵 Audio setup (using external context if provided)
   const playNotificationSound = () => {
-    if (audioContextRef.current && audioBufferRef.current) {
+    if (externalPlayNotificationSound) {
+      externalPlayNotificationSound();
+    } else if (audioContextRef.current && audioBufferRef.current) {
       const source = audioContextRef.current.createBufferSource();
       source.buffer = audioBufferRef.current;
       source.connect(audioContextRef.current.destination);
       source.start(0);
     }
   };
+
 
   // 🔄 Fetch Orders
   const fetchOrders = async () => {
@@ -384,58 +385,6 @@ const OrdersList: FC = () => {
           Clear filters
         </button>
       </div>
-      {/* 🔔 Enable Sound Dialog */}
-{!audioInitialized && (
-  <motion.div
-    className="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-sm bg-black/40"
-    initial={{ opacity: 0 }}
-    animate={{ opacity: 1 }}
-    exit={{ opacity: 0 }}
-  >
-    <motion.div
-      className="w-full max-w-md"
-      initial={{ y: 30, opacity: 0 }}
-      animate={{ y: 0, opacity: 1 }}
-      exit={{ y: 20, opacity: 0 }}
-      transition={{ type: 'spring', stiffness: 160, damping: 16 }}
-    >
-      <Card className="border-0 shadow-2xl">
-        <CardHeader className="space-y-1 text-center">
-          <div className="mx-auto mb-2 flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-fuchsia-600 to-pink-600">
-            <Box className="h-6 w-6 text-white" />
-          </div>
-          <CardTitle className="text-xl">Enable Order Notifications</CardTitle>
-          <CardDescription>Allow short sounds when new orders arrive</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            <label className="flex items-center justify-between">
-              <span className="text-sm text-muted-foreground">Enable Sound Alerts</span>
-              <input
-                type="checkbox"
-                checked={checkboxChecked}
-                onChange={(e) => setCheckboxChecked(e.target.checked)}
-                className="accent-fuchsia-600 w-4 h-4"
-              />
-            </label>
-
-            <Button
-              onClick={initializeAudioContext}
-              disabled={!checkboxChecked}
-              className={`h-11 w-full ${
-                checkboxChecked
-                  ? 'bg-gradient-to-r from-fuchsia-600 to-pink-600 text-white hover:opacity-95'
-                  : 'bg-gray-200 text-gray-400 cursor-not-allowed'
-              }`}
-            >
-              Enable Sound
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
-    </motion.div>
-  </motion.div>
-)}
 
 
       {/* 🧾 Orders Grid */}
@@ -630,200 +579,351 @@ const OrdersList: FC = () => {
         </div>
       </div>
 
-      {/* Detail drawer */}
+      {/* Detail Modal */}
       <AnimatePresence>
         {detailOpen && selectedOrder && (
           <motion.div
-            className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm px-4"
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-md p-4"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
           >
             <motion.div
-              className="relative w-full max-w-3xl rounded-2xl bg-white dark:bg-neutral-900 shadow-2xl p-6"
-              initial={{ y: 30, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              exit={{ y: 20, opacity: 0 }}
+              className="relative w-full max-w-5xl max-h-[90vh] overflow-y-auto bg-white rounded-3xl shadow-2xl"
+              initial={{ scale: 0.9, opacity: 0, y: 20 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.9, opacity: 0, y: 20 }}
+              transition={{ type: "spring", stiffness: 300, damping: 30 }}
             >
-              <button
-                onClick={closeDetail}
-                className="absolute right-4 top-4 text-neutral-500 hover:text-neutral-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#741052]"
-                aria-label="Close details"
-              >
-                <X className="h-5 w-5" />
-              </button>
-
-              <div className="space-y-4">
-                <div className="flex items-start justify-between gap-3">
-                  <div>
-                    <p className="text-xs text-neutral-500">Order</p>
-                    <h3 className="text-xl font-semibold text-[#741052]">
+              {/* Header */}
+              <div className="sticky top-0 z-10 bg-gradient-to-r from-[#741052] to-[#d0269b] rounded-t-3xl p-6 text-white">
+                <div className="flex items-start justify-between">
+                  <div className="flex-1">
+                    <p className="text-sm opacity-90 mb-1">Order Details</p>
+                    <h2 className="text-2xl font-bold mb-1">
                       #{selectedOrder.orderNumber}
-                    </h3>
-                    <p className="text-xs text-neutral-500">{timeAgo(selectedOrder.createdAt)}</p>
+                    </h2>
+                    <p className="text-sm opacity-80">{timeAgo(selectedOrder.createdAt)}</p>
                   </div>
-                  <Badge
-                    className={`${statusColors[selectedOrder.status] || "bg-gray-100 text-gray-800"} rounded-full px-3 py-1 text-xs`}
-                  >
-                    {selectedOrder.status}
-                  </Badge>
+                  <div className="flex items-center gap-3">
+                    <Badge
+                      className={`${statusColors[selectedOrder.status] || "bg-white/20 text-white"} rounded-full px-4 py-2 text-sm font-medium border-0`}
+                    >
+                      {selectedOrder.status}
+                    </Badge>
+                    <button
+                      onClick={closeDetail}
+                      className="p-2 rounded-full bg-white/10 hover:bg-white/20 transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-white focus-visible:outline-offset-2"
+                      aria-label="Close details"
+                    >
+                      <X className="h-5 w-5" />
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              {/* Content */}
+              <div className="p-6 space-y-6">
+                {/* Customer & Order Info Grid */}
+                <div className="grid md:grid-cols-2 gap-6">
+                  {/* Customer Information */}
+                  <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-2xl p-5 border border-gray-200">
+                    <h3 className="text-xl font-semibold text-[#741052] mb-4 flex items-center gap-2">
+                      <User className="h-5 w-5" />
+                      Customer Information
+                    </h3>
+                    <div className="space-y-3">
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-full bg-gradient-to-r from-[#741052] to-[#d0269b] flex items-center justify-center">
+                          <User className="h-4 w-4 text-white" />
+                        </div>
+                        <div>
+                          <p className="font-semibold text-gray-900">{selectedOrder.customerName}</p>
+                          <p className="text-sm text-gray-600">{selectedOrder.email || "No email provided"}</p>
+                        </div>
+                      </div>
+                      {selectedOrder.phone && (
+                        <div className="flex items-center gap-3">
+                          <div className="w-8 h-8 rounded-full bg-gradient-to-r from-[#741052] to-[#d0269b] flex items-center justify-center">
+                            <Phone className="h-4 w-4 text-white" />
+                          </div>
+                          <div>
+                            <p className="font-medium text-gray-900">{selectedOrder.phone}</p>
+                            <p className="text-sm text-gray-600">Phone number</p>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Order Information */}
+                  <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-2xl p-5 border border-gray-200">
+                    <h3 className="text-xl font-semibold text-[#741052] mb-4 flex items-center gap-2">
+                      <Tag className="h-5 w-5" />
+                      Order Information
+                    </h3>
+                    <div className="space-y-3">
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-full bg-gradient-to-r from-[#741052] to-[#d0269b] flex items-center justify-center">
+                          <Utensils className="h-4 w-4 text-white" />
+                        </div>
+                        <div>
+                          <p className="font-medium text-gray-900 capitalize">{selectedOrder.ordertype}</p>
+                          <p className="text-sm text-gray-600">Order type</p>
+                        </div>
+                      </div>
+                      {selectedOrder.tableNumber && (
+                        <div className="flex items-center gap-3">
+                          <div className="w-8 h-8 rounded-full bg-gradient-to-r from-[#741052] to-[#d0269b] flex items-center justify-center">
+                            <Utensils className="h-4 w-4 text-white" />
+                          </div>
+                          <div>
+                            <p className="font-medium text-gray-900">Table {selectedOrder.tableNumber}</p>
+                            <p className="text-sm text-gray-600">Table number</p>
+                          </div>
+                        </div>
+                      )}
+                      {selectedOrder.area && (
+                        <div className="flex items-center gap-3">
+                          <div className="w-8 h-8 rounded-full bg-gradient-to-r from-[#741052] to-[#d0269b] flex items-center justify-center">
+                            <MapPin className="h-4 w-4 text-white" />
+                          </div>
+                          <div>
+                            <p className="font-medium text-gray-900">{selectedOrder.area}</p>
+                            <p className="text-sm text-gray-600">Delivery area</p>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
                 </div>
 
-                <div className="grid sm:grid-cols-2 gap-3 text-sm text-neutral-700 dark:text-neutral-200">
-                  <div className="space-y-1">
-                    <p className="font-semibold">Customer</p>
-                    <p>{selectedOrder.customerName}</p>
-                    <p className="text-xs text-neutral-500">{selectedOrder.email || "—"}</p>
-                  </div>
-                  <div className="space-y-1">
-                    <p className="font-semibold">Order type</p>
-                    <p className="capitalize">{selectedOrder.ordertype}</p>
-                    {selectedOrder.tableNumber && <p>Table: {selectedOrder.tableNumber}</p>}
-                    {selectedOrder.area && <p>Area: {selectedOrder.area}</p>}
-                    {selectedOrder.phone && <p>Phone: {selectedOrder.phone}</p>}
-                  </div>
-                  <div className="space-y-1">
-                    <p className="font-semibold">Payment</p>
-                    <p>{selectedOrder.paymentMethod}</p>
-                    <p>Total: Rs. {selectedOrder.totalAmount}</p>
-                  </div>
-                  <div className="space-y-2">
-                    <p className="font-semibold">Quick actions</p>
-                    <div className="flex flex-wrap gap-2">
+                {/* Quick Actions & Status Update */}
+                <div className="grid md:grid-cols-2 gap-6">
+                  {/* Quick Actions */}
+                  <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-2xl p-5 border border-blue-200">
+                    <h3 className="text-xl font-semibold text-[#741052] mb-4">Quick Actions</h3>
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                       {selectedOrder.phone && (
                         <Button
-                          variant="outline"
-                          size="sm"
                           onClick={() => window.open(`tel:${selectedOrder.phone}`, "_blank")}
-                          className="gap-2"
+                          className="bg-gradient-to-r from-[#741052] to-[#d0269b] text-white font-semibold px-4 py-3 rounded-xl shadow-lg hover:opacity-90 transition-all duration-200 flex items-center gap-2 h-auto"
                         >
-                          <Phone className="h-4 w-4" /> Call
+                          <Phone className="h-4 w-4" />
+                          Call
                         </Button>
                       )}
                       {selectedOrder.phone && (
                         <Button
-                          variant="outline"
-                          size="sm"
                           onClick={() =>
                             window.open(
                               `https://wa.me/${selectedOrder.phone}?text=Hello%20regarding%20order%20${selectedOrder.orderNumber}`,
                               "_blank"
                             )
                           }
-                          className="gap-2"
+                          className="bg-gradient-to-r from-[#741052] to-[#d0269b] text-white font-semibold px-4 py-3 rounded-xl shadow-lg hover:opacity-90 transition-all duration-200 flex items-center gap-2 h-auto"
                         >
-                          <MessageCircle className="h-4 w-4" /> WhatsApp
+                          <MessageCircle className="h-4 w-4" />
+                          WhatsApp
                         </Button>
                       )}
                       <Button
-                        variant="outline"
-                        size="sm"
                         onClick={() => downloadReceipt(selectedOrder)}
-                        className="gap-2"
+                        className="bg-white border-2 border-[#741052] text-[#741052] font-semibold px-4 py-3 rounded-xl hover:bg-[#741052] hover:text-white transition-all duration-200 flex items-center gap-2 h-auto"
                       >
-                        <Download className="h-4 w-4" /> Receipt
+                        <Download className="h-4 w-4" />
+                        Receipt
                       </Button>
+                    </div>
+                  </div>
+
+                  {/* Status Update */}
+                  <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-2xl p-5 border border-green-200">
+                    <h3 className="text-xl font-semibold text-[#741052] mb-4">Update Status</h3>
+                    <div className="space-y-3">
+                      <p className="text-sm text-gray-600">Change order status (allowed transitions only)</p>
+                      <Select
+                        defaultValue={selectedOrder.status}
+                        onValueChange={(val) => safeUpdateStatus(selectedOrder, val)}
+                      >
+                        <SelectTrigger className="w-full h-12 bg-white border-2 border-gray-200 rounded-xl focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#741052]">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="Received">Received</SelectItem>
+                          <SelectItem value="Preparing">Preparing</SelectItem>
+                          <SelectItem value="Ready">Ready</SelectItem>
+                          <SelectItem value="Out for delivery">Out for delivery</SelectItem>
+                          <SelectItem value="Completed">Completed</SelectItem>
+                          <SelectItem value="Cancelled">Cancelled</SelectItem>
+                        </SelectContent>
+                      </Select>
                     </div>
                   </div>
                 </div>
 
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border rounded-xl p-3 bg-neutral-50 dark:bg-neutral-900/60">
-                  <div>
-                    <p className="text-sm font-semibold">Update status</p>
-                    <p className="text-xs text-neutral-500">Allowed moves only</p>
-                  </div>
-                  <Select
-                    defaultValue={selectedOrder.status}
-                    onValueChange={(val) => safeUpdateStatus(selectedOrder, val)}
-                  >
-                    <SelectTrigger className="w-[200px] bg-white/70 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#741052]">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="Received">Received</SelectItem>
-                      <SelectItem value="Preparing">Preparing</SelectItem>
-                      <SelectItem value="Ready">Ready</SelectItem>
-                      <SelectItem value="Out for delivery">Out for delivery</SelectItem>
-                      <SelectItem value="Completed">Completed</SelectItem>
-                      <SelectItem value="Cancelled">Cancelled</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div className="space-y-2">
-                  <p className="text-sm font-semibold">Items</p>
-                  <div className="space-y-2 max-h-56 overflow-auto pr-1">
-                    {selectedOrder.items.map((it) => (
+                {/* Order Items */}
+                <div className="bg-gradient-to-br from-purple-50 to-purple-100 rounded-2xl p-5 border border-purple-200">
+                  <h3 className="text-xl font-semibold text-[#741052] mb-4 flex items-center gap-2">
+                    <Box className="h-5 w-5" />
+                    Order Items ({selectedOrder.items.length})
+                  </h3>
+                  <div className="space-y-3 max-h-64 overflow-y-auto">
+                    {selectedOrder.items.map((item, idx) => (
                       <div
-                        key={it.id}
-                        className="flex justify-between items-start rounded-lg border border-neutral-100 dark:border-neutral-800 bg-white/70 dark:bg-neutral-800/50 px-3 py-2"
+                        key={`${item.id}-${idx}`}
+                        className="bg-white rounded-xl p-4 border border-gray-200 hover:shadow-md transition-shadow"
                       >
-                        <div>
-                          <p className="font-medium">{it.title}</p>
-                          <p className="text-xs text-neutral-500">Qty: {it.quantity}</p>
-                          {it.variations && (
-                            <div className="flex flex-wrap gap-1 mt-1">
-                              {it.variations.map((v, idx) => (
-                                <span key={idx} className="text-[11px] px-2 py-1 rounded-full bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-300">
-                                  {typeof v === "string" ? v : `${v.name}: ${v.value}`}
-                                </span>
-                              ))}
-                            </div>
-                          )}
+                        <div className="flex justify-between items-start">
+                          <div className="flex-1">
+                            <h4 className="font-semibold text-gray-900 mb-1">{item.title}</h4>
+                            <p className="text-sm text-gray-600 mb-2">Quantity: {item.quantity}</p>
+                            {item.variations && item.variations.length > 0 && (
+                              <div className="flex flex-wrap gap-2">
+                                {item.variations.map((v, idx) => (
+                                  <span
+                                    key={idx}
+                                    className="px-3 py-1 bg-gradient-to-r from-[#741052]/10 to-[#d0269b]/10 text-[#741052] text-xs font-medium rounded-full border border-[#741052]/20"
+                                  >
+                                    {typeof v === "string" ? v : `${v.name}: ${v.value}`}
+                                  </span>
+                                ))}
+                              </div>
+                            )}
+                          </div>
+                          <div className="text-right">
+                            <p className="text-lg font-bold text-[#741052]">
+                              Rs. {(item.price * item.quantity).toFixed(2)}
+                            </p>
+                            <p className="text-sm text-gray-500">
+                              Rs. {item.price.toFixed(2)} each
+                            </p>
+                          </div>
                         </div>
-                        <p className="text-sm font-semibold">Rs. {it.price * it.quantity}</p>
                       </div>
                     ))}
                   </div>
+                  <div className="mt-4 pt-4 border-t border-purple-200">
+                    <div className="flex justify-between items-center">
+                      <span className="text-lg font-semibold text-gray-900">Total Amount:</span>
+                      <span className="text-2xl font-bold bg-gradient-to-r from-[#741052] to-[#d0269b] bg-clip-text text-transparent">
+                        Rs. {selectedOrder.totalAmount.toFixed(2)}
+                      </span>
+                    </div>
+                    <div className="flex justify-between items-center mt-2">
+                      <span className="text-sm text-gray-600">Payment Method:</span>
+                      <span className="text-sm font-medium text-gray-900 capitalize">{selectedOrder.paymentMethod}</span>
+                    </div>
+                  </div>
                 </div>
 
-                <div className="grid sm:grid-cols-2 gap-3">
-                  <div className="rounded-xl border border-neutral-100 dark:border-neutral-800 p-3 bg-white/70 dark:bg-neutral-800/40">
-                    <p className="text-sm font-semibold mb-2">Feedback</p>
+                {/* Feedback & Notifications */}
+                <div className="grid md:grid-cols-2 gap-6">
+                  {/* Feedback */}
+                  <div className="bg-gradient-to-br from-amber-50 to-amber-100 rounded-2xl p-5 border border-amber-200">
+                    <h3 className="text-xl font-semibold text-[#741052] mb-4">Customer Feedback</h3>
                     {loadingDetail ? (
-                      <p className="text-xs text-neutral-500">Loading…</p>
+                      <div className="flex items-center justify-center py-8">
+                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#741052]"></div>
+                      </div>
                     ) : feedbackList.length === 0 ? (
-                      <p className="text-xs text-neutral-500">No feedback yet.</p>
+                      <div className="text-center py-8">
+                        <p className="text-gray-500">No feedback submitted yet.</p>
+                      </div>
                     ) : (
-                      <div className="space-y-2">
-                        {feedbackList.map((f, idx) => (
-                          <div key={idx} className="rounded-lg border border-neutral-100 dark:border-neutral-700 p-2">
-                            <p className="text-sm font-semibold">Rating: {f.rating}/5</p>
-                            {f.comment && <p className="text-xs text-neutral-600 dark:text-neutral-300">{f.comment}</p>}
-                            <p className="text-[11px] text-neutral-500">{timeAgo(f.createdAt)}</p>
+                      <div className="space-y-3">
+                        {feedbackList.map((feedback, idx) => (
+                          <div key={idx} className="bg-white rounded-xl p-4 border border-gray-200">
+                            <div className="flex items-center gap-2 mb-2">
+                              <div className="flex">
+                                {[1, 2, 3, 4, 5].map((star) => (
+                                  <span
+                                    key={star}
+                                    className={`text-lg ${star <= feedback.rating ? 'text-yellow-400' : 'text-gray-300'}`}
+                                  >
+                                    ★
+                                  </span>
+                                ))}
+                              </div>
+                              <span className="text-sm font-medium text-gray-600">
+                                {feedback.rating}/5
+                              </span>
+                            </div>
+                            {feedback.comment && (
+                              <p className="text-sm text-gray-700 mb-2">"{feedback.comment}"</p>
+                            )}
+                            <p className="text-xs text-gray-500">{timeAgo(feedback.createdAt)}</p>
                           </div>
                         ))}
                       </div>
                     )}
                   </div>
-                  <div className="rounded-xl border border-neutral-100 dark:border-neutral-800 p-3 bg-white/70 dark:bg-neutral-800/40">
-                    <p className="text-sm font-semibold mb-2">Notification consent</p>
+
+                  {/* Notification Consent */}
+                  <div className="bg-gradient-to-br from-emerald-50 to-emerald-100 rounded-2xl p-5 border border-emerald-200">
+                    <h3 className="text-xl font-semibold text-[#741052] mb-4">Notification Preferences</h3>
                     {loadingDetail ? (
-                      <p className="text-xs text-neutral-500">Loading…</p>
+                      <div className="flex items-center justify-center py-8">
+                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#741052]"></div>
+                      </div>
                     ) : consents.length === 0 ? (
-                      <p className="text-xs text-neutral-500">No consents recorded.</p>
+                      <div className="text-center py-8">
+                        <p className="text-gray-500">No notification preferences recorded.</p>
+                      </div>
                     ) : (
-                      <div className="space-y-2">
-                        {consents.map((c, idx) => (
-                          <div key={idx} className="rounded-lg border border-neutral-100 dark:border-neutral-700 p-2 text-sm">
-                            <p className="font-semibold capitalize">{c.channel}</p>
-                            <p className="text-xs text-neutral-600">
-                              {c.consent ? "Opted in" : "Opted out"} — {timeAgo(c.createdAt)}
-                            </p>
+                      <div className="space-y-3">
+                        {consents.slice(0, showAllConsents ? consents.length : 2).map((consent, idx) => (
+                          <div key={idx} className="bg-white rounded-xl p-4 border border-gray-200">
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center gap-3">
+                                <div className={`w-3 h-3 rounded-full ${consent.consent ? 'bg-green-500' : 'bg-red-500'}`}></div>
+                                <span className="font-medium text-gray-900 capitalize">{consent.channel}</span>
+                              </div>
+                              <span className={`text-sm px-2 py-1 rounded-full ${consent.consent ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
+                                {consent.consent ? 'Opted In' : 'Opted Out'}
+                              </span>
+                            </div>
+                            <p className="text-xs text-gray-500 mt-2">{timeAgo(consent.createdAt)}</p>
                           </div>
                         ))}
+
+                        {consents.length > 2 && (
+                          <div className="text-center pt-2">
+                            <button
+                              onClick={() => setShowAllConsents(!showAllConsents)}
+                              className="inline-flex items-center gap-2 text-[#741052] hover:text-[#d0269b] font-medium text-sm transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#741052] rounded-lg px-3 py-2 hover:bg-[#741052]/5"
+                            >
+                              {showAllConsents ? (
+                                <>
+                                  <ChevronUp className="h-4 w-4" />
+                                  Show Less
+                                </>
+                              ) : (
+                                <>
+                                  <ChevronDown className="h-4 w-4" />
+                                  Show {consents.length - 2} More
+                                </>
+                              )}
+                            </button>
+                          </div>
+                        )}
                       </div>
                     )}
                   </div>
                 </div>
               </div>
 
-              <button
-                onClick={closeDetail}
-                className="mt-4 w-full rounded-full border border-neutral-200 dark:border-neutral-700 py-2 text-sm font-semibold hover:bg-neutral-100 dark:hover:bg-neutral-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#741052]"
-              >
-                Close
-              </button>
+              {/* Footer */}
+              <div className="sticky bottom-0 bg-gray-50 rounded-b-3xl p-6 border-t border-gray-200">
+                <div className="flex justify-end">
+                  <Button
+                    onClick={closeDetail}
+                    className="bg-white border-2 border-[#741052] text-[#741052] font-semibold px-8 py-3 rounded-xl hover:bg-[#741052] hover:text-white transition-all duration-200"
+                  >
+                    Close Details
+                  </Button>
+                </div>
+              </div>
             </motion.div>
           </motion.div>
         )}
