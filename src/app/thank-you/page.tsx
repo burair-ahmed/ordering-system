@@ -240,39 +240,88 @@ const ThankYouPage: FC = () => {
   };
 
   const renderStatusMessage = () => {
-    switch (orderType) {
-      case 'dinein':
+    const currentStatus = orderDetails?.status || 'Received';
+
+    // Status-specific messages
+    switch (currentStatus) {
+      case 'Received':
         return (
           <>
             <p className="text-gray-700 font-medium">
-              Your table order is now being prepared 🍽️
+              {orderType === 'dinein' ? 'Your table order has been received 🍽️' :
+               orderType === 'pickup' ? 'Your pickup order has been received 🥡' :
+               'Your delivery order has been received 🚚'}
             </p>
-            <p className="text-sm text-gray-500">Estimated time: 20–30 minutes</p>
+            <p className="text-sm text-gray-500">We're preparing your order now.</p>
           </>
         );
-      case 'pickup':
+      case 'Preparing':
         return (
           <>
             <p className="text-gray-700 font-medium">
-              Your pickup order is being prepared 🥡
+              {orderType === 'dinein' ? 'Your table order is being prepared 🍽️' :
+               orderType === 'pickup' ? 'Your pickup order is being prepared 🥡' :
+               'Your delivery order is being prepared 🚚'}
             </p>
-            <p className="text-sm text-gray-500">Please collect it at the counter soon.</p>
+            <p className="text-sm text-gray-500">
+              {orderType === 'dinein' ? 'Estimated time: 20–30 minutes' :
+               orderType === 'pickup' ? 'Please collect it at the counter soon' :
+               'Estimated delivery time: 30–45 minutes'}
+            </p>
           </>
         );
-      case 'delivery':
+      case 'Ready':
+        return (
+          <>
+            <p className="text-gray-700 font-medium">
+              {orderType === 'dinein' ? 'Your table order is ready! 🍽️' :
+               orderType === 'pickup' ? 'Your pickup order is ready! 🥡' :
+               'Your delivery order is ready! 🚚'}
+            </p>
+            <p className="text-sm text-gray-500">
+              {orderType === 'dinein' ? 'Please enjoy your meal at your table' :
+               orderType === 'pickup' ? 'Please collect it at the counter' :
+               'Your order will be picked up by our delivery partner soon'}
+            </p>
+          </>
+        );
+      case 'Out for delivery':
         return (
           <>
             <p className="text-gray-700 font-medium">
               Your order is out for delivery 🚚
             </p>
-            <p className="text-sm text-gray-500">Estimated arrival: 30–45 minutes</p>
+            <p className="text-sm text-gray-500">Estimated arrival: 15–30 minutes</p>
+          </>
+        );
+      case 'Completed':
+        return (
+          <>
+            <p className="text-gray-700 font-medium">
+              {orderType === 'dinein' ? 'Enjoy your meal! 🍽️' :
+               orderType === 'pickup' ? 'Order completed! Thank you for visiting 🥡' :
+               'Order delivered! Thank you for choosing us 🚚'}
+            </p>
+            <p className="text-sm text-gray-500">We hope you enjoyed your order!</p>
+          </>
+        );
+      case 'Cancelled':
+        return (
+          <>
+            <p className="text-gray-700 font-medium">
+              Order has been cancelled ❌
+            </p>
+            <p className="text-sm text-gray-500">Please contact us if you have any questions.</p>
           </>
         );
       default:
         return (
-          <p className="text-gray-700 font-medium">
-            Your order is being processed. Thank you!
-          </p>
+          <>
+            <p className="text-gray-700 font-medium">
+              Your order is being processed. Thank you!
+            </p>
+            <p className="text-sm text-gray-500">We'll update you with the latest status.</p>
+          </>
         );
     }
   };
