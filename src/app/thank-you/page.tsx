@@ -1,6 +1,6 @@
 'use client';
 
-import { FC, Suspense, useEffect, useState, useRef } from 'react';
+import { FC, Suspense, useEffect, useState, useRef, useCallback } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import Lottie from 'lottie-react';
@@ -74,7 +74,7 @@ const ThankYouPage: FC = () => {
   const orderParam = searchParams?.get('order');
   const phone = searchParams?.get('phone');
 
-  const fetchOrderDetails = async (opts?: { showLoader?: boolean }) => {
+  const fetchOrderDetails = useCallback(async (opts?: { showLoader?: boolean }) => {
     if (!orderType || (!orderNumber && !tableId)) return;
     if (opts?.showLoader) setLoading(true);
     setIsPolling(true);
@@ -101,7 +101,7 @@ const ThankYouPage: FC = () => {
       if (opts?.showLoader) setLoading(false);
       setIsPolling(false);
     }
-  };
+  }, [orderType, orderNumber, tableId]);
 
   useEffect(() => {
     // Dine-in: fetch order number using tableId
@@ -171,7 +171,7 @@ const ThankYouPage: FC = () => {
       fetchOrderDetails();
     }, 10000);
     return () => clearInterval(interval);
-  }, [orderNumber, orderType, tableId]);
+  }, [orderNumber, orderType, tableId, fetchOrderDetails]);
 
   const handleBackToOrder = () => {
     if (orderType === 'dinein' && tableId) {

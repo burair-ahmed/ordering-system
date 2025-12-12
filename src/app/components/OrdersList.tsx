@@ -75,10 +75,11 @@ interface ConsentEntry {
 
 const statusColors: Record<string, string> = {
   Completed: "bg-green-100/80 text-green-800",
-  Pending: "bg-yellow-100/80 text-yellow-800",
-  "In Progress": "bg-orange-100/80 text-orange-800",
+  Received: "bg-yellow-100/80 text-yellow-800",
+  Preparing: "bg-orange-100/80 text-orange-800",
+  Ready: "bg-blue-100/80 text-blue-800",
+  "Out for delivery": "bg-purple-100/80 text-purple-800",
   Cancelled: "bg-red-100/80 text-red-800",
-  Received: "bg-purple-100/80 text-purple-800",
 };
 
 const timeAgo = (dateStr: string) => {
@@ -223,9 +224,10 @@ const OrdersList: FC = () => {
 
   // Allowed transitions to reduce accidental jumps
   const allowedStatusMap: Record<string, string[]> = {
-    Pending: ["Pending", "Received", "In Progress", "Completed", "Cancelled"],
-    Received: ["Received", "In Progress", "Completed", "Cancelled"],
-    "In Progress": ["In Progress", "Completed", "Cancelled"],
+    Received: ["Received", "Preparing", "Ready", "Out for delivery", "Completed", "Cancelled"],
+    Preparing: ["Preparing", "Ready", "Out for delivery", "Completed", "Cancelled"],
+    Ready: ["Ready", "Out for delivery", "Completed", "Cancelled"],
+    "Out for delivery": ["Out for delivery", "Ready", "Completed", "Cancelled"],
     Completed: ["Completed"],
     Cancelled: ["Cancelled"],
   };
@@ -330,9 +332,10 @@ const OrdersList: FC = () => {
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All</SelectItem>
-              <SelectItem value="Pending">Pending</SelectItem>
               <SelectItem value="Received">Received</SelectItem>
-              <SelectItem value="In Progress">In Progress</SelectItem>
+              <SelectItem value="Preparing">Preparing</SelectItem>
+              <SelectItem value="Ready">Ready</SelectItem>
+              <SelectItem value="Out for delivery">Out for delivery</SelectItem>
               <SelectItem value="Completed">Completed</SelectItem>
               <SelectItem value="Cancelled">Cancelled</SelectItem>
             </SelectContent>
@@ -597,23 +600,21 @@ const OrdersList: FC = () => {
                         <Eye className="h-4 w-4" />
                       </Button>
                       <Select
-                        defaultValue={order.status}
-                        onValueChange={(val) => safeUpdateStatus(order, val)}
-                      >
-                        <SelectTrigger
-                          className="w-[160px] bg-white/5 border-white/10 text-black dark:text-neutral-100 focus:ring-[#741052]/30 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#741052]"
-                          aria-label={`Change status for order ${order.orderNumber}`}
-                        >
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="Pending">Pending</SelectItem>
-                          <SelectItem value="Received">Received</SelectItem>
-                          <SelectItem value="In Progress">In Progress</SelectItem>
-                          <SelectItem value="Completed">Completed</SelectItem>
-                          <SelectItem value="Cancelled">Cancelled</SelectItem>
-                        </SelectContent>
-                      </Select>
+                    defaultValue={order.status}
+                    onValueChange={(val) => safeUpdateStatus(order, val)}
+                  >
+                    <SelectTrigger className="w-[200px] bg-white/70 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#741052]">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Received">Received</SelectItem>
+                      <SelectItem value="Preparing">Preparing</SelectItem>
+                      <SelectItem value="Ready">Ready</SelectItem>
+                      <SelectItem value="Out for delivery">Out for delivery</SelectItem>
+                      <SelectItem value="Completed">Completed</SelectItem>
+                      <SelectItem value="Cancelled">Cancelled</SelectItem>
+                    </SelectContent>
+                  </Select>
                     </div>
                   </div>
 
@@ -739,9 +740,10 @@ const OrdersList: FC = () => {
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="Pending">Pending</SelectItem>
                       <SelectItem value="Received">Received</SelectItem>
-                      <SelectItem value="In Progress">In Progress</SelectItem>
+                      <SelectItem value="Preparing">Preparing</SelectItem>
+                      <SelectItem value="Ready">Ready</SelectItem>
+                      <SelectItem value="Out for delivery">Out for delivery</SelectItem>
                       <SelectItem value="Completed">Completed</SelectItem>
                       <SelectItem value="Cancelled">Cancelled</SelectItem>
                     </SelectContent>
