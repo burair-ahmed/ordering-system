@@ -2,12 +2,37 @@
 
 import { FC, Suspense, useEffect, useState, useRef, useCallback } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import Lottie from 'lottie-react';
 import successAnimation from '../../../public/lotties/success-check.json';
 import { TypeAnimation } from 'react-type-animation';
 import { toast } from 'sonner';
 import { useCart } from '../context/CartContext';
+import {
+  CheckCircle,
+  Clock,
+  MapPin,
+  Phone,
+  Star,
+  RefreshCw,
+  Share2,
+  MessageCircle,
+  Download,
+  Plus,
+  ShoppingCart,
+  Receipt,
+  ArrowRight,
+  Heart,
+  Truck,
+  Utensils,
+  ChefHat,
+  X,
+} from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Textarea } from '@/components/ui/textarea';
+import { Label } from '@/components/ui/label';
 
 // Skeleton shimmer loader
 const SkeletonLoader = () => (
@@ -591,240 +616,384 @@ const ThankYouPage: FC = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#f9f4fb] via-[#fdf6fb] to-[#f7f1ff] relative overflow-hidden px-4">
-      {/* Decorative background emojis */}
-      <div className="absolute text-6xl opacity-10 top-4 left-8">🍕</div>
-      <div className="absolute text-5xl opacity-10 bottom-10 right-10">🥤</div>
-      <div className="absolute text-7xl opacity-10 top-20 right-1/4">🍔</div>
+    <div className="min-h-screen bg-gradient-to-br from-[#f9f4fb] via-[#fdf6fb] to-[#f7f1ff] relative overflow-hidden">
+      {/* Decorative background elements */}
+      <div className="absolute inset-0 overflow-hidden">
+        <div className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-pink-200/20 to-purple-200/20 rounded-full blur-3xl"></div>
+        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-br from-blue-200/20 to-indigo-200/20 rounded-full blur-3xl"></div>
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-gradient-to-br from-yellow-200/10 to-orange-200/10 rounded-full blur-3xl"></div>
+      </div>
 
-      <motion.div
-        initial={{ opacity: 0, y: 40 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, ease: 'easeOut' }}
-        className="max-w-md w-full p-8 rounded-2xl shadow-xl backdrop-blur-lg bg-white/40 border border-white/20 text-center"
-      >
-        {/* Success Animation */}
-        <div className="mx-auto mb-4 w-32 h-32">
-          <Lottie animationData={successAnimation} loop={!prefersReducedMotion} />
-        </div>
-
-        {/* Heading */}
-        <h1 className="text-3xl font-extrabold bg-gradient-to-r from-[#741052] to-[#d0269b] bg-clip-text text-transparent mb-3">
-          Thank You for Your Order!
-        </h1>
-
-        <p className="text-gray-700 text-lg mb-6">
-          Your order has been successfully received 🎉
-        </p>
-
-        {/* Order Info */}
-        <div className="mb-6" role="status" aria-live="polite">
-          {renderOrderDetails()}
-        </div>
-
-        {/* Status Info */}
-        <div className="mb-4" role="status" aria-live="polite">
-          {renderStatusMessage()}
-        </div>
-        {renderStatusTracker()}
-        {renderOrderSummary()}
-
-        {/* Button */}
-        <motion.button
-          onClick={handleBackToOrder}
-          whileHover={{
-            scale: 1.05,
-            boxShadow: '0px 0px 12px rgba(208, 38, 155, 0.6)',
-          }}
-          whileTap={{ scale: 0.95 }}
-          className="w-full py-3 rounded-full text-white font-semibold bg-gradient-to-r from-[#741052] to-[#d0269b] transition relative overflow-hidden focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#741052]"
-          aria-label="Back to Order"
-        >
-          {orderType === 'dinein' ? 'Back to Menu' : 'Back to Home'}
-        </motion.button>
-
-        {/* Secondary CTAs */}
-        <div className="mt-4 grid grid-cols-1 sm:grid-cols-3 gap-2">
-          <button
-            onClick={handleShare}
-            className="w-full py-2 rounded-full text-sm font-semibold border border-gray-200 bg-white/70 text-gray-700 hover:border-[#d0269b] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#741052]"
-            disabled={isSharing}
-            aria-disabled={isSharing}
+      <div className="relative z-10 container mx-auto px-4 py-8">
+        <div className="max-w-4xl mx-auto space-y-8">
+          {/* Success Header */}
+          <motion.div
+            initial={{ opacity: 0, y: -30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, ease: "easeOut" }}
+            className="text-center mb-12"
           >
-            {isSharing ? 'Sharing…' : 'Share order'}
-          </button>
-          <button
-            onClick={handleSupport}
-            className="w-full py-2 rounded-full text-sm font-semibold border border-gray-200 bg-white/70 text-gray-700 hover:border-[#741052] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#741052]"
-          >
-            Contact support
-          </button>
-          <button
-            onClick={() => fetchOrderDetails({ showLoader: true })}
-            className="w-full py-2 rounded-full text-sm font-semibold border border-gray-200 bg-white/70 text-gray-700 hover:border-[#741052] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#741052]"
-            disabled={loading}
-            aria-disabled={loading}
-          >
-            Refresh status
-          </button>
-        </div>
-
-        {/* Reorder & receipts */}
-        <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-2">
-          <button
-            onClick={handleReorder}
-            disabled={isReordering || !orderDetails?.items}
-            className="w-full py-2 rounded-full text-sm font-semibold border border-gray-200 bg-white/70 text-gray-700 hover:border-[#741052] disabled:opacity-60 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#741052]"
-            aria-disabled={isReordering || !orderDetails?.items}
-          >
-            {isReordering ? 'Adding…' : 'Reorder these items'}
-          </button>
-          <button
-            onClick={handleDownloadReceipt}
-            className="w-full py-2 rounded-full text-sm font-semibold border border-gray-200 bg-white/70 text-gray-700 hover:border-[#741052] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#741052]"
-          >
-            Download receipt
-          </button>
-        </div>
-
-        {/* Add-ons */}
-        <div className="mt-6 p-4 rounded-xl bg-white/60 border border-white/30 text-left">
-          <div className="flex items-center justify-between mb-3">
-            <p className="text-sm font-semibold text-gray-800">Popular add-ons</p>
-            <p className="text-xs text-gray-500">Prep for your next order</p>
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-            {addOnSuggestions.map((item) => (
-              <div
-                key={item.id}
-                className="rounded-lg border border-gray-200 bg-white/70 p-3 flex flex-col gap-2"
-              >
-                <p className="text-sm font-semibold text-gray-800">{item.title}</p>
-                <p className="text-xs text-gray-500">Rs. {item.price.toFixed(2)}</p>
-                <button
-                  onClick={() => handleAddOn(item)}
-                  className="mt-auto text-xs font-semibold text-white rounded-full py-2 px-3 bg-gradient-to-r from-[#741052] to-[#d0269b] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#741052]"
-                >
-                  Add for next order
-                </button>
+            <div className="relative inline-block mb-6">
+              <div className="absolute inset-0 bg-gradient-to-r from-[#741052] to-[#d0269b] rounded-full blur-lg opacity-20 scale-110"></div>
+              <div className="relative bg-white rounded-3xl p-8 shadow-2xl border border-white/20">
+                <div className="w-24 h-24 mx-auto mb-4">
+                  <Lottie animationData={successAnimation} loop={!prefersReducedMotion} />
+                </div>
+                <h1 className="text-4xl font-bold bg-gradient-to-r from-[#741052] to-[#d0269b] bg-clip-text text-transparent mb-2">
+                  Order Confirmed!
+                </h1>
+                <p className="text-gray-600 text-lg">Your delicious order has been received successfully</p>
+                <div className="flex items-center justify-center gap-2 mt-4">
+                  <CheckCircle className="h-5 w-5 text-green-500" />
+                  <span className="text-sm font-medium text-green-600">Order placed successfully</span>
+                </div>
               </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Notification opt-in */}
-        <div className="mt-6 p-4 rounded-xl bg-white/60 border border-white/30 text-left space-y-3">
-          <div className="flex items-center justify-between gap-3">
-            <div>
-              <p className="text-sm font-semibold text-gray-800">Get updates</p>
-              <p className="text-xs text-gray-500">
-                We can notify you when your order is ready.
-              </p>
             </div>
-            {consentStatus === 'saving' && (
-              <span className="text-xs text-gray-500">Saving…</span>
-            )}
-          </div>
-          <div className="flex items-center justify-between">
-            <div className="text-sm text-gray-700">WhatsApp alerts</div>
-            <label className="inline-flex items-center cursor-pointer">
-              <input
-                type="checkbox"
-                className="sr-only"
-                checked={whatsappOptIn}
-                onChange={(e) => {
-                  setWhatsAppOptIn(e.target.checked);
-                  submitConsent('whatsapp', e.target.checked);
-                }}
-                aria-label="Toggle WhatsApp alerts"
-              />
-              <span
-                className={`w-10 h-5 flex items-center rounded-full p-1 transition ${
-                  whatsappOptIn ? 'bg-[#d0269b]' : 'bg-gray-300'
-                }`}
-              >
-                <span
-                  className={`bg-white w-4 h-4 rounded-full shadow transform transition ${
-                    whatsappOptIn ? 'translate-x-5' : ''
-                  }`}
-                />
-              </span>
-            </label>
-          </div>
-          <div className="flex items-center justify-between">
-            <div className="text-sm text-gray-700">Push notifications</div>
-            <label className="inline-flex items-center cursor-pointer">
-              <input
-                type="checkbox"
-                className="sr-only"
-                checked={pushOptIn}
-                onChange={(e) => {
-                  setPushOptIn(e.target.checked);
-                  submitConsent('push', e.target.checked);
-                }}
-                aria-label="Toggle push notifications"
-              />
-              <span
-                className={`w-10 h-5 flex items-center rounded-full p-1 transition ${
-                  pushOptIn ? 'bg-[#741052]' : 'bg-gray-300'
-                }`}
-              >
-                <span
-                  className={`bg-white w-4 h-4 rounded-full shadow transform transition ${
-                    pushOptIn ? 'translate-x-5' : ''
-                  }`}
-                />
-              </span>
-            </label>
-          </div>
-        </div>
+          </motion.div>
 
-        {/* Feedback */}
-        <div className="mt-4 p-4 rounded-xl bg-white/60 border border-white/30 text-left">
-          <p className="text-sm font-semibold text-gray-800">How was your experience?</p>
-          <p className="text-xs text-gray-500 mb-3">
-            Quick feedback helps us improve.
-          </p>
-          <div className="flex gap-2 mb-3">
-            {[1, 2, 3, 4, 5].map((val) => (
-              <button
-                key={val}
-                onClick={() => setRating(val)}
-                className={`w-10 h-10 rounded-full border text-sm font-semibold ${
-                  rating === val
-                    ? 'bg-gradient-to-r from-[#741052] to-[#d0269b] text-white border-transparent'
-                    : 'bg-white text-gray-700 border-gray-200'
-                }`}
-                aria-label={`Rate ${val} star${val > 1 ? 's' : ''}`}
-              >
-                {val}
-              </button>
-            ))}
+          <div className="grid lg:grid-cols-3 gap-8">
+            {/* Main Order Info */}
+            <div className="lg:col-span-2 space-y-6">
+              {/* Order Details Card */}
+              <Card className="border-0 shadow-xl bg-gradient-to-br from-white to-gray-50">
+                <CardHeader className="text-center pb-4">
+                  <div className="w-12 h-12 bg-gradient-to-r from-[#741052] to-[#d0269b] rounded-full flex items-center justify-center mx-auto mb-3">
+                    <Receipt className="h-6 w-6 text-white" />
+                  </div>
+                  <CardTitle className="text-2xl text-[#741052]">Order Details</CardTitle>
+                  <CardDescription>Keep this information for your records</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  {renderOrderDetails()}
+
+                  {/* Order Type & Details */}
+                  <div className="grid sm:grid-cols-2 gap-4 pt-4 border-t border-gray-200">
+                    <div className="flex items-center gap-3 p-3 bg-blue-50 rounded-xl">
+                      {orderType === 'dinein' && <Utensils className="h-5 w-5 text-blue-600" />}
+                      {orderType === 'pickup' && <ShoppingCart className="h-5 w-5 text-blue-600" />}
+                      {orderType === 'delivery' && <Truck className="h-5 w-5 text-blue-600" />}
+                      <div>
+                        <p className="font-semibold text-gray-900 capitalize">{orderType}</p>
+                        <p className="text-sm text-gray-600">
+                          {orderType === 'dinein' ? 'Dine-in order' :
+                           orderType === 'pickup' ? 'Pickup order' : 'Delivery order'}
+                        </p>
+                      </div>
+                    </div>
+
+                    {orderType === 'dinein' && tableId && (
+                      <div className="flex items-center gap-3 p-3 bg-green-50 rounded-xl">
+                        <Utensils className="h-5 w-5 text-green-600" />
+                        <div>
+                          <p className="font-semibold text-gray-900">Table {tableId}</p>
+                          <p className="text-sm text-gray-600">Your table number</p>
+                        </div>
+                      </div>
+                    )}
+
+                    {orderType === 'delivery' && phone && (
+                      <div className="flex items-center gap-3 p-3 bg-purple-50 rounded-xl">
+                        <Phone className="h-5 w-5 text-purple-600" />
+                        <div>
+                          <p className="font-semibold text-gray-900">{phone}</p>
+                          <p className="text-sm text-gray-600">Delivery contact</p>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Order Status */}
+              <Card className="border-0 shadow-xl bg-gradient-to-br from-white to-gray-50">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2 text-xl text-[#741052]">
+                    <Clock className="h-5 w-5" />
+                    Order Status
+                  </CardTitle>
+                  <CardDescription>Real-time updates on your order progress</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  <div className="p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl border border-blue-200">
+                    {renderStatusMessage()}
+                  </div>
+                  {renderStatusTracker()}
+                </CardContent>
+              </Card>
+
+              {/* Order Summary */}
+              {renderOrderSummary()}
+            </div>
+
+            {/* Sidebar Actions */}
+            <div className="space-y-6">
+              {/* Quick Actions */}
+              <Card className="border-0 shadow-xl bg-gradient-to-br from-white to-gray-50">
+                <CardHeader>
+                  <CardTitle className="text-lg text-[#741052]">Quick Actions</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  <Button
+                    onClick={handleBackToOrder}
+                    className="w-full bg-gradient-to-r from-[#741052] to-[#d0269b] text-white font-semibold py-3 rounded-xl shadow-lg hover:opacity-90 transition-all duration-200 flex items-center gap-2"
+                  >
+                    {orderType === 'dinein' ? <Utensils className="h-4 w-4" /> : <ArrowRight className="h-4 w-4" />}
+                    {orderType === 'dinein' ? 'Back to Menu' : 'Continue Shopping'}
+                  </Button>
+
+                  <div className="grid grid-cols-2 gap-2">
+                    <Button
+                      onClick={handleShare}
+                      variant="outline"
+                      className="flex items-center gap-2 border-2 hover:border-[#741052] transition-colors"
+                      disabled={isSharing}
+                    >
+                      <Share2 className="h-4 w-4" />
+                      {isSharing ? 'Sharing...' : 'Share'}
+                    </Button>
+                    <Button
+                      onClick={handleSupport}
+                      variant="outline"
+                      className="flex items-center gap-2 border-2 hover:border-[#741052] transition-colors"
+                    >
+                      <MessageCircle className="h-4 w-4" />
+                      Support
+                    </Button>
+                  </div>
+
+                  <Button
+                    onClick={() => fetchOrderDetails({ showLoader: true })}
+                    variant="outline"
+                    className="w-full flex items-center gap-2 border-2 hover:border-[#741052] transition-colors"
+                    disabled={loading}
+                  >
+                    <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
+                    Refresh Status
+                  </Button>
+                </CardContent>
+              </Card>
+
+              {/* Order Management */}
+              <Card className="border-0 shadow-xl bg-gradient-to-br from-white to-gray-50">
+                <CardHeader>
+                  <CardTitle className="text-lg text-[#741052]">Order Management</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  <Button
+                    onClick={handleReorder}
+                    disabled={isReordering || !orderDetails?.items}
+                    variant="outline"
+                    className="w-full flex items-center gap-2 border-2 hover:border-[#741052] transition-colors"
+                  >
+                    <Plus className="h-4 w-4" />
+                    {isReordering ? 'Adding to Cart...' : 'Reorder Items'}
+                  </Button>
+
+                  <Button
+                    onClick={handleDownloadReceipt}
+                    variant="outline"
+                    className="w-full flex items-center gap-2 border-2 hover:border-[#741052] transition-colors"
+                  >
+                    <Download className="h-4 w-4" />
+                    Download Receipt
+                  </Button>
+                </CardContent>
+              </Card>
+
+              {/* Popular Add-ons */}
+              <Card className="border-0 shadow-xl bg-gradient-to-br from-white to-gray-50">
+                <CardHeader>
+                  <CardTitle className="text-lg text-[#741052] flex items-center gap-2">
+                    <Plus className="h-5 w-5" />
+                    Popular Add-ons
+                  </CardTitle>
+                  <CardDescription>Perfect companions for your order</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-3">
+                    {addOnSuggestions.map((item, index) => (
+                      <motion.div
+                        key={item.id}
+                        initial={{ opacity: 0, x: 20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ duration: 0.3, delay: index * 0.1 }}
+                        className="flex items-center justify-between p-3 bg-gradient-to-r from-gray-50 to-gray-100 rounded-xl border border-gray-200 hover:shadow-md transition-shadow"
+                      >
+                        <div className="flex-1">
+                          <p className="font-medium text-gray-900">{item.title}</p>
+                          <p className="text-sm text-gray-600">Rs. {item.price.toFixed(2)}</p>
+                        </div>
+                        <Button
+                          onClick={() => handleAddOn(item)}
+                          size="sm"
+                          className="bg-gradient-to-r from-[#741052] to-[#d0269b] text-white hover:opacity-90 transition-all duration-200"
+                        >
+                          <Plus className="h-3 w-3" />
+                        </Button>
+                      </motion.div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
           </div>
-          <textarea
-            value={feedback}
-            onChange={(e) => setFeedback(e.target.value)}
-            placeholder="Any quick notes for us?"
-            className="w-full rounded-lg border border-gray-200 bg-white/80 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#741052]"
-            rows={3}
-          />
-          <div className="mt-3 flex justify-end">
-            <button
-              onClick={submitFeedback}
-              className="px-4 py-2 rounded-full text-sm font-semibold text-white bg-gradient-to-r from-[#741052] to-[#d0269b]"
-              disabled={feedbackStatus === 'submitting'}
-            >
-              {feedbackStatus === 'submitting' ? 'Sending…' : 'Submit'}
-            </button>
+
+          {/* Bottom Section */}
+          <div className="grid md:grid-cols-2 gap-8 mt-12">
+            {/* Notifications */}
+            <Card className="border-0 shadow-xl bg-gradient-to-br from-white to-gray-50">
+              <CardHeader>
+                <CardTitle className="text-lg text-[#741052] flex items-center gap-2">
+                  <MessageCircle className="h-5 w-5" />
+                  Stay Updated
+                </CardTitle>
+                <CardDescription>Get notified when your order is ready</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {consentStatus === 'saving' && (
+                  <div className="flex items-center justify-center py-4">
+                    <RefreshCw className="h-5 w-5 animate-spin text-[#741052]" />
+                  </div>
+                )}
+
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between p-3 bg-green-50 rounded-xl border border-green-200">
+                    <div className="flex items-center gap-3">
+                      <div className="w-4 h-4 bg-green-500 rounded-full"></div>
+                      <span className="font-medium text-gray-900">WhatsApp Alerts</span>
+                    </div>
+                    <label className="relative inline-flex items-center cursor-pointer">
+                      <input
+                        type="checkbox"
+                        className="sr-only peer"
+                        checked={whatsappOptIn}
+                        onChange={(e) => {
+                          setWhatsAppOptIn(e.target.checked);
+                          submitConsent('whatsapp', e.target.checked);
+                        }}
+                      />
+                      <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#741052]"></div>
+                    </label>
+                  </div>
+
+                  <div className="flex items-center justify-between p-3 bg-blue-50 rounded-xl border border-blue-200">
+                    <div className="flex items-center gap-3">
+                      <div className="w-4 h-4 bg-blue-500 rounded-full"></div>
+                      <span className="font-medium text-gray-900">Push Notifications</span>
+                    </div>
+                    <label className="relative inline-flex items-center cursor-pointer">
+                      <input
+                        type="checkbox"
+                        className="sr-only peer"
+                        checked={pushOptIn}
+                        onChange={(e) => {
+                          setPushOptIn(e.target.checked);
+                          submitConsent('push', e.target.checked);
+                        }}
+                      />
+                      <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#d0269b]"></div>
+                    </label>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Feedback */}
+            <Card className="border-0 shadow-xl bg-gradient-to-br from-white to-gray-50">
+              <CardHeader>
+                <CardTitle className="text-lg text-[#741052] flex items-center gap-2">
+                  <Heart className="h-5 w-5" />
+                  Share Your Feedback
+                </CardTitle>
+                <CardDescription>Help us improve your experience</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div>
+                  <Label className="text-sm font-medium text-gray-700 mb-3 block">Rate your experience</Label>
+                  <div className="flex gap-2 justify-center">
+                    {[1, 2, 3, 4, 5].map((val) => (
+                      <motion.button
+                        key={val}
+                        onClick={() => setRating(val)}
+                        whileHover={{ scale: 1.1 }}
+                        whileTap={{ scale: 0.9 }}
+                        className={`w-12 h-12 rounded-full border-2 font-semibold transition-all duration-200 ${
+                          rating === val
+                            ? 'bg-gradient-to-r from-[#741052] to-[#d0269b] text-white border-transparent shadow-lg'
+                            : 'bg-white text-gray-700 border-gray-300 hover:border-[#741052] hover:shadow-md'
+                        }`}
+                        aria-label={`Rate ${val} star${val > 1 ? 's' : ''}`}
+                      >
+                        {val}
+                      </motion.button>
+                    ))}
+                  </div>
+                </div>
+
+                <div>
+                  <Label htmlFor="feedback" className="text-sm font-medium text-gray-700 mb-2 block">
+                    Additional Comments (Optional)
+                  </Label>
+                  <Textarea
+                    id="feedback"
+                    value={feedback}
+                    onChange={(e) => setFeedback(e.target.value)}
+                    placeholder="Tell us about your experience..."
+                    className="min-h-20 border-2 focus:border-[#741052] transition-colors resize-none"
+                    rows={3}
+                  />
+                </div>
+
+                <div className="flex justify-end">
+                  <Button
+                    onClick={submitFeedback}
+                    disabled={feedbackStatus === 'submitting'}
+                    className="bg-gradient-to-r from-[#741052] to-[#d0269b] text-white font-semibold px-6 py-2 rounded-xl shadow-lg hover:opacity-90 transition-all duration-200 flex items-center gap-2"
+                  >
+                    {feedbackStatus === 'submitting' ? (
+                      <>
+                        <RefreshCw className="h-4 w-4 animate-spin" />
+                        Sending...
+                      </>
+                    ) : (
+                      <>
+                        <MessageCircle className="h-4 w-4" />
+                        Submit Feedback
+                      </>
+                    )}
+                  </Button>
+                </div>
+
+                <AnimatePresence>
+                  {feedbackStatus === 'success' && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -10 }}
+                      className="flex items-center gap-2 p-3 bg-green-50 border border-green-200 rounded-xl text-green-800"
+                    >
+                      <CheckCircle className="h-4 w-4" />
+                      <span className="text-sm font-medium">Thank you for your feedback!</span>
+                    </motion.div>
+                  )}
+
+                  {feedbackStatus === 'error' && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -10 }}
+                      className="flex items-center gap-2 p-3 bg-red-50 border border-red-200 rounded-xl text-red-800"
+                    >
+                      <X className="h-4 w-4" />
+                      <span className="text-sm font-medium">Could not submit feedback. Please try again.</span>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </CardContent>
+            </Card>
           </div>
-          {feedbackStatus === 'success' && (
-            <p className="text-xs text-green-600 mt-2">Thanks for your feedback!</p>
-          )}
-          {feedbackStatus === 'error' && (
-            <p className="text-xs text-rose-600 mt-2">Could not submit. Please retry.</p>
-          )}
         </div>
-      </motion.div>
+      </div>
     </div>
   );
 };
