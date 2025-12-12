@@ -194,17 +194,17 @@ const OrdersList: FC<OrdersListProps> = ({
   };
 
   // ⬇️ Toggle expand
-  const toggleExpand = (orderNumber: string) => {
-    setExpandedOrders((prev) => {
-      const updated = new Set(prev);
-      if (updated.has(orderNumber)) {
-        updated.delete(orderNumber);
-      } else {
-        updated.add(orderNumber);
-      }
-      return updated;
-    });
-  };
+const toggleExpand = (orderNumber: string) => {
+  setExpandedOrders((prev) => {
+    const updated = new Set(prev);
+    if (updated.has(orderNumber)) {
+      updated.delete(orderNumber);
+    } else {
+      updated.add(orderNumber);
+    }
+    return updated;
+  });
+};
 
   const filteredOrders = useMemo(() => {
     return orders.filter((order) => {
@@ -369,7 +369,7 @@ const OrdersList: FC<OrdersListProps> = ({
             </SelectContent>
           </Select>
         </div>
-      </div>
+          </div>
 
       <div className="mt-2 flex gap-3 text-xs text-neutral-600">
         <span>{filteredOrders.length} showing</span>
@@ -384,7 +384,7 @@ const OrdersList: FC<OrdersListProps> = ({
         >
           Clear filters
         </button>
-      </div>
+          </div>
 
 
       {/* 🧾 Orders Grid */}
@@ -548,22 +548,22 @@ const OrdersList: FC<OrdersListProps> = ({
                       >
                         <Eye className="h-4 w-4" />
                       </Button>
-                      <Select
-                    defaultValue={order.status}
+                    <Select
+                      defaultValue={order.status}
                     onValueChange={(val) => safeUpdateStatus(order, val)}
-                  >
+                    >
                     <SelectTrigger className="w-[200px] bg-white/70 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#741052]">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="Received">Received</SelectItem>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="Received">Received</SelectItem>
                       <SelectItem value="Preparing">Preparing</SelectItem>
                       <SelectItem value="Ready">Ready</SelectItem>
                       <SelectItem value="Out for delivery">Out for delivery</SelectItem>
-                      <SelectItem value="Completed">Completed</SelectItem>
-                      <SelectItem value="Cancelled">Cancelled</SelectItem>
-                    </SelectContent>
-                  </Select>
+                        <SelectItem value="Completed">Completed</SelectItem>
+                        <SelectItem value="Cancelled">Cancelled</SelectItem>
+                      </SelectContent>
+                    </Select>
                     </div>
                   </div>
 
