@@ -1,8 +1,28 @@
 "use client";
 
 import { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { VariationConfig, SimpleVariation } from "../../types/variations";
 import { toast } from "sonner";
+import {
+  Plus,
+  X,
+  ImageIcon,
+  DollarSign,
+  Tag,
+  FileText,
+  Settings,
+  Save,
+  Trash2,
+  Upload,
+  Layers,
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 const AddMenuItemForm = () => {
   const [variationConfig, setVariationConfig] = useState<VariationConfig>({
@@ -150,213 +170,295 @@ const AddMenuItemForm = () => {
   };
 
   return (
-<div
-  className="max-w-xl mx-auto p-8 rounded-2xl shadow-2xl max-h-[500px]
-    bg-white/40 dark:bg-neutral-900/40 backdrop-blur-md border border-white/20 
-    transition-all duration-300"
->
-  <h2 className="text-3xl font-bold mb-6 text-center 
-    bg-gradient-to-r from-[#5c0d40] to-pink-600 bg-clip-text text-transparent">
-    Add Menu Item
-  </h2>
-
-  {/* Scrollable form */}
-  <div className="max-h-[400px] overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-[#5c0d40] scrollbar-track-transparent">
-    <form onSubmit={handleSubmit} className="space-y-5">
-      {/* Title */}
-      <div>
-        <label
-          htmlFor="title"
-          className="block text-sm font-medium mb-1 text-neutral-700 dark:text-neutral-300"
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5 }}
+      className="max-w-4xl mx-auto space-y-6"
+    >
+      {/* Header */}
+      <div className="text-center mb-8">
+        <motion.div
+          initial={{ scale: 0.9 }}
+          animate={{ scale: 1 }}
+          transition={{ duration: 0.5, delay: 0.1 }}
         >
-          Title
-        </label>
-        <input
-          type="text"
-          id="title"
-          name="title"
-          value={formData.title}
-          onChange={handleInputChange}
-          className="w-full rounded-xl px-4 py-2 border border-neutral-300 dark:border-neutral-700 
-            bg-white/70 dark:bg-neutral-800/70 shadow-sm 
-            focus:ring-2 focus:ring-[#5c0d40] focus:outline-none transition-all"
-          placeholder="Enter menu item title"
-          required
-        />
+          <div className="w-16 h-16 bg-gradient-to-r from-[#741052] to-[#d0269b] rounded-2xl flex items-center justify-center mx-auto mb-4">
+            <Plus className="h-8 w-8 text-white" />
+          </div>
+          <h1 className="text-3xl font-bold bg-gradient-to-r from-[#741052] to-[#d0269b] bg-clip-text text-transparent mb-2">
+            Add Menu Item
+          </h1>
+          <p className="text-gray-600">Create a delicious menu item for your customers</p>
+        </motion.div>
       </div>
 
-      {/* Price */}
-      <div>
-        <label
-          htmlFor="price"
-          className="block text-sm font-medium mb-1 text-neutral-700 dark:text-neutral-300"
-        >
-          Price (Rs.)
-        </label>
-        <input
-          type="number"
-          id="price"
-          name="price"
-          value={formData.price}
-          onChange={handleInputChange}
-          className="w-full rounded-xl px-4 py-2 border border-neutral-300 dark:border-neutral-700 
-            bg-white/70 dark:bg-neutral-800/70 shadow-sm 
-            focus:ring-2 focus:ring-[#5c0d40] focus:outline-none transition-all"
-          placeholder="Enter price"
-          required
-        />
-      </div>
+      <form onSubmit={handleSubmit} className="space-y-6">
+        {/* Basic Information */}
+        <Card className="border-0 shadow-lg bg-gradient-to-br from-white to-gray-50">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-xl text-[#741052]">
+              <FileText className="h-5 w-5" />
+              Basic Information
+            </CardTitle>
+            <CardDescription>
+              Enter the fundamental details of your menu item
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            <div className="grid md:grid-cols-2 gap-6">
+              <div className="space-y-2">
+                <Label htmlFor="title" className="text-sm font-semibold text-gray-700 flex items-center gap-2">
+                  <Tag className="h-4 w-4" />
+                  Item Title
+                </Label>
+                <Input
+                  id="title"
+                  name="title"
+                  type="text"
+                  value={formData.title}
+                  onChange={handleInputChange}
+                  placeholder="e.g., Chicken Biryani"
+                  className="h-12 border-2 focus:border-[#741052] transition-colors"
+                  required
+                />
+              </div>
 
-      {/* Category */}
-      <div>
-        <label
-          htmlFor="category"
-          className="block text-sm font-medium mb-1 text-neutral-700 dark:text-neutral-300"
-        >
-          Category
-        </label>
-        <select
-          id="category"
-          name="category"
-          value={formData.category}
-          onChange={handleInputChange}
-          className="w-full rounded-xl px-4 py-2 border border-neutral-300 dark:border-neutral-700 
-            bg-white/70 dark:bg-neutral-800/70 shadow-sm 
-            focus:ring-2 focus:ring-[#5c0d40] focus:outline-none transition-all"
-          required
-        >
-          <option value="">Select Category</option>
-          {categories.map((category) => (
-            <option key={category} value={category}>
-              {category}
-            </option>
-          ))}
-        </select>
-      </div>
-
-      {/* Image */}
-      <div>
-        <label
-          htmlFor="image"
-          className="block text-sm font-medium mb-1 text-neutral-700 dark:text-neutral-300"
-        >
-          Image
-        </label>
-        <input
-          type="file"
-          id="image"
-          accept="image/*"
-          onChange={handleImageUpload}
-          className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 
-            file:rounded-full file:border-0 file:text-sm file:font-semibold 
-            file:bg-gradient-to-r file:from-[#5c0d40] file:to-pink-600 
-            file:text-white hover:file:opacity-90 cursor-pointer"
-        />
-      </div>
-
-      {/* Description */}
-      <div>
-        <label
-          htmlFor="description"
-          className="block text-sm font-medium mb-1 text-neutral-700 dark:text-neutral-300"
-        >
-          Short Description
-        </label>
-        <textarea
-          id="description"
-          name="description"
-          value={formData.description}
-          onChange={handleInputChange}
-          rows={3}
-          className="w-full rounded-xl px-4 py-2 border border-neutral-300 dark:border-neutral-700 
-            bg-white/70 dark:bg-neutral-800/70 shadow-sm 
-            focus:ring-2 focus:ring-[#5c0d40] focus:outline-none transition-all"
-          placeholder="Enter a short description"
-          required
-        ></textarea>
-      </div>
-
-      {/* Enable Variations */}
-      <div className="flex items-center space-x-2">
-        <input
-          type="checkbox"
-          checked={enableVariations}
-          onChange={(e) => toggleVariations(e.target.checked)}
-          className="w-4 h-4 rounded border-neutral-300 dark:border-neutral-700
-            text-[#5c0d40] focus:ring-[#5c0d40]"
-        />
-        <span className="text-sm font-medium text-neutral-700 dark:text-neutral-300">
-          Enable Variations
-        </span>
-      </div>
-
-      {/* Variations */}
-      {enableVariations && (
-        <div className="space-y-3">
-          <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300">
-            Variations
-          </label>
-          {variations.map((variation, index) => (
-            <div
-              key={variation.id}
-              className="flex items-center gap-2 p-2 rounded-xl bg-white/60 dark:bg-neutral-800/60
-                shadow-sm hover:shadow-md transition-all"
-            >
-              <input
-                type="text"
-                value={variation.name}
-                onChange={(e) =>
-                  handleVariationChange(index, "name", e.target.value)
-                }
-                placeholder={`Variation ${index + 1}`}
-                className="flex-1 rounded-lg px-3 py-2 border border-neutral-300 dark:border-neutral-700
-                  bg-transparent focus:ring-2 focus:ring-[#5c0d40] focus:outline-none"
-              />
-              <input
-                type="number"
-                value={variation.price}
-                onChange={(e) =>
-                  handleVariationChange(index, "price", e.target.value)
-                }
-                placeholder="Price"
-                className="w-28 rounded-lg px-3 py-2 border border-neutral-300 dark:border-neutral-700
-                  bg-transparent focus:ring-2 focus:ring-[#5c0d40] focus:outline-none"
-              />
-              {variations.length > 1 && (
-                <button
-                  type="button"
-                  onClick={() => removeVariation(index)}
-                  className="text-red-500 hover:text-red-700 transition"
-                >
-                  ✕
-                </button>
-              )}
+              <div className="space-y-2">
+                <Label htmlFor="price" className="text-sm font-semibold text-gray-700 flex items-center gap-2">
+                  <DollarSign className="h-4 w-4" />
+                  Price (Rs)
+                </Label>
+                <Input
+                  id="price"
+                  name="price"
+                  type="number"
+                  value={formData.price}
+                  onChange={handleInputChange}
+                  placeholder="0"
+                  className="h-12 border-2 focus:border-[#741052] transition-colors"
+                  min="0"
+                  step="0.01"
+                  required
+                />
+              </div>
             </div>
-          ))}
-          <button
-            type="button"
-            onClick={addVariation}
-            className="text-sm font-semibold text-[#5c0d40] hover:underline"
+
+            <div className="space-y-2">
+              <Label htmlFor="category" className="text-sm font-semibold text-gray-700 flex items-center gap-2">
+                <Layers className="h-4 w-4" />
+                Category
+              </Label>
+              <Select value={formData.category} onValueChange={(value) => setFormData(prev => ({ ...prev, category: value }))}>
+                <SelectTrigger className="h-12 border-2 focus:border-[#741052] transition-colors">
+                  <SelectValue placeholder="Select a category" />
+                </SelectTrigger>
+                <SelectContent>
+                  {categories.map((category) => (
+                    <SelectItem key={category} value={category}>
+                      {category}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="grid md:grid-cols-2 gap-6">
+              <div className="space-y-2">
+                <Label htmlFor="image" className="text-sm font-semibold text-gray-700 flex items-center gap-2">
+                  <ImageIcon className="h-4 w-4" />
+                  Item Image
+                </Label>
+                <div className="relative">
+                  <Input
+                    id="image"
+                    type="file"
+                    accept="image/*"
+                    onChange={handleImageUpload}
+                    className="hidden"
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => document.getElementById('image')?.click()}
+                    className="w-full h-12 border-2 border-dashed border-gray-300 hover:border-[#741052] transition-colors flex items-center gap-2"
+                  >
+                    <Upload className="h-4 w-4" />
+                    {formData.image ? 'Change Image' : 'Upload Image'}
+                  </Button>
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label className="text-sm font-semibold text-gray-700 flex items-center gap-2">
+                  <Settings className="h-4 w-4" />
+                  Variations
+                </Label>
+                <div className="flex items-center space-x-3 p-3 border-2 border-gray-200 rounded-xl bg-gray-50">
+                  <input
+                    type="checkbox"
+                    id="enableVariations"
+                    checked={enableVariations}
+                    onChange={(e) => toggleVariations(e.target.checked)}
+                    className="w-5 h-5 rounded border-2 border-gray-300 text-[#741052] focus:ring-[#741052] focus:ring-2"
+                  />
+                  <Label htmlFor="enableVariations" className="text-sm font-medium text-gray-700 cursor-pointer">
+                    Enable size/portion variations
+                  </Label>
+                </div>
+              </div>
+            </div>
+
+            {/* Image Preview */}
+            <AnimatePresence>
+              {formData.image && typeof formData.image === 'string' && (
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.9 }}
+                  className="flex justify-center"
+                >
+                  <div className="relative">
+                    <img
+                      src={formData.image}
+                      alt="Menu Item Preview"
+                      className="w-48 h-48 object-cover rounded-2xl shadow-lg border-4 border-white"
+                    />
+                    <Button
+                      type="button"
+                      size="icon"
+                      variant="destructive"
+                      className="absolute -top-2 -right-2 h-8 w-8 rounded-full"
+                      onClick={() => setFormData(prev => ({ ...prev, image: null }))}
+                    >
+                      <X className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+
+            <div className="space-y-2">
+              <Label htmlFor="description" className="text-sm font-semibold text-gray-700 flex items-center gap-2">
+                <FileText className="h-4 w-4" />
+                Description
+              </Label>
+              <Textarea
+                id="description"
+                name="description"
+                value={formData.description}
+                onChange={handleInputChange}
+                placeholder="Describe your menu item in detail..."
+                className="min-h-24 border-2 focus:border-[#741052] transition-colors resize-none"
+                required
+              />
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Variations Section */}
+        <AnimatePresence>
+          {enableVariations && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: "auto" }}
+              exit={{ opacity: 0, height: 0 }}
+              transition={{ duration: 0.3 }}
+            >
+              <Card className="border-0 shadow-lg bg-gradient-to-br from-white to-gray-50">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2 text-xl text-[#741052]">
+                    <Settings className="h-5 w-5" />
+                    Item Variations
+                  </CardTitle>
+                  <CardDescription>
+                    Add different sizes, portions, or customizations with their respective prices
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <AnimatePresence>
+                    {variations.map((variation, index) => (
+                      <motion.div
+                        key={variation.id}
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        exit={{ opacity: 0, x: 20 }}
+                        transition={{ duration: 0.3 }}
+                        className="flex gap-3 items-end"
+                      >
+                        <div className="flex-1">
+                          <Label className="text-sm font-medium text-gray-600 mb-2 block">
+                            Variation {index + 1}
+                          </Label>
+                          <Input
+                            type="text"
+                            value={variation.name}
+                            onChange={(e) => handleVariationChange(index, "name", e.target.value)}
+                            placeholder="e.g., Large, Small, Family Size"
+                            className="h-12 border-2 focus:border-[#741052] transition-colors"
+                          />
+                        </div>
+                        <div className="w-32">
+                          <Label className="text-sm font-medium text-gray-600 mb-2 block">
+                            Price (Rs)
+                          </Label>
+                          <Input
+                            type="number"
+                            value={variation.price}
+                            onChange={(e) => handleVariationChange(index, "price", e.target.value)}
+                            placeholder="0"
+                            className="h-12 border-2 focus:border-[#741052] transition-colors"
+                            min="0"
+                            step="0.01"
+                          />
+                        </div>
+                        {variations.length > 1 && (
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="icon"
+                            onClick={() => removeVariation(index)}
+                            className="h-12 w-12 border-2 border-red-200 hover:border-red-400 hover:bg-red-50"
+                          >
+                            <Trash2 className="h-4 w-4 text-red-500" />
+                          </Button>
+                        )}
+                      </motion.div>
+                    ))}
+                  </AnimatePresence>
+
+                  <Button
+                    type="button"
+                    onClick={addVariation}
+                    className="bg-gradient-to-r from-[#741052] to-[#d0269b] text-white font-semibold px-6 py-3 rounded-xl shadow-lg hover:opacity-90 transition-all duration-200 flex items-center gap-2"
+                  >
+                    <Plus className="h-4 w-4" />
+                    Add Variation
+                  </Button>
+                </CardContent>
+              </Card>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Submit Button */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.3 }}
+          className="flex justify-center pt-6"
+        >
+          <Button
+            type="submit"
+            size="lg"
+            className="bg-gradient-to-r from-[#741052] to-[#d0269b] text-white font-semibold px-12 py-4 rounded-xl shadow-lg hover:opacity-90 transition-all duration-200 flex items-center gap-3 text-lg"
           >
-            + Add Variation
-          </button>
-        </div>
-      )}
-    </form>
-  <button
-    type="submit"
-    onClick={handleSubmit}
-    className="w-full mt-4 px-6 py-3 rounded-xl font-semibold shadow-lg 
-      bg-gradient-to-r from-[#5c0d40] to-pink-600 text-white 
-      hover:opacity-90 transition-all"
-  >
-    Add Menu Item
-  </button>
-  </div>
-
-  {/* Submit fixed at bottom */}
-</div>
-
+            <Save className="h-5 w-5" />
+            Create Menu Item
+          </Button>
+        </motion.div>
+      </form>
+    </motion.div>
   );
 };
 
