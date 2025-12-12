@@ -5,6 +5,7 @@ import Preloader from "./Preloader"; // Adjust the import path if needed
 import { VariationConfig } from "../../types/variations";
 import { toast } from "sonner";
 import CreateCategoryModal from "./CreateCategoryModal";
+import CreatePlatterCategoryModal from "./CreatePlatterCategoryModal";
 import { v4 as uuidv4 } from "uuid";
 
 interface Option {
@@ -39,23 +40,43 @@ interface EditPlatterFormProps {
 }
 
 const EditPlatterForm: React.FC<EditPlatterFormProps> = ({ item, onClose, onUpdate }) => {
+  // Item Categories (Old)
   const [availableCategories, setAvailableCategories] = useState<{ _id: string, name: string }[]>([]);
+  // Platter Categories (New)
+  const [availablePlatterCategories, setAvailablePlatterCategories] = useState<{ _id: string, name: string }[]>([]);
+  
   const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
+  const [isPlatterCategoryModalOpen, setIsPlatterCategoryModalOpen] = useState(false);
+  
   const [activeCategoryIndex, setActiveCategoryIndex] = useState<number | null>(null);
 
   useEffect(() => {
+    // Fetch Item Categories
     fetch('/api/categories')
       .then(res => res.json())
       .then(data => setAvailableCategories(data))
       .catch(err => console.error("Error fetching categories:", err));
+
+    // Fetch Platter Categories
+    fetch('/api/platter-categories')
+      .then(res => res.json())
+      .then(data => setAvailablePlatterCategories(data))
+      .catch(err => console.error("Error fetching platter categories:", err));
   }, []);
 
+  // Handler for Item Categories - only for indices >= 0
   const handleCategoryCreated = (newCat: { _id: string, name: string }) => {
     setAvailableCategories(prev => [...prev, newCat].sort((a, b) => a.name.localeCompare(b.name)));
-    if (activeCategoryIndex !== null) {
+    if (activeCategoryIndex !== null && activeCategoryIndex >= 0) {
       handleCategoryChange(activeCategoryIndex, newCat.name);
       setActiveCategoryIndex(null);
     }
+  };
+
+  // Handler for Platter Categories
+  const handlePlatterCategoryCreated = (newCat: { _id: string, name: string }) => {
+    setAvailablePlatterCategories(prev => [...prev, newCat].sort((a, b) => a.name.localeCompare(b.name)));
+    setFormData(prev => ({ ...prev, platterCategory: newCat.name }));
   };
   // Convert existing platter data to VariationConfig format
   const initialVariationConfig: VariationConfig = useMemo(() => {
@@ -389,13 +410,26 @@ const EditPlatterForm: React.FC<EditPlatterFormProps> = ({ item, onClose, onUpda
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                 Category
               </label>
-              <input
-                type="text"
+              <select
                 name="platterCategory"
                 value={formData.platterCategory}
-                onChange={handleChange}
-                className="w-full border border-gray-300 dark:border-gray-700 rounded-lg px-4 py-2 focus:ring-2 focus:ring-[#741052] focus:outline-none"
-              />
+                onChange={(e) => {
+                  if (e.target.value === '__new__') {
+                    setIsPlatterCategoryModalOpen(true);
+                  } else {
+                    handleChange(e);
+                  }
+                }}
+                className="w-full border border-gray-300 dark:border-gray-700 rounded-lg px-4 py-2 focus:ring-2 focus:ring-[#741052] focus:outline-none bg-white"
+              >
+                <option value="">Select a Category</option>
+                {availablePlatterCategories.map((cat) => (
+                  <option key={cat._id} value={cat.name}>
+                    {cat.name}
+                  </option>
+                ))}
+                <option value="__new__" className="font-semibold text-[#741052]">+ Create New Platter Category</option>
+              </select>
             </div>
 
             <div>
@@ -518,6 +552,12 @@ const EditPlatterForm: React.FC<EditPlatterFormProps> = ({ item, onClose, onUpda
                   setActiveCategoryIndex(null);
                 }}
                 onCategoryCreated={handleCategoryCreated}
+              />
+              
+              <CreatePlatterCategoryModal
+                isOpen={isPlatterCategoryModalOpen}
+                onClose={() => setIsPlatterCategoryModalOpen(false)}
+                onCategoryCreated={handlePlatterCategoryCreated}
               />
               
               <button
