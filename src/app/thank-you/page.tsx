@@ -123,7 +123,7 @@ const ThankYouPage: FC = () => {
         }
       };
       fetchOrderNumber();
-    }
+    } 
     // Pickup or Delivery: order number comes directly from query
     else if (orderType === 'pickup' || orderType === 'delivery') {
       if (orderParam) {
@@ -133,7 +133,7 @@ const ThankYouPage: FC = () => {
         setError('Order number missing in URL.');
         setLoading(false);
       }
-    }
+    } 
     // Unknown or missing order type
     else {
       setError('Invalid or missing order type.');
