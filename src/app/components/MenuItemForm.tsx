@@ -23,6 +23,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import CreateCategoryModal from "./CreateCategoryModal";
+import { useEffect } from "react";
 
 const AddMenuItemForm = () => {
   const [variationConfig, setVariationConfig] = useState<VariationConfig>({
@@ -43,15 +45,20 @@ const AddMenuItemForm = () => {
   const enableVariations = variationConfig.simpleVariations && variationConfig.simpleVariations.length > 0;
   const variations = variationConfig.simpleVariations || [];
 
-  const categories = [
-    "Mini Pancakes", "Chinese", "Ice Cream and Gola", "Flavoured Feast", "Waffles", "Roti Shoti", "Pulao.com","Charming Chai", "Paratha Performance", "Beast BBQ", "Rolls Royce",
-    "Very Fast Food", "Burger-E-Karachi", "Woodfired Pizza", "Shawarmania",
-    "French Boys Fries", "Dashing Desserts", "Chicken Karahis",
-    "Mutton Karahis", "Handi and Qeema", "Beverages", "Juicy Lucy", "Very Extra", 
-    "Marvellous Matka Biryani Chicken/Beef", "BBQ Deals", "Fast Food Deals",
-    "Fast Food Platter", "Dawat Deal", "Dhamaka Discount Platter", "Sharing Platters", 
-    "Soup", "Gravy", "Rice", 
-  ];
+  const [availableCategories, setAvailableCategories] = useState<{ _id: string, name: string }[]>([]);
+  const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
+
+  useEffect(() => {
+    fetch('/api/categories')
+      .then(res => res.json())
+      .then(data => setAvailableCategories(data))
+      .catch(err => console.error("Error fetching categories:", err));
+  }, []);
+
+  const handleCategoryCreated = (newCat: { _id: string, name: string }) => {
+    setAvailableCategories(prev => [...prev, newCat].sort((a, b) => a.name.localeCompare(b.name)));
+    setFormData(prev => ({ ...prev, category: newCat.name }));
+  };
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
@@ -249,18 +256,35 @@ const AddMenuItemForm = () => {
                 <Layers className="h-4 w-4" />
                 Category
               </Label>
-              <Select value={formData.category} onValueChange={(value) => setFormData(prev => ({ ...prev, category: value }))}>
+              <Select 
+                value={formData.category} 
+                onValueChange={(value) => {
+                  if (value === '__new__') {
+                    setIsCategoryModalOpen(true);
+                  } else {
+                    setFormData(prev => ({ ...prev, category: value }));
+                  }
+                }}
+              >
                 <SelectTrigger className="h-12 border-2 focus:border-[#741052] transition-colors">
                   <SelectValue placeholder="Select a category" />
                 </SelectTrigger>
                 <SelectContent>
-                  {categories.map((category) => (
-                    <SelectItem key={category} value={category}>
-                      {category}
+                  {availableCategories.map((cat) => (
+                    <SelectItem key={cat._id} value={cat.name}>
+                      {cat.name}
                     </SelectItem>
                   ))}
+                  <SelectItem value="__new__" className="text-[#741052] font-semibold">
+                    + Create New Category
+                  </SelectItem>
                 </SelectContent>
               </Select>
+              <CreateCategoryModal 
+                isOpen={isCategoryModalOpen}
+                onClose={() => setIsCategoryModalOpen(false)}
+                onCategoryCreated={handleCategoryCreated}
+              />
             </div>
 
             <div className="grid md:grid-cols-2 gap-6">

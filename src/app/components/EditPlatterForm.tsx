@@ -4,6 +4,7 @@ import React, { useState, useEffect, useMemo } from "react";
 import Preloader from "./Preloader"; // Adjust the import path if needed
 import { VariationConfig } from "../../types/variations";
 import { toast } from "sonner";
+import CreateCategoryModal from "./CreateCategoryModal";
 import { v4 as uuidv4 } from "uuid";
 
 interface Option {
@@ -38,6 +39,24 @@ interface EditPlatterFormProps {
 }
 
 const EditPlatterForm: React.FC<EditPlatterFormProps> = ({ item, onClose, onUpdate }) => {
+  const [availableCategories, setAvailableCategories] = useState<{ _id: string, name: string }[]>([]);
+  const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
+  const [activeCategoryIndex, setActiveCategoryIndex] = useState<number | null>(null);
+
+  useEffect(() => {
+    fetch('/api/categories')
+      .then(res => res.json())
+      .then(data => setAvailableCategories(data))
+      .catch(err => console.error("Error fetching categories:", err));
+  }, []);
+
+  const handleCategoryCreated = (newCat: { _id: string, name: string }) => {
+    setAvailableCategories(prev => [...prev, newCat].sort((a, b) => a.name.localeCompare(b.name)));
+    if (activeCategoryIndex !== null) {
+      handleCategoryChange(activeCategoryIndex, newCat.name);
+      setActiveCategoryIndex(null);
+    }
+  };
   // Convert existing platter data to VariationConfig format
   const initialVariationConfig: VariationConfig = useMemo(() => {
     const categories: any[] = [];
@@ -455,15 +474,28 @@ const EditPlatterForm: React.FC<EditPlatterFormProps> = ({ item, onClose, onUpda
               </label>
               {categories.map((category, categoryIndex) => (
                 <div key={categoryIndex} className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg shadow-sm mb-4">
-                  <input
-                    type="text"
-                    value={category.categoryName}
-                    onChange={(e) =>
-                      handleCategoryChange(categoryIndex, e.target.value)
-                    }
-                    placeholder="Category Name"
-                    className="w-full border border-gray-300 dark:border-gray-700 rounded-lg px-4 py-2 mb-2 focus:ring-2 focus:ring-[#741052] focus:outline-none"
-                  />
+                    <div className="relative mb-2">
+                      <select
+                        value={category.categoryName}
+                        onChange={(e) => {
+                          if (e.target.value === '__new__') {
+                            setActiveCategoryIndex(categoryIndex);
+                            setIsCategoryModalOpen(true);
+                          } else {
+                            handleCategoryChange(categoryIndex, e.target.value);
+                          }
+                        }}
+                        className="w-full border border-gray-300 dark:border-gray-700 rounded-lg px-4 py-2 focus:ring-2 focus:ring-[#741052] focus:outline-none bg-white"
+                      >
+                        <option value="">Select a Category</option>
+                        {availableCategories.map((cat) => (
+                          <option key={cat._id} value={cat.name}>
+                            {cat.name}
+                          </option>
+                        ))}
+                        <option value="__new__" className="font-semibold text-[#741052]">+ Create New Category</option>
+                      </select>
+                    </div>
                   {category.options.map((option, optionIndex) => (
                     <input
                       key={optionIndex}
@@ -478,6 +510,16 @@ const EditPlatterForm: React.FC<EditPlatterFormProps> = ({ item, onClose, onUpda
                   ))}
                 </div>
               ))}
+              
+              <CreateCategoryModal
+                isOpen={isCategoryModalOpen}
+                onClose={() => {
+                  setIsCategoryModalOpen(false);
+                  setActiveCategoryIndex(null);
+                }}
+                onCategoryCreated={handleCategoryCreated}
+              />
+              
               <button
                 type="button"
                 onClick={addCategory}

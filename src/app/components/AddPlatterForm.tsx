@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { VariationConfig } from "../../types/variations";
 import { toast } from "sonner";
@@ -23,9 +23,28 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import CreateCategoryModal from "./CreateCategoryModal";
 
 
 const AddPlatterForm = () => {
+  const [availableCategories, setAvailableCategories] = useState<{ _id: string, name: string }[]>([]);
+  const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
+  const [activeCategoryIndex, setActiveCategoryIndex] = useState<number | null>(null);
+
+  useEffect(() => {
+    fetch('/api/categories')
+      .then(res => res.json())
+      .then(data => setAvailableCategories(data))
+      .catch(err => console.error("Error fetching categories:", err));
+  }, []);
+
+  const handleCategoryCreated = (newCat: { _id: string, name: string }) => {
+    setAvailableCategories(prev => [...prev, newCat].sort((a, b) => a.name.localeCompare(b.name)));
+    if (activeCategoryIndex !== null) {
+      handleCategoryChange(activeCategoryIndex, newCat.name);
+      setActiveCategoryIndex(null);
+    }
+  };
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [basePrice, setBasePrice] = useState<number>(0);
@@ -488,14 +507,29 @@ const AddPlatterForm = () => {
                     <Label className="text-sm font-medium text-gray-600 mb-2 block">
                       Category {categoryIndex + 1}
                     </Label>
-                    <Input
-                      type="text"
-                      value={category.categoryName}
-                      onChange={(e) => handleCategoryChange(categoryIndex, e.target.value)}
-                      placeholder="e.g., Protein Choice"
-                      className="h-12 border-2 focus:border-[#741052] transition-colors"
-                      required
-                    />
+                    <div className="relative">
+                      <select
+                        value={category.categoryName}
+                        onChange={(e) => {
+                          if (e.target.value === '__new__') {
+                            setActiveCategoryIndex(categoryIndex);
+                            setIsCategoryModalOpen(true);
+                          } else {
+                            handleCategoryChange(categoryIndex, e.target.value);
+                          }
+                        }}
+                        className="h-12 w-full border-2 focus:border-[#741052] transition-colors rounded-md px-3 bg-white"
+                        required
+                      >
+                        <option value="">Select a Category</option>
+                        {availableCategories.map((cat) => (
+                          <option key={cat._id} value={cat.name}>
+                            {cat.name}
+                          </option>
+                        ))}
+                        <option value="__new__" className="font-semibold text-[#741052]">+ Create New Category</option>
+                      </select>
+                    </div>
                   </div>
                   <Button
                     type="button"
@@ -509,6 +543,15 @@ const AddPlatterForm = () => {
                 </motion.div>
               ))}
             </AnimatePresence>
+
+            <CreateCategoryModal
+              isOpen={isCategoryModalOpen}
+              onClose={() => {
+                setIsCategoryModalOpen(false);
+                setActiveCategoryIndex(null);
+              }}
+              onCategoryCreated={handleCategoryCreated}
+            />
 
             <Button
               type="button"
