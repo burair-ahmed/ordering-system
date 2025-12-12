@@ -244,7 +244,7 @@ useEffect(() => {
                   ) : (
                     displayedPlatters.map((platter, index) => (
                       <motion.div
-                        key={`platter-${category}-${platter.id}`}
+                        key={`platter-${category}-${platter.id}-${index}`}
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: -20 }}
@@ -301,7 +301,7 @@ useEffect(() => {
                   ) : (
                     displayedItems.map((item, index) => (
                       <motion.div
-                        key={`menu-${category}-${item.id}`}
+                        key={`menu-${category}-${item.id}-${index}`}
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: -20 }}
