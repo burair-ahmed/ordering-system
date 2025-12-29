@@ -33,8 +33,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { toast } from "sonner";
 
-const BRAND_COLOR = "#741052";
-const BRAND_GRADIENT = "from-[#741052] via-fuchsia-600 to-pink-600";
+const BRAND_COLOR = "#C46A47"; // Chai Clay
+const BRAND_GRADIENT = "from-[#C46A47] to-[#A65638]"; // Chai Gradient
 
 interface Item {
   id: string;
@@ -328,7 +328,7 @@ const toggleExpand = (orderNumber: string) => {
         <div className="space-y-1">
           <p className="text-xs text-neutral-500">Status</p>
           <Select value={statusFilter} onValueChange={setStatusFilter}>
-            <SelectTrigger className="h-10 bg-white/70 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#741052]" aria-label="Filter by status">
+          <SelectTrigger className="h-10 bg-white/70 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#C46A47] rounded-xl" aria-label="Filter by status">
               <SelectValue placeholder="All" />
             </SelectTrigger>
             <SelectContent>
@@ -345,7 +345,7 @@ const toggleExpand = (orderNumber: string) => {
         <div className="space-y-1">
           <p className="text-xs text-neutral-500">Order type</p>
           <Select value={typeFilter} onValueChange={(v) => setTypeFilter(v as OrderType | "all")}>
-            <SelectTrigger className="h-10 bg-white/70 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#741052]" aria-label="Filter by order type">
+            <SelectTrigger className="h-10 bg-white/70 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#C46A47] rounded-xl" aria-label="Filter by order type">
               <SelectValue placeholder="All" />
             </SelectTrigger>
             <SelectContent>
@@ -359,7 +359,7 @@ const toggleExpand = (orderNumber: string) => {
         <div className="space-y-1">
           <p className="text-xs text-neutral-500">Payment</p>
           <Select value={paymentFilter} onValueChange={setPaymentFilter}>
-            <SelectTrigger className="h-10 bg-white/70 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#741052]" aria-label="Filter by payment method">
+            <SelectTrigger className="h-10 bg-white/70 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#C46A47] rounded-xl" aria-label="Filter by payment method">
               <SelectValue placeholder="All" />
             </SelectTrigger>
             <SelectContent>
@@ -380,7 +380,7 @@ const toggleExpand = (orderNumber: string) => {
             setPaymentFilter("all");
             setSearchTerm("");
           }}
-          className="underline text-[#741052] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#741052]"
+          className="underline text-[#C46A47] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#C46A47]"
         >
           Clear filters
         </button>
@@ -412,7 +412,7 @@ const toggleExpand = (orderNumber: string) => {
                   initial={{ opacity: 0, scale: 0.9 }}
                   animate={{ opacity: 1, scale: 1 }}
                   transition={{ type: "spring", stiffness: 260, damping: 22 }}
-                  className="relative rounded-2xl border border-white/10 bg-white/10 dark:bg-neutral-900/30 backdrop-blur-md p-4 shadow-[0_8px_30px_rgba(116,16,82,0.1)] hover:scale-[1.02] transition-all focus-within:ring-2 focus-within:ring-[#741052]/30"
+                  className="relative rounded-2xl border border-white/10 bg-white/10 dark:bg-neutral-900/30 backdrop-blur-md p-4 shadow-lg hover:scale-[1.02] transition-all focus-within:ring-2 focus-within:ring-[#C46A47]/30"
                 >
                   {/* Header */}
                   <div className="flex justify-between items-start">
@@ -437,36 +437,36 @@ const toggleExpand = (orderNumber: string) => {
                   {/* Customer Info */}
                   <div className="mt-4 text-sm text-black dark:text-neutral-200 space-y-2">
                     <div className="flex items-center gap-2">
-                      <User size={14} className="text-pink-500" />
+                      <User size={14} className="text-[#C46A47]" />
                       <span className="font-medium">{order.customerName}</span>
                     </div>
                     <div className="flex items-center gap-2">
-                      <Mail size={14} className="text-pink-500" />
+                      <Mail size={14} className="text-[#C46A47]" />
                       <span>{order.email}</span>
                     </div>
 
                     {order.ordertype === "dinein" && order.tableNumber && (
                       <div className="flex items-center gap-2">
-                        <Utensils size={14} className="text-pink-500" />
+                        <Utensils size={14} className="text-[#C46A47]" />
                         <span>Table {order.tableNumber}</span>
                       </div>
                     )}
                     {order.ordertype === "pickup" && (
                       <div className="flex items-center gap-2">
-                        <Tag size={14} className="text-pink-500" />
+                        <Tag size={14} className="text-[#C46A47]" />
                         <span>Pickup Order</span>
                       </div>
                     )}
                     {order.ordertype === "delivery" && (
                       <div className="flex items-center gap-2">
-                        <MapPin size={14} className="text-pink-500" />
+                        <MapPin size={14} className="text-[#C46A47]" />
                         <span>
                           {order.area} — {order.phone}
                         </span>
                       </div>
                     )}
                     <div className="flex items-center gap-2">
-                      <CreditCard size={14} className="text-pink-500" />
+                      <CreditCard size={14} className="text-[#C46A47]" />
                       <span>{order.paymentMethod}</span>
                     </div>
                   </div>
@@ -475,7 +475,7 @@ const toggleExpand = (orderNumber: string) => {
                   <div className="mt-4 border-t border-white/10 pt-3">
                     <button
                       onClick={() => toggleExpand(order.orderNumber)}
-                      className="w-full flex justify-between items-center text-sm font-medium text-[#741052] hover:text-pink-600 transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#741052]"
+                      className="w-full flex justify-between items-center text-sm font-medium text-[#C46A47] hover:opacity-80 transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#C46A47]"
                     >
                       Items ({order.items.length})
                       {expandedOrders.has(order.orderNumber) ? (
@@ -508,7 +508,7 @@ const toggleExpand = (orderNumber: string) => {
                                     {item.variations.map((v, idx) => (
                                       <span
                                         key={idx}
-                                        className="text-xs px-2 py-1 rounded-full bg-gradient-to-r from-pink-500/20 to-fuchsia-600/20 text-pink-600"
+                                      className="text-xs px-2 py-1 rounded-full bg-[#C46A47]/10 text-[#C46A47]"
                                       >
                                         {typeof v === "string"
                                           ? v
@@ -534,7 +534,7 @@ const toggleExpand = (orderNumber: string) => {
                   {/* Footer */}
                   <div className="mt-4 flex justify-between items-center border-t border-white/10 pt-3 gap-2">
                     <p
-                      className="text-lg font-bold bg-clip-text text-transparent bg-gradient-to-r from-[#741052] to-pink-600"
+                      className="text-lg font-bold bg-clip-text text-transparent bg-gradient-to-r from-[#C46A47] to-[#A65638]"
                     >
                       Rs. {order.totalAmount}
                     </p>
@@ -552,7 +552,7 @@ const toggleExpand = (orderNumber: string) => {
                       defaultValue={order.status}
                     onValueChange={(val) => safeUpdateStatus(order, val)}
                     >
-                    <SelectTrigger className="w-[200px] bg-white/70 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#741052]">
+                    <SelectTrigger className="w-[200px] bg-white/70 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#C46A47] rounded-xl">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
@@ -596,7 +596,7 @@ const toggleExpand = (orderNumber: string) => {
               transition={{ type: "spring", stiffness: 300, damping: 30 }}
             >
               {/* Header */}
-              <div className="sticky top-0 z-10 bg-gradient-to-r from-[#741052] to-[#d0269b] rounded-t-3xl p-6 text-white">
+              <div className="sticky top-0 z-10 bg-gradient-to-r from-[#C46A47] to-[#A65638] rounded-t-3xl p-6 text-white">
                 <div className="flex items-start justify-between">
                   <div className="flex-1">
                     <p className="text-sm opacity-90 mb-1">Order Details</p>
@@ -628,13 +628,13 @@ const toggleExpand = (orderNumber: string) => {
                 <div className="grid md:grid-cols-2 gap-6">
                   {/* Customer Information */}
                   <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-2xl p-5 border border-gray-200">
-                    <h3 className="text-xl font-semibold text-[#741052] mb-4 flex items-center gap-2">
+                    <h3 className="text-xl font-semibold text-[#C46A47] mb-4 flex items-center gap-2">
                       <User className="h-5 w-5" />
                       Customer Information
                     </h3>
                     <div className="space-y-3">
                       <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-full bg-gradient-to-r from-[#741052] to-[#d0269b] flex items-center justify-center">
+                        <div className="w-8 h-8 rounded-full bg-gradient-to-r from-[#C46A47] to-[#A65638] flex items-center justify-center">
                           <User className="h-4 w-4 text-white" />
                         </div>
                         <div>
@@ -644,7 +644,7 @@ const toggleExpand = (orderNumber: string) => {
                       </div>
                       {selectedOrder.phone && (
                         <div className="flex items-center gap-3">
-                          <div className="w-8 h-8 rounded-full bg-gradient-to-r from-[#741052] to-[#d0269b] flex items-center justify-center">
+                          <div className="w-8 h-8 rounded-full bg-gradient-to-r from-[#C46A47] to-[#A65638] flex items-center justify-center">
                             <Phone className="h-4 w-4 text-white" />
                           </div>
                           <div>
@@ -657,14 +657,14 @@ const toggleExpand = (orderNumber: string) => {
                   </div>
 
                   {/* Order Information */}
-                  <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-2xl p-5 border border-gray-200">
-                    <h3 className="text-xl font-semibold text-[#741052] mb-4 flex items-center gap-2">
+                  <div className="bg-gradient-to-br from-orange-50 to-[#C46A47]/5 rounded-2xl p-5 border border-orange-200">
+                    <h3 className="text-xl font-semibold text-[#C46A47] mb-4 flex items-center gap-2">
                       <Tag className="h-5 w-5" />
                       Order Information
                     </h3>
                     <div className="space-y-3">
                       <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-full bg-gradient-to-r from-[#741052] to-[#d0269b] flex items-center justify-center">
+                        <div className="w-8 h-8 rounded-full bg-gradient-to-r from-[#C46A47] to-[#A65638] flex items-center justify-center">
                           <Utensils className="h-4 w-4 text-white" />
                         </div>
                         <div>
@@ -674,7 +674,7 @@ const toggleExpand = (orderNumber: string) => {
                       </div>
                       {selectedOrder.tableNumber && (
                         <div className="flex items-center gap-3">
-                          <div className="w-8 h-8 rounded-full bg-gradient-to-r from-[#741052] to-[#d0269b] flex items-center justify-center">
+                          <div className="w-8 h-8 rounded-full bg-gradient-to-r from-[#C46A47] to-[#A65638] flex items-center justify-center">
                             <Utensils className="h-4 w-4 text-white" />
                           </div>
                           <div>
@@ -685,7 +685,7 @@ const toggleExpand = (orderNumber: string) => {
                       )}
                       {selectedOrder.area && (
                         <div className="flex items-center gap-3">
-                          <div className="w-8 h-8 rounded-full bg-gradient-to-r from-[#741052] to-[#d0269b] flex items-center justify-center">
+                          <div className="w-8 h-8 rounded-full bg-gradient-to-r from-[#C46A47] to-[#A65638] flex items-center justify-center">
                             <MapPin className="h-4 w-4 text-white" />
                           </div>
                           <div>
@@ -701,13 +701,13 @@ const toggleExpand = (orderNumber: string) => {
                 {/* Quick Actions & Status Update */}
                 <div className="grid md:grid-cols-2 gap-6">
                   {/* Quick Actions */}
-                  <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-2xl p-5 border border-blue-200">
-                    <h3 className="text-xl font-semibold text-[#741052] mb-4">Quick Actions</h3>
+                  <div className="bg-gradient-to-br from-orange-50 to-[#C46A47]/5 rounded-2xl p-5 border border-orange-100">
+                    <h3 className="text-xl font-semibold text-[#C46A47] mb-4">Quick Actions</h3>
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                       {selectedOrder.phone && (
                         <Button
                           onClick={() => window.open(`tel:${selectedOrder.phone}`, "_blank")}
-                          className="bg-gradient-to-r from-[#741052] to-[#d0269b] text-white font-semibold px-4 py-3 rounded-xl shadow-lg hover:opacity-90 transition-all duration-200 flex items-center gap-2 h-auto"
+                          className="bg-gradient-to-r from-[#C46A47] to-[#A65638] text-white font-semibold px-4 py-3 rounded-xl shadow-lg hover:opacity-90 transition-all duration-200 flex items-center gap-2 h-auto"
                         >
                           <Phone className="h-4 w-4" />
                           Call
@@ -721,16 +721,16 @@ const toggleExpand = (orderNumber: string) => {
                               "_blank"
                             )
                           }
-                          className="bg-gradient-to-r from-[#741052] to-[#d0269b] text-white font-semibold px-4 py-3 rounded-xl shadow-lg hover:opacity-90 transition-all duration-200 flex items-center gap-2 h-auto"
+                          className="bg-gradient-to-r from-[#C46A47] to-[#A65638] text-white font-semibold px-4 py-3 rounded-xl shadow-lg hover:opacity-90 transition-all duration-200 flex items-center gap-2 h-auto"
                         >
                           <MessageCircle className="h-4 w-4" />
                           WhatsApp
                         </Button>
                       )}
-                      <Button
-                        onClick={() => downloadReceipt(selectedOrder)}
-                        className="bg-white border-2 border-[#741052] text-[#741052] font-semibold px-4 py-3 rounded-xl hover:bg-[#741052] hover:text-white transition-all duration-200 flex items-center gap-2 h-auto"
-                      >
+                        <Button
+                          onClick={() => downloadReceipt(selectedOrder)}
+                          className="bg-white border-2 border-[#C46A47] text-[#C46A47] font-semibold px-4 py-3 rounded-xl hover:bg-[#C46A47] hover:text-white transition-all duration-200 flex items-center gap-2 h-auto"
+                        >
                         <Download className="h-4 w-4" />
                         Receipt
                       </Button>
@@ -738,15 +738,15 @@ const toggleExpand = (orderNumber: string) => {
                   </div>
 
                   {/* Status Update */}
-                  <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-2xl p-5 border border-green-200">
-                    <h3 className="text-xl font-semibold text-[#741052] mb-4">Update Status</h3>
+                  <div className="bg-gradient-to-br from-orange-50 to-[#C46A47]/5 rounded-2xl p-5 border border-orange-100">
+                    <h3 className="text-xl font-semibold text-[#C46A47] mb-4">Update Status</h3>
                     <div className="space-y-3">
                       <p className="text-sm text-gray-600">Change order status (allowed transitions only)</p>
                       <Select
                         defaultValue={selectedOrder.status}
                         onValueChange={(val) => safeUpdateStatus(selectedOrder, val)}
                       >
-                        <SelectTrigger className="w-full h-12 bg-white border-2 border-gray-200 rounded-xl focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#741052]">
+                        <SelectTrigger className="w-full h-12 bg-white border-2 border-orange-100 rounded-xl focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#C46A47]">
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
@@ -763,8 +763,8 @@ const toggleExpand = (orderNumber: string) => {
                 </div>
 
                 {/* Order Items */}
-                <div className="bg-gradient-to-br from-purple-50 to-purple-100 rounded-2xl p-5 border border-purple-200">
-                  <h3 className="text-xl font-semibold text-[#741052] mb-4 flex items-center gap-2">
+                <div className="bg-gradient-to-br from-orange-50 to-[#C46A47]/10 rounded-2xl p-5 border border-orange-200">
+                  <h3 className="text-xl font-semibold text-[#C46A47] mb-4 flex items-center gap-2">
                     <Box className="h-5 w-5" />
                     Order Items ({selectedOrder.items.length})
                   </h3>
@@ -783,7 +783,7 @@ const toggleExpand = (orderNumber: string) => {
                                 {item.variations.map((v, idx) => (
                                   <span
                                     key={idx}
-                                    className="px-3 py-1 bg-gradient-to-r from-[#741052]/10 to-[#d0269b]/10 text-[#741052] text-xs font-medium rounded-full border border-[#741052]/20"
+                                    className="px-3 py-1 bg-gradient-to-r from-[#C46A47]/10 to-[#A65638]/10 text-[#C46A47] text-xs font-medium rounded-full border border-[#C46A47]/20"
                                   >
                                     {typeof v === "string" ? v : `${v.name}: ${v.value}`}
                                   </span>
@@ -792,7 +792,7 @@ const toggleExpand = (orderNumber: string) => {
                             )}
                           </div>
                           <div className="text-right">
-                            <p className="text-lg font-bold text-[#741052]">
+                            <p className="text-lg font-bold text-[#C46A47]">
                               Rs. {(item.price * item.quantity).toFixed(2)}
                             </p>
                             <p className="text-sm text-gray-500">
@@ -806,7 +806,7 @@ const toggleExpand = (orderNumber: string) => {
                   <div className="mt-4 pt-4 border-t border-purple-200">
                     <div className="flex justify-between items-center">
                       <span className="text-lg font-semibold text-gray-900">Total Amount:</span>
-                      <span className="text-2xl font-bold bg-gradient-to-r from-[#741052] to-[#d0269b] bg-clip-text text-transparent">
+                      <span className="text-2xl font-bold bg-gradient-to-r from-[#C46A47] to-[#A65638] bg-clip-text text-transparent">
                         Rs. {selectedOrder.totalAmount.toFixed(2)}
                       </span>
                     </div>
@@ -821,10 +821,10 @@ const toggleExpand = (orderNumber: string) => {
                 <div className="grid md:grid-cols-2 gap-6">
                   {/* Feedback */}
                   <div className="bg-gradient-to-br from-amber-50 to-amber-100 rounded-2xl p-5 border border-amber-200">
-                    <h3 className="text-xl font-semibold text-[#741052] mb-4">Customer Feedback</h3>
+                    <h3 className="text-xl font-semibold text-[#C46A47] mb-4">Customer Feedback</h3>
                     {loadingDetail ? (
                       <div className="flex items-center justify-center py-8">
-                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#741052]"></div>
+                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#C46A47]"></div>
                       </div>
                     ) : feedbackList.length === 0 ? (
                       <div className="text-center py-8">
@@ -861,10 +861,10 @@ const toggleExpand = (orderNumber: string) => {
 
                   {/* Notification Consent */}
                   <div className="bg-gradient-to-br from-emerald-50 to-emerald-100 rounded-2xl p-5 border border-emerald-200">
-                    <h3 className="text-xl font-semibold text-[#741052] mb-4">Notification Preferences</h3>
+                    <h3 className="text-xl font-semibold text-[#C46A47] mb-4">Notification Preferences</h3>
                     {loadingDetail ? (
                       <div className="flex items-center justify-center py-8">
-                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#741052]"></div>
+                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#C46A47]"></div>
                       </div>
                     ) : consents.length === 0 ? (
                       <div className="text-center py-8">
@@ -891,7 +891,7 @@ const toggleExpand = (orderNumber: string) => {
                           <div className="text-center pt-2">
                             <button
                               onClick={() => setShowAllConsents(!showAllConsents)}
-                              className="inline-flex items-center gap-2 text-[#741052] hover:text-[#d0269b] font-medium text-sm transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#741052] rounded-lg px-3 py-2 hover:bg-[#741052]/5"
+                              className="inline-flex items-center gap-2 text-[#C46A47] hover:text-[#A65638] font-medium text-sm transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#C46A47] rounded-lg px-3 py-2 hover:bg-[#C46A47]/5"
                             >
                               {showAllConsents ? (
                                 <>
@@ -918,7 +918,7 @@ const toggleExpand = (orderNumber: string) => {
                 <div className="flex justify-end">
                   <Button
                     onClick={closeDetail}
-                    className="bg-white border-2 border-[#741052] text-[#741052] font-semibold px-8 py-3 rounded-xl hover:bg-[#741052] hover:text-white transition-all duration-200"
+                    className="bg-white border-2 border-[#C46A47] text-[#C46A47] font-semibold px-8 py-3 rounded-xl hover:bg-[#C46A47] hover:text-white transition-all duration-200"
                   >
                     Close Details
                   </Button>

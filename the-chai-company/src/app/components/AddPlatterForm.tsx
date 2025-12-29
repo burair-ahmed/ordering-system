@@ -354,10 +354,10 @@ const AddPlatterForm = () => {
           animate={{ scale: 1 }}
           transition={{ duration: 0.5, delay: 0.1 }}
         >
-          <div className="w-16 h-16 bg-gradient-to-r from-[#741052] to-[#d0269b] rounded-2xl flex items-center justify-center mx-auto mb-4">
+          <div className="w-16 h-16 bg-gradient-to-r from-[#C46A47] to-[#A65638] rounded-2xl flex items-center justify-center mx-auto mb-4">
             <Plus className="h-8 w-8 text-white" />
           </div>
-          <h1 className="text-3xl font-bold bg-gradient-to-r from-[#741052] to-[#d0269b] bg-clip-text text-transparent mb-2">
+          <h1 className="text-3xl font-bold bg-gradient-to-r from-[#C46A47] to-[#A65638] bg-clip-text text-transparent mb-2">
             Add New Platter
           </h1>
           <p className="text-gray-600">Create a beautiful platter combination for your customers</p>
@@ -368,7 +368,7 @@ const AddPlatterForm = () => {
         {/* Basic Information */}
         <Card className="border-0 shadow-lg bg-gradient-to-br from-white to-gray-50">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-xl text-[#741052]">
+            <CardTitle className="flex items-center gap-2 text-xl text-[#C46A47]">
               <FileText className="h-5 w-5" />
               Basic Information
             </CardTitle>
@@ -383,13 +383,13 @@ const AddPlatterForm = () => {
                   <Tag className="h-4 w-4" />
                   Platter Title
                 </Label>
-                <Input
+                <input
                   id="title"
                   type="text"
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
                   placeholder="e.g., Supreme BBQ Platter"
-                  className="h-12 border-2 focus:border-[#741052] transition-colors"
+                  className="h-12 border-2 focus:border-[#C46A47] transition-colors rounded-md px-3 bg-white w-full outline-none"
                   required
                 />
               </div>
@@ -410,7 +410,7 @@ const AddPlatterForm = () => {
                         setPlatterCategory(e.target.value);
                       }
                     }}
-                    className="h-12 w-full border-2 focus:border-[#741052] transition-colors rounded-md px-3 bg-white"
+                    className="h-12 w-full border-2 focus:border-[#C46A47] transition-colors rounded-md px-3 bg-white outline-none"
                     required
                   >
                     <option value="">Select a Category</option>
@@ -419,7 +419,7 @@ const AddPlatterForm = () => {
                         {cat.name}
                       </option>
                     ))}
-                    <option value="__new__" className="font-semibold text-[#741052]">+ Create New Platter Category</option>
+                    <option value="__new__" className="font-semibold text-[#C46A47]">+ Create New Platter Category</option>
                   </select>
                 </div>
               </div>
@@ -435,7 +435,7 @@ const AddPlatterForm = () => {
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 placeholder="Describe your platter in detail..."
-                className="min-h-24 border-2 focus:border-[#741052] transition-colors resize-none"
+                className="min-h-24 border-2 focus:border-[#C46A47] transition-colors resize-none"
                 required
               />
             </div>
@@ -452,7 +452,7 @@ const AddPlatterForm = () => {
                   value={basePrice}
                   onChange={(e) => setBasePrice(parseFloat(e.target.value))}
                   placeholder="0"
-                  className="h-12 border-2 focus:border-[#741052] transition-colors"
+                  className="h-12 border-2 focus:border-[#C46A47] transition-colors"
                   min="0"
                   step="0.01"
                   required
@@ -476,7 +476,7 @@ const AddPlatterForm = () => {
                     type="button"
                     variant="outline"
                     onClick={() => document.getElementById('image')?.click()}
-                    className="w-full h-12 border-2 border-dashed border-gray-300 hover:border-[#741052] transition-colors flex items-center gap-2"
+                    className="w-full h-12 border-2 border-dashed border-gray-300 hover:border-[#C46A47] transition-colors flex items-center gap-2"
                   >
                     <Upload className="h-4 w-4" />
                     {image ? 'Change Image' : 'Upload Image'}
@@ -519,7 +519,7 @@ const AddPlatterForm = () => {
         {/* Categories Configuration */}
         <Card className="border-0 shadow-lg bg-gradient-to-br from-white to-gray-50">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-xl text-[#741052]">
+            <CardTitle className="flex items-center gap-2 text-xl text-[#C46A47]">
               <Layers className="h-5 w-5" />
               Categories Configuration
             </CardTitle>
@@ -553,7 +553,7 @@ const AddPlatterForm = () => {
                             handleCategoryChange(categoryIndex, e.target.value);
                           }
                         }}
-                        className="h-12 w-full border-2 focus:border-[#741052] transition-colors rounded-md px-3 bg-white"
+                        className="h-12 w-full border-2 focus:border-[#C46A47] transition-colors rounded-md px-3 bg-white outline-none"
                         required
                       >
                         <option value="">Select a Category</option>
@@ -562,7 +562,7 @@ const AddPlatterForm = () => {
                             {cat.name}
                           </option>
                         ))}
-                        <option value="__new__" className="font-semibold text-[#741052]">+ Create New Category</option>
+                        <option value="__new__" className="font-semibold text-[#C46A47]">+ Create New Category</option>
                       </select>
                     </div>
                   </div>
@@ -597,7 +597,7 @@ const AddPlatterForm = () => {
             <Button
               type="button"
               onClick={handleAddCategory}
-              className="bg-gradient-to-r from-[#741052] to-[#d0269b] text-white font-semibold px-6 py-3 rounded-xl shadow-lg hover:opacity-90 transition-all duration-200 flex items-center gap-2"
+              className="bg-gradient-to-r from-[#C46A47] to-[#A65638] text-white font-semibold px-6 py-3 rounded-xl shadow-lg hover:opacity-90 transition-all duration-200 flex items-center gap-2"
             >
               <Plus className="h-4 w-4" />
               Add Category
@@ -608,7 +608,7 @@ const AddPlatterForm = () => {
         {/* Additional Choices */}
         <Card className="border-0 shadow-lg bg-gradient-to-br from-white to-gray-50">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-xl text-[#741052]">
+            <CardTitle className="flex items-center gap-2 text-xl text-[#C46A47]">
               <Settings className="h-5 w-5" />
               Additional Choices
             </CardTitle>
@@ -637,7 +637,7 @@ const AddPlatterForm = () => {
                         value={choice.heading}
                         onChange={(e) => handleChoiceHeadingChange(index, e.target.value)}
                         placeholder="e.g., Extra Sauces"
-                        className="h-12 border-2 focus:border-[#741052] transition-colors"
+                        className="h-12 border-2 focus:border-[#C46A47] transition-colors"
                       />
                     </div>
                     <Button
@@ -668,7 +668,7 @@ const AddPlatterForm = () => {
                             value={option.name}
                             onChange={(e) => handleOptionNameChange(index, optIndex, e.target.value)}
                             placeholder="e.g., Garlic Sauce"
-                            className="flex-1 h-10 border-2 focus:border-[#741052] transition-colors"
+                            className="flex-1 h-10 border-2 focus:border-[#C46A47] transition-colors"
                           />
                           <Button
                             type="button"
@@ -687,7 +687,7 @@ const AddPlatterForm = () => {
                       type="button"
                       variant="outline"
                       onClick={() => handleAddOption(index)}
-                      className="border-2 border-[#741052] text-[#741052] hover:bg-[#741052] hover:text-white transition-all duration-200 flex items-center gap-2"
+                      className="border-2 border-[#C46A47] text-[#C46A47] hover:bg-[#C46A47] hover:text-white transition-all duration-200 flex items-center gap-2"
                     >
                       <Plus className="h-4 w-4" />
                       Add Option
@@ -701,7 +701,7 @@ const AddPlatterForm = () => {
               type="button"
               onClick={handleAddChoice}
               variant="outline"
-              className="border-2 border-[#741052] text-[#741052] hover:bg-[#741052] hover:text-white transition-all duration-200 flex items-center gap-2"
+              className="border-2 border-[#C46A47] text-[#C46A47] hover:bg-[#C46A47] hover:text-white transition-all duration-200 flex items-center gap-2"
             >
               <Plus className="h-4 w-4" />
               Add Choice Group
@@ -719,7 +719,7 @@ const AddPlatterForm = () => {
           <Button
             type="submit"
             size="lg"
-            className="bg-gradient-to-r from-[#741052] to-[#d0269b] text-white font-semibold px-12 py-4 rounded-xl shadow-lg hover:opacity-90 transition-all duration-200 flex items-center gap-3 text-lg"
+            className="bg-gradient-to-r from-[#C46A47] to-[#A65638] text-white font-semibold px-12 py-4 rounded-xl shadow-lg hover:opacity-90 transition-all duration-200 flex items-center gap-3 text-lg"
           >
             <Save className="h-5 w-5" />
             Create Platter

@@ -125,8 +125,9 @@ const TABS: { key: TabKey; label: string; icon: any }[] = [
 ];
 
 const BRAND = {
-  primary: 'from-[#741052] via-fuchsia-600 to-pink-600',
-  ring: 'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-fuchsia-500 focus-visible:ring-offset-2',
+  primary: 'from-[#C46A47] to-[#A65638]',
+  ring: 'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C46A47] focus-visible:ring-offset-2',
+  text: 'text-[#C46A47]',
 };
 
 const AdminDashboard: FC = () => {
@@ -156,7 +157,7 @@ const AdminDashboard: FC = () => {
   const [checkboxChecked, setCheckboxChecked] = useState<boolean>(false);
   const [audioInitialized, setAudioInitialized] = useState<boolean>(false);
 
-  const correctPassword = '123-$CLK-Admin-$Panel-786';
+  const correctPassword = '123-$CTC-Admin-$Panel-786';
 
   // Audio context for notifications
   const audioContextRef = useRef<AudioContext | null>(null);
@@ -301,7 +302,7 @@ const AdminDashboard: FC = () => {
     >
       <div className="flex h-16 items-center justify-between px-3">
         <div className="flex items-center gap-2">
-          <div className="h-8 w-8 rounded-xl bg-gradient-to-br from-fuchsia-600 to-pink-600" />
+          <div className={`h-8 w-8 rounded-xl bg-gradient-to-br ${BRAND.primary}`} />
           {!isSidebarCollapsed && (
             <span className="text-sm font-semibold tracking-wide">Admin Panel</span>
           )}
@@ -339,9 +340,9 @@ const AdminDashboard: FC = () => {
                 setIsMobileSidebarOpen(false);
               }}
               variant={active ? 'secondary' : 'ghost'}
-              className={`h-10 w-full justify-start gap-3 rounded-xl px-3 text-sm ${
+              className={`h-10 w-full justify-start gap-3 rounded-xl px-3 text-sm transition-all ${
                 active
-                  ? 'bg-fuchsia-50 text-fuchsia-700 dark:bg-neutral-800 dark:text-fuchsia-300'
+                  ? 'bg-[#C46A47]/10 text-[#C46A47] dark:bg-[#C46A47]/20 dark:text-orange-300 font-bold shadow-sm'
                   : 'text-neutral-600 hover:bg-neutral-100 dark:text-neutral-300 dark:hover:bg-neutral-800'
               }`}
             >
@@ -354,7 +355,7 @@ const AdminDashboard: FC = () => {
 
       <div className="border-t p-2">
         <Button variant="ghost" className="w-full justify-start gap-3">
-          <div className="h-8 w-8 rounded-full bg-gradient-to-br from-fuchsia-600 to-pink-600" />
+          <div className={`h-8 w-8 rounded-full bg-gradient-to-br ${BRAND.primary}`} />
           {!isSidebarCollapsed && (
             <div className="flex flex-col text-left">
               <span className="text-sm font-medium">Admin User</span>
@@ -385,9 +386,9 @@ const AdminDashboard: FC = () => {
                 exit={{ scale: 0.9, opacity: 0, y: 20 }}
                 transition={{ type: 'spring', stiffness: 300, damping: 30 }}
               >
-                <Card className="border-0 shadow-2xl">
+                <Card className="border-0 shadow-2xl rounded-[18px]">
                   <CardHeader className="space-y-1 text-center">
-                    <div className="mx-auto mb-2 flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-fuchsia-600 to-pink-600">
+                    <div className={`mx-auto mb-2 flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br ${BRAND.primary}`}>
                       {authStep === 'password' ? (
                         <ShieldCheck className="h-6 w-6 text-white" />
                       ) : (
@@ -421,7 +422,7 @@ const AdminDashboard: FC = () => {
                         </div>
                         <Button
                           type="submit"
-                          className="h-11 w-full bg-gradient-to-r from-fuchsia-600 to-pink-600 text-white hover:opacity-95"
+                          className={`h-11 w-full bg-gradient-to-r ${BRAND.primary} text-white hover:opacity-95 shadow-lg rounded-xl transition-all active:scale-95`}
                         >
                           Continue
                         </Button>
@@ -434,7 +435,7 @@ const AdminDashboard: FC = () => {
                             type="checkbox"
                             checked={checkboxChecked}
                             onChange={(e) => setCheckboxChecked(e.target.checked)}
-                            className="accent-fuchsia-600 w-4 h-4"
+                            className="accent-[#C46A47] w-4 h-4"
                           />
                         </label>
 
@@ -455,7 +456,7 @@ const AdminDashboard: FC = () => {
                             disabled={!checkboxChecked}
                             className={`flex-1 h-11 ${
                               checkboxChecked
-                                ? 'bg-gradient-to-r from-fuchsia-600 to-pink-600 text-white hover:opacity-95'
+                                ? `bg-gradient-to-r ${BRAND.primary} text-white hover:opacity-95 shadow-lg`
                                 : 'bg-gray-200 text-gray-400 cursor-not-allowed'
                             }`}
                           >
@@ -487,13 +488,13 @@ const AdminDashboard: FC = () => {
               >
                 <MenuIcon className="h-5 w-5" />
               </Button>
-              <LayoutDashboard className="h-5 w-5 text-fuchsia-600" />
+              <LayoutDashboard className={`h-5 w-5 ${BRAND.text}`} />
               <span className="hidden sm:inline text-sm font-medium text-neutral-600 dark:text-neutral-300">
                 Dashboard
               </span>
               <Badge
                 variant="outline"
-                className="hidden sm:inline border-fuchsia-300 text-fuchsia-700 dark:text-fuchsia-300"
+                className={`hidden sm:inline border-orange-200 text-[#C46A47] dark:text-orange-300 font-semibold`}
               >
                 {activeTab}
               </Badge>
@@ -502,7 +503,7 @@ const AdminDashboard: FC = () => {
             <div className="flex items-center gap-2">
               <div className="relative hidden sm:block">
                 <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400" />
-                <Input placeholder="Search..." className="h-9 w-48 pl-9 sm:w-64" />
+                <Input placeholder="Search..." className="h-9 w-48 pl-9 sm:w-64 rounded-xl focus-visible:ring-[#C46A47]" />
               </div>
               <Button
                 variant="ghost"
@@ -523,9 +524,9 @@ const AdminDashboard: FC = () => {
             {/* Keep all your existing tab content here — unchanged */}
             {/* ... */}
                       {activeTab === 'orders' && (
-                        <Card>
+                        <Card className="rounded-[18px]">
                           <CardHeader>
-                            <CardTitle className="text-xl">Order Management</CardTitle>
+                            <CardTitle className={`text-xl ${BRAND.text}`}>Order Management</CardTitle>
                             <CardDescription>Track and process live orders in real-time.</CardDescription>
                           </CardHeader>
                           <CardContent>
@@ -540,21 +541,21 @@ const AdminDashboard: FC = () => {
                       )}
           
                       {/* Menu Items */}
-          {activeTab==='menu'&&(<section className="space-y-4 h-[calc(100vh-200px)] overflow-y-auto pr-2"><div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sticky top-0 bg-white dark:bg-neutral-950 z-10 pb-2"><div className="space-y-1"><h2 className="text-xl font-semibold">Menu Management</h2><p className="text-sm text-neutral-500">Edit, filter, and preview menu items.</p></div><div className="flex items-center gap-2"><div className="relative"><Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400"/><Input value={menuQuery} onChange={(e)=>setMenuQuery(e.target.value)} placeholder="Search by name or category" className="h-10 w-72 pl-9"/></div><Button variant="outline" onClick={fetchMenuItems}>Refresh</Button></div></div><div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">{loadingMenu?Array.from({length:6}).map((_,i)=>(<Card key={i} className="overflow-hidden"><Skeleton className="h-40 w-full"/><div className="space-y-2 p-4"><Skeleton className="h-5 w-1/2"/><Skeleton className="h-4 w-3/4"/><Skeleton className="h-9 w-24"/></div></Card>)):filteredMenu.length>0?filteredMenu.map((item)=>(<Card key={item._id} className="overflow-hidden"><div className="flex h-40 items-center justify-center bg-neutral-100 dark:bg-neutral-900"><Image src={item.image} alt={item.title} width={140} height={140} className="h-28 w-28 rounded-lg object-cover"/></div><CardContent className="space-y-3 p-4"><div><div className="flex items-center justify-between"><h3 className="text-base font-semibold">{item.title}</h3><Badge variant={item.status==='in stock'?'default':'destructive'}>{item.status}</Badge></div><p className="mt-1 line-clamp-2 text-sm text-neutral-600 dark:text-neutral-400">{item.description}</p></div><div className="flex items-center justify-between"><span className="text-sm text-neutral-500">{item.category}</span><Button size="sm" onClick={()=>handleEditMenuItem(item)}>Edit</Button></div></CardContent></Card>)):(<Card><CardContent className="p-6 text-sm text-neutral-500">No menu items available.</CardContent></Card>)}</div></section>)}
+          {activeTab==='menu'&&(<section className="space-y-4 h-[calc(100vh-200px)] overflow-y-auto pr-2"><div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sticky top-0 bg-white dark:bg-neutral-950 z-10 pb-2"><div className="space-y-1"><h2 className={`text-xl font-bold ${BRAND.text}`}>Menu Management</h2><p className="text-sm text-neutral-500">Edit, filter, and preview menu items.</p></div><div className="flex items-center gap-2"><div className="relative"><Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400"/><Input value={menuQuery} onChange={(e)=>setMenuQuery(e.target.value)} placeholder="Search by name or category" className="h-10 w-72 pl-9 rounded-xl focus:border-[#C46A47] transition-colors"/></div><Button variant="outline" onClick={fetchMenuItems} className="rounded-xl hover:text-[#C46A47] hover:border-[#C46A47]">Refresh</Button></div></div><div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">{loadingMenu?Array.from({length:6}).map((_,i)=>(<Card key={i} className="overflow-hidden rounded-[18px]"><Skeleton className="h-40 w-full"/><div className="space-y-2 p-4"><Skeleton className="h-5 w-1/2"/><Skeleton className="h-4 w-3/4"/><Skeleton className="h-9 w-24"/></div></Card>)):filteredMenu.length>0?filteredMenu.map((item)=>(<Card key={item._id} className="overflow-hidden rounded-[18px] hover:shadow-lg transition-shadow border-0 shadow-md"><div className="flex h-40 items-center justify-center bg-neutral-100 dark:bg-neutral-900"><Image src={item.image} alt={item.title} width={140} height={140} className="h-28 w-28 rounded-2xl object-cover shadow-sm"/></div><CardContent className="space-y-3 p-4"><div><div className="flex items-center justify-between"><h3 className="text-base font-bold text-neutral-800">{item.title}</h3><Badge variant={item.status==='in stock'?'default':'destructive'} className="rounded-lg">{item.status}</Badge></div><p className="mt-1 line-clamp-2 text-sm text-neutral-600 dark:text-neutral-400">{item.description}</p></div><div className="flex items-center justify-between"><span className="text-sm font-medium text-neutral-500">{item.category}</span><Button size="sm" onClick={()=>handleEditMenuItem(item)} className={`bg-gradient-to-r ${BRAND.primary} text-white rounded-lg shadow-md hover:opacity-90`}>Edit</Button></div></CardContent></Card>)):(<Card className="rounded-[18px]"><CardContent className="p-6 text-sm text-neutral-500">No menu items available.</CardContent></Card>)}</div></section>)}
                       {/* Platter Items */}
-          {activeTab==="platter"&&(<section className="space-y-4"><div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"><div className="space-y-1"><h2 className="text-xl font-semibold">Platter Management</h2><p className="text-sm text-neutral-500">Edit, filter, and preview platters.</p></div><div className="flex items-center gap-2"><div className="relative"><Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400"/><Input value={platterQuery} onChange={e=>setPlatterQuery(e.target.value)} placeholder="Search by name or category" className="h-10 w-72 pl-9"/></div><Button variant="outline" onClick={fetchPlatterItems}>Refresh</Button></div></div><div className="max-h-[600px] overflow-y-auto pr-2"><div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">{loadingPlatter?Array.from({length:6}).map((_,i)=>(<Card key={i} className="overflow-hidden"><Skeleton className="h-40 w-full"/><div className="space-y-2 p-4"><Skeleton className="h-5 w-1/2"/><Skeleton className="h-4 w-3/4"/><Skeleton className="h-9 w-24"/></div></Card>)):filteredPlatters.length>0?filteredPlatters.map(item=>(<Card key={item._id} className="overflow-hidden"><div className="flex h-40 items-center justify-center bg-neutral-100 dark:bg-neutral-900"><Image src={item.image} alt={item.title} width={140} height={140} className="h-28 w-28 rounded-lg object-cover"/></div><CardContent className="space-y-3 p-4"><div><div className="flex items-center justify-between"><h3 className="text-base font-semibold">{item.title}</h3><Badge variant={item.status==="in stock"?"default":"destructive"}>{item.status}</Badge></div><p className="mt-1 line-clamp-2 text-sm text-neutral-600 dark:text-neutral-400">{item.description}</p></div><div className="flex items-center justify-between"><span className="text-sm text-neutral-500">{item.platterCategory}</span><Button size="sm" onClick={()=>handleEditPlatterItem(item)}>Edit</Button></div></CardContent></Card>)):(<Card><CardContent className="p-6 text-sm text-neutral-500">No platter items available.</CardContent></Card>)}</div></div></section>)}
+          {activeTab==="platter"&&(<section className="space-y-4"><div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"><div className="space-y-1"><h2 className={`text-xl font-bold ${BRAND.text}`}>Platter Management</h2><p className="text-sm text-neutral-500">Edit, filter, and preview platters.</p></div><div className="flex items-center gap-2"><div className="relative"><Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400"/><Input value={platterQuery} onChange={e=>setPlatterQuery(e.target.value)} placeholder="Search by name or category" className="h-10 w-72 pl-9 rounded-xl focus:border-[#C46A47] transition-colors"/></div><Button variant="outline" onClick={fetchPlatterItems} className="rounded-xl hover:text-[#C46A47] hover:border-[#C46A47]">Refresh</Button></div></div><div className="max-h-[600px] overflow-y-auto pr-2"><div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">{loadingPlatter?Array.from({length:6}).map((_,i)=>(<Card key={i} className="overflow-hidden rounded-[18px]"><Skeleton className="h-40 w-full"/><div className="space-y-2 p-4"><Skeleton className="h-5 w-1/2"/><Skeleton className="h-4 w-3/4"/><Skeleton className="h-9 w-24"/></div></Card>)):filteredPlatters.length>0?filteredPlatters.map(item=>(<Card key={item._id} className="overflow-hidden rounded-[18px] hover:shadow-lg transition-shadow border-0 shadow-md"><div className="flex h-40 items-center justify-center bg-neutral-100 dark:bg-neutral-900"><Image src={item.image} alt={item.title} width={140} height={140} className="h-28 w-28 rounded-2xl object-cover shadow-sm"/></div><CardContent className="space-y-3 p-4"><div><div className="flex items-center justify-between"><h3 className="text-base font-bold text-neutral-800">{item.title}</h3><Badge variant={item.status==="in stock"?"default":"destructive"} className="rounded-lg">{item.status}</Badge></div><p className="mt-1 line-clamp-2 text-sm text-neutral-600 dark:text-neutral-400">{item.description}</p></div><div className="flex items-center justify-between"><span className="text-sm font-medium text-neutral-500">{item.platterCategory}</span><Button size="sm" onClick={()=>handleEditPlatterItem(item)} className={`bg-gradient-to-r ${BRAND.primary} text-white rounded-lg shadow-md hover:opacity-90`}>Edit</Button></div></CardContent></Card>)):(<Card className="rounded-[18px]"><CardContent className="p-6 text-sm text-neutral-500">No platter items available.</CardContent></Card>)}</div></div></section>)}
           
           
           
                       {/* Add forms */}
-                      {activeTab === 'addmenu' && (<Card><CardHeader><CardTitle className="text-xl">Add Menu Item</CardTitle><CardDescription>Create a new item for your menu.</CardDescription></CardHeader><CardContent><AddMenuItemForm /></CardContent></Card>)}
+                      {activeTab === 'addmenu' && (<Card className="rounded-[18px]"><CardHeader><CardTitle className={`text-xl ${BRAND.text}`}>Add Menu Item</CardTitle><CardDescription>Create a new item for your menu.</CardDescription></CardHeader><CardContent><AddMenuItemForm /></CardContent></Card>)}
           
-                      {activeTab === 'addplatter' && (<Card><CardHeader><CardTitle className="text-xl">Add Platter</CardTitle><CardDescription>Create a new platter combination.</CardDescription></CardHeader><CardContent><AddPlatterForm /></CardContent></Card>)}
+                      {activeTab === 'addplatter' && (<Card className="rounded-[18px]"><CardHeader><CardTitle className={`text-xl ${BRAND.text}`}>Add Platter</CardTitle><CardDescription>Create a new platter combination.</CardDescription></CardHeader><CardContent><AddPlatterForm /></CardContent></Card>)}
           
                       {activeTab === 'tables' && (
-                        <Card>
+                        <Card className="rounded-[18px]">
                           <CardHeader>
-                            <CardTitle className="text-xl">Table Management</CardTitle>
+                            <CardTitle className={`text-xl ${BRAND.text}`}>Table Management</CardTitle>
                             <CardDescription>Manage dine-in tables and QR codes.</CardDescription>
                           </CardHeader>
                           <CardContent>
@@ -564,9 +565,9 @@ const AdminDashboard: FC = () => {
                       )}
           
                       {activeTab === 'completedOrders' && (
-                        <Card>
+                        <Card className="rounded-[18px]">
                           <CardHeader>
-                            <CardTitle className="text-xl">Completed Orders</CardTitle>
+                            <CardTitle className={`text-xl ${BRAND.text}`}>Completed Orders</CardTitle>
                             <CardDescription>History of fulfilled orders.</CardDescription>
                           </CardHeader>
                           <CardContent>
@@ -576,9 +577,9 @@ const AdminDashboard: FC = () => {
                       )}
           
                       {activeTab === 'analytics' && (
-                        <Card>
+                        <Card className="rounded-[18px]">
                           <CardHeader>
-                            <CardTitle className="text-xl">Analytics</CardTitle>
+                            <CardTitle className={`text-xl ${BRAND.text}`}>Analytics</CardTitle>
                             <CardDescription>Monitor sales and performance trends.</CardDescription>
                           </CardHeader>
                           <CardContent>
@@ -588,24 +589,24 @@ const AdminDashboard: FC = () => {
                       )}
           
                       {activeTab === 'settings' && (
-                        <Card>
+                        <Card className="rounded-[18px]">
                           <CardHeader>
-                            <CardTitle className="text-xl">Settings</CardTitle>
+                            <CardTitle className={`text-xl ${BRAND.text}`}>Settings</CardTitle>
                             <CardDescription>Configure application preferences.</CardDescription>
                           </CardHeader>
                           <CardContent>
                             <div className="grid gap-4 sm:grid-cols-2">
                               <div className="space-y-2">
-                                <p className="text-sm text-neutral-500">Appearance</p>
+                                <p className="text-sm font-semibold text-neutral-500">Appearance</p>
                                 <div className="flex items-center gap-2">
-                                  <Button variant="outline" onClick={() => setTheme('light')}>Light</Button>
-                                  <Button variant="outline" onClick={() => setTheme('dark')}>Dark</Button>
-                                  <Button variant="outline" onClick={() => setTheme('system')}>System</Button>
+                                  <Button variant="outline" onClick={() => setTheme('light')} className="rounded-xl hover:text-[#C46A47] hover:border-[#C46A47]">Light</Button>
+                                  <Button variant="outline" onClick={() => setTheme('dark')} className="rounded-xl hover:text-[#C46A47] hover:border-[#C46A47]">Dark</Button>
+                                  <Button variant="outline" onClick={() => setTheme('system')} className="rounded-xl hover:text-[#C46A47] hover:border-[#C46A47]">System</Button>
                                 </div>
                               </div>
                               <div className="space-y-2">
-                                <p className="text-sm text-neutral-500">Session</p>
-                                <Button variant="destructive" onClick={handleLogout} className="gap-2">
+                                <p className="text-sm font-semibold text-neutral-500">Session</p>
+                                <Button variant="destructive" onClick={handleLogout} className="gap-2 rounded-xl shadow-md hover:opacity-90">
                                   <LogOut className="h-4 w-4" /> Logout
                                 </Button>
                               </div>

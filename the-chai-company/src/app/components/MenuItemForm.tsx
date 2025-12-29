@@ -190,10 +190,10 @@ const AddMenuItemForm = () => {
           animate={{ scale: 1 }}
           transition={{ duration: 0.5, delay: 0.1 }}
         >
-          <div className="w-16 h-16 bg-gradient-to-r from-[#741052] to-[#d0269b] rounded-2xl flex items-center justify-center mx-auto mb-4">
+          <div className="w-16 h-16 bg-gradient-to-r from-[#C46A47] to-[#A65638] rounded-2xl flex items-center justify-center mx-auto mb-4">
             <Plus className="h-8 w-8 text-white" />
           </div>
-          <h1 className="text-3xl font-bold bg-gradient-to-r from-[#741052] to-[#d0269b] bg-clip-text text-transparent mb-2">
+          <h1 className="text-3xl font-bold bg-gradient-to-r from-[#C46A47] to-[#A65638] bg-clip-text text-transparent mb-2">
             Add Menu Item
           </h1>
           <p className="text-gray-600">Create a delicious menu item for your customers</p>
@@ -204,7 +204,7 @@ const AddMenuItemForm = () => {
         {/* Basic Information */}
         <Card className="border-0 shadow-lg bg-gradient-to-br from-white to-gray-50">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-xl text-[#741052]">
+            <CardTitle className="flex items-center gap-2 text-xl text-[#C46A47]">
               <FileText className="h-5 w-5" />
               Basic Information
             </CardTitle>
@@ -226,7 +226,7 @@ const AddMenuItemForm = () => {
                   value={formData.title}
                   onChange={handleInputChange}
                   placeholder="e.g., Chicken Biryani"
-                  className="h-12 border-2 focus:border-[#741052] transition-colors"
+                  className="h-12 border-2 focus:border-[#C46A47] transition-colors"
                   required
                 />
               </div>
@@ -243,7 +243,7 @@ const AddMenuItemForm = () => {
                   value={formData.price}
                   onChange={handleInputChange}
                   placeholder="0"
-                  className="h-12 border-2 focus:border-[#741052] transition-colors"
+                  className="h-12 border-2 focus:border-[#C46A47] transition-colors"
                   min="0"
                   step="0.01"
                   required
@@ -266,7 +266,7 @@ const AddMenuItemForm = () => {
                   }
                 }}
               >
-                <SelectTrigger className="h-12 border-2 focus:border-[#741052] transition-colors">
+                <SelectTrigger className="h-12 border-2 focus:border-[#C46A47] transition-colors">
                   <SelectValue placeholder="Select a category" />
                 </SelectTrigger>
                 <SelectContent>
@@ -275,7 +275,7 @@ const AddMenuItemForm = () => {
                       {cat.name}
                     </SelectItem>
                   ))}
-                  <SelectItem value="__new__" className="text-[#741052] font-semibold">
+                  <SelectItem value="__new__" className="text-[#C46A47] font-semibold">
                     + Create New Category
                   </SelectItem>
                 </SelectContent>
@@ -305,7 +305,7 @@ const AddMenuItemForm = () => {
                     type="button"
                     variant="outline"
                     onClick={() => document.getElementById('image')?.click()}
-                    className="w-full h-12 border-2 border-dashed border-gray-300 hover:border-[#741052] transition-colors flex items-center gap-2"
+                    className="w-full h-12 border-2 border-dashed border-gray-300 hover:border-[#C46A47] transition-colors flex items-center gap-2"
                   >
                     <Upload className="h-4 w-4" />
                     {formData.image ? 'Change Image' : 'Upload Image'}
@@ -324,7 +324,7 @@ const AddMenuItemForm = () => {
                     id="enableVariations"
                     checked={enableVariations}
                     onChange={(e) => toggleVariations(e.target.checked)}
-                    className="w-5 h-5 rounded border-2 border-gray-300 text-[#741052] focus:ring-[#741052] focus:ring-2"
+                    className="w-5 h-5 rounded border-2 border-gray-300 text-[#C46A47] focus:ring-[#C46A47] focus:ring-2"
                   />
                   <Label htmlFor="enableVariations" className="text-sm font-medium text-gray-700 cursor-pointer">
                     Enable size/portion variations
@@ -373,7 +373,7 @@ const AddMenuItemForm = () => {
                 value={formData.description}
                 onChange={handleInputChange}
                 placeholder="Describe your menu item in detail..."
-                className="min-h-24 border-2 focus:border-[#741052] transition-colors resize-none"
+                className="min-h-24 border-2 focus:border-[#C46A47] transition-colors resize-none"
                 required
               />
             </div>
@@ -391,7 +391,7 @@ const AddMenuItemForm = () => {
             >
               <Card className="border-0 shadow-lg bg-gradient-to-br from-white to-gray-50">
                 <CardHeader>
-                  <CardTitle className="flex items-center gap-2 text-xl text-[#741052]">
+                  <CardTitle className="flex items-center gap-2 text-xl text-[#C46A47]">
                     <Settings className="h-5 w-5" />
                     Item Variations
                   </CardTitle>
@@ -419,7 +419,7 @@ const AddMenuItemForm = () => {
                             value={variation.name}
                             onChange={(e) => handleVariationChange(index, "name", e.target.value)}
                             placeholder="e.g., Large, Small, Family Size"
-                            className="h-12 border-2 focus:border-[#741052] transition-colors"
+                            className="h-12 border-2 focus:border-[#C46A47] transition-colors"
                           />
                         </div>
                         <div className="w-32">
@@ -431,7 +431,7 @@ const AddMenuItemForm = () => {
                             value={variation.price}
                             onChange={(e) => handleVariationChange(index, "price", e.target.value)}
                             placeholder="0"
-                            className="h-12 border-2 focus:border-[#741052] transition-colors"
+                            className="h-12 border-2 focus:border-[#C46A47] transition-colors"
                             min="0"
                             step="0.01"
                           />
@@ -454,7 +454,7 @@ const AddMenuItemForm = () => {
                   <Button
                     type="button"
                     onClick={addVariation}
-                    className="bg-gradient-to-r from-[#741052] to-[#d0269b] text-white font-semibold px-6 py-3 rounded-xl shadow-lg hover:opacity-90 transition-all duration-200 flex items-center gap-2"
+                    className="bg-gradient-to-r from-[#C46A47] to-[#A65638] text-white font-semibold px-6 py-3 rounded-xl shadow-lg hover:opacity-90 transition-all duration-200 flex items-center gap-2"
                   >
                     <Plus className="h-4 w-4" />
                     Add Variation
@@ -475,7 +475,7 @@ const AddMenuItemForm = () => {
           <Button
             type="submit"
             size="lg"
-            className="bg-gradient-to-r from-[#741052] to-[#d0269b] text-white font-semibold px-12 py-4 rounded-xl shadow-lg hover:opacity-90 transition-all duration-200 flex items-center gap-3 text-lg"
+            className="bg-gradient-to-r from-[#C46A47] to-[#A65638] text-white font-semibold px-12 py-4 rounded-xl shadow-lg hover:opacity-90 transition-all duration-200 flex items-center gap-3 text-lg"
           >
             <Save className="h-5 w-5" />
             Create Menu Item

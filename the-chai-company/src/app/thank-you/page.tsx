@@ -37,7 +37,7 @@ import { Label } from '@/components/ui/label';
 // Skeleton shimmer loader
 const SkeletonLoader = () => (
   <div className="w-full animate-pulse">
-    <div className="h-6 w-3/4 mx-auto rounded-lg bg-gradient-to-r from-[#741052]/20 via-[#d0269b]/30 to-[#741052]/20 bg-[length:200%_100%] animate-[shimmer_2s_infinite]"></div>
+    <div className="h-6 w-3/4 mx-auto rounded-lg bg-gradient-to-r from-[#C46A47]/20 via-[#A65638]/30 to-[#C46A47]/20 bg-[length:200%_100%] animate-[shimmer_2s_infinite]"></div>
   </div>
 );
 
@@ -242,7 +242,7 @@ const ThankYouPage: FC = () => {
             : 'Your Table Order Number:'}
         </p>
 
-        <p className="text-2xl font-bold bg-gradient-to-r from-[#741052] to-[#d0269b] bg-clip-text text-transparent">
+        <p className="text-2xl font-bold bg-gradient-to-r from-[#C46A47] to-[#A65638] bg-clip-text text-transparent">
           <TypeAnimation sequence={[orderNumber]} speed={50} wrapper="span" repeat={0} />
         </p>
 
@@ -369,7 +369,7 @@ const ThankYouPage: FC = () => {
                 <div
                   className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-semibold border ${
                     isActive
-                      ? 'bg-gradient-to-r from-[#741052] to-[#d0269b] text-white border-transparent shadow-md'
+                      ? 'bg-gradient-to-r from-[#C46A47] to-[#A65638] text-white border-transparent shadow-md'
                       : 'bg-white/70 text-gray-500 border-gray-200'
                   }`}
                 >
@@ -616,12 +616,12 @@ const ThankYouPage: FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#f9f4fb] via-[#fdf6fb] to-[#f7f1ff] relative overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-[#fdfbf9] via-[#fcf8f5] to-[#f9f3ef] relative overflow-hidden">
       {/* Decorative background elements */}
       <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-pink-200/20 to-purple-200/20 rounded-full blur-3xl"></div>
-        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-br from-blue-200/20 to-indigo-200/20 rounded-full blur-3xl"></div>
-        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-gradient-to-br from-yellow-200/10 to-orange-200/10 rounded-full blur-3xl"></div>
+        <div className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-orange-200/20 to-brown-200/20 rounded-full blur-3xl"></div>
+        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-br from-orange-200/20 to-brown-200/20 rounded-full blur-3xl"></div>
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-gradient-to-br from-orange-200/10 to-brown-200/10 rounded-full blur-3xl"></div>
       </div>
 
       <div className="relative z-10 container mx-auto px-4 py-8">
@@ -634,12 +634,12 @@ const ThankYouPage: FC = () => {
             className="text-center mb-12"
           >
             <div className="relative inline-block mb-6">
-              <div className="absolute inset-0 bg-gradient-to-r from-[#741052] to-[#d0269b] rounded-full blur-lg opacity-20 scale-110"></div>
+              <div className="absolute inset-0 bg-gradient-to-r from-[#C46A47] to-[#A65638] rounded-full blur-lg opacity-20 scale-110"></div>
               <div className="relative bg-white rounded-3xl p-8 shadow-2xl border border-white/20">
                 <div className="w-24 h-24 mx-auto mb-4">
                   <Lottie animationData={successAnimation} loop={!prefersReducedMotion} />
                 </div>
-                <h1 className="text-4xl font-bold bg-gradient-to-r from-[#741052] to-[#d0269b] bg-clip-text text-transparent mb-2">
+                <h1 className="text-4xl font-bold bg-gradient-to-r from-[#C46A47] to-[#A65638] bg-clip-text text-transparent mb-2">
                   Order Confirmed!
                 </h1>
                 <p className="text-gray-600 text-lg">Your delicious order has been received successfully</p>
@@ -655,12 +655,12 @@ const ThankYouPage: FC = () => {
             {/* Main Order Info */}
             <div className="lg:col-span-2 space-y-6">
               {/* Order Details Card */}
-              <Card className="border-0 shadow-xl bg-gradient-to-br from-white to-gray-50">
+              <Card className="border-0 shadow-xl bg-gradient-to-br from-white to-gray-50 rounded-[18px]">
                 <CardHeader className="text-center pb-4">
-                  <div className="w-12 h-12 bg-gradient-to-r from-[#741052] to-[#d0269b] rounded-full flex items-center justify-center mx-auto mb-3">
+                  <div className="w-12 h-12 bg-gradient-to-r from-[#C46A47] to-[#A65638] rounded-full flex items-center justify-center mx-auto mb-3">
                     <Receipt className="h-6 w-6 text-white" />
                   </div>
-                  <CardTitle className="text-2xl text-[#741052]">Order Details</CardTitle>
+                  <CardTitle className="text-2xl text-[#C46A47]">Order Details</CardTitle>
                   <CardDescription>Keep this information for your records</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-6">
@@ -705,9 +705,9 @@ const ThankYouPage: FC = () => {
               </Card>
 
               {/* Order Status */}
-              <Card className="border-0 shadow-xl bg-gradient-to-br from-white to-gray-50">
+              <Card className="border-0 shadow-xl bg-gradient-to-br from-white to-gray-50 rounded-[18px]">
                 <CardHeader>
-                  <CardTitle className="flex items-center gap-2 text-xl text-[#741052]">
+                  <CardTitle className="flex items-center gap-2 text-xl text-[#C46A47]">
                     <Clock className="h-5 w-5" />
                     Order Status
                   </CardTitle>
@@ -730,12 +730,12 @@ const ThankYouPage: FC = () => {
               {/* Quick Actions */}
               <Card className="border-0 shadow-xl bg-gradient-to-br from-white to-gray-50">
                 <CardHeader>
-                  <CardTitle className="text-lg text-[#741052]">Quick Actions</CardTitle>
+                  <CardTitle className="text-lg text-[#C46A47]">Quick Actions</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-3">
                   <Button
                     onClick={handleBackToOrder}
-                    className="w-full bg-gradient-to-r from-[#741052] to-[#d0269b] text-white font-semibold py-3 rounded-xl shadow-lg hover:opacity-90 transition-all duration-200 flex items-center gap-2"
+                    className="w-full bg-gradient-to-r from-[#C46A47] to-[#A65638] text-white font-semibold py-3 rounded-xl shadow-lg hover:opacity-90 transition-all duration-200 flex items-center gap-2"
                   >
                     {orderType === 'dinein' ? <Utensils className="h-4 w-4" /> : <ArrowRight className="h-4 w-4" />}
                     {orderType === 'dinein' ? 'Back to Menu' : 'Continue Shopping'}
@@ -745,7 +745,7 @@ const ThankYouPage: FC = () => {
                     <Button
                       onClick={handleShare}
                       variant="outline"
-                      className="flex items-center gap-2 border-2 hover:border-[#741052] transition-colors"
+                      className="flex items-center gap-2 border-2 hover:border-[#C46A47] hover:text-[#C46A47] transition-colors rounded-xl"
                       disabled={isSharing}
                     >
                       <Share2 className="h-4 w-4" />
@@ -754,7 +754,7 @@ const ThankYouPage: FC = () => {
                     <Button
                       onClick={handleSupport}
                       variant="outline"
-                      className="flex items-center gap-2 border-2 hover:border-[#741052] transition-colors"
+                      className="flex items-center gap-2 border-2 hover:border-[#C46A47] hover:text-[#C46A47] transition-colors rounded-xl"
                     >
                       <MessageCircle className="h-4 w-4" />
                       Support
@@ -764,7 +764,7 @@ const ThankYouPage: FC = () => {
                   <Button
                     onClick={() => fetchOrderDetails({ showLoader: true })}
                     variant="outline"
-                    className="w-full flex items-center gap-2 border-2 hover:border-[#741052] transition-colors"
+                    className="w-full flex items-center gap-2 border-2 hover:border-[#C46A47] hover:text-[#C46A47] transition-colors rounded-xl"
                     disabled={loading}
                   >
                     <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
@@ -776,14 +776,14 @@ const ThankYouPage: FC = () => {
               {/* Order Management */}
               <Card className="border-0 shadow-xl bg-gradient-to-br from-white to-gray-50">
                 <CardHeader>
-                  <CardTitle className="text-lg text-[#741052]">Order Management</CardTitle>
+                  <CardTitle className="text-lg text-[#C46A47]">Order Management</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-3">
                   <Button
                     onClick={handleReorder}
                     disabled={isReordering || !orderDetails?.items}
                     variant="outline"
-                    className="w-full flex items-center gap-2 border-2 hover:border-[#741052] transition-colors"
+                    className="w-full flex items-center gap-2 border-2 hover:border-[#C46A47] hover:text-[#C46A47] transition-colors rounded-xl"
                   >
                     <Plus className="h-4 w-4" />
                     {isReordering ? 'Adding to Cart...' : 'Reorder Items'}
@@ -792,7 +792,7 @@ const ThankYouPage: FC = () => {
                   <Button
                     onClick={handleDownloadReceipt}
                     variant="outline"
-                    className="w-full flex items-center gap-2 border-2 hover:border-[#741052] transition-colors"
+                    className="w-full flex items-center gap-2 border-2 hover:border-[#C46A47] hover:text-[#C46A47] transition-colors rounded-xl"
                   >
                     <Download className="h-4 w-4" />
                     Download Receipt
@@ -803,7 +803,7 @@ const ThankYouPage: FC = () => {
               {/* Popular Add-ons */}
               <Card className="border-0 shadow-xl bg-gradient-to-br from-white to-gray-50">
                 <CardHeader>
-                  <CardTitle className="text-lg text-[#741052] flex items-center gap-2">
+                  <CardTitle className="text-lg text-[#C46A47] flex items-center gap-2">
                     <Plus className="h-5 w-5" />
                     Popular Add-ons
                   </CardTitle>
@@ -826,7 +826,7 @@ const ThankYouPage: FC = () => {
                         <Button
                           onClick={() => handleAddOn(item)}
                           size="sm"
-                          className="bg-gradient-to-r from-[#741052] to-[#d0269b] text-white hover:opacity-90 transition-all duration-200"
+                          className="bg-gradient-to-r from-[#C46A47] to-[#A65638] text-white hover:opacity-90 transition-all duration-200"
                         >
                           <Plus className="h-3 w-3" />
                         </Button>
@@ -843,7 +843,7 @@ const ThankYouPage: FC = () => {
             {/* Notifications */}
             <Card className="border-0 shadow-xl bg-gradient-to-br from-white to-gray-50">
               <CardHeader>
-                <CardTitle className="text-lg text-[#741052] flex items-center gap-2">
+                <CardTitle className="text-lg text-[#C46A47] flex items-center gap-2">
                   <MessageCircle className="h-5 w-5" />
                   Stay Updated
                 </CardTitle>
@@ -852,7 +852,7 @@ const ThankYouPage: FC = () => {
               <CardContent className="space-y-4">
                 {consentStatus === 'saving' && (
                   <div className="flex items-center justify-center py-4">
-                    <RefreshCw className="h-5 w-5 animate-spin text-[#741052]" />
+                    <RefreshCw className="h-5 w-5 animate-spin text-[#C46A47]" />
                   </div>
                 )}
 
@@ -872,7 +872,7 @@ const ThankYouPage: FC = () => {
                           submitConsent('whatsapp', e.target.checked);
                         }}
                       />
-                      <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#741052]"></div>
+                      <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#C46A47]"></div>
                     </label>
                   </div>
 
@@ -891,7 +891,7 @@ const ThankYouPage: FC = () => {
                           submitConsent('push', e.target.checked);
                         }}
                       />
-                      <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#d0269b]"></div>
+                      <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#A65638]"></div>
                     </label>
                   </div>
                 </div>
@@ -901,7 +901,7 @@ const ThankYouPage: FC = () => {
             {/* Feedback */}
             <Card className="border-0 shadow-xl bg-gradient-to-br from-white to-gray-50">
               <CardHeader>
-                <CardTitle className="text-lg text-[#741052] flex items-center gap-2">
+                <CardTitle className="text-lg text-[#C46A47] flex items-center gap-2">
                   <Heart className="h-5 w-5" />
                   Share Your Feedback
                 </CardTitle>
@@ -919,8 +919,8 @@ const ThankYouPage: FC = () => {
                         whileTap={{ scale: 0.9 }}
                         className={`w-12 h-12 rounded-full border-2 font-semibold transition-all duration-200 ${
                           rating === val
-                            ? 'bg-gradient-to-r from-[#741052] to-[#d0269b] text-white border-transparent shadow-lg'
-                            : 'bg-white text-gray-700 border-gray-300 hover:border-[#741052] hover:shadow-md'
+                            ? 'bg-gradient-to-r from-[#C46A47] to-[#A65638] text-white border-transparent shadow-lg'
+                            : 'bg-white text-gray-700 border-gray-300 hover:border-[#C46A47] hover:shadow-md'
                         }`}
                         aria-label={`Rate ${val} star${val > 1 ? 's' : ''}`}
                       >
@@ -939,7 +939,7 @@ const ThankYouPage: FC = () => {
                     value={feedback}
                     onChange={(e) => setFeedback(e.target.value)}
                     placeholder="Tell us about your experience..."
-                    className="min-h-20 border-2 focus:border-[#741052] transition-colors resize-none"
+                    className="min-h-20 border-2 focus:border-[#C46A47] transition-colors resize-none"
                     rows={3}
                   />
                 </div>
@@ -948,7 +948,7 @@ const ThankYouPage: FC = () => {
                   <Button
                     onClick={submitFeedback}
                     disabled={feedbackStatus === 'submitting'}
-                    className="bg-gradient-to-r from-[#741052] to-[#d0269b] text-white font-semibold px-6 py-2 rounded-xl shadow-lg hover:opacity-90 transition-all duration-200 flex items-center gap-2"
+                    className="bg-gradient-to-r from-[#C46A47] to-[#A65638] text-white font-semibold px-6 py-2 rounded-xl shadow-lg hover:opacity-90 transition-all duration-200 flex items-center gap-2"
                   >
                     {feedbackStatus === 'submitting' ? (
                       <>

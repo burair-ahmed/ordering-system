@@ -199,7 +199,7 @@ blockquote {
   font-style: italic;
   margin: 1.5rem 0;
   padding-left: 20px;
-  border-left: 4px solid #741052;
+  border-left: 4px solid #C46A47;
 }
 
 /* Code blocks and inline code */
@@ -385,7 +385,7 @@ article {
   /* Adjust as needed */
   height: 200px;
   /* Adjust as needed */
-  background: linear-gradient(180deg, #741052 10%, rgba(116, 16, 82, 0) 100%);
+  background: linear-gradient(180deg, #C46A47 10%, rgba(196, 106, 71, 0) 100%);
 }
 
 
@@ -413,9 +413,9 @@ article {
 
 /* Apply styles when the checkbox is checked */
 .custom-checkbox:checked {
-  background-color: #731351;
+  background-color: #C46A47;
   /* Checked background color */
-  border-color: #731351;
+  border-color: #C46A47;
   /* Border matches the background */
 }
 
@@ -423,13 +423,13 @@ article {
 .custom-checkbox:focus {
   outline: none;
   /* Removes default outline */
-  box-shadow: 0 0 0 3px rgba(115, 19, 81, 0.5);
+  box-shadow: 0 0 0 3px rgba(196, 106, 71, 0.5);
   /* Adds focus ring */
 }
 
 /* Apply styles when the checkbox is active (pressed) */
 .custom-checkbox:active {
-  background-color: #731351;
+  background-color: #C46A47;
   /* Active background color */
 }
 

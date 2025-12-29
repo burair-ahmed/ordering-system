@@ -45,9 +45,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
-const BRAND_FROM = "#741052";
-const BRAND_TO = "#d0269b";
-const BRAND_TO1 = "#ff03afff";
+const BRAND_FROM = "#C46A47"; // Chai Clay
+const BRAND_TO = "#A65638"; // Cream Milk
+const BRAND_TO1 = "#6B3F2A"; // Masala Brown
 const BRAND_GRADIENT_CSS = `linear-gradient(105deg, ${BRAND_FROM}, ${BRAND_TO}, ${BRAND_TO1}, ${BRAND_TO}, ${BRAND_FROM})`;
 
 // Centralized delivery charge calculation
@@ -505,12 +505,12 @@ ${items
   }, [formData.paymentMethod]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#f9f4fb] via-[#fdf6fb] to-[#f7f1ff] relative overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-[#fdfbf9] via-[#fcf8f5] to-[#f9f3ef] relative overflow-hidden">
       {/* Decorative background elements */}
       <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-pink-200/20 to-purple-200/20 rounded-full blur-3xl"></div>
-        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-br from-blue-200/20 to-indigo-200/20 rounded-full blur-3xl"></div>
-        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-gradient-to-br from-yellow-200/10 to-orange-200/10 rounded-full blur-3xl"></div>
+        <div className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-orange-200/20 to-brown-200/20 rounded-full blur-3xl"></div>
+        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-br from-orange-200/20 to-brown-200/20 rounded-full blur-3xl"></div>
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-gradient-to-br from-orange-200/10 to-brown-200/10 rounded-full blur-3xl"></div>
       </div>
 
       <div className="relative z-10 container mx-auto px-4 py-8">
@@ -523,12 +523,12 @@ ${items
             className="text-center mb-8"
           >
             <div className="relative inline-block mb-6">
-              <div className="absolute inset-0 bg-gradient-to-r from-[#741052] to-[#d0269b] rounded-full blur-lg opacity-20 scale-110"></div>
+              <div className="absolute inset-0 bg-gradient-to-r from-[#C46A47] to-[#A65638] rounded-full blur-lg opacity-20 scale-110"></div>
               <div className="relative bg-white rounded-3xl p-8 shadow-2xl border border-white/20">
-                <div className="w-16 h-16 bg-gradient-to-r from-[#741052] to-[#d0269b] rounded-2xl flex items-center justify-center mx-auto mb-4">
+                <div className="w-16 h-16 bg-gradient-to-r from-[#C46A47] to-[#A65638] rounded-2xl flex items-center justify-center mx-auto mb-4">
                   <ShoppingCart className="h-8 w-8 text-white" />
                 </div>
-                <h1 className="text-4xl font-bold bg-gradient-to-r from-[#741052] to-[#d0269b] bg-clip-text text-transparent mb-2">
+                <h1 className="text-4xl font-bold bg-gradient-to-r from-[#C46A47] to-[#A65638] bg-clip-text text-transparent mb-2">
                   Secure Checkout
                 </h1>
                 <p className="text-gray-600 text-lg">Complete your order with confidence</p>
@@ -540,9 +540,9 @@ ${items
             {/* Main Form Section */}
             <div className="lg:col-span-2 space-y-6">
               {/* Customer Information */}
-              <Card className="border-0 shadow-xl bg-gradient-to-br from-white to-gray-50">
+              <Card className="border-0 shadow-xl bg-gradient-to-br from-white to-gray-50 rounded-[18px]">
                 <CardHeader>
-                  <CardTitle className="flex items-center gap-2 text-xl text-[#741052]">
+                  <CardTitle className="flex items-center gap-2 text-xl text-[#C46A47]">
                     <User className="h-5 w-5" />
                     Customer Information
                   </CardTitle>
@@ -564,7 +564,7 @@ ${items
                         value={formData.name}
                         onChange={handleInputChange}
                         placeholder="e.g. John Doe"
-                        className="h-12 border-2 focus:border-[#741052] transition-colors"
+                        className="h-12 border-2 focus:border-[#C46A47] transition-colors rounded-xl"
                         required
                       />
                     </div>
@@ -581,7 +581,7 @@ ${items
                         value={formData.email}
                         onChange={handleInputChange}
                         placeholder="you@domain.com"
-                        className="h-12 border-2 focus:border-[#741052] transition-colors"
+                        className="h-12 border-2 focus:border-[#C46A47] transition-colors rounded-xl"
                       />
                     </div>
                   </div>
@@ -604,7 +604,7 @@ ${items
                           value={formData.tableNumber}
                           onChange={handleInputChange}
                           placeholder="Your table number"
-                          className="h-12 border-2 focus:border-[#741052] transition-colors bg-gray-50"
+                          className="h-12 border-2 focus:border-[#C46A47] transition-colors bg-gray-50 rounded-xl"
                           disabled
                         />
                         <p className="text-xs text-gray-500">Table number is automatically detected</p>
@@ -631,7 +631,7 @@ ${items
                             value={formData.area}
                             onChange={handleInputChange}
                             placeholder={`Enter delivery address`}
-                            className="h-12 border-2 focus:border-[#741052] transition-colors"
+                            className="h-12 border-2 focus:border-[#C46A47] transition-colors rounded-xl"
                             required
                           />
                         </div>
@@ -648,7 +648,7 @@ ${items
                             value={formData.phone}
                             onChange={handlePhoneChange}
                             placeholder="03XXXXXXXXX"
-                            className="h-12 border-2 focus:border-[#741052] transition-colors"
+                            className="h-12 border-2 focus:border-[#C46A47] transition-colors rounded-xl"
                             required
                           />
                         </div>
@@ -659,9 +659,9 @@ ${items
               </Card>
 
               {/* Payment Method */}
-              <Card className="border-0 shadow-xl bg-gradient-to-br from-white to-gray-50">
+              <Card className="border-0 shadow-xl bg-gradient-to-br from-white to-gray-50 rounded-[18px]">
                 <CardHeader>
-                  <CardTitle className="flex items-center gap-2 text-xl text-[#741052]">
+                  <CardTitle className="flex items-center gap-2 text-xl text-[#C46A47]">
                     <CreditCard className="h-5 w-5" />
                     Payment Method
                   </CardTitle>
@@ -675,10 +675,10 @@ ${items
                       type="button"
                       onClick={() => handlePaymentChange("cash")}
                       variant={formData.paymentMethod === "cash" ? "default" : "outline"}
-                      className={`h-16 flex items-center gap-3 text-lg font-semibold ${
+                      className={`h-16 flex items-center gap-3 text-lg font-semibold rounded-xl ${
                         formData.paymentMethod === "cash"
-                          ? "bg-gradient-to-r from-[#741052] to-[#d0269b] text-white border-0 shadow-lg"
-                          : "border-2 border-gray-200 hover:border-[#741052] transition-colors"
+                          ? "bg-gradient-to-r from-[#C46A47] to-[#A65638] text-white border-0 shadow-lg"
+                          : "border-2 border-gray-200 hover:border-[#C46A47] transition-colors"
                       }`}
                     >
                       <Banknote className="h-6 w-6" />
@@ -692,10 +692,10 @@ ${items
                         toast.error("Online payment is coming soon!");
                       }}
                       variant={formData.paymentMethod === "online" ? "default" : "outline"}
-                      className={`h-16 flex items-center gap-3 text-lg font-semibold ${
+                      className={`h-16 flex items-center gap-3 text-lg font-semibold rounded-xl ${
                         formData.paymentMethod === "online"
-                          ? "bg-gradient-to-r from-[#741052] to-[#d0269b] text-white border-0 shadow-lg"
-                          : "border-2 border-gray-200 hover:border-[#741052] transition-colors"
+                          ? "bg-gradient-to-r from-[#C46A47] to-[#A65638] text-white border-0 shadow-lg"
+                          : "border-2 border-gray-200 hover:border-[#C46A47] transition-colors"
                       }`}
                       disabled={true}
                     >
@@ -721,9 +721,9 @@ ${items
                             <input
                               type="radio"
                               name="cash-preference"
-                              checked={cashPreference === "none"}
+                               checked={cashPreference === "none"}
                               onChange={() => setCashPreference("none")}
-                              className="w-4 h-4 text-[#741052] focus:ring-[#741052] rounded"
+                              className="w-4 h-4 text-[#C46A47] focus:ring-[#C46A47] rounded"
                             />
                             <span className="text-sm font-medium text-gray-700">No preference</span>
                           </label>
@@ -734,7 +734,7 @@ ${items
                               name="cash-preference"
                               checked={cashPreference === "exact"}
                               onChange={() => setCashPreference("exact")}
-                              className="w-4 h-4 text-[#741052] focus:ring-[#741052] rounded"
+                              className="w-4 h-4 text-[#C46A47] focus:ring-[#C46A47] rounded"
                             />
                             <span className="text-sm font-medium text-gray-700">I have exact cash</span>
                           </label>
@@ -745,7 +745,7 @@ ${items
                               name="cash-preference"
                               checked={cashPreference === "need-change"}
                               onChange={() => setCashPreference("need-change")}
-                              className="w-4 h-4 text-[#741052] focus:ring-[#741052] rounded"
+                              className="w-4 h-4 text-[#C46A47] focus:ring-[#C46A47] rounded"
                             />
                             <span className="text-sm font-medium text-gray-700">I might need change</span>
                           </label>
@@ -761,7 +761,7 @@ ${items
                             value={tipAmount}
                             onChange={(e) => setTipAmount(e.target.value.replace(/[^0-9.]/g, ""))}
                             placeholder="Enter tip amount"
-                            className="h-12 border-2 focus:border-[#741052] transition-colors"
+                            className="h-12 border-2 focus:border-[#C46A47] transition-colors rounded-xl"
                             min="0"
                             step="0.01"
                           />
@@ -838,7 +838,7 @@ ${items
               {/* Order Summary */}
               <Card className="border-0 shadow-xl bg-gradient-to-br from-white to-gray-50 sticky top-6">
                 <CardHeader>
-                  <CardTitle className="flex items-center gap-2 text-xl text-[#741052]">
+                  <CardTitle className="flex items-center gap-2 text-xl text-[#C46A47]">
                     <Calculator className="h-5 w-5" />
                     Order Summary
                   </CardTitle>
@@ -906,7 +906,7 @@ ${items
                             )}
                           </div>
                           <div className="text-right">
-                            <p className="font-bold text-[#741052] text-sm">
+                            <p className="font-bold text-[#C46A47] text-sm">
                               Rs. {(item.price * item.quantity).toFixed(2)}
                             </p>
                           </div>
@@ -932,7 +932,7 @@ ${items
                     <div className="border-t border-gray-300 pt-3">
                       <div className="flex justify-between text-lg font-bold">
                         <span className="text-gray-900">Total Amount</span>
-                        <span className="bg-gradient-to-r from-[#741052] to-[#d0269b] bg-clip-text text-transparent">
+                        <span className="bg-gradient-to-r from-[#C46A47] to-[#A65638] bg-clip-text text-transparent">
                           Rs. {finalAmount.toFixed(2)}
                         </span>
                       </div>
@@ -947,7 +947,7 @@ ${items
                   >
                     <Button
                       onClick={handleCheckout}
-                      className="w-full bg-gradient-to-r from-[#741052] to-[#d0269b] text-white font-semibold py-4 rounded-xl shadow-lg hover:opacity-90 transition-all duration-200 flex items-center gap-2 text-lg"
+                      className="w-full bg-gradient-to-r from-[#C46A47] to-[#A65638] text-white font-semibold py-4 rounded-xl shadow-lg hover:opacity-90 transition-all duration-200 flex items-center gap-2 text-lg"
                       size="lg"
                     >
                       <ArrowRight className="h-5 w-5" />
@@ -985,7 +985,7 @@ ${items
                   transition={{ type: "spring", stiffness: 300, damping: 30 }}
                 >
                   {/* Header */}
-                  <div className="bg-gradient-to-r from-[#741052] to-[#d0269b] p-6 text-white">
+                  <div className="bg-gradient-to-r from-[#C46A47] to-[#A65638] p-6 text-white">
                     <div className="flex items-center justify-between">
                       <div>
                         <h2 className="text-2xl font-bold">Confirm Your Order</h2>
@@ -1010,7 +1010,7 @@ ${items
                         <Card className="border-0 shadow-lg">
                           <CardHeader>
                             <CardTitle className="flex items-center gap-2">
-                              <User className="h-5 w-5 text-[#741052]" />
+                              <User className="h-5 w-5 text-[#C46A47]" />
                               Customer Details
                             </CardTitle>
                           </CardHeader>
@@ -1077,7 +1077,7 @@ ${items
                         <Card className="border-0 shadow-lg">
                           <CardHeader>
                             <CardTitle className="flex items-center gap-2">
-                              <ShoppingCart className="h-5 w-5 text-[#741052]" />
+                              <ShoppingCart className="h-5 w-5 text-[#C46A47]" />
                               Order Items
                             </CardTitle>
                           </CardHeader>
@@ -1094,7 +1094,7 @@ ${items
                                     )}
                                     <p className="text-sm text-gray-600">Qty: {item.quantity}</p>
                                   </div>
-                                  <p className="font-bold text-[#741052]">
+                                  <p className="font-bold text-[#C46A47]">
                                     Rs. {(item.price * item.quantity).toFixed(2)}
                                   </p>
                                 </div>
@@ -1109,7 +1109,7 @@ ${items
                         <Card className="border-0 shadow-lg">
                           <CardHeader>
                             <CardTitle className="flex items-center gap-2">
-                              <Calculator className="h-5 w-5 text-[#741052]" />
+                              <Calculator className="h-5 w-5 text-[#C46A47]" />
                               Order Summary
                             </CardTitle>
                           </CardHeader>
@@ -1127,7 +1127,7 @@ ${items
                             <div className="border-t border-gray-200 pt-4">
                               <div className="flex justify-between text-xl font-bold">
                                 <span>Total Amount:</span>
-                                <span className="bg-gradient-to-r from-[#741052] to-[#d0269b] bg-clip-text text-transparent">
+                                <span className="bg-gradient-to-r from-[#C46A47] to-[#A65638] bg-clip-text text-transparent">
                                   Rs. {finalAmount.toFixed(2)}
                                 </span>
                               </div>
@@ -1151,7 +1151,7 @@ ${items
                                     type="checkbox"
                                     checked={confirmChecked}
                                     onChange={(e) => setConfirmChecked(e.target.checked)}
-                                    className="w-5 h-5 text-[#741052] focus:ring-[#741052] rounded"
+                                    className="w-5 h-5 text-[#C46A47] focus:ring-[#C46A47] rounded"
                                   />
                                   <span className="text-sm font-medium text-gray-700">
                                     I confirm all details are correct
@@ -1170,7 +1170,7 @@ ${items
                         <Button
                           onClick={handlePlaceOrder}
                           disabled={!confirmChecked || isProcessing}
-                          className="flex-1 bg-gradient-to-r from-[#741052] to-[#d0269b] text-white font-semibold py-3 rounded-xl shadow-lg hover:opacity-90 transition-all duration-200"
+                          className="flex-1 bg-gradient-to-r from-[#C46A47] to-[#A65638] text-white font-semibold py-3 rounded-xl shadow-lg hover:opacity-90 transition-all duration-200"
                         >
                           {isProcessing ? (
                             <>

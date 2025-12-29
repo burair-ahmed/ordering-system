@@ -43,7 +43,7 @@ interface TableDetail {
   totalQuantity: number;
 }
 
-const COLORS = ["#741052", "#d0269b", "#1f1f1f", "#f9f9f9"];
+const COLORS = ["#C46A47", "#A65638", "#6B3F2A", "#D98A6C"];
 
 const AnalyticsPage: FC = () => {
   const [analyticsData, setAnalyticsData] = useState<AnalyticsData | null>(null);
@@ -95,9 +95,10 @@ const AnalyticsPage: FC = () => {
   };
 
   return (
-    <div className="p-6 space-y-6 bg-[#f9f9f9] max-h-[500px] overflow-y-auto">
+    <div className="p-6 space-y-6 bg-white dark:bg-neutral-950 h-full overflow-y-auto custom-scrollbar">
       {/* Header */}
-      <h1 className="text-3xl font-bold text-[#1f1f1f] text-center">Analytics Dashboard</h1>
+      <h1 className="text-3xl font-bold text-[#6B3F2A] text-center mb-2">Analytics Dashboard</h1>
+      <p className="text-center text-neutral-500 -mt-4 mb-6">Real-time performance metrics for The Chai Company</p>
 
       {/* Filters */}
       <div className="flex flex-wrap justify-center gap-3">
@@ -107,9 +108,9 @@ const AnalyticsPage: FC = () => {
             onClick={() => setFilter(item)}
             className={`${
               filter === item
-                ? "bg-[#741052] hover:bg-[#d0269b] text-white"
-                : "bg-gray-200 text-[#1f1f1f] hover:bg-gray-300"
-            }`}
+                ? "bg-gradient-to-r from-[#C46A47] to-[#A65638] text-white"
+                : "bg-gray-200 text-[#6B3F2A] hover:bg-gray-300"
+            } rounded-xl shadow-md transition-all`}
           >
             {item === "last-week" ? "Last Week" : item === "last-month" ? "Last Month" : item.charAt(0).toUpperCase() + item.slice(1)}
           </Button>
@@ -122,11 +123,11 @@ const AnalyticsPage: FC = () => {
           <CardTitle>Date Range</CardTitle>
         </CardHeader>
         <CardContent className="flex flex-wrap gap-4 items-center">
-          <Input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} />
-          <span className="font-semibold">to</span>
-          <Input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} />
-          <Button className="bg-[#741052] hover:bg-[#d0269b] text-white" onClick={handleCustomDate}>
-            Apply
+          <Input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} className="w-auto focus-visible:ring-[#C46A47] rounded-xl" />
+          <span className="font-semibold text-neutral-400">to</span>
+          <Input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} className="w-auto focus-visible:ring-[#C46A47] rounded-xl" />
+          <Button className="bg-gradient-to-r from-[#C46A47] to-[#A65638] text-white rounded-xl shadow-md hover:opacity-90 transition-all active:scale-95" onClick={handleCustomDate}>
+            Apply Filter
           </Button>
         </CardContent>
       </Card>
@@ -142,7 +143,7 @@ const AnalyticsPage: FC = () => {
               {loading ? (
                 <Skeleton className="h-8 w-32" />
               ) : (
-                <p className="text-2xl font-bold text-[#741052]">
+                <p className="text-2xl font-bold text-[#C46A47]">
                   Rs. {analyticsData?.totalRevenueCombined.toFixed(2)}
                 </p>
               )}
@@ -160,7 +161,7 @@ const AnalyticsPage: FC = () => {
               {loading ? (
                 <Skeleton className="h-8 w-20" />
               ) : (
-                <p className="text-2xl font-bold text-[#741052]">
+                <p className="text-2xl font-bold text-[#C46A47]">
                   {analyticsData?.tableAnalytics.reduce((acc, t) => acc + t.orderCount, 0)}
                 </p>
               )}
@@ -182,7 +183,7 @@ const AnalyticsPage: FC = () => {
               ) : (
                 <ResponsiveContainer width="100%" height="100%">
                   <LineChart data={analyticsData?.tableAnalytics}>
-                    <Line type="monotone" dataKey="totalRevenue" stroke="#741052" strokeWidth={3} />
+                    <Line type="monotone" dataKey="totalRevenue" stroke="#C46A47" strokeWidth={3} />
                     <CartesianGrid strokeDasharray="3 3" />
                     <XAxis dataKey="tableNumber" />
                     <YAxis />
@@ -209,7 +210,7 @@ const AnalyticsPage: FC = () => {
                     <XAxis dataKey="tableNumber" />
                     <YAxis />
                     <Tooltip />
-                    <Bar dataKey="orderCount" fill="#d0269b" />
+                    <Bar dataKey="orderCount" fill="#A65638" radius={[4, 4, 0, 0]} />
                   </BarChart>
                 </ResponsiveContainer>
               )}
@@ -271,12 +272,12 @@ const AnalyticsPage: FC = () => {
                 {analyticsData?.tableAnalytics.map((t) => (
                   <TableRow
                     key={t.tableNumber}
-                    className="cursor-pointer hover:bg-gray-100"
+                    className="cursor-pointer hover:bg-[#C46A47]/5 transition-colors group"
                     onClick={() => fetchTableDetails(t.tableNumber)}
                   >
-                    <TableCell>{t.tableNumber}</TableCell>
+                    <TableCell className="font-medium group-hover:text-[#C46A47]">Table {t.tableNumber}</TableCell>
                     <TableCell>{t.orderCount}</TableCell>
-                    <TableCell>Rs. {t.totalRevenue.toFixed(2)}</TableCell>
+                    <TableCell className="font-semibold">Rs. {t.totalRevenue.toFixed(2)}</TableCell>
                   </TableRow>
                 ))}
               </TableBody>
@@ -295,7 +296,7 @@ const AnalyticsPage: FC = () => {
             transition={{ duration: 0.3 }}
             className="fixed top-0 right-0 w-full sm:w-1/3 h-full bg-white shadow-lg p-6 overflow-y-auto z-50"
           >
-            <h2 className="text-xl font-bold text-[#741052] mb-4">Table Details</h2>
+            <h2 className="text-xl font-bold text-[#C46A47] mb-4">Table Details</h2>
             <Table>
               <TableHeader>
                 <TableRow>
@@ -313,7 +314,7 @@ const AnalyticsPage: FC = () => {
               </TableBody>
             </Table>
             <Button
-              className="mt-6 bg-[#741052] hover:bg-[#d0269b] text-white"
+              className="mt-6 bg-gradient-to-r from-[#C46A47] to-[#A65638] text-white rounded-xl shadow-md hover:opacity-90"
               onClick={() => setTableDetails(null)}
             >
               Close

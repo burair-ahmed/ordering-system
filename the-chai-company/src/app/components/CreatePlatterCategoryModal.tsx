@@ -53,7 +53,7 @@ const CreatePlatterCategoryModal: React.FC<CreatePlatterCategoryModalProps> = ({
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle className="text-[#741052] flex items-center gap-2">
+          <DialogTitle className="text-[#C46A47] flex items-center gap-2">
             <Plus className="h-5 w-5" />
             Create Platter Category
           </DialogTitle>
@@ -71,7 +71,7 @@ const CreatePlatterCategoryModal: React.FC<CreatePlatterCategoryModalProps> = ({
               value={newCategoryName}
               onChange={(e) => setNewCategoryName(e.target.value)}
               placeholder="e.g., Family Deals"
-              className="col-span-3 focus:border-[#741052] transition-colors"
+              className="col-span-3 focus:border-[#C46A47] transition-colors"
               autoFocus
             />
           </div>
@@ -82,7 +82,7 @@ const CreatePlatterCategoryModal: React.FC<CreatePlatterCategoryModalProps> = ({
             <Button 
               type="submit" 
               disabled={isCreating || !newCategoryName.trim()}
-              className="bg-gradient-to-r from-[#741052] to-[#d0269b] text-white hover:opacity-90"
+              className="bg-gradient-to-r from-[#C46A47] to-[#A65638] text-white hover:opacity-90"
             >
               {isCreating ? (
                 <>

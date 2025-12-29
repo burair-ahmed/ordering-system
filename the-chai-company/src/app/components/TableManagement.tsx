@@ -33,8 +33,8 @@ export type TableItem = {
   notes?: string;
 };
 
-const brandPrimary = '#741052';
-const brandAccent = '#d0269b';
+const brandPrimary = '#C46A47';
+const brandAccent = '#A65638';
 
 const STATUS_META: Record<
   TableStatus,
@@ -42,19 +42,19 @@ const STATUS_META: Record<
 > = {
   empty: {
     label: 'Empty',
-    colorClass: 'bg-green-50 text-green-700 border-green-200',
+    colorClass: 'bg-emerald-50 text-emerald-700 border-emerald-100',
     icon: <Check className="h-4 w-4" aria-hidden />,
     tone: 'green',
   },
   reserved: {
     label: 'Reserved',
-    colorClass: 'bg-yellow-50 text-yellow-800 border-yellow-200',
+    colorClass: 'bg-amber-50 text-amber-800 border-amber-100',
     icon: <Clock className="h-4 w-4" aria-hidden />,
     tone: 'yellow',
   },
   occupied: {
     label: 'Occupied',
-    colorClass: 'bg-red-50 text-red-700 border-red-200',
+    colorClass: 'bg-rose-50 text-rose-700 border-rose-100',
     icon: <Utensils className="h-4 w-4" aria-hidden />,
     tone: 'red',
   },
@@ -148,9 +148,9 @@ export default function TableManagement() {
     const stroke = 16;
     let acc = 0;
     const donutData = [
-      { key: 'Empty', value: analytics.empty, color: '#16a34a' },
-      { key: 'Reserved', value: analytics.reserved, color: '#f59e0b' },
-      { key: 'Occupied', value: analytics.occupied, color: '#ef4444' },
+      { key: 'Empty', value: analytics.empty, color: '#10b981' }, // Emerald
+      { key: 'Reserved', value: analytics.reserved, color: '#f59e0b' }, // Amber
+      { key: 'Occupied', value: analytics.occupied, color: '#e11d48' }, // Rose
     ].filter((d) => d.value > 0);
     return (
       <svg width="120" height="120" viewBox="0 0 120 120" role="img" aria-label="Table status distribution">
@@ -186,7 +186,7 @@ export default function TableManagement() {
             })
           )}
           <circle r={radius - stroke - 2} fill="white" className="dark:fill-neutral-900" />
-          <text x="0" y="-4" textAnchor="middle" fontSize={12} fill={brandPrimary} fontWeight={700}>
+          <text x="0" y="-4" textAnchor="middle" fontSize={12} fill="#C46A47" fontWeight={700}>
             {analytics.total}
           </text>
           <text x="0" y="12" textAnchor="middle" fontSize={10} fill="#6b7280">
@@ -276,11 +276,11 @@ export default function TableManagement() {
   const fmt = (iso?: string) => (iso ? new Date(iso).toLocaleString() : '—');
 
   return (
-    <div className="space-y-6 h-[550px] overflow-y-auto">
+    <div className="space-y-6 h-full overflow-y-auto custom-scrollbar">
       {/* inline styles / keyframes needed for ripple & border animations */}
       <style>{`
         .ripple-effect {
-          background: radial-gradient(circle, rgba(208,38,155,0.18) 10%, rgba(208,38,155,0.06) 40%, transparent 60%);
+          background: radial-gradient(circle, rgba(196,106,71,0.18) 10%, rgba(196,106,71,0.06) 40%, transparent 60%);
           transform: scale(0);
           animation: ripple 600ms ease-out forwards;
           pointer-events: none;
@@ -294,7 +294,7 @@ export default function TableManagement() {
           inset: 0;
           border-radius: 1rem;
           padding: 2px;
-          background: conic-gradient(from 0deg, rgba(208,38,155,0.92), rgba(208,38,155,0.3) 45%, rgba(116,16,82,0.08) 70%, rgba(208,38,155,0.0) 100%);
+          background: conic-gradient(from 0deg, rgba(196,106,71,0.92), rgba(196,106,71,0.3) 45%, rgba(107,63,42,0.08) 70%, rgba(196,106,71,0.0) 100%);
           -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
           -webkit-mask-composite: xor;
           mask-composite: exclude;
@@ -305,16 +305,16 @@ export default function TableManagement() {
         .progress-ring.show { opacity: 1; animation: rotateRing 900ms linear; }
         @keyframes rotateRing { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
         /* subtle glow on hover via CSS var */
-        .card-glow-hover:hover { box-shadow: 0 10px 30px rgba(208,38,155,0.12); transform: translateY(-4px); }
+        .card-glow-hover:hover { box-shadow: 0 10px 30px rgba(196,106,71,0.12); transform: translateY(-4px); }
         /* badge pulse */
         .badge-pulse { transition: box-shadow 220ms ease; }
-        .badge-pulse:hover { box-shadow: 0 6px 20px rgba(208,38,155,0.12); transform: translateY(-2px); }
+        .badge-pulse:hover { box-shadow: 0 6px 20px rgba(196,106,71,0.12); transform: translateY(-2px); }
         /* success checkmark animation */
         .success-check {
           position: absolute;
           right: 12px;
           top: 12px;
-          background: linear-gradient(90deg, ${brandPrimary}, ${brandAccent});
+          background: linear-gradient(90deg, #C46A47, #A65638);
           color: white;
           width: 36px;
           height: 36px;
@@ -346,7 +346,7 @@ export default function TableManagement() {
                   <h3 className="text-lg font-semibold" style={{ color: brandPrimary }}>
                     Table Summary
                   </h3>
-                  <p className="text-sm text-muted-foreground">Quick overview of table statuses</p>
+                  <p className="text-sm text-neutral-500">Quick overview of table statuses</p>
                 </div>
 
                 <div className="flex items-center gap-3">
@@ -377,36 +377,36 @@ export default function TableManagement() {
           </CardHeader>
           <CardContent className="flex items-center gap-6 flex-wrap">
             <div className="flex-1 min-w-0 flex items-center gap-4">
-              <Input
+               <Input
                 aria-label="Search tables"
-                placeholder="Search by table number or notes..."
+                placeholder="Search tables..."
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
-                className="max-w-sm"
+                className="max-w-xs focus-visible:ring-[#C46A47] rounded-xl"
               />
               <div className="flex gap-2 flex-wrap">
                 <button
                   onClick={() => setStatusFilter('all')}
-                  className={`px-3 py-2 rounded-full text-sm font-medium ${statusFilter === 'all' ? 'bg-gradient-to-r from-[#741052] to-[#d0269b] text-white' : 'bg-white/60'}`}
+                  className={`px-3 py-2 rounded-full text-sm font-medium ${statusFilter === 'all' ? 'bg-gradient-to-r from-[#C46A47] to-[#A65638] text-white shadow-md' : 'bg-white/60 text-neutral-600'}`}
                   aria-pressed={statusFilter === 'all'}
                 >
                   All
                 </button>
-                <button
+                 <button
                   onClick={() => setStatusFilter('empty')}
-                  className={`px-3 py-2 rounded-full text-sm font-medium ${statusFilter === 'empty' ? 'bg-green-600 text-white' : 'bg-white/60'}`}
+                  className={`px-3 py-2 rounded-full text-xs font-medium transition-colors ${statusFilter === 'empty' ? 'bg-emerald-600 text-white shadow-sm' : 'bg-white/60 text-emerald-700 hover:bg-emerald-50'}`}
                 >
                   Empty
                 </button>
                 <button
                   onClick={() => setStatusFilter('reserved')}
-                  className={`px-3 py-2 rounded-full text-sm font-medium ${statusFilter === 'reserved' ? 'bg-yellow-600 text-white' : 'bg-white/60'}`}
+                  className={`px-3 py-2 rounded-full text-xs font-medium transition-colors ${statusFilter === 'reserved' ? 'bg-amber-600 text-white shadow-sm' : 'bg-white/60 text-amber-700 hover:bg-amber-50'}`}
                 >
                   Reserved
                 </button>
                 <button
                   onClick={() => setStatusFilter('occupied')}
-                  className={`px-3 py-2 rounded-full text-sm font-medium ${statusFilter === 'occupied' ? 'bg-red-600 text-white' : 'bg-white/60'}`}
+                  className={`px-3 py-2 rounded-full text-xs font-medium transition-colors ${statusFilter === 'occupied' ? 'bg-rose-600 text-white shadow-sm' : 'bg-white/60 text-rose-700 hover:bg-rose-50'}`}
                 >
                   Occupied
                 </button>
@@ -463,7 +463,7 @@ export default function TableManagement() {
                     variants={cardVariant}
                     initial="hidden"
                     animate="show"
-                    whileHover={!prefersReducedMotion ? { y: -4, boxShadow: '0 10px 30px rgba(208,38,155,0.12)' } : {}}
+                    whileHover={!prefersReducedMotion ? { y: -4, boxShadow: '0 10px 30px rgba(196,106,71,0.12)' } : {}}
                     transition={{ type: 'spring' as const, stiffness: 220, damping: 20 }}
                     className="relative"
                   >
@@ -582,7 +582,7 @@ export default function TableManagement() {
             <Button
               onClick={performStatusUpdate}
               disabled={modalLoading}
-              style={{ background: 'linear-gradient(90deg,#741052,#d0269b)', color: '#fff' }}
+              className="bg-gradient-to-r from-[#C46A47] to-[#A65638] text-white rounded-xl shadow-md hover:opacity-90"
             >
               {modalLoading ? 'Updating...' : 'Confirm'}
             </Button>
@@ -634,7 +634,7 @@ function ActionButton({
         px-4 py-2 rounded-lg text-sm font-medium transition transform
         ${primary ? 'text-white' : 'text-gray-800'}
         ${primary ? '' : tone === 'green' ? 'bg-green-50 hover:bg-green-100' : tone === 'yellow' ? 'bg-yellow-50 hover:bg-yellow-100' : 'bg-red-50 hover:bg-red-100'}
-        ${primary ? 'bg-gradient-to-r from-[#741052] to-[#d0269b]' : ''}
+        ${primary ? 'bg-gradient-to-r from-[#C46A47] to-[#A65638]' : ''}
         shadow-sm
       `}
       style={{

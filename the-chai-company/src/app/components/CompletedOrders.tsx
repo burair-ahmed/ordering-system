@@ -230,14 +230,14 @@ const CompletedOrders: FC = () => {
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.9, opacity: 0 }}
             >
-              <h2 className="text-lg font-semibold mb-3 text-[#5c0d40]">Confirm Deletion</h2>
+              <h2 className="text-lg font-semibold mb-3 text-[#C46A47]">Confirm Deletion</h2>
               <p className="mb-4">Are you sure you want to delete Order #{selectedOrder}?</p>
               <input
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="Enter password"
-                className="w-full rounded-lg border px-3 py-2 mb-3 focus:ring-2 focus:ring-[#5c0d40] outline-none"
+                className="w-full rounded-xl border px-3 py-2 mb-3 focus:ring-2 focus:ring-[#C46A47] outline-none"
               />
               {errorMessage && <p className="text-red-500 mb-3">{errorMessage}</p>}
               <div className="flex justify-end gap-3">
@@ -306,7 +306,7 @@ const CompletedOrders: FC = () => {
             {filtered.map((order) => (
               <motion.div
                 key={order.orderNumber}
-                className="rounded-2xl border border-[#5c0d40]/30 bg-white dark:bg-neutral-800 shadow-md hover:shadow-xl hover:scale-[1.01] transition relative"
+                className="rounded-2xl border border-[#C46A47]/20 bg-white dark:bg-neutral-800 shadow-md hover:shadow-xl hover:scale-[1.01] transition relative"
                 variants={{
                   hidden: { opacity: 0, y: 20 },
                   visible: { opacity: 1, y: 0 },
@@ -322,8 +322,8 @@ const CompletedOrders: FC = () => {
                       className="accent-emerald-600"
                     />
                     <div>
-                      <h2 className="text-lg font-bold text-[#5c0d40]">
-                        Order <span className="text-sm text-[#5c0d10]">#{order.orderNumber}</span>
+                      <h2 className="text-lg font-bold text-[#C46A47]">
+                        Order <span className="text-sm text-neutral-500">#{order.orderNumber}</span>
                       </h2>
                       <p className="text-xs text-neutral-500">{new Date(order.createdAt).toLocaleString()}</p>
                     </div>
@@ -337,7 +337,7 @@ const CompletedOrders: FC = () => {
                     >
                       {order.status}
                     </span>
-                    <p className="text-[#5c0d40] font-bold text-base leading-none">
+                    <p className="text-[#C46A47] font-bold text-base leading-none">
                       Rs. {order.totalAmount}
                     </p>
                   </div>
@@ -394,7 +394,7 @@ const CompletedOrders: FC = () => {
                         prev === order.orderNumber ? null : order.orderNumber
                       )
                     }
-                    className="w-full text-left px-4 py-2 text-sm font-medium text-[#5c0d40] hover:bg-[#5c0d40]/10 transition"
+                    className="w-full text-left px-4 py-2 text-sm font-medium text-[#C46A47] hover:bg-[#C46A47]/5 transition"
                   >
                     {expanded === order.orderNumber ? 'Hide Items' : 'View Items'}
                   </button>
@@ -420,7 +420,7 @@ const CompletedOrders: FC = () => {
                                   {item.variations.map((v, j) => (
                                     <span
                                       key={j}
-                                      className="bg-[#741052] text-white text-xs px-2 py-0.5 rounded-full"
+                                      className="bg-[#6B3F2A] text-white text-xs px-2 py-0.5 rounded-full"
                                     >
                                       {typeof v === 'object'
                                         ? `${v.name}: ${v.value}`
@@ -480,7 +480,7 @@ const CompletedOrders: FC = () => {
                       a.click();
                       URL.revokeObjectURL(url);
                     }}
-                    className="flex items-center gap-2 px-4 py-2 rounded-full bg-[#741052] text-white text-sm font-medium hover:bg-[#d0269b] transition"
+                    className="flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-[#C46A47] to-[#A65638] text-white text-sm font-medium hover:opacity-90 transition shadow"
                   >
                     <Download size={16} /> Invoice
                   </button>

@@ -378,7 +378,7 @@ const checkoutUrl =
                   >
                     <Link
                       href={checkoutUrl}
-                      className={`w-full inline-flex items-center justify-center gap-3 px-8 py-3 rounded-2xl text-white font-bold shadow-lg ${BRAND_GRADIENT} hover:scale-[1.02] active:scale-95 transition-all`}
+                      className={`w-full inline-flex items-center justify-center gap-3 px-8 py-3 rounded-2xl text-white font-bold shadow-lg ${BRAND_GRADIENT} hover:scale-[1.02] active:scale-95 transition-all hover:text-white hover:no-underline`}
                       onClick={handleClose}
                     >
                       <span>Checkout</span>

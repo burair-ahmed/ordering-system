@@ -377,7 +377,7 @@ const EditPlatterForm: React.FC<EditPlatterFormProps> = ({ item, onClose, onUpda
                 name="title"
                 value={formData.title}
                 onChange={handleChange}
-                className="w-full border border-gray-300 dark:border-gray-700 rounded-lg px-4 py-2 focus:ring-2 focus:ring-[#741052] focus:outline-none"
+                className="w-full border border-gray-300 dark:border-gray-700 rounded-lg px-4 py-2 focus:ring-2 focus:ring-[#C46A47] focus:outline-none"
               />
             </div>
 
@@ -389,7 +389,7 @@ const EditPlatterForm: React.FC<EditPlatterFormProps> = ({ item, onClose, onUpda
                 name="description"
                 value={formData.description}
                 onChange={handleChange}
-                className="w-full border border-gray-300 dark:border-gray-700 rounded-lg px-4 py-2 focus:ring-2 focus:ring-[#741052] focus:outline-none"
+                className="w-full border border-gray-300 dark:border-gray-700 rounded-lg px-4 py-2 focus:ring-2 focus:ring-[#C46A47] focus:outline-none"
               />
             </div>
 
@@ -402,7 +402,7 @@ const EditPlatterForm: React.FC<EditPlatterFormProps> = ({ item, onClose, onUpda
                 name="basePrice"
                 value={formData.basePrice}
                 onChange={handleChange}
-                className="w-full border border-gray-300 dark:border-gray-700 rounded-lg px-4 py-2 focus:ring-2 focus:ring-[#741052] focus:outline-none"
+                className="w-full border border-gray-300 dark:border-gray-700 rounded-lg px-4 py-2 focus:ring-2 focus:ring-[#C46A47] focus:outline-none"
               />
             </div>
 
@@ -420,7 +420,7 @@ const EditPlatterForm: React.FC<EditPlatterFormProps> = ({ item, onClose, onUpda
                     handleChange(e);
                   }
                 }}
-                className="w-full border border-gray-300 dark:border-gray-700 rounded-lg px-4 py-2 focus:ring-2 focus:ring-[#741052] focus:outline-none bg-white"
+                className="w-full border border-gray-300 dark:border-gray-700 rounded-lg px-4 py-2 focus:ring-2 focus:ring-[#C46A47] focus:outline-none bg-white"
               >
                 <option value="">Select a Category</option>
                 {availablePlatterCategories.map((cat) => (
@@ -428,7 +428,7 @@ const EditPlatterForm: React.FC<EditPlatterFormProps> = ({ item, onClose, onUpda
                     {cat.name}
                   </option>
                 ))}
-                <option value="__new__" className="font-semibold text-[#741052]">+ Create New Platter Category</option>
+                <option value="__new__" className="font-semibold text-[#C46A47]">+ Create New Platter Category</option>
               </select>
             </div>
 
@@ -440,7 +440,7 @@ const EditPlatterForm: React.FC<EditPlatterFormProps> = ({ item, onClose, onUpda
                 type="file"
                 accept="image/*"
                 onChange={handleImageUpload}
-                className="w-full border border-gray-300 dark:border-gray-700 rounded-lg px-4 py-2 focus:ring-2 focus:ring-[#741052] focus:outline-none"
+                className="w-full border border-gray-300 dark:border-gray-700 rounded-lg px-4 py-2 focus:ring-2 focus:ring-[#C46A47] focus:outline-none"
               />
             </div>
 
@@ -452,7 +452,7 @@ const EditPlatterForm: React.FC<EditPlatterFormProps> = ({ item, onClose, onUpda
                 name="status"
                 value={formData.status}
                 onChange={handleChange}
-                className="w-full border border-gray-300 dark:border-gray-700 rounded-lg px-4 py-2 focus:ring-2 focus:ring-[#741052] focus:outline-none"
+                className="w-full border border-gray-300 dark:border-gray-700 rounded-lg px-4 py-2 focus:ring-2 focus:ring-[#C46A47] focus:outline-none"
               >
                 <option value="in stock">In Stock</option>
                 <option value="out of stock">Out of Stock</option>
@@ -475,7 +475,7 @@ const EditPlatterForm: React.FC<EditPlatterFormProps> = ({ item, onClose, onUpda
                       handleAdditionalChoiceChange(index, "heading", e.target.value)
                     }
                     placeholder="Choice Heading"
-                    className="w-full border border-gray-300 dark:border-gray-700 rounded-lg px-4 py-2 mb-2 focus:ring-2 focus:ring-[#741052] focus:outline-none"
+                    className="w-full border border-gray-300 dark:border-gray-700 rounded-lg px-4 py-2 mb-2 focus:ring-2 focus:ring-[#C46A47] focus:outline-none"
                   />
                   {choice.options.map((option, i) => (
                     <input
@@ -486,7 +486,7 @@ const EditPlatterForm: React.FC<EditPlatterFormProps> = ({ item, onClose, onUpda
                         handleAdditionalChoiceChange(index, "name", e.target.value, i)
                       }
                       placeholder="Option Name"
-                      className="w-full border border-gray-300 dark:border-gray-700 rounded-lg px-4 py-2 mb-2 focus:ring-2 focus:ring-[#741052] focus:outline-none"
+                      className="w-full border border-gray-300 dark:border-gray-700 rounded-lg px-4 py-2 mb-2 focus:ring-2 focus:ring-[#C46A47] focus:outline-none"
                     />
                   ))}
                 </div>
@@ -495,7 +495,7 @@ const EditPlatterForm: React.FC<EditPlatterFormProps> = ({ item, onClose, onUpda
                 type="button"
                 onClick={addChoice}
                 className="w-full px-4 py-2 rounded-lg shadow text-white font-semibold
-                           bg-gradient-to-r from-[#741052] to-pink-600 
+                           bg-gradient-to-r from-[#C46A47] to-[#A65638] 
                            hover:opacity-90 transition-all duration-200"
               >
                 + Add Choice
@@ -519,7 +519,7 @@ const EditPlatterForm: React.FC<EditPlatterFormProps> = ({ item, onClose, onUpda
                             handleCategoryChange(categoryIndex, e.target.value);
                           }
                         }}
-                        className="w-full border border-gray-300 dark:border-gray-700 rounded-lg px-4 py-2 focus:ring-2 focus:ring-[#741052] focus:outline-none bg-white"
+                        className="w-full border border-gray-300 dark:border-gray-700 rounded-lg px-4 py-2 focus:ring-2 focus:ring-[#C46A47] focus:outline-none bg-white"
                       >
                         <option value="">Select a Category</option>
                         {availableCategories.map((cat) => (
@@ -527,7 +527,7 @@ const EditPlatterForm: React.FC<EditPlatterFormProps> = ({ item, onClose, onUpda
                             {cat.name}
                           </option>
                         ))}
-                        <option value="__new__" className="font-semibold text-[#741052]">+ Create New Category</option>
+                        <option value="__new__" className="font-semibold text-[#C46A47]">+ Create New Category</option>
                       </select>
                     </div>
                   {category.options.map((option, optionIndex) => (
@@ -539,7 +539,7 @@ const EditPlatterForm: React.FC<EditPlatterFormProps> = ({ item, onClose, onUpda
                         handleCategoryOptionChange(categoryIndex, optionIndex, e.target.value)
                       }
                       placeholder="Option Name"
-                      className="w-full border border-gray-300 dark:border-gray-700 rounded-lg px-4 py-2 mb-2 focus:ring-2 focus:ring-[#741052] focus:outline-none"
+                      className="w-full border border-gray-300 dark:border-gray-700 rounded-lg px-4 py-2 mb-2 focus:ring-2 focus:ring-[#C46A47] focus:outline-none"
                     />
                   ))}
                 </div>
@@ -564,7 +564,7 @@ const EditPlatterForm: React.FC<EditPlatterFormProps> = ({ item, onClose, onUpda
                 type="button"
                 onClick={addCategory}
                 className="w-full px-4 py-2 rounded-lg shadow text-white font-semibold
-                           bg-gradient-to-r from-[#741052] to-pink-600 
+                           bg-gradient-to-r from-[#C46A47] to-[#A65638] 
                            hover:opacity-90 transition-all duration-200"
               >
                 + Add Category
@@ -578,7 +578,7 @@ const EditPlatterForm: React.FC<EditPlatterFormProps> = ({ item, onClose, onUpda
               type="button"
               onClick={onClose}
               className="px-6 py-3 rounded-lg shadow text-white font-semibold
-                         bg-gradient-to-r from-[#741052] to-pink-600 
+                         bg-gradient-to-r from-[#C46A47] to-[#A65638] 
                          hover:opacity-90 transition-all duration-200"
             >
               Cancel
@@ -588,7 +588,7 @@ const EditPlatterForm: React.FC<EditPlatterFormProps> = ({ item, onClose, onUpda
               onClick={handleSubmit}
               disabled={loading}
               className={`px-6 py-3 rounded-lg shadow text-white font-semibold
-                          bg-gradient-to-r from-[#741052] to-pink-600 
+                          bg-gradient-to-r from-[#C46A47] to-[#A65638] 
                           hover:opacity-90 transition-all duration-200
                           ${loading ? "opacity-50 cursor-not-allowed" : ""}`}
             >

@@ -197,7 +197,7 @@ const EditMenuItemForm: React.FC<EditMenuItemFormProps> = ({
           transition={{ type: "spring", stiffness: 300, damping: 30 }}
         >
           {/* Header */}
-          <div className="bg-gradient-to-r from-[#741052] to-[#d0269b] p-6 text-white">
+          <div className="bg-gradient-to-r from-[#C46A47] to-[#A65638] p-6 text-white">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <Edit className="h-6 w-6" />
@@ -228,7 +228,7 @@ const EditMenuItemForm: React.FC<EditMenuItemFormProps> = ({
                 transition={{ delay: 0.1 }}
               >
                 <div className="bg-gradient-to-br from-gray-50 to-white p-6 rounded-2xl border border-gray-100">
-                  <h3 className="text-lg font-semibold text-[#741052] mb-4 flex items-center gap-2">
+                  <h3 className="text-lg font-semibold text-[#C46A47] mb-4 flex items-center gap-2">
                     <Edit className="h-5 w-5" />
                     Basic Information
                   </h3>
@@ -245,7 +245,7 @@ const EditMenuItemForm: React.FC<EditMenuItemFormProps> = ({
                         value={formData.title}
                         onChange={handleChange}
                         placeholder="Enter item title"
-                        className="mt-1 focus:ring-[#741052] focus:border-[#741052]"
+                        className="mt-1 focus:ring-[#C46A47] focus:border-[#C46A47]"
                         required
                       />
                     </div>
@@ -262,7 +262,7 @@ const EditMenuItemForm: React.FC<EditMenuItemFormProps> = ({
                         onChange={handleChange}
                         placeholder="Enter item description"
                         rows={3}
-                        className="mt-1 focus:ring-[#741052] focus:border-[#741052]"
+                        className="mt-1 focus:ring-[#C46A47] focus:border-[#C46A47]"
                       />
                     </div>
 
@@ -280,7 +280,7 @@ const EditMenuItemForm: React.FC<EditMenuItemFormProps> = ({
                         placeholder="0.00"
                         min="0"
                         step="0.01"
-                        className="mt-1 focus:ring-[#741052] focus:border-[#741052]"
+                        className="mt-1 focus:ring-[#C46A47] focus:border-[#C46A47]"
                         required
                       />
                     </div>
@@ -301,7 +301,7 @@ const EditMenuItemForm: React.FC<EditMenuItemFormProps> = ({
                           }
                         }}
                       >
-                        <SelectTrigger className="mt-1 focus:ring-[#741052] focus:border-[#741052] h-12">
+                        <SelectTrigger className="mt-1 focus:ring-[#C46A47] focus:border-[#C46A47] h-12">
                           <SelectValue placeholder="Select a category" />
                         </SelectTrigger>
                         <SelectContent>
@@ -310,7 +310,7 @@ const EditMenuItemForm: React.FC<EditMenuItemFormProps> = ({
                               {cat.name}
                             </SelectItem>
                           ))}
-                          <SelectItem value="__new__" className="text-[#741052] font-semibold">
+                          <SelectItem value="__new__" className="text-[#C46A47] font-semibold">
                             + Create New Category
                           </SelectItem>
                         </SelectContent>
@@ -325,7 +325,7 @@ const EditMenuItemForm: React.FC<EditMenuItemFormProps> = ({
                 </div>
 
                 <div className="bg-gradient-to-br from-blue-50 to-white p-6 rounded-2xl border border-blue-100">
-                  <h3 className="text-lg font-semibold text-[#741052] mb-4 flex items-center gap-2">
+                  <h3 className="text-lg font-semibold text-[#C46A47] mb-4 flex items-center gap-2">
                     <Upload className="h-5 w-5" />
                     Media & Status
                   </h3>
@@ -342,7 +342,7 @@ const EditMenuItemForm: React.FC<EditMenuItemFormProps> = ({
                           type="file"
                           accept="image/*"
                           onChange={handleImageUpload}
-                          className="file:bg-gradient-to-r file:from-[#741052] file:to-[#d0269b] file:text-white file:border-0 file:rounded-lg file:px-4 file:py-2 file:mr-4 file:font-semibold hover:file:opacity-90"
+                          className="file:bg-gradient-to-r file:from-[#C46A47] file:to-[#A65638] file:text-white file:border-0 file:rounded-lg file:px-4 file:py-2 file:mr-4 file:font-semibold hover:file:opacity-90"
                         />
                         <p className="text-xs text-gray-500 mt-1">
                           Upload a high-quality image for better presentation
@@ -359,7 +359,7 @@ const EditMenuItemForm: React.FC<EditMenuItemFormProps> = ({
                         value={formData.status}
                         onValueChange={(value) => setFormData({ ...formData, status: value as "in stock" | "out of stock" })}
                       >
-                        <SelectTrigger className="mt-1 focus:ring-[#741052] focus:border-[#741052]">
+                        <SelectTrigger className="mt-1 focus:ring-[#C46A47] focus:border-[#C46A47]">
                           <SelectValue placeholder="Select status" />
                         </SelectTrigger>
                         <SelectContent>
@@ -391,7 +391,7 @@ const EditMenuItemForm: React.FC<EditMenuItemFormProps> = ({
               >
                 <div className="bg-gradient-to-br from-purple-50 to-white p-6 rounded-2xl border border-purple-100">
                   <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-lg font-semibold text-[#741052] flex items-center gap-2">
+                    <h3 className="text-lg font-semibold text-[#C46A47] flex items-center gap-2">
                       <Plus className="h-5 w-5" />
                       Variations
                     </h3>
@@ -430,7 +430,7 @@ const EditMenuItemForm: React.FC<EditMenuItemFormProps> = ({
                                 handleVariationChange(index, "name", e.target.value)
                               }
                               placeholder="Variation name (e.g., Small, Large)"
-                              className="focus:ring-[#741052] focus:border-[#741052]"
+                              className="focus:ring-[#C46A47] focus:border-[#C46A47]"
                             />
                           </div>
                           <div className="w-24">
@@ -443,7 +443,7 @@ const EditMenuItemForm: React.FC<EditMenuItemFormProps> = ({
                               placeholder="0.00"
                               min="0"
                               step="0.01"
-                              className="focus:ring-[#741052] focus:border-[#741052]"
+                              className="focus:ring-[#C46A47] focus:border-[#C46A47]"
                             />
                           </div>
                           <Button
@@ -486,7 +486,7 @@ const EditMenuItemForm: React.FC<EditMenuItemFormProps> = ({
               type="submit"
               onClick={handleSubmit}
               disabled={loading}
-              className="bg-gradient-to-r from-[#741052] to-[#d0269b] text-white font-semibold px-6 py-2 rounded-xl shadow-lg hover:opacity-90 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="bg-gradient-to-r from-[#C46A47] to-[#A65638] text-white font-semibold px-6 py-2 rounded-xl shadow-lg hover:opacity-90 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {loading ? (
                 <>
