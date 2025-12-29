@@ -36,6 +36,12 @@ import {
   DollarSign,
   Calculator,
   Mail,
+  ShoppingBag,
+  ShieldCheck,
+  Shield,
+  Zap,
+  Heart,
+  Check,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -505,693 +511,590 @@ ${items
   }, [formData.paymentMethod]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#fdfbf9] via-[#fcf8f5] to-[#f9f3ef] relative overflow-hidden">
+    <div className="min-h-screen bg-[#FAF3E6] relative overflow-hidden font-['Poppins'] selection:bg-[#C46A47]/20">
       {/* Decorative background elements */}
-      <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-orange-200/20 to-brown-200/20 rounded-full blur-3xl"></div>
-        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-br from-orange-200/20 to-brown-200/20 rounded-full blur-3xl"></div>
-        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-gradient-to-br from-orange-200/10 to-brown-200/10 rounded-full blur-3xl"></div>
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-[-10%] right-[-10%] w-[50%] h-[50%] bg-[#C46A47]/5 rounded-full blur-[120px] animate-pulse" />
+        <div className="absolute bottom-[-10%] left-[-10%] w-[50%] h-[50%] bg-[#E3D6C6]/20 rounded-full blur-[120px]" />
       </div>
 
-      <div className="relative z-10 container mx-auto px-4 py-8">
-        <div className="max-w-6xl mx-auto">
-          {/* Header */}
+      <div className="relative z-10 container mx-auto px-4 py-12 md:py-20">
+        <div className="max-w-7xl mx-auto">
+          {/* Header - Architectural */}
           <motion.div
-            initial={{ opacity: 0, y: -30 }}
+            initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, ease: "easeOut" }}
-            className="text-center mb-8"
+            className="mb-12 md:mb-20 text-center relative"
           >
-            <div className="relative inline-block mb-6">
-              <div className="absolute inset-0 bg-gradient-to-r from-[#C46A47] to-[#A65638] rounded-full blur-lg opacity-20 scale-110"></div>
-              <div className="relative bg-white rounded-3xl p-8 shadow-2xl border border-white/20">
-                <div className="w-16 h-16 bg-gradient-to-r from-[#C46A47] to-[#A65638] rounded-2xl flex items-center justify-center mx-auto mb-4">
-                  <ShoppingCart className="h-8 w-8 text-white" />
-                </div>
-                <h1 className="text-4xl font-bold bg-gradient-to-r from-[#C46A47] to-[#A65638] bg-clip-text text-transparent mb-2">
-                  Secure Checkout
-                </h1>
-                <p className="text-gray-600 text-lg">Complete your order with confidence</p>
-              </div>
+            <div className="inline-block relative">
+              <span className="inline-block text-[#C46A47] text-xs md:text-sm font-black uppercase tracking-[0.4em] mb-4">
+                The Final Step
+              </span>
+              <h1 className="text-4xl md:text-5xl lg:text-7xl font-black text-[#2E1C14] tracking-tighter leading-none mb-6">
+                Checkout<span className="text-[#C46A47]">.</span>
+              </h1>
+              <div className="h-1.5 w-24 bg-[#C46A47] mx-auto rounded-full" />
             </div>
+            <p className="mt-8 text-[#6F5A4A] text-lg md:text-xl font-light opacity-80 max-w-2xl mx-auto leading-relaxed">
+              Curating your perfect tea experience. Review your selections and finalize your journey with us.
+            </p>
           </motion.div>
 
-          <div className="grid lg:grid-cols-3 gap-8">
-            {/* Main Form Section */}
-            <div className="lg:col-span-2 space-y-6">
+          <div className="grid lg:grid-cols-12 gap-10 items-start">
+            {/* Main Form Section - Glassmorphic */}
+            <div className="lg:col-span-7 space-y-10">
               {/* Customer Information */}
-              <Card className="border-0 shadow-xl bg-gradient-to-br from-white to-gray-50 rounded-[18px]">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2 text-xl text-[#C46A47]">
-                    <User className="h-5 w-5" />
-                    Customer Information
-                  </CardTitle>
-                  <CardDescription>
-                    Please provide your details for order processing
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-6">
-                  <div className="grid md:grid-cols-2 gap-6">
-                    <div className="space-y-2">
-                      <Label htmlFor="name" className="text-sm font-semibold text-gray-700 flex items-center gap-2">
-                        <User className="h-4 w-4" />
-                        Full Name
-                      </Label>
+              <div className="bg-white/40 backdrop-blur-md rounded-[32px] p-8 md:p-12 border border-white/20 shadow-[0_32px_64px_-16px_rgba(107,63,42,0.08)]">
+                <div className="flex items-center gap-4 mb-10">
+                  <div className="w-12 h-12 bg-[#6B3F2A] rounded-2xl flex items-center justify-center text-white shadow-lg shadow-[#6B3F2A]/20">
+                    <User size={24} />
+                  </div>
+                  <div>
+                    <h2 className="text-2xl font-black text-[#2E1C14] tracking-tight">Personal Details</h2>
+                    <p className="text-[#6F5A4A] text-sm font-medium">How shall we address you?</p>
+                  </div>
+                </div>
+
+                <div className="grid md:grid-cols-2 gap-8">
+                  <div className="space-y-3">
+                    <label htmlFor="name" className="text-[10px] font-black uppercase tracking-[0.2em] text-[#C46A47] ml-1">Full Name</label>
+                    <div className="relative group">
                       <Input
                         id="name"
                         name="name"
                         type="text"
                         value={formData.name}
                         onChange={handleInputChange}
-                        placeholder="e.g. John Doe"
-                        className="h-12 border-2 focus:border-[#C46A47] transition-colors rounded-xl"
+                        placeholder="e.g. Amaan Ahmed"
+                        className="h-16 bg-white/60 border-[#E3D6C6] focus:border-[#C46A47] focus:ring-0 rounded-2xl px-6 placeholder:text-[#6F5A4A]/30 text-[#6B3F2A] font-medium transition-all group-hover:bg-white"
                         required
                       />
                     </div>
+                  </div>
 
-                    <div className="space-y-2">
-                      <Label htmlFor="email" className="text-sm font-semibold text-gray-700 flex items-center gap-2">
-                        <Mail className="h-4 w-4" />
-                        Email Address
-                      </Label>
+                  <div className="space-y-3">
+                    <label htmlFor="email" className="text-[10px] font-black uppercase tracking-[0.2em] text-[#C46A47] ml-1">Email (Optional)</label>
+                    <div className="relative group">
                       <Input
                         id="email"
                         name="email"
                         type="email"
                         value={formData.email}
                         onChange={handleInputChange}
-                        placeholder="you@domain.com"
-                        className="h-12 border-2 focus:border-[#C46A47] transition-colors rounded-xl"
+                        placeholder="hello@choice.com"
+                        className="h-16 bg-white/60 border-[#E3D6C6] focus:border-[#C46A47] focus:ring-0 rounded-2xl px-6 placeholder:text-[#6F5A4A]/30 text-[#6B3F2A] font-medium transition-all group-hover:bg-white"
                       />
                     </div>
                   </div>
+                </div>
 
-                  {/* Order Type Specific Fields */}
-                  <AnimatePresence>
-                    {formData.ordertype === "dinein" && (
-                      <motion.div
-                        initial={{ opacity: 0, height: 0 }}
-                        animate={{ opacity: 1, height: "auto" }}
-                        exit={{ opacity: 0, height: 0 }}
-                        className="space-y-2"
-                      >
-                        <Label className="text-sm font-semibold text-gray-700 flex items-center gap-2">
-                          <Utensils className="h-4 w-4" />
-                          Table Number
-                        </Label>
+                {/* Order Type Specific Fields */}
+                <AnimatePresence mode="wait">
+                  {formData.ordertype === "dinein" && (
+                    <motion.div
+                      key="dinein"
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -10 }}
+                      className="mt-8 space-y-3 pt-8 border-t border-[#E3D6C6]/30"
+                    >
+                       <label className="text-[10px] font-black uppercase tracking-[0.2em] text-[#C46A47] ml-1 flex items-center gap-2">
+                        <Utensils size={14} /> Table Allocation
+                      </label>
+                      <Input
+                        name="tableNumber"
+                        value={formData.tableNumber}
+                        onChange={handleInputChange}
+                        className="h-16 bg-[#E3D6C6]/20 border-transparent rounded-2xl px-6 text-[#6B3F2A] font-black text-xl cursor-not-allowed"
+                        disabled
+                      />
+                      <p className="text-[10px] text-[#6F5A4A] opacity-50 ml-1 italic font-medium">Table detected via cryptographic link.</p>
+                    </motion.div>
+                  )}
+
+                  {formData.ordertype === "delivery" && (
+                    <motion.div
+                      key="delivery"
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -10 }}
+                      className="mt-8 grid md:grid-cols-2 gap-8 pt-8 border-t border-[#E3D6C6]/30"
+                    >
+                      <div className="space-y-3">
+                        <label htmlFor="phone" className="text-[10px] font-black uppercase tracking-[0.2em] text-[#C46A47] ml-1 flex items-center gap-2">
+                          <Phone size={14} /> Contact Line
+                        </label>
                         <Input
-                          name="tableNumber"
-                          value={formData.tableNumber}
-                          onChange={handleInputChange}
-                          placeholder="Your table number"
-                          className="h-12 border-2 focus:border-[#C46A47] transition-colors bg-gray-50 rounded-xl"
-                          disabled
+                          id="phone"
+                          name="phone"
+                          type="tel"
+                          value={formData.phone}
+                          onChange={handlePhoneChange}
+                          placeholder="03XXXXXXXXX"
+                          className="h-16 bg-white/60 border-[#E3D6C6] focus:border-[#C46A47] focus:ring-0 rounded-2xl px-6 text-[#6B3F2A] font-medium"
+                          required
                         />
-                        <p className="text-xs text-gray-500">Table number is automatically detected</p>
-                      </motion.div>
-                    )}
+                      </div>
+                      <div className="space-y-3">
+                        <label htmlFor="area" className="text-[10px] font-black uppercase tracking-[0.2em] text-[#C46A47] ml-1 flex items-center gap-2">
+                          <MapPin size={14} /> Destination
+                        </label>
+                        <Input
+                          ref={areaInputRef}
+                          id="area"
+                          name="area"
+                          type="text"
+                          value={formData.area}
+                          onChange={handleInputChange}
+                          placeholder="Complete address here"
+                          className="h-16 bg-white/60 border-[#E3D6C6] focus:border-[#C46A47] focus:ring-0 rounded-2xl px-6 text-[#6B3F2A] font-medium"
+                          required
+                        />
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
 
-                    {formData.ordertype === "delivery" && (
-                      <motion.div
-                        initial={{ opacity: 0, height: 0 }}
-                        animate={{ opacity: 1, height: "auto" }}
-                        exit={{ opacity: 0, height: 0 }}
-                        className="grid md:grid-cols-2 gap-6"
-                      >
-                        <div className="space-y-2">
-                          <Label htmlFor="area" className="text-sm font-semibold text-gray-700 flex items-center gap-2">
-                            <MapPin className="h-4 w-4" />
-                            Delivery Address
-                          </Label>
-                          <Input
-                            ref={areaInputRef}
-                            id="area"
-                            name="area"
-                            type="text"
-                            value={formData.area}
-                            onChange={handleInputChange}
-                            placeholder={`Enter delivery address`}
-                            className="h-12 border-2 focus:border-[#C46A47] transition-colors rounded-xl"
-                            required
-                          />
-                        </div>
-
-                        <div className="space-y-2">
-                          <Label htmlFor="phone" className="text-sm font-semibold text-gray-700 flex items-center gap-2">
-                            <Phone className="h-4 w-4" />
-                            Phone Number
-                          </Label>
-                          <Input
-                            id="phone"
-                            name="phone"
-                            type="tel"
-                            value={formData.phone}
-                            onChange={handlePhoneChange}
-                            placeholder="03XXXXXXXXX"
-                            className="h-12 border-2 focus:border-[#C46A47] transition-colors rounded-xl"
-                            required
-                          />
-                        </div>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-                </CardContent>
-              </Card>
-
-              {/* Payment Method */}
-              <Card className="border-0 shadow-xl bg-gradient-to-br from-white to-gray-50 rounded-[18px]">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2 text-xl text-[#C46A47]">
-                    <CreditCard className="h-5 w-5" />
-                    Payment Method
-                  </CardTitle>
-                  <CardDescription>
-                    Choose how you'd like to pay for your order
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-6">
-                  <div className="grid md:grid-cols-2 gap-4">
-                    <Button
-                      type="button"
-                      onClick={() => handlePaymentChange("cash")}
-                      variant={formData.paymentMethod === "cash" ? "default" : "outline"}
-                      className={`h-16 flex items-center gap-3 text-lg font-semibold rounded-xl ${
-                        formData.paymentMethod === "cash"
-                          ? "bg-gradient-to-r from-[#C46A47] to-[#A65638] text-white border-0 shadow-lg"
-                          : "border-2 border-gray-200 hover:border-[#C46A47] transition-colors"
-                      }`}
-                    >
-                      <Banknote className="h-6 w-6" />
-                      Cash Payment
-                    </Button>
-
-                    <Button
-                      type="button"
-                      onClick={() => {
-                        handlePaymentChange("online");
-                        toast.error("Online payment is coming soon!");
-                      }}
-                      variant={formData.paymentMethod === "online" ? "default" : "outline"}
-                      className={`h-16 flex items-center gap-3 text-lg font-semibold rounded-xl ${
-                        formData.paymentMethod === "online"
-                          ? "bg-gradient-to-r from-[#C46A47] to-[#A65638] text-white border-0 shadow-lg"
-                          : "border-2 border-gray-200 hover:border-[#C46A47] transition-colors"
-                      }`}
-                      disabled={true}
-                    >
-                      <CreditCard className="h-6 w-6" />
-                      Online Payment
-                      <span className="text-xs opacity-75">(Coming Soon)</span>
-                    </Button>
+              {/* Payment Method - Modern Selector */}
+              <div className="bg-white/40 backdrop-blur-md rounded-[32px] p-8 md:p-12 border border-white/20 shadow-[0_32px_64px_-16px_rgba(107,63,42,0.08)]">
+                <div className="flex items-center gap-4 mb-10">
+                  <div className="w-12 h-12 bg-[#C46A47] rounded-2xl flex items-center justify-center text-white shadow-lg shadow-[#C46A47]/20">
+                    <CreditCard size={24} />
                   </div>
+                  <div>
+                    <h2 className="text-2xl font-black text-[#2E1C14] tracking-tight">Payment Method</h2>
+                    <p className="text-[#6F5A4A] text-sm font-medium">Secure transactions, always.</p>
+                  </div>
+                </div>
 
-                  {/* Cash Payment Options */}
-                  <AnimatePresence>
+                <div className="grid md:grid-cols-2 gap-6">
+                  <button
+                    type="button"
+                    onClick={() => handlePaymentChange("cash")}
+                    className={`group relative h-24 flex flex-col items-center justify-center gap-2 rounded-2xl transition-all duration-300 ${
+                      formData.paymentMethod === "cash"
+                        ? "bg-[#6B3F2A] text-white shadow-2xl shadow-[#6B3F2A]/20 -translate-y-1"
+                        : "bg-white/40 text-[#6B3F2A] border border-[#E3D6C6] hover:border-[#6B3F2A]/30"
+                    }`}
+                  >
+                    <Banknote size={24} className={formData.paymentMethod === "cash" ? "text-[#C46A47]" : "opacity-40"} />
+                    <span className="text-xs font-black uppercase tracking-widest">Physical Cash</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                        handlePaymentChange("online");
+                        toast.error("Online payment is coming soon!", {
+                            style: { background: '#6B3F2A', color: '#FAF3E6', borderRadius: '16px' }
+                        });
+                    }}
+                    className="group relative h-24 flex flex-col items-center justify-center gap-2 rounded-2xl opacity-50 bg-white/20 border border-dashed border-[#E3D6C6] cursor-not-allowed transition-all"
+                    disabled
+                  >
+                    <div className="flex items-center gap-2">
+                         <CreditCard size={24} className="opacity-40" />
+                         <span className="text-[10px] bg-[#C46A47] text-white px-2 py-0.5 rounded-full font-bold">SOON</span>
+                    </div>
+                    <span className="text-xs font-black uppercase tracking-widest">Digital Transfer</span>
+                  </button>
+                </div>
+
+                {/* Cash Preference */}
+                <AnimatePresence>
                     {formData.paymentMethod === "cash" && (
-                      <motion.div
-                        initial={{ opacity: 0, height: 0 }}
-                        animate={{ opacity: 1, height: "auto" }}
-                        exit={{ opacity: 0, height: 0 }}
-                        className="space-y-4 p-4 bg-blue-50 rounded-xl border border-blue-200"
-                      >
-                        <h4 className="font-semibold text-gray-900">Cash Payment Options</h4>
+                        <motion.div
+                            initial={{ opacity: 0, height: 0 }}
+                            animate={{ opacity: 1, height: "auto" }}
+                            exit={{ opacity: 0, height: 0 }}
+                            className="mt-10 overflow-hidden"
+                        >
+                            <div className="p-8 rounded-3xl bg-[#6B3F2A]/5 border border-[#6B3F2A]/10">
+                                <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-[#C46A47] mb-6 flex items-center gap-2">
+                                    <Calculator size={14} /> Settlement Preferences
+                                </h4>
+                                
+                                <div className="flex flex-wrap gap-4 mb-8">
+                                    {[
+                                        { id: "none", label: "Standard" },
+                                        { id: "exact", label: "Exact Cash" },
+                                        { id: "need-change", label: "Need Change" }
+                                    ].map((pref) => (
+                                        <button
+                                            key={pref.id}
+                                            type="button"
+                                            onClick={() => setCashPreference(pref.id as any)}
+                                            className={`px-6 py-3 rounded-xl text-xs font-black transition-all ${
+                                                cashPreference === pref.id
+                                                    ? "bg-[#6B3F2A] text-white shadow-lg"
+                                                    : "bg-white text-[#6B3F2A] hover:bg-[#E3D6C6]/50"
+                                            }`}
+                                        >
+                                            {pref.label}
+                                        </button>
+                                    ))}
+                                </div>
 
-                        <div className="space-y-3">
-                          <label className="flex items-center space-x-3 cursor-pointer">
-                            <input
-                              type="radio"
-                              name="cash-preference"
-                               checked={cashPreference === "none"}
-                              onChange={() => setCashPreference("none")}
-                              className="w-4 h-4 text-[#C46A47] focus:ring-[#C46A47] rounded"
-                            />
-                            <span className="text-sm font-medium text-gray-700">No preference</span>
-                          </label>
-
-                          <label className="flex items-center space-x-3 cursor-pointer">
-                            <input
-                              type="radio"
-                              name="cash-preference"
-                              checked={cashPreference === "exact"}
-                              onChange={() => setCashPreference("exact")}
-                              className="w-4 h-4 text-[#C46A47] focus:ring-[#C46A47] rounded"
-                            />
-                            <span className="text-sm font-medium text-gray-700">I have exact cash</span>
-                          </label>
-
-                          <label className="flex items-center space-x-3 cursor-pointer">
-                            <input
-                              type="radio"
-                              name="cash-preference"
-                              checked={cashPreference === "need-change"}
-                              onChange={() => setCashPreference("need-change")}
-                              className="w-4 h-4 text-[#C46A47] focus:ring-[#C46A47] rounded"
-                            />
-                            <span className="text-sm font-medium text-gray-700">I might need change</span>
-                          </label>
-                        </div>
-
-                        <div className="space-y-2">
-                          <Label htmlFor="tip" className="text-sm font-semibold text-gray-700">
-                            Tip Amount (Optional)
-                          </Label>
-                          <Input
-                            id="tip"
-                            type="number"
-                            value={tipAmount}
-                            onChange={(e) => setTipAmount(e.target.value.replace(/[^0-9.]/g, ""))}
-                            placeholder="Enter tip amount"
-                            className="h-12 border-2 focus:border-[#C46A47] transition-colors rounded-xl"
-                            min="0"
-                            step="0.01"
-                          />
-                          <p className="text-xs text-gray-600">Tip is optional and paid in cash to delivery staff</p>
-                        </div>
-                      </motion.div>
+                                <div className="space-y-3">
+                                    <label htmlFor="tip" className="text-[10px] font-black uppercase tracking-[0.2em] text-[#6B3F2A] ml-1">Appreciation (Tip)</label>
+                                    <Input
+                                        id="tip"
+                                        type="number"
+                                        value={tipAmount}
+                                        onChange={(e) => setTipAmount(e.target.value)}
+                                        placeholder="Enter amount"
+                                        className="h-14 bg-white border-transparent focus:border-[#C46A47] rounded-xl px-6 text-[#6B3F2A] font-bold"
+                                    />
+                                    <p className="text-[10px] text-[#2E1C14] font-medium ml-1 italic">Tokens of appreciation for our artisans are always welcome.</p>
+                                </div>
+                            </div>
+                        </motion.div>
                     )}
-                  </AnimatePresence>
-
-                  {/* Online Payment Notice */}
-                  <AnimatePresence>
-                    {formData.paymentMethod === "online" && showOnlineInfo && (
-                      <motion.div
-                        initial={{ opacity: 0, height: 0 }}
-                        animate={{ opacity: 1, height: "auto" }}
-                        exit={{ opacity: 0, height: 0 }}
-                        className="p-4 bg-amber-50 border border-amber-200 rounded-xl"
-                      >
-                        <h4 className="font-semibold text-amber-900 mb-3">Online Payment Instructions</h4>
-                        <p className="text-sm text-amber-800 mb-4">
-                          Online payment is coming soon. For now, you can pay via bank transfer or mobile wallet and share the proof upon delivery.
-                        </p>
-
-                        <div className="space-y-3">
-                          {/* Bank Transfer */}
-                          <div className="flex items-start gap-3 p-3 bg-white rounded-lg border">
-                            <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-                              <Banknote className="h-4 w-4 text-blue-600" />
-                            </div>
-                            <div className="flex-1">
-                              <p className="font-medium text-gray-900">Bank Transfer</p>
-                              <p className="text-xs text-gray-600">Meezan Bank - Account: 0123456789</p>
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => handleCopy("Meezan Bank - Account No: 0123456789", "Bank details")}
-                                className="mt-1 h-6 text-xs"
-                              >
-                                <Copy className="h-3 w-3 mr-1" />
-                                Copy
-                              </Button>
-                            </div>
-                          </div>
-
-                          {/* Easypaisa */}
-                          <div className="flex items-start gap-3 p-3 bg-white rounded-lg border">
-                            <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
-                              <Phone className="h-4 w-4 text-green-600" />
-                            </div>
-                            <div className="flex-1">
-                              <p className="font-medium text-gray-900">Easypaisa</p>
-                              <p className="text-xs text-gray-600">Number: 03XX-XXXXXXX</p>
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => handleCopy("Easypaisa Number: 03XX-XXXXXXX", "Easypaisa number")}
-                                className="mt-1 h-6 text-xs"
-                              >
-                                <Copy className="h-3 w-3 mr-1" />
-                                Copy
-                              </Button>
-                            </div>
-                          </div>
-                        </div>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-                </CardContent>
-              </Card>
+                </AnimatePresence>
+              </div>
             </div>
 
-            {/* Order Summary Sidebar */}
-            <div className="space-y-6">
-              {/* Order Summary */}
-              <Card className="border-0 shadow-xl bg-gradient-to-br from-white to-gray-50 sticky top-6">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2 text-xl text-[#C46A47]">
-                    <Calculator className="h-5 w-5" />
-                    Order Summary
-                  </CardTitle>
-                  <CardDescription>
-                    Review your order details
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
+            {/* Order Summary Sidebar - Deep Craft Summary */}
+            <div className="lg:col-span-5 sticky top-8">
+              <div className="bg-[#6B3F2A] rounded-[40px] p-8 md:p-10 text-[#FAF3E6] shadow-2xl relative overflow-hidden">
+                {/* Texture Overlay */}
+                <div className="absolute inset-0 opacity-5 pointer-events-none" style={{ backgroundImage: 'url("https://www.transparenttextures.com/patterns/natural-paper.png")' }}></div>
+                
+                <div className="relative z-10">
+                  <div className="flex items-center justify-between mb-10 pb-6 border-b border-[#FAF3E6]/10">
+                    <div>
+                      <h2 className="text-2xl font-black tracking-tight text-white">Order Summary.</h2>
+                      <p className="text-[#FAF3E6] text-[10px] uppercase font-black tracking-[0.2em] mt-1">Gourmet Selection</p>
+                    </div>
+                    <div className="w-12 h-12 bg-[#FAF3E6]/10 rounded-2xl flex items-center justify-center">
+                      <ShoppingBag size={20} className="text-[#C46A47]" />
+                    </div>
+                  </div>
+
                   {/* Order Items */}
-                  <div className="space-y-3 max-h-64 overflow-y-auto">
-                    <AnimatePresence>
+                  <div className="space-y-6 max-h-[400px] overflow-y-auto custom-scrollbar pr-2 -mr-2">
+                    <AnimatePresence mode="popLayout">
                       {formattedItems.map((item, index) => (
                         <motion.div
                           key={`${item.id}-${index}`}
-                          initial={{ opacity: 0, x: -20 }}
-                          animate={{ opacity: 1, x: 0 }}
-                          exit={{ opacity: 0, x: 20 }}
-                          transition={{ duration: 0.3, delay: index * 0.05 }}
-                          className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl border border-gray-200"
+                          layout
+                          initial={{ opacity: 0, y: 20 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0, scale: 0.95 }}
+                          className="flex gap-4 group"
                         >
-                          <div className="w-12 h-12 rounded-lg overflow-hidden bg-gray-200 flex-shrink-0">
+                          <div className="w-16 h-16 rounded-2xl overflow-hidden bg-[#FAF3E6]/5 flex-shrink-0 border border-[#FAF3E6]/10 group-hover:border-[#C46A47]/30 transition-colors">
                             <Image
                               src={item.image || "/placeholder.png"}
                               alt={item.title}
-                              width={48}
-                              height={48}
-                              className="w-full h-full object-cover"
+                              width={64}
+                              height={64}
+                              className="w-full h-full object-cover transition-transform group-hover:scale-110"
                             />
                           </div>
-                          <div className="flex-1 min-w-0">
-                            <p className="font-medium text-gray-900 text-sm truncate">{item.title}</p>
-                            <div className="flex items-center gap-2 mt-1">
-                              <div className="flex items-center gap-1">
-                                <Button
-                                  size="sm"
-                                  variant="outline"
-                                  onClick={() => updateQuantity(item.id, Math.max(1, item.quantity - 1), item.variations)}
-                                  className="h-6 w-6 p-0"
-                                >
-                                  <Minus className="h-3 w-3" />
-                                </Button>
-                                <span className="text-sm font-medium w-6 text-center">{item.quantity}</span>
-                                <Button
-                                  size="sm"
-                                  variant="outline"
-                                  onClick={() => updateQuantity(item.id, item.quantity + 1, item.variations)}
-                                  className="h-6 w-6 p-0"
-                                >
-                                  <Plus className="h-3 w-3" />
-                                </Button>
-                              </div>
-                              <Button
-                                size="sm"
-                                variant="ghost"
-                                onClick={() => removeFromCart(item.id, item.variations)}
-                                className="h-6 w-6 p-0 text-red-500 hover:text-red-700 hover:bg-red-50"
-                              >
-                                <Trash2 className="h-3 w-3" />
-                              </Button>
+                          <div className="flex-1 min-w-0 py-1">
+                            <div className="flex justify-between items-start gap-2">
+                              <h3 className="font-bold text-sm truncate pr-4">{item.title}</h3>
+                              <span className="font-black text-[#C46A47] text-sm whitespace-nowrap">Rs. {item.price}</span>
                             </div>
+                            
+                            <div className="flex items-center justify-between mt-2">
+                                <div className="flex items-center gap-3 bg-[#FAF3E6]/5 px-3 py-1.5 rounded-xl border border-[#FAF3E6]/5">
+                                    <button 
+                                        onClick={() => updateQuantity(item.id, Math.max(1, item.quantity - 1), item.variations)}
+                                        className="hover:text-[#C46A47] transition-colors"
+                                    >
+                                        <Minus size={12} />
+                                    </button>
+                                    <span className="text-xs font-black min-w-[12px] text-center">{item.quantity}</span>
+                                    <button 
+                                        onClick={() => updateQuantity(item.id, item.quantity + 1, item.variations)}
+                                        className="hover:text-[#C46A47] transition-colors"
+                                    >
+                                        <Plus size={12} />
+                                    </button>
+                                </div>
+                                <button 
+                                    onClick={() => removeFromCart(item.id, item.variations)}
+                                    className="p-2 hover:bg-[#C46A47]/10 rounded-lg text-[#C46A47] transition-all"
+                                >
+                                    <Trash2 size={14} />
+                                </button>
+                            </div>
+
                             {item.variations && (
-                              <p className="text-xs text-rose-600 mt-1">
-                                {Array.isArray(item.variations) ? item.variations.join(", ") : String(item.variations)}
+                              <p className="text-[9px] text-[#C46A47] font-black uppercase tracking-wider mt-2 opacity-80">
+                                {Array.isArray(item.variations) ? item.variations.join(" • ") : String(item.variations)}
                               </p>
                             )}
-                          </div>
-                          <div className="text-right">
-                            <p className="font-bold text-[#C46A47] text-sm">
-                              Rs. {(item.price * item.quantity).toFixed(2)}
-                            </p>
                           </div>
                         </motion.div>
                       ))}
                     </AnimatePresence>
                   </div>
 
-                  {/* Order Totals */}
-                  <div className="border-t border-gray-200 pt-4 space-y-3">
-                    <div className="flex justify-between text-sm">
-                      <span className="text-gray-600">Subtotal</span>
-                      <span className="font-medium">Rs. {totalAmount.toFixed(2)}</span>
+                  {/* Pricing Breakdown */}
+                  <div className="mt-10 pt-8 border-t border-[#FAF3E6]/10 space-y-4">
+                    <div className="flex justify-between items-center group">
+                      <span className="text-[#FAF3E6]/40 text-[11px] font-black uppercase tracking-widest">Aesthetic Base</span>
+                      <span className="font-bold">Rs. {totalAmount.toFixed(2)}</span>
                     </div>
-
+                    
                     {formData.ordertype === "delivery" && (
-                      <div className="flex justify-between text-sm">
-                        <span className="text-gray-600">Delivery Charges</span>
-                        <span className="font-medium">Rs. {deliveryCharge.toFixed(2)}</span>
+                      <div className="flex justify-between items-center">
+                        <span className="text-[#FAF3E6]/40 text-[11px] font-black uppercase tracking-widest">Logistics Fee</span>
+                        <div className="flex items-center gap-2">
+                             <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></div>
+                             <span className="font-bold">Rs. {deliveryCharge.toFixed(2)}</span>
+                        </div>
                       </div>
                     )}
 
-                    <div className="border-t border-gray-300 pt-3">
-                      <div className="flex justify-between text-lg font-bold">
-                        <span className="text-gray-900">Total Amount</span>
-                        <span className="bg-gradient-to-r from-[#C46A47] to-[#A65638] bg-clip-text text-transparent">
-                          Rs. {finalAmount.toFixed(2)}
-                        </span>
+                    {Number(tipAmount) > 0 && (
+                      <div className="flex justify-between items-center text-[#C46A47]">
+                        <span className="text-[11px] font-black uppercase tracking-widest">Artisan Appreciation</span>
+                        <span className="font-bold">+ Rs. {Number(tipAmount).toFixed(2)}</span>
+                      </div>
+                    )}
+
+                    <div className="pt-6 mt-2 border-t border-dashed border-[#FAF3E6]/20">
+                      <div className="flex justify-between items-end">
+                        <div className="space-y-1">
+                             <p className="text-[#FAF3E6]/40 text-[10px] font-black uppercase tracking-widest">Final Commitment</p>
+                             <p className="text-3xl font-black text-white tracking-tight">Total.<span className="text-[#C46A47]">_</span></p>
+                        </div>
+                        <div className="text-right">
+                             <p className="text-4xl font-black text-[#C46A47]">Rs. {(finalAmount + Number(tipAmount || 0)).toFixed(0)}</p>
+                             <p className="text-[10px] text-[#FAF3E6]/30 font-medium">Incl. all taxes</p>
+                        </div>
                       </div>
                     </div>
                   </div>
 
-                  {/* Proceed to Payment */}
+                  {/* Checkout Action */}
                   <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.5, delay: 0.3 }}
+                    className="mt-10"
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
                   >
-                    <Button
+                    <button
                       onClick={handleCheckout}
-                      className="w-full bg-gradient-to-r from-[#C46A47] to-[#A65638] text-white font-semibold py-4 rounded-xl shadow-lg hover:opacity-90 transition-all duration-200 flex items-center gap-2 text-lg"
-                      size="lg"
+                      className="w-full h-20 bg-[#C46A47] text-white rounded-[24px] font-black text-lg tracking-wider uppercase transition-all shadow-[0_20px_40px_-10px_rgba(196,106,71,0.4)] hover:shadow-[0_25px_50px_-12px_rgba(196,106,71,0.5)] flex items-center justify-center gap-3 group relative overflow-hidden"
                     >
-                      <ArrowRight className="h-5 w-5" />
-                      Proceed to Payment
-                    </Button>
-                    <p className="text-xs text-gray-500 text-center mt-2">
-                      By proceeding, you agree to our terms and conditions
+                      <div className="absolute inset-0 bg-white/10 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000"></div>
+                      <ArrowRight size={24} className="group-hover:translate-x-1 transition-transform" />
+                      Commit Order
+                    </button>
+                    <p className="text-center text-[10px] text-[#FAF3E6]/30 font-black uppercase tracking-widest mt-6 flex items-center justify-center gap-2">
+                        <ShieldCheck size={12} className="text-[#C46A47]" /> Secure Architectural Gateway
                     </p>
                   </motion.div>
-                </CardContent>
-              </Card>
+                </div>
+
+                {/* Trust Badges */}
+                <div className="mt-10 grid grid-cols-3 gap-4 pt-10 border-t border-[#FAF3E6]/5">
+                    {[
+                        { icon: Shield, label: "Secure" },
+                        { icon: Zap, label: "Fast" },
+                        { icon: Heart, label: "Fresh" }
+                    ].map((badge, i) => (
+                        <div key={i} className="flex flex-col items-center gap-2 grayscale opacity-40 hover:grayscale-0 hover:opacity-100 transition-all cursor-default">
+                            <badge.icon size={16} />
+                            <span className="text-[8px] font-black uppercase tracking-widest">{badge.label}</span>
+                        </div>
+                    ))}
+                </div>
+              </div>
             </div>
           </div>
+          </div>
 
-          {/* Order Confirmation Modal */}
+          {/* Signature Order Confirmation Modal */}
           <AnimatePresence>
             {isModalOpen && (
               <motion.div
-                className="fixed inset-0 z-50 flex items-center justify-center p-4"
+                className="fixed inset-0 z-[100] flex items-center justify-center p-4 md:p-8"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
               >
                 <motion.div
-                  className="absolute inset-0 bg-black/60 backdrop-blur-md"
+                  className="absolute inset-0 bg-[#6B3F2A]/80 backdrop-blur-xl"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
                   onClick={() => setIsModalOpen(false)}
                 />
 
                 <motion.div
-                  ref={modalRef}
-                  className="relative w-full max-w-4xl max-h-[90vh] md:max-h-[85vh] bg-white rounded-3xl shadow-2xl overflow-hidden flex flex-col"
-                  initial={{ scale: 0.9, opacity: 0, y: 20 }}
+                  className="relative w-full max-w-5xl bg-[#FAF3E6] rounded-[48px] shadow-[0_64px_128px_-32px_rgba(0,0,0,0.4)] overflow-hidden flex flex-col md:flex-row h-full max-h-[90vh] border border-white/20"
+                  initial={{ scale: 0.9, opacity: 0, y: 40 }}
                   animate={{ scale: 1, opacity: 1, y: 0 }}
-                  exit={{ scale: 0.9, opacity: 0, y: 20 }}
-                  transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                  exit={{ scale: 0.9, opacity: 0, y: 40 }}
+                  transition={{ type: "spring", damping: 25, stiffness: 200 }}
                 >
-                  {/* Header */}
-                  <div className="bg-gradient-to-r from-[#C46A47] to-[#A65638] p-6 text-white">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <h2 className="text-2xl font-bold">Confirm Your Order</h2>
-                        <p className="text-white/80 mt-1">Please review all details before placing your order</p>
+                  {/* Left Side: Receipt Aesthetic */}
+                  <div className="w-full md:w-[40%] bg-[#2E1C14] p-8 md:p-12 text-[#FAF3E6] flex flex-col relative overflow-hidden">
+                    <div className="absolute top-0 right-0 w-64 h-64 bg-[#C46A47] blur-[120px] opacity-10 -mr-32 -mt-32"></div>
+                    
+                    <div className="relative z-10 flex flex-col h-full">
+                      <div className="mb-12">
+                        <div className="w-16 h-16 bg-[#FAF3E6]/10 rounded-3xl flex items-center justify-center mb-6 border border-[#FAF3E6]/10">
+                            <ShoppingBag className="text-[#C46A47]" size={32} />
+                        </div>
+                        <h2 className="text-4xl font-black tracking-tight leading-none text-white">Order<br/>Review.</h2>
+                        <div className="w-12 h-1.5 bg-[#C46A47] mt-6 rounded-full"></div>
                       </div>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => setIsModalOpen(false)}
-                        className="text-white hover:bg-white/20"
-                      >
-                        <X className="h-5 w-5" />
-                      </Button>
+
+                      <div className="flex-1 overflow-y-auto custom-scrollbar-light pr-4">
+                        <div className="space-y-8">
+                          {formattedItems.map((item, index) => (
+                            <div key={index} className="space-y-2 group cursor-default">
+                                <div className="flex justify-between items-start gap-4">
+                                    <span className="text-[#FAF3E6]/40 text-[10px] font-black uppercase tracking-widest leading-none mt-1">0{index + 1}</span>
+                                    <div className="flex-1">
+                                        <h3 className="font-bold text-lg leading-tight group-hover:text-[#C46A47] transition-colors">{item.title}</h3>
+                                        <p className="text-[10px] text-[#FAF3E6] font-black uppercase tracking-widest mt-1">
+                                            Qty: {item.quantity} • Rs. {item.price}
+                                        </p>
+                                    </div>
+                                    <span className="font-black text-sm">Rs. {item.price * item.quantity}</span>
+                                </div>
+                                {item.variations && (
+                                    <p className="text-[9px] text-[#C46A47] font-black uppercase tracking-[0.15em] ml-6">
+                                        {Array.isArray(item.variations) ? item.variations.join(" / ") : String(item.variations)}
+                                    </p>
+                                )}
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+
+                      <div className="mt-12 pt-8 border-t border-[#FAF3E6]/10 space-y-4">
+                        <div className="flex justify-between text-xs font-black text-[#FAF3E6]">
+                            <span>Subtotal</span>
+                            <span>Rs. {totalAmount.toFixed(0)}</span>
+                        </div>
+                        {formData.ordertype === "delivery" && (
+                             <div className="flex justify-between text-xs font-black text-[#FAF3E6]">
+                                <span>Logistics</span>
+                                <span>Rs. {deliveryCharge}</span>
+                             </div>
+                        )}
+                         {Number(tipAmount) > 0 && (
+                             <div className="flex justify-between text-xs font-black text-[#C46A47]">
+                                <span>Artisan Tip</span>
+                                <span>Rs. {tipAmount}</span>
+                             </div>
+                        )}
+                        <div className="flex justify-between items-end pt-4 border-t border-[#FAF3E6]/20">
+                            <span className="text-2xl font-black text-white">Total</span>
+                            <span className="text-3xl font-black text-[#C46A47]">Rs. {(finalAmount + Number(tipAmount || 0)).toFixed(0)}</span>
+                        </div>
+                      </div>
                     </div>
                   </div>
 
-                  {/* Content */}
-                  <div className="flex-1 overflow-y-auto p-6">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
-                      {/* Order Details */}
-                      <div className="space-y-6">
-                        <Card className="border-0 shadow-lg">
-                          <CardHeader>
-                            <CardTitle className="flex items-center gap-2">
-                              <User className="h-5 w-5 text-[#C46A47]" />
-                              Customer Details
-                            </CardTitle>
-                          </CardHeader>
-                          <CardContent className="space-y-3">
-                            <div className="flex justify-between">
-                              <span className="text-gray-600">Name:</span>
-                              <span className="font-medium">{formData.name}</span>
-                            </div>
-                            <div className="flex justify-between items-start">
-                              <span className="text-gray-600">Email:</span>
-                              <div className="flex-1 ml-4">
-                                <TooltipProvider>
-                                  <Tooltip>
-                                    <TooltipTrigger asChild>
-                                      <span className="font-medium cursor-help text-right block">
-                                        {formData.email ? truncateText(formData.email, 20) : "Not provided"}
-                                      </span>
-                                    </TooltipTrigger>
-                                    <TooltipContent>
-                                      <p className="max-w-xs">{formData.email || "Not provided"}</p>
-                                    </TooltipContent>
-                                  </Tooltip>
-                                </TooltipProvider>
-                              </div>
-                            </div>
-                            {formData.ordertype === "dinein" && (
-                              <div className="flex justify-between">
-                                <span className="text-gray-600">Table:</span>
-                                <span className="font-medium">{formData.tableNumber}</span>
-                              </div>
-                            )}
-                            {formData.ordertype === "delivery" && (
-                              <>
-                                <div className="flex justify-between items-start">
-                                  <span className="text-gray-600">Address:</span>
-                                  <div className="flex-1 ml-4">
-                                    <TooltipProvider>
-                                      <Tooltip>
-                                        <TooltipTrigger asChild>
-                                          <span className="font-medium cursor-help text-right block">
-                                            {truncateText(formData.area)}
-                                          </span>
-                                        </TooltipTrigger>
-                                        <TooltipContent>
-                                          <p className="max-w-xs">{formData.area}</p>
-                                        </TooltipContent>
-                                      </Tooltip>
-                                    </TooltipProvider>
-                                  </div>
-                                </div>
-                                <div className="flex justify-between">
-                                  <span className="text-gray-600">Phone:</span>
-                                  <span className="font-medium">{formData.phone}</span>
-                                </div>
-                              </>
-                            )}
-                            <div className="flex justify-between">
-                              <span className="text-gray-600">Payment:</span>
-                              <span className="font-medium capitalize">{formData.paymentMethod}</span>
-                            </div>
-                          </CardContent>
-                        </Card>
+                  {/* Right Side: Form & Confirmation */}
+                  <div className="flex-1 p-8 md:p-12 bg-white overflow-y-auto custom-scrollbar flex flex-col">
+                    <button 
+                        onClick={() => setIsModalOpen(false)}
+                        className="self-end p-4 rounded-full hover:bg-[#6B3F2A]/5 text-[#2E1C14] transition-all mb-4"
+                    >
+                        <X size={24} />
+                    </button>
 
-                        <Card className="border-0 shadow-lg">
-                          <CardHeader>
-                            <CardTitle className="flex items-center gap-2">
-                              <ShoppingCart className="h-5 w-5 text-[#C46A47]" />
-                              Order Items
-                            </CardTitle>
-                          </CardHeader>
-                          <CardContent>
-                            <div className="space-y-3 max-h-48 overflow-y-auto">
-                              {formattedItems.map((item, index) => (
-                                <div key={index} className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
-                                  <div className="flex-1">
-                                    <p className="font-medium text-gray-900">{item.title}</p>
-                                    {item.variations && (
-                                      <p className="text-sm text-rose-600">
-                                        {Array.isArray(item.variations) ? item.variations.join(", ") : String(item.variations)}
-                                      </p>
-                                    )}
-                                    <p className="text-sm text-gray-600">Qty: {item.quantity}</p>
-                                  </div>
-                                  <p className="font-bold text-[#C46A47]">
-                                    Rs. {(item.price * item.quantity).toFixed(2)}
-                                  </p>
+                    <div className="flex-1 max-w-xl mx-auto w-full flex flex-col justify-center">
+                        <div className="mb-12">
+                            <span className="text-[#C46A47] text-[10px] font-black uppercase tracking-[0.3em] mb-4 block">Final Validation</span>
+                            <h3 className="text-4xl font-black text-[#2E1C14] tracking-tighter leading-none">Signature<br/>Confirmation<span className="text-[#C46A47]">.</span></h3>
+                        </div>
+
+                        <div className="space-y-10">
+                            {/* Validation Grid */}
+                            <div className="grid grid-cols-2 gap-10">
+                                <div className="space-y-1">
+                                    <p className="text-[#C46A47] text-[10px] font-black uppercase tracking-widest">Patron Name</p>
+                                    <p className="text-[#2E1C14] font-black text-xl tracking-tight">{formData.name}</p>
                                 </div>
-                              ))}
+                                <div className="space-y-1 text-right">
+                                    <p className="text-[#C46A47] text-[10px] font-black uppercase tracking-widest">Protocol</p>
+                                    <p className="text-[#2E1C14] font-black text-xl tracking-tight capitalize">{formData.ordertype}</p>
+                                </div>
+                                <div className="space-y-1">
+                                    <p className="text-[#C46A47] text-[10px] font-black uppercase tracking-widest">Financial Interface</p>
+                                    <p className="text-[#2E1C14] font-black text-xl tracking-tight capitalize">{formData.paymentMethod}</p>
+                                </div>
+                                <div className="space-y-1 text-right">
+                                    <p className="text-[#C46A47] text-[10px] font-black uppercase tracking-widest">Contact Identity</p>
+                                    <p className="text-[#2E1C14] font-black text-xl tracking-tight">{formData.phone || "---"}</p>
+                                </div>
                             </div>
-                          </CardContent>
-                        </Card>
-                      </div>
 
-                      {/* Order Summary & Confirmation */}
-                      <div className="space-y-6">
-                        <Card className="border-0 shadow-lg">
-                          <CardHeader>
-                            <CardTitle className="flex items-center gap-2">
-                              <Calculator className="h-5 w-5 text-[#C46A47]" />
-                              Order Summary
-                            </CardTitle>
-                          </CardHeader>
-                          <CardContent className="space-y-4">
-                            <div className="flex justify-between">
-                              <span className="text-gray-600">Subtotal:</span>
-                              <span className="font-medium">Rs. {totalAmount.toFixed(2)}</span>
-                            </div>
-                            {formData.ordertype === "delivery" && (
-                              <div className="flex justify-between">
-                                <span className="text-gray-600">Delivery Charges:</span>
-                                <span className="font-medium">Rs. {deliveryCharge.toFixed(2)}</span>
-                              </div>
-                            )}
-                            <div className="border-t border-gray-200 pt-4">
-                              <div className="flex justify-between text-xl font-bold">
-                                <span>Total Amount:</span>
-                                <span className="bg-gradient-to-r from-[#C46A47] to-[#A65638] bg-clip-text text-transparent">
-                                  Rs. {finalAmount.toFixed(2)}
-                                </span>
-                              </div>
-                            </div>
-                          </CardContent>
-                        </Card>
-
-                        {/* Confirmation Section - Now in scrollable content */}
-                        <Card className="border-0 shadow-lg bg-gradient-to-br from-green-50 to-emerald-50 border-green-200">
-                          <CardContent className="p-6">
-                            <div className="flex items-start gap-3">
-                              <CheckCircle className="h-6 w-6 text-green-600 mt-0.5" />
-                              <div>
-                                <h3 className="font-semibold text-gray-900 mb-2">Ready to Place Order?</h3>
-                                <p className="text-sm text-gray-600 mb-4">
-                                  By confirming, you agree to our terms and conditions. Your order will be processed immediately.
+                            <div className="space-y-1 pt-8 border-t border-[#6B3F2A]/10">
+                                <p className="text-[#C46A47] text-[10px] font-black uppercase tracking-widest mb-2">Delivery Coordinates / Location</p>
+                                <p className="text-[#2E1C14] font-bold text-lg leading-relaxed">
+                                    {formData.ordertype === 'dinein' ? `Table ${formData.tableNumber}` : formData.area}
                                 </p>
-
-                                <label className="flex items-center gap-3 cursor-pointer mb-4">
-                                  <input
-                                    type="checkbox"
-                                    checked={confirmChecked}
-                                    onChange={(e) => setConfirmChecked(e.target.checked)}
-                                    className="w-5 h-5 text-[#C46A47] focus:ring-[#C46A47] rounded"
-                                  />
-                                  <span className="text-sm font-medium text-gray-700">
-                                    I confirm all details are correct
-                                  </span>
-                                </label>
-                              </div>
                             </div>
-                          </CardContent>
-                        </Card>
-                      </div>
-                    </div>
 
-                    {/* Fixed Footer */}
-                    <div className="flex-shrink-0 border-t border-gray-200 bg-white p-6">
-                      <div className="flex gap-3">
-                        <Button
-                          onClick={handlePlaceOrder}
-                          disabled={!confirmChecked || isProcessing}
-                          className="flex-1 bg-gradient-to-r from-[#C46A47] to-[#A65638] text-white font-semibold py-3 rounded-xl shadow-lg hover:opacity-90 transition-all duration-200"
-                        >
-                          {isProcessing ? (
-                            <>
-                              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                              Placing Order...
-                            </>
-                          ) : (
-                            <>
-                              <CheckCircle className="h-4 w-4 mr-2" />
-                              Place Order
-                            </>
-                          )}
-                        </Button>
-                        <Button
-                          variant="outline"
-                          onClick={() => setIsModalOpen(false)}
-                          className="px-6 py-3 border-2 border-gray-300 hover:border-gray-400 transition-colors"
-                        >
-                          Cancel
-                        </Button>
-                      </div>
+                            {/* Verification Toggle */}
+                            <div 
+                                className={`p-8 rounded-[32px] border-2 transition-all cursor-pointer group ${
+                                    confirmChecked 
+                                    ? "bg-[#6B3F2A] border-[#6B3F2A] shadow-2xl shadow-[#6B3F2A]/20" 
+                                    : "bg-white border-[#E3D6C6] hover:border-[#6B3F2A]/30"
+                                }`}
+                                onClick={() => setConfirmChecked(!confirmChecked)}
+                            >
+                                <div className="flex items-center justify-between">
+                                    <div className="space-y-1">
+                                        <h4 className={`font-black text-sm uppercase tracking-widest ${confirmChecked ? 'text-white' : 'text-[#6B3F2A]'}`}>
+                                            Verification
+                                        </h4>
+                                        <p className={`text-[10px] font-medium leading-relaxed ${confirmChecked ? 'text-[#FAF3E6]/60' : 'text-[#6F5A4A]/60'}`}>
+                                            I confirm that the gourmet selection and<br/>coordinates listed above are precise.
+                                        </p>
+                                    </div>
+                                    <div className={`w-8 h-8 rounded-full border-2 flex items-center justify-center transition-all ${
+                                        confirmChecked 
+                                        ? 'bg-[#C46A47] border-[#C46A47] text-white rotate-0' 
+                                        : 'bg-white border-[#2E1C14] -rotate-90'
+                                    }`}>
+                                        <Check size={18} />
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Final Call to Action */}
+                            <div className="pt-6">
+                                <button
+                                    onClick={handlePlaceOrder}
+                                    disabled={!confirmChecked || isProcessing}
+                                    className={`w-full h-20 rounded-[28px] font-black text-xl tracking-widest uppercase transition-all flex items-center justify-center gap-3 ${
+                                        confirmChecked && !isProcessing
+                                        ? "bg-[#C46A47] text-white shadow-[0_24px_48px_-12px_rgba(196,106,71,0.5)] active:scale-95"
+                                        : "bg-gray-200 text-gray-400 cursor-not-allowed"
+                                    }`}
+                                >
+                                    {isProcessing ? (
+                                        <div className="flex items-center gap-3">
+                                            <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                                            <span>Processing...</span>
+                                        </div>
+                                    ) : (
+                                        <>
+                                            <div className="w-1.5 h-1.5 rounded-full bg-white/40 animate-ping"></div>
+                                            Execute Order
+                                            <div className="w-1.5 h-1.5 rounded-full bg-white/40 animate-ping delay-300"></div>
+                                        </>
+                                    )}
+                                </button>
+                                <p className="text-center text-[9px] text-[#6F5A4A]/30 font-black uppercase tracking-[0.4em] mt-8">
+                                    Chai Company Private Concierge • MMXXIV
+                                </p>
+                            </div>
+                        </div>
                     </div>
                   </div>
                 </motion.div>
@@ -1200,14 +1103,15 @@ ${items
           </AnimatePresence>
         </div>
       </div>
-    </div>
-  );
+    );
 };
 
-const CheckoutPage: FC = () => (
-  <Suspense fallback={<div className="p-8">Loading checkout…</div>}>
-    <CheckoutPageContent />
-  </Suspense>
-);
+const CheckoutPage: FC = () => {
+    return (
+        <Suspense fallback={<div className="p-8 text-[#6B3F2A] font-black uppercase tracking-widest text-center py-40">Architectural Loading...</div>}>
+            <CheckoutPageContent />
+        </Suspense>
+    );
+};
 
 export default CheckoutPage;

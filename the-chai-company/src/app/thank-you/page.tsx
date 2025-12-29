@@ -4,7 +4,7 @@ import { FC, Suspense, useEffect, useState, useRef, useCallback } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import Lottie from 'lottie-react';
-import successAnimation from '../../../public/lotties/success-check.json';
+import successAnimation from '../../../public/lotties/success.json';
 import { TypeAnimation } from 'react-type-animation';
 import { toast } from 'sonner';
 import { useCart } from '../context/CartContext';
@@ -20,6 +20,7 @@ import {
   Download,
   Plus,
   ShoppingCart,
+  ShoppingBag,
   Receipt,
   ArrowRight,
   Heart,
@@ -224,43 +225,48 @@ const ThankYouPage: FC = () => {
 
     if (error)
       return (
-        <div className="mb-4 p-3 rounded-lg bg-red-100 text-red-600 font-semibold flex items-center justify-center">
+        <div className="p-6 rounded-[24px] bg-red-50 border border-red-100 text-red-600 font-black flex items-center justify-center gap-3 text-sm">
           ⚠️ {error}
         </div>
       );
 
     if (!orderNumber)
-      return <p className="text-sm text-gray-500">No order number available.</p>;
+      return <p className="text-xs font-black text-[#2E1C14]/40 uppercase tracking-widest">No order number available.</p>;
 
     return (
-      <>
-        <p className="text-lg font-semibold text-gray-800">
-          {orderType === 'pickup'
-            ? 'Your Pickup Order Number:'
-            : orderType === 'delivery'
-            ? 'Your Delivery Order Number:'
-            : 'Your Table Order Number:'}
-        </p>
+      <div className="space-y-4">
+        <div>
+          <p className="text-[#C46A47] text-[10px] font-black uppercase tracking-[0.3em] mb-2 leading-none">
+            {orderType === 'pickup'
+              ? 'Pickup ID'
+              : orderType === 'delivery'
+              ? 'Delivery ID'
+              : 'Table ID'}
+          </p>
 
-        <p className="text-2xl font-bold bg-gradient-to-r from-[#C46A47] to-[#A65638] bg-clip-text text-transparent">
-          <TypeAnimation sequence={[orderNumber]} speed={50} wrapper="span" repeat={0} />
-        </p>
+          <p className="text-4xl font-black text-[#2E1C14] tracking-tighter">
+            <TypeAnimation sequence={[orderNumber]} speed={50} wrapper="span" repeat={0} />
+          </p>
+        </div>
 
-        {orderType === 'dinein' && (
-          <p className="text-sm text-gray-600 mt-1">Table ID: {tableId}</p>
-        )}
-        {orderType === 'delivery' && (
-          <p className="text-sm text-gray-600 mt-1">Phone: {phone}</p>
-        )}
-        <p className="text-sm text-gray-500 mt-1">
-          Please keep this number for reference.
-        </p>
+        <div className="space-y-1">
+          {orderType === 'dinein' && (
+            <p className="text-xs font-black text-[#2E1C14]/60 uppercase tracking-widest">Table Location: {tableId}</p>
+          )}
+          {orderType === 'delivery' && phone && (
+            <p className="text-xs font-black text-[#2E1C14]/60 uppercase tracking-widest">Linked Phone: {phone}</p>
+          )}
+          <p className="text-[10px] font-black text-[#C46A47] uppercase tracking-[0.2em]">
+            Preserve this signature for verification.
+          </p>
+        </div>
+
         {pollError && (
-          <p className="text-xs text-amber-600 mt-2">
-            {pollError} — <button onClick={() => fetchOrderDetails({ showLoader: true })} className="underline">Retry</button>
+          <p className="text-xs font-black text-rose-600 bg-rose-50 p-3 rounded-xl inline-block mt-4">
+            {pollError} — <button onClick={() => fetchOrderDetails({ showLoader: true })} className="underline font-black">Retry Protocol</button>
           </p>
         )}
-      </>
+      </div>
     );
   };
 
@@ -272,80 +278,80 @@ const ThankYouPage: FC = () => {
       case 'Received':
         return (
           <>
-            <p className="text-gray-700 font-medium">
-              {orderType === 'dinein' ? 'Your table order has been received 🍽️' :
-               orderType === 'pickup' ? 'Your pickup order has been received 🥡' :
-               'Your delivery order has been received 🚚'}
+            <p className="text-[#FAF3E6] font-black text-lg tracking-tight mb-1">
+              {orderType === 'dinein' ? 'Reservation Authenticated' :
+               orderType === 'pickup' ? 'Collection Request Received' :
+               'Delivery Dispatch Initialized'}
             </p>
-            <p className="text-sm text-gray-500">We're preparing your order now.</p>
+            <p className="text-[#FAF3E6]/60 text-xs font-black uppercase tracking-widest">System is processing your request.</p>
           </>
         );
       case 'Preparing':
         return (
           <>
-            <p className="text-gray-700 font-medium">
-              {orderType === 'dinein' ? 'Your table order is being prepared 🍽️' :
-               orderType === 'pickup' ? 'Your pickup order is being prepared 🥡' :
-               'Your delivery order is being prepared 🚚'}
+            <p className="text-[#FAF3E6] font-black text-lg tracking-tight mb-1">
+              {orderType === 'dinein' ? 'Culinary Assembly in Progress' :
+               orderType === 'pickup' ? 'Order Preparation active' :
+               'Global Logistics Assembly active'}
             </p>
-            <p className="text-sm text-gray-500">
-              {orderType === 'dinein' ? 'Estimated time: 20–30 minutes' :
-               orderType === 'pickup' ? 'Please collect it at the counter soon' :
-               'Estimated delivery time: 30–45 minutes'}
+            <p className="text-[#FAF3E6]/60 text-xs font-black uppercase tracking-widest">
+              {orderType === 'dinein' ? 'T-Minus: 20–30 minutes' :
+               orderType === 'pickup' ? 'Prepare for collection soon' :
+               'T-Minus: 30–45 minutes'}
             </p>
           </>
         );
       case 'Ready':
         return (
           <>
-            <p className="text-gray-700 font-medium">
-              {orderType === 'dinein' ? 'Your table order is ready! 🍽️' :
-               orderType === 'pickup' ? 'Your pickup order is ready! 🥡' :
-               'Your delivery order is ready! 🚚'}
+            <p className="text-[#FAF3E6] font-black text-lg tracking-tight mb-1">
+              {orderType === 'dinein' ? 'Service Protocol: Ready' :
+               orderType === 'pickup' ? 'Collection Protocol: Ready' :
+               'Transfer Sequence: Initialized'}
             </p>
-            <p className="text-sm text-gray-500">
-              {orderType === 'dinein' ? 'Please enjoy your meal at your table' :
-               orderType === 'pickup' ? 'Please collect it at the counter' :
-               'Your order will be picked up by our delivery partner soon'}
+            <p className="text-[#FAF3E6]/60 text-xs font-black uppercase tracking-widest">
+              {orderType === 'dinein' ? 'Please remain at your coordinates' :
+               orderType === 'pickup' ? 'Identity verification at counter required' :
+               'Handover to courier partner complete'}
             </p>
           </>
         );
       case 'Out for delivery':
         return (
           <>
-            <p className="text-gray-700 font-medium">
-              Your order is out for delivery 🚚
+            <p className="text-[#FAF3E6] font-black text-lg tracking-tight mb-1">
+              Autonomous Delivery active.
             </p>
-            <p className="text-sm text-gray-500">Estimated arrival: 15–30 minutes</p>
+            <p className="text-[#FAF3E6]/60 text-xs font-black uppercase tracking-widest">Orbital arrival: 15–30 minutes</p>
           </>
         );
       case 'Completed':
         return (
           <>
-            <p className="text-gray-700 font-medium">
-              {orderType === 'dinein' ? 'Enjoy your meal! 🍽️' :
-               orderType === 'pickup' ? 'Order completed! Thank you for visiting 🥡' :
-               'Order delivered! Thank you for choosing us 🚚'}
+            <p className="text-[#FAF3E6] font-black text-lg tracking-tight mb-1">
+              {orderType === 'dinein' ? 'Culinary Experience Complete' :
+               orderType === 'pickup' ? 'Transaction Finalized' :
+               'Secure Delivery Confirmed'}
             </p>
-            <p className="text-sm text-gray-500">We hope you enjoyed your order!</p>
+            <p className="text-[#FAF3E6]/60 text-xs font-black uppercase tracking-widest">We hope you appreciate the craft.</p>
           </>
         );
       case 'Cancelled':
         return (
           <>
-            <p className="text-gray-700 font-medium">
-              Order has been cancelled ❌
+            <p className="text-rose-500 font-black text-lg tracking-tight mb-1">
+              Protocol Aborted.
             </p>
-            <p className="text-sm text-gray-500">Please contact us if you have any questions.</p>
+            <p className="text-rose-500/60 text-xs font-black uppercase tracking-widest">Please initiate support sequence.</p>
           </>
         );
       default:
         return (
           <>
-            <p className="text-gray-700 font-medium">
-              Your order is being processed. Thank you!
+            <p className="text-[#FAF3E6] font-black text-lg tracking-tight mb-1">
+              Syncing with Central Vault...
             </p>
-            <p className="text-sm text-gray-500">We'll update you with the latest status.</p>
+            <p className="text-[#FAF3E6]/60 text-xs font-black uppercase tracking-widest">Telemetry data incoming.</p>
           </>
         );
     }
@@ -360,28 +366,46 @@ const ThankYouPage: FC = () => {
     );
 
     return (
-      <div className="mb-6">
-        <div className="flex items-center justify-between gap-2">
-          {steps.map((step, idx) => {
-            const isActive = idx <= activeIndex || (activeIndex === -1 && idx === 0);
-            return (
-              <div key={step} className="flex-1 flex flex-col items-center">
-                <div
-                  className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-semibold border ${
-                    isActive
-                      ? 'bg-gradient-to-r from-[#C46A47] to-[#A65638] text-white border-transparent shadow-md'
-                      : 'bg-white/70 text-gray-500 border-gray-200'
-                  }`}
-                >
-                  {idx + 1}
-                </div>
-                <p className="text-xs text-gray-600 mt-2 text-center">{step}</p>
-              </div>
-            );
-          })}
+      <div className="relative">
+        <div className="flex items-center justify-between relative px-2">
+            {/* Background Line */}
+            <div className="absolute top-[22px] left-[10%] right-[10%] h-[2px] bg-[#2E1C14]/5" />
+            
+            {steps.map((step, idx) => {
+                const isCompleted = idx < activeIndex;
+                const isActive = idx === activeIndex || (activeIndex === -1 && idx === 0);
+                const isFuture = idx > activeIndex && activeIndex !== -1;
+
+                return (
+                    <div key={step} className="relative z-10 flex flex-col items-center flex-1">
+                        <motion.div
+                            initial={false}
+                            animate={{
+                                scale: isActive ? 1.2 : 1,
+                                backgroundColor: isActive || isCompleted ? '#C46A47' : '#FAF3E6',
+                                borderColor: isActive || isCompleted ? '#C46A47' : '#2E1C14/10'
+                            }}
+                            className={`w-11 h-11 rounded-2xl flex items-center justify-center text-xs font-black shadow-lg transition-colors border-2 ${
+                                isActive || isCompleted ? 'text-white' : 'text-[#2E1C14]/30'
+                            }`}
+                        >
+                            {isCompleted ? <CheckCircle size={18} strokeWidth={3} /> : idx + 1}
+                        </motion.div>
+                        <p className={`text-[9px] font-black uppercase tracking-widest mt-4 text-center max-w-[80px] leading-tight ${
+                            isActive ? 'text-[#C46A47]' : 'text-[#2E1C14]/40'
+                        }`}>
+                            {step}
+                        </p>
+                    </div>
+                );
+            })}
         </div>
+        
         {isPolling && (
-          <p className="mt-3 text-xs text-gray-500 text-center">Refreshing status…</p>
+          <div className="mt-12 flex items-center justify-center gap-2">
+            <div className="w-1.5 h-1.5 bg-[#C46A47] rounded-full animate-ping" />
+            <p className="text-[10px] font-black text-[#C46A47] uppercase tracking-[0.3em]">Vault Link Active</p>
+          </div>
         )}
       </div>
     );
@@ -616,392 +640,238 @@ const ThankYouPage: FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#fdfbf9] via-[#fcf8f5] to-[#f9f3ef] relative overflow-hidden">
-      {/* Decorative background elements */}
-      <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-orange-200/20 to-brown-200/20 rounded-full blur-3xl"></div>
-        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-br from-orange-200/20 to-brown-200/20 rounded-full blur-3xl"></div>
-        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-gradient-to-br from-orange-200/10 to-brown-200/10 rounded-full blur-3xl"></div>
+    <div className="min-h-screen bg-[#FAF3E6] relative overflow-hidden font-poppins selection:bg-[#C46A47]/20">
+      {/* Premium Architectural Background */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-[-10%] right-[-10%] w-[60%] h-[60%] bg-[#C46A47]/5 rounded-full blur-[120px] animate-pulse" />
+        <div className="absolute bottom-[-10%] left-[-10%] w-[60%] h-[60%] bg-[#6B3F2A]/5 rounded-full blur-[120px]" />
+        
+        {/* Fine architectural grid lines */}
+        <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[#6B3F2A]/10 to-transparent" />
+        <div className="absolute inset-y-0 left-0 w-px bg-gradient-to-b from-transparent via-[#6B3F2A]/10 to-transparent" />
+        <div className="absolute inset-y-0 right-0 w-px bg-gradient-to-b from-transparent via-[#6B3F2A]/10 to-transparent" />
       </div>
 
-      <div className="relative z-10 container mx-auto px-4 py-8">
-        <div className="max-w-4xl mx-auto space-y-8">
-          {/* Success Header */}
+      <div className="relative z-10 container mx-auto px-4 py-12 md:py-24">
+        <div className="max-w-6xl mx-auto">
+          {/* Success Header: Architectural Celebration */}
           <motion.div
-            initial={{ opacity: 0, y: -30 }}
+            initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, ease: "easeOut" }}
-            className="text-center mb-12"
+            transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
+            className="text-center mb-16 md:mb-24"
           >
-            <div className="relative inline-block mb-6">
-              <div className="absolute inset-0 bg-gradient-to-r from-[#C46A47] to-[#A65638] rounded-full blur-lg opacity-20 scale-110"></div>
-              <div className="relative bg-white rounded-3xl p-8 shadow-2xl border border-white/20">
-                <div className="w-24 h-24 mx-auto mb-4">
-                  <Lottie animationData={successAnimation} loop={!prefersReducedMotion} />
-                </div>
-                <h1 className="text-4xl font-bold bg-gradient-to-r from-[#C46A47] to-[#A65638] bg-clip-text text-transparent mb-2">
-                  Order Confirmed!
-                </h1>
-                <p className="text-gray-600 text-lg">Your delicious order has been received successfully</p>
-                <div className="flex items-center justify-center gap-2 mt-4">
-                  <CheckCircle className="h-5 w-5 text-green-500" />
-                  <span className="text-sm font-medium text-green-600">Order placed successfully</span>
+            <div className="inline-flex flex-col items-center">
+              <span className="text-[#C46A47] text-xs md:text-sm font-black uppercase tracking-[0.4em] mb-4">
+                Transaction Verified
+              </span>
+              <h1 className="text-5xl md:text-7xl lg:text-8xl font-black text-[#2E1C14] tracking-tighter leading-none mb-8">
+                Thank You<span className="text-[#C46A47]">.</span>
+              </h1>
+              <div className="h-1.5 w-24 bg-[#C46A47] rounded-full mb-12" />
+              
+              <div className="relative group">
+                <div className="absolute inset-0 bg-[#C46A47]/20 blur-2xl rounded-full scale-75 group-hover:scale-100 transition-transform duration-700" />
+                <div className="relative bg-white/40 backdrop-blur-xl border border-white/20 p-8 md:p-12 rounded-[48px] shadow-[0_32px_64px_-16px_rgba(107,63,42,0.1)]">
+                  <div className="w-24 h-24 md:w-32 md:h-32 mx-auto mb-8 bg-[#2E1C14] rounded-[32px] flex items-center justify-center shadow-2xl relative overflow-hidden group">
+                    <div className="absolute inset-0 bg-gradient-to-tr from-[#C46A47]/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                    <Lottie 
+                        animationData={successAnimation} 
+                        loop={!prefersReducedMotion} 
+                        className="w-20 h-20 md:w-28 md:h-28 relative z-10"
+                    />
+                  </div>
+                  <h2 className="text-2xl md:text-3xl font-black text-[#2E1C14] tracking-tight mb-2">Signature Confirmed</h2>
+                  <p className="text-[#6F5A4A] text-lg font-medium opacity-80">Your gourmet selection has been successfully archived.</p>
                 </div>
               </div>
             </div>
           </motion.div>
 
-          <div className="grid lg:grid-cols-3 gap-8">
-            {/* Main Order Info */}
-            <div className="lg:col-span-2 space-y-6">
-              {/* Order Details Card */}
-              <Card className="border-0 shadow-xl bg-gradient-to-br from-white to-gray-50 rounded-[18px]">
-                <CardHeader className="text-center pb-4">
-                  <div className="w-12 h-12 bg-gradient-to-r from-[#C46A47] to-[#A65638] rounded-full flex items-center justify-center mx-auto mb-3">
-                    <Receipt className="h-6 w-6 text-white" />
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.5, duration: 1 }}
+            className="grid lg:grid-cols-12 gap-8 items-start"
+          >
+            {/* Left Column: Status & Details */}
+            <div className="lg:col-span-8 space-y-8">
+              {/* Architectural Status Tracker */}
+              <div className="bg-white/40 backdrop-blur-md rounded-[40px] p-8 md:p-12 border border-white/20 shadow-[0_32px_64px_-16px_rgba(107,63,42,0.05)]">
+                <div className="flex items-center justify-between mb-12">
+                  <div>
+                    <span className="text-[#C46A47] text-[10px] font-black uppercase tracking-[0.3em] mb-2 block text-left">Live Monitoring</span>
+                    <h3 className="text-3xl font-black text-[#2E1C14] tracking-tight text-left">Order Progress</h3>
                   </div>
-                  <CardTitle className="text-2xl text-[#C46A47]">Order Details</CardTitle>
-                  <CardDescription>Keep this information for your records</CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-6">
-                  {renderOrderDetails()}
+                  <div className="w-12 h-12 bg-[#2E1C14] rounded-2xl flex items-center justify-center shadow-lg text-[#C46A47]">
+                    <Clock size={20} />
+                  </div>
+                </div>
 
-                  {/* Order Type & Details */}
-                  <div className="grid sm:grid-cols-2 gap-4 pt-4 border-t border-gray-200">
-                    <div className="flex items-center gap-3 p-3 bg-blue-50 rounded-xl">
-                      {orderType === 'dinein' && <Utensils className="h-5 w-5 text-blue-600" />}
-                      {orderType === 'pickup' && <ShoppingCart className="h-5 w-5 text-blue-600" />}
-                      {orderType === 'delivery' && <Truck className="h-5 w-5 text-blue-600" />}
-                      <div>
-                        <p className="font-semibold text-gray-900 capitalize">{orderType}</p>
-                        <p className="text-sm text-gray-600">
-                          {orderType === 'dinein' ? 'Dine-in order' :
-                           orderType === 'pickup' ? 'Pickup order' : 'Delivery order'}
-                        </p>
-                      </div>
+                <div className="relative mb-12 text-left">
+                    <div className="p-6 bg-[#211510] rounded-[24px] border border-white/10 shadow-2xl relative overflow-hidden group">
+                        <div className="absolute inset-0 bg-gradient-to-r from-[#C46A47]/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                        <div className="relative z-10 text-white/90">
+                            {renderStatusMessage()}
+                        </div>
+                    </div>
+                </div>
+
+                {renderStatusTracker()}
+              </div>
+
+              {/* Order Specifications Card */}
+              <div className="bg-white/40 backdrop-blur-md rounded-[40px] p-8 md:p-12 border border-white/20 shadow-[0_32px_64px_-16px_rgba(107,63,42,0.05)]">
+                <div className="flex items-center gap-4 mb-10 pb-6 border-b border-[#6B3F2A]/10">
+                  <div className="w-12 h-12 bg-[#FAF3E6] rounded-2xl flex items-center justify-center text-[#C46A47]">
+                    <Receipt size={20} />
+                  </div>
+                  <h3 className="text-2xl font-black text-[#2E1C14] tracking-tight">Order Specifications</h3>
+                </div>
+
+                <div className="grid md:grid-cols-2 gap-12">
+                  <div className="space-y-8 text-left">
+                    {renderOrderDetails()}
+                  </div>
+
+                  <div className="space-y-6">
+                    <div className="p-6 rounded-[24px] bg-[#2E1C14] text-white flex items-center gap-5 shadow-xl group hover:scale-[1.02] transition-transform">
+                        <div className="w-12 h-12 bg-white/10 rounded-2xl flex items-center justify-center text-[#C46A47]">
+                            {orderType === 'dinein' && <Utensils size={24} />}
+                            {orderType === 'pickup' && <ShoppingCart size={24} />}
+                            {orderType === 'delivery' && <Truck size={24} />}
+                        </div>
+                        <div className="text-left">
+                            <p className="text-[#C46A47] text-[10px] font-black uppercase tracking-widest mb-1">Service Protocol</p>
+                            <p className="text-lg font-black tracking-tight capitalize">{orderType}</p>
+                        </div>
                     </div>
 
                     {orderType === 'dinein' && tableId && (
-                      <div className="flex items-center gap-3 p-3 bg-green-50 rounded-xl">
-                        <Utensils className="h-5 w-5 text-green-600" />
-                        <div>
-                          <p className="font-semibold text-gray-900">Table {tableId}</p>
-                          <p className="text-sm text-gray-600">Your table number</p>
+                        <div className="p-6 rounded-[24px] bg-white border border-[#E3D6C6] flex items-center gap-5 shadow-sm">
+                            <div className="w-12 h-12 bg-[#FAF3E6] rounded-2xl flex items-center justify-center text-[#C46A47]">
+                                <MapPin size={24} />
+                            </div>
+                            <div className="text-left">
+                                <p className="text-[#C46A47] text-[10px] font-black uppercase tracking-widest mb-1">Coordinates</p>
+                                <p className="text-lg font-black text-[#2E1C14] tracking-tight">Table {tableId}</p>
+                            </div>
                         </div>
-                      </div>
                     )}
 
                     {orderType === 'delivery' && phone && (
-                      <div className="flex items-center gap-3 p-3 bg-purple-50 rounded-xl">
-                        <Phone className="h-5 w-5 text-purple-600" />
-                        <div>
-                          <p className="font-semibold text-gray-900">{phone}</p>
-                          <p className="text-sm text-gray-600">Delivery contact</p>
+                        <div className="p-6 rounded-[24px] bg-white border border-[#E3D6C6] flex items-center gap-5 shadow-sm">
+                            <div className="w-12 h-12 bg-[#FAF3E6] rounded-2xl flex items-center justify-center text-[#C46A47]">
+                                <Phone size={24} />
+                            </div>
+                            <div className="text-left">
+                                <p className="text-[#C46A47] text-[10px] font-black uppercase tracking-widest mb-1">Subscriber Identity</p>
+                                <p className="text-lg font-black text-[#2E1C14] tracking-tight">{phone}</p>
+                            </div>
                         </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Right Column: Summary & Actions */}
+            <div className="lg:col-span-4 space-y-8">
+              {/* Premium Digital Receipt */}
+              <div className="bg-[#211510] rounded-[40px] p-8 md:p-10 shadow-2xl relative overflow-hidden flex flex-col min-h-[500px]">
+                <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-[#C46A47] to-transparent" />
+                
+                <div className="relative z-10 flex-1 flex flex-col">
+                  <div className="flex items-center justify-between mb-10">
+                    <h3 className="text-xl font-black text-white tracking-tight">Vault Summary.</h3>
+                    <ShoppingBag size={20} className="text-[#C46A47]" />
+                  </div>
+
+                  <div className="space-y-6 max-h-[350px] overflow-y-auto custom-scrollbar-light pr-2 mb-10">
+                    {orderDetails?.items?.map((item, idx) => (
+                      <div key={idx} className="flex justify-between items-start gap-4 group">
+                        <div className="flex-1 text-left">
+                          <h4 className="text-[#FAF3E6] font-bold text-sm leading-tight group-hover:text-[#C46A47] transition-colors">{item.title}</h4>
+                          <p className="text-[#FAF3E6]/40 text-[10px] font-black uppercase tracking-widest mt-1">QTY: {item.quantity}</p>
+                        </div>
+                        <span className="text-[#FAF3E6] font-black text-sm">Rs. {(item.price * item.quantity).toFixed(0)}</span>
+                      </div>
+                    ))}
+                  </div>
+
+                  <div className="mt-auto pt-8 border-t border-white/10 space-y-4">
+                    <div className="flex justify-between text-xs font-black text-[#FAF3E6]/60 uppercase tracking-widest">
+                      <span>Base Value</span>
+                      <span>Rs. {(orderDetails?.totalAmount || 0).toFixed(0)}</span>
+                    </div>
+                    {orderType === 'delivery' && (
+                      <div className="flex justify-between text-xs font-black text-[#FAF3E6]/60 uppercase tracking-widest">
+                        <span>Logistics</span>
+                        <span>Rs. {(orderDetails?.deliveryCharge || 0).toFixed(0)}</span>
                       </div>
                     )}
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Order Status */}
-              <Card className="border-0 shadow-xl bg-gradient-to-br from-white to-gray-50 rounded-[18px]">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2 text-xl text-[#C46A47]">
-                    <Clock className="h-5 w-5" />
-                    Order Status
-                  </CardTitle>
-                  <CardDescription>Real-time updates on your order progress</CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-6">
-                  <div className="p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl border border-blue-200">
-                    {renderStatusMessage()}
-                  </div>
-                  {renderStatusTracker()}
-                </CardContent>
-              </Card>
-
-              {/* Order Summary */}
-              {renderOrderSummary()}
-            </div>
-
-            {/* Sidebar Actions */}
-            <div className="space-y-6">
-              {/* Quick Actions */}
-              <Card className="border-0 shadow-xl bg-gradient-to-br from-white to-gray-50">
-                <CardHeader>
-                  <CardTitle className="text-lg text-[#C46A47]">Quick Actions</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-3">
-                  <Button
-                    onClick={handleBackToOrder}
-                    className="w-full bg-gradient-to-r from-[#C46A47] to-[#A65638] text-white font-semibold py-3 rounded-xl shadow-lg hover:opacity-90 transition-all duration-200 flex items-center gap-2"
-                  >
-                    {orderType === 'dinein' ? <Utensils className="h-4 w-4" /> : <ArrowRight className="h-4 w-4" />}
-                    {orderType === 'dinein' ? 'Back to Menu' : 'Continue Shopping'}
-                  </Button>
-
-                  <div className="grid grid-cols-2 gap-2">
-                    <Button
-                      onClick={handleShare}
-                      variant="outline"
-                      className="flex items-center gap-2 border-2 hover:border-[#C46A47] hover:text-[#C46A47] transition-colors rounded-xl"
-                      disabled={isSharing}
-                    >
-                      <Share2 className="h-4 w-4" />
-                      {isSharing ? 'Sharing...' : 'Share'}
-                    </Button>
-                    <Button
-                      onClick={handleSupport}
-                      variant="outline"
-                      className="flex items-center gap-2 border-2 hover:border-[#C46A47] hover:text-[#C46A47] transition-colors rounded-xl"
-                    >
-                      <MessageCircle className="h-4 w-4" />
-                      Support
-                    </Button>
-                  </div>
-
-                  <Button
-                    onClick={() => fetchOrderDetails({ showLoader: true })}
-                    variant="outline"
-                    className="w-full flex items-center gap-2 border-2 hover:border-[#C46A47] hover:text-[#C46A47] transition-colors rounded-xl"
-                    disabled={loading}
-                  >
-                    <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
-                    Refresh Status
-                  </Button>
-                </CardContent>
-              </Card>
-
-              {/* Order Management */}
-              <Card className="border-0 shadow-xl bg-gradient-to-br from-white to-gray-50">
-                <CardHeader>
-                  <CardTitle className="text-lg text-[#C46A47]">Order Management</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-3">
-                  <Button
-                    onClick={handleReorder}
-                    disabled={isReordering || !orderDetails?.items}
-                    variant="outline"
-                    className="w-full flex items-center gap-2 border-2 hover:border-[#C46A47] hover:text-[#C46A47] transition-colors rounded-xl"
-                  >
-                    <Plus className="h-4 w-4" />
-                    {isReordering ? 'Adding to Cart...' : 'Reorder Items'}
-                  </Button>
-
-                  <Button
-                    onClick={handleDownloadReceipt}
-                    variant="outline"
-                    className="w-full flex items-center gap-2 border-2 hover:border-[#C46A47] hover:text-[#C46A47] transition-colors rounded-xl"
-                  >
-                    <Download className="h-4 w-4" />
-                    Download Receipt
-                  </Button>
-                </CardContent>
-              </Card>
-
-              {/* Popular Add-ons */}
-              <Card className="border-0 shadow-xl bg-gradient-to-br from-white to-gray-50">
-                <CardHeader>
-                  <CardTitle className="text-lg text-[#C46A47] flex items-center gap-2">
-                    <Plus className="h-5 w-5" />
-                    Popular Add-ons
-                  </CardTitle>
-                  <CardDescription>Perfect companions for your order</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-3">
-                    {addOnSuggestions.map((item, index) => (
-                      <motion.div
-                        key={item.id}
-                        initial={{ opacity: 0, x: 20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ duration: 0.3, delay: index * 0.1 }}
-                        className="flex items-center justify-between p-3 bg-gradient-to-r from-gray-50 to-gray-100 rounded-xl border border-gray-200 hover:shadow-md transition-shadow"
-                      >
-                        <div className="flex-1">
-                          <p className="font-medium text-gray-900">{item.title}</p>
-                          <p className="text-sm text-gray-600">Rs. {item.price.toFixed(2)}</p>
-                        </div>
-                        <Button
-                          onClick={() => handleAddOn(item)}
-                          size="sm"
-                          className="bg-gradient-to-r from-[#C46A47] to-[#A65638] text-white hover:opacity-90 transition-all duration-200"
-                        >
-                          <Plus className="h-3 w-3" />
-                        </Button>
-                      </motion.div>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-          </div>
-
-          {/* Bottom Section */}
-          <div className="grid md:grid-cols-2 gap-8 mt-12">
-            {/* Notifications */}
-            <Card className="border-0 shadow-xl bg-gradient-to-br from-white to-gray-50">
-              <CardHeader>
-                <CardTitle className="text-lg text-[#C46A47] flex items-center gap-2">
-                  <MessageCircle className="h-5 w-5" />
-                  Stay Updated
-                </CardTitle>
-                <CardDescription>Get notified when your order is ready</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                {consentStatus === 'saving' && (
-                  <div className="flex items-center justify-center py-4">
-                    <RefreshCw className="h-5 w-5 animate-spin text-[#C46A47]" />
-                  </div>
-                )}
-
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between p-3 bg-green-50 rounded-xl border border-green-200">
-                    <div className="flex items-center gap-3">
-                      <div className="w-4 h-4 bg-green-500 rounded-full"></div>
-                      <span className="font-medium text-gray-900">WhatsApp Alerts</span>
+                    <div className="flex justify-between items-end pt-6 border-t border-white/20">
+                      <span className="text-2xl font-black text-white uppercase tracking-tighter text-left">Total</span>
+                      <span className="text-3xl font-black text-[#C46A47]">Rs. {((orderDetails?.totalAmount || 0) + (orderType === 'delivery' ? orderDetails?.deliveryCharge || 0 : 0)).toFixed(0)}</span>
                     </div>
-                    <label className="relative inline-flex items-center cursor-pointer">
-                      <input
-                        type="checkbox"
-                        className="sr-only peer"
-                        checked={whatsappOptIn}
-                        onChange={(e) => {
-                          setWhatsAppOptIn(e.target.checked);
-                          submitConsent('whatsapp', e.target.checked);
-                        }}
-                      />
-                      <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#C46A47]"></div>
-                    </label>
-                  </div>
-
-                  <div className="flex items-center justify-between p-3 bg-blue-50 rounded-xl border border-blue-200">
-                    <div className="flex items-center gap-3">
-                      <div className="w-4 h-4 bg-blue-500 rounded-full"></div>
-                      <span className="font-medium text-gray-900">Push Notifications</span>
-                    </div>
-                    <label className="relative inline-flex items-center cursor-pointer">
-                      <input
-                        type="checkbox"
-                        className="sr-only peer"
-                        checked={pushOptIn}
-                        onChange={(e) => {
-                          setPushOptIn(e.target.checked);
-                          submitConsent('push', e.target.checked);
-                        }}
-                      />
-                      <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#A65638]"></div>
-                    </label>
                   </div>
                 </div>
-              </CardContent>
-            </Card>
+              </div>
 
-            {/* Feedback */}
-            <Card className="border-0 shadow-xl bg-gradient-to-br from-white to-gray-50">
-              <CardHeader>
-                <CardTitle className="text-lg text-[#C46A47] flex items-center gap-2">
-                  <Heart className="h-5 w-5" />
-                  Share Your Feedback
-                </CardTitle>
-                <CardDescription>Help us improve your experience</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div>
-                  <Label className="text-sm font-medium text-gray-700 mb-3 block">Rate your experience</Label>
-                  <div className="flex gap-2 justify-center">
-                    {[1, 2, 3, 4, 5].map((val) => (
-                      <motion.button
-                        key={val}
-                        onClick={() => setRating(val)}
-                        whileHover={{ scale: 1.1 }}
-                        whileTap={{ scale: 0.9 }}
-                        className={`w-12 h-12 rounded-full border-2 font-semibold transition-all duration-200 ${
-                          rating === val
-                            ? 'bg-gradient-to-r from-[#C46A47] to-[#A65638] text-white border-transparent shadow-lg'
-                            : 'bg-white text-gray-700 border-gray-300 hover:border-[#C46A47] hover:shadow-md'
-                        }`}
-                        aria-label={`Rate ${val} star${val > 1 ? 's' : ''}`}
-                      >
-                        {val}
-                      </motion.button>
-                    ))}
-                  </div>
-                </div>
+              {/* Architectural Action Grid */}
+              <div className="grid grid-cols-1 gap-4">
+                <button
+                  onClick={handleBackToOrder}
+                  className="w-full bg-[#C46A47] hover:bg-[#A65638] text-white font-black py-6 rounded-[24px] shadow-xl hover:shadow-[#C46A47]/20 transition-all flex items-center justify-center gap-3 group uppercase tracking-widest text-xs"
+                >
+                  {orderType === 'dinein' ? <Utensils size={18} /> : <ArrowRight size={18} />}
+                  <span>{orderType === 'dinein' ? 'Explore More' : 'Continue Crafting'}</span>
+                </button>
 
-                <div>
-                  <Label htmlFor="feedback" className="text-sm font-medium text-gray-700 mb-2 block">
-                    Additional Comments (Optional)
-                  </Label>
-                  <Textarea
-                    id="feedback"
-                    value={feedback}
-                    onChange={(e) => setFeedback(e.target.value)}
-                    placeholder="Tell us about your experience..."
-                    className="min-h-20 border-2 focus:border-[#C46A47] transition-colors resize-none"
-                    rows={3}
-                  />
-                </div>
-
-                <div className="flex justify-end">
-                  <Button
-                    onClick={submitFeedback}
-                    disabled={feedbackStatus === 'submitting'}
-                    className="bg-gradient-to-r from-[#C46A47] to-[#A65638] text-white font-semibold px-6 py-2 rounded-xl shadow-lg hover:opacity-90 transition-all duration-200 flex items-center gap-2"
+                <div className="grid grid-cols-2 gap-4">
+                  <button
+                    onClick={handleShare}
+                    className="flex flex-col items-center justify-center gap-3 p-6 rounded-[24px] bg-white border border-[#E3D6C6] text-[#2E1C14] hover:bg-[#2E1C14] hover:text-white transition-all group shadow-sm"
                   >
-                    {feedbackStatus === 'submitting' ? (
-                      <>
-                        <RefreshCw className="h-4 w-4 animate-spin" />
-                        Sending...
-                      </>
-                    ) : (
-                      <>
-                        <MessageCircle className="h-4 w-4" />
-                        Submit Feedback
-                      </>
-                    )}
-                  </Button>
+                    <Share2 size={24} className="text-[#C46A47]" />
+                    <span className="text-[10px] font-black uppercase tracking-widest">Share</span>
+                  </button>
+                  <button
+                    onClick={handleSupport}
+                    className="flex flex-col items-center justify-center gap-3 p-6 rounded-[24px] bg-white border border-[#E3D6C6] text-[#2E1C14] hover:bg-[#2E1C14] hover:text-white transition-all group shadow-sm"
+                  >
+                    <MessageCircle size={24} className="text-[#C46A47]" />
+                    <span className="text-[10px] font-black uppercase tracking-widest">Support</span>
+                  </button>
                 </div>
 
-                <AnimatePresence>
-                  {feedbackStatus === 'success' && (
-                    <motion.div
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: -10 }}
-                      className="flex items-center gap-2 p-3 bg-green-50 border border-green-200 rounded-xl text-green-800"
-                    >
-                      <CheckCircle className="h-4 w-4" />
-                      <span className="text-sm font-medium">Thank you for your feedback!</span>
-                    </motion.div>
-                  )}
-
-                  {feedbackStatus === 'error' && (
-                    <motion.div
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: -10 }}
-                      className="flex items-center gap-2 p-3 bg-red-50 border border-red-200 rounded-xl text-red-800"
-                    >
-                      <X className="h-4 w-4" />
-                      <span className="text-sm font-medium">Could not submit feedback. Please try again.</span>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </CardContent>
-            </Card>
-          </div>
+                <button
+                  onClick={handleDownloadReceipt}
+                  className="w-full bg-[#2E1C14] hover:bg-[#211510] text-[#FAF3E6] font-black py-4 rounded-[20px] transition-all flex items-center justify-center gap-3 text-xs uppercase tracking-[0.2em] border border-white/5"
+                >
+                  <Download size={16} className="text-[#C46A47]" />
+                  <span>Download Archive</span>
+                </button>
+              </div>
+            </div>
+          </motion.div>
         </div>
       </div>
     </div>
   );
 };
 
-const ThankYouPageWithSuspense: FC = () => (
-  <Suspense fallback={<SkeletonLoader />}>
+const ThankYouPageWrapper = () => (
+  <Suspense fallback={
+    <div className="min-h-screen bg-[#FAF3E6] flex items-center justify-center">
+      <div className="text-center">
+        <div className="w-16 h-16 border-4 border-[#C46A47] border-t-transparent rounded-full animate-spin mx-auto mb-6" />
+        <p className="text-[#2E1C14] font-black uppercase tracking-widest text-xs">Architectural Loading...</p>
+      </div>
+    </div>
+  }>
     <ThankYouPage />
   </Suspense>
 );
 
-export default ThankYouPageWithSuspense;
+export default ThankYouPageWrapper;

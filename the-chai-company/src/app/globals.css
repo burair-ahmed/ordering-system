@@ -59,6 +59,24 @@
     background: #C46A47;
   }
 
+  /* Custom Light Scrollbar for Dark Backgrounds */
+  .custom-scrollbar-light::-webkit-scrollbar {
+    width: 4px;
+  }
+
+  .custom-scrollbar-light::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .custom-scrollbar-light::-webkit-scrollbar-thumb {
+    background: rgba(250, 243, 230, 0.1);
+    border-radius: 10px;
+  }
+
+  .custom-scrollbar-light::-webkit-scrollbar-thumb:hover {
+    background: rgba(250, 243, 230, 0.2);
+  }
+
   /* Scrollbar Hide Utility */
   .scrollbar-hide::-webkit-scrollbar {
     display: none;
