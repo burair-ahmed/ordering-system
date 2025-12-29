@@ -8,7 +8,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { FaTrashAlt } from "react-icons/fa";
 import { useCart } from "../context/CartContext"; // keep your existing context
-import { X } from "lucide-react";
+import { X, ShoppingBag } from "lucide-react";
 import { useOrder } from "../context/OrderContext";
 
 const BRAND_FROM = "#C46A47";
@@ -123,118 +123,71 @@ const checkoutUrl =
           animate="visible"
           exit="exit"
           variants={sidebarVariants}
-          className="fixed inset-y-0 right-0 z-50 w-full sm:w-96 lg:w-[420px] flex flex-col"
+          className="fixed inset-y-0 right-0 z-[110] w-full sm:w-[450px] flex flex-col"
           aria-modal="true"
           role="dialog"
         >
-          {/* overlay (click to close) */}
-          <div
-            className="absolute inset-0 bg-black/30 backdrop-blur-sm"
+          {/* Overlay with blur */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="absolute inset-0 bg-black/60 backdrop-blur-md"
             onClick={handleClose}
             aria-hidden
           />
 
-          {/* main panel */}
+          {/* Main Sidebar Panel */}
           <motion.div
-            className={`relative ml-auto h-full w-full sm:w-96 lg:w-[420px] 
-              bg-[#FAF3E6] rounded-l-[32px]
-              border-l border-[#E3D6C6] shadow-2xl overflow-hidden flex flex-col`}
-            style={{
-              boxShadow: "-20px 0 50px rgba(46,28,20,0.1)",
-            }}
+            className="relative ml-auto h-full w-full sm:w-[450px] bg-[#FAF3E6] shadow-[0_0_100px_rgba(0,0,0,0.5)] flex flex-col"
           >
-            {/* Header */}
-            <div className="px-8 pt-10 pb-6 flex items-center justify-between gap-4">
+            {/* Sidebar Glow Header */}
+            <div className="absolute top-0 right-0 w-64 h-64 bg-[#C46A47]/10 rounded-full blur-[80px] -translate-y-32 translate-x-32 pointer-events-none" />
+
+            {/* Header Area */}
+            <div className="relative px-8 pt-12 pb-8 flex items-center justify-between">
               <div>
-                <h3
-                  className="text-2xl font-extrabold text-[#6B3F2A] tracking-tight"
-                >
-                  Your Cart
+                <span className="text-[10px] uppercase font-black tracking-[0.4em] text-[#C46A47] mb-2 block">
+                  Your Architectural Bag
+                </span>
+                <h3 className="text-4xl font-black text-[#6B3F2A] tracking-tighter leading-none">
+                  Cart
                 </h3>
-                <div className="mt-2">
-                  <div
-                    className="h-1 w-20 rounded-full bg-[#C46A47]"
-                  />
-                </div>
               </div>
-
-              <div className="flex items-center gap-2">
-                {/* progress tiny indicator */}
-                <div className="hidden sm:flex flex-col items-end text-right">
-                  <div className="text-xs text-gray-500">Progress</div>
-                  <div className="text-sm font-semibold">
-                    Rs. {totalAmount.toFixed(2)}
-                  </div>
-                </div>
-
-                {/* close button */}
-                <motion.button
-                  whileTap={{ scale: 0.92 }}
-                  onClick={handleClose}
-                  aria-label="Close cart"
-                  className="p-2 rounded-full border border-gray-200 hover:shadow-md transition
-                    bg-white/60"
-                  title="Close"
-                >
-                  <X className="w-5 h-5" />
-                </motion.button>
-              </div>
+              
+              <motion.button
+                whileHover={{ scale: 1.1, rotate: 90 }}
+                whileTap={{ scale: 0.9 }}
+                onClick={handleClose}
+                className="w-12 h-12 rounded-full border border-[#E3D6C6] bg-white/40 flex items-center justify-center text-[#6B3F2A] transition-all hover:bg-white"
+              >
+                <X size={24} />
+              </motion.button>
             </div>
 
-            {/* progress bar (top) */}
-            <div className="px-6">
-              <div className="h-2 rounded-full bg-neutral-200 overflow-hidden">
-                <motion.div
-                  initial={{ width: 0 }}
-                  animate={{ width: `${progressPercent}%` }}
-                  transition={{ duration: 0.6 }}
-                  className="h-full"
-                  style={{
-                    background: `linear-gradient(90deg, ${BRAND_FROM}, ${BRAND_TO})`,
-                  }}
-                />
-              </div>
-            </div>
-
-            {/* content */}
-            <div className="flex-1 overflow-y-auto px-4 py-6">
+            {/* Content Section */}
+            <div className="flex-1 overflow-y-auto px-8 custom-scrollbar">
               {cartItems.length === 0 ? (
-                <div className="min-h-[240px] flex flex-col items-center justify-center gap-4">
-                  <motion.div
-                    initial={{ opacity: 0, y: 8 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.45, type: "spring" }}
-                    className="w-48 h-48 relative"
-                    aria-hidden
-                  >
-                    <Image
-                      src="/empty-cart.png"
-                      alt="Empty cart"
-                      fill
-                      className="object-contain"
-                      priority
-                    />
-                  </motion.div>
-                  <motion.h4
-                    initial={{ opacity: 0, y: 6 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.08 }}
-                    className="text-lg font-semibold text-gray-600"
-                  >
-                    Your cart is empty
-                  </motion.h4>
-                  <p className="text-sm text-gray-500 text-center max-w-[220px]">
-                    Browse our menu and add items to the cart. We’ll keep them
-                    here until you check out.
-                  </p>
+                <div className="h-full flex flex-col items-center justify-center text-center pb-20">
+                    <div className="w-32 h-32 rounded-full bg-[#E3D6C6]/20 flex items-center justify-center mb-8">
+                       <ShoppingBag size={48} className="text-[#C46A47] opacity-20" />
+                    </div>
+                    <h4 className="text-2xl font-black text-[#6B3F2A] mb-4">Bag is Empty</h4>
+                    <p className="text-[#6F5A4A] font-light max-w-[240px] leading-relaxed">
+                        Start your journey by exploring our menu and adding your favorites.
+                    </p>
+                    <button 
+                         onClick={handleClose}
+                         className="mt-8 text-sm font-black text-[#C46A47] uppercase tracking-widest border-b-2 border-[#C46A47]/20 pb-1 hover:border-[#C46A47] transition-all"
+                    >
+                        Explore Menu
+                    </button>
                 </div>
               ) : (
-                <ul className="space-y-4">
-                  <AnimatePresence>
+                <ul className="space-y-8 pb-12">
+                  <AnimatePresence mode="popLayout">
                     {cartItems.map((item) => {
-                      const itemKey = `${item.id}-${JSON.stringify(
-                        item.variations || []
-                      )}`;
+                      const itemKey = `${item.id}-${JSON.stringify(item.variations || [])}`;
                       return (
                         <motion.li
                           layout
@@ -243,98 +196,56 @@ const checkoutUrl =
                           exit="exit"
                           variants={itemVariants}
                           key={itemKey}
-                          className="bg-white border border-[#E3D6C6] rounded-2xl p-4 flex gap-4 items-start shadow-sm hover:shadow-md transition-all"
+                          className="group relative flex gap-6"
                         >
-                          {/* Image */}
-                          <div className="w-20 h-20 flex-shrink-0 rounded-xl overflow-hidden relative">
+                          {/* Item Image */}
+                          <div className="relative w-24 h-24 lg:w-28 lg:h-28 rounded-2xl overflow-hidden flex-shrink-0 shadow-lg group-hover:shadow-[#C46A47]/10 transition-shadow">
                             <Image
                               src={item.image || "/placeholder.png"}
                               alt={item.title}
                               fill
-                              sizes="80px"
-                              className="object-cover"
+                              className="object-cover group-hover:scale-110 transition-transform duration-700"
                             />
+                            <div className="absolute inset-0 bg-black/5" />
                           </div>
 
-                          {/* Details */}
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-start justify-between gap-3">
-                              <div className="min-w-0">
-                                <div className="font-semibold text-sm truncate">
-                                  {item.title}
+                          {/* Item Details */}
+                          <div className="flex-1 flex flex-col justify-between py-1">
+                             <div>
+                                <div className="flex items-start justify-between gap-2">
+                                    <h4 className="text-lg font-black text-[#6B3F2A] leading-tight group-hover:text-[#C46A47] transition-colors">{item.title}</h4>
+                                    <motion.button
+                                        whileTap={{ scale: 0.8 }}
+                                        onClick={() => removeFromCart(item.id, item.variations)}
+                                        className="text-[#6F5A4A]/40 hover:text-[#8B2E2E] transition-colors"
+                                    >
+                                        <FaTrashAlt size={14} />
+                                    </motion.button>
                                 </div>
+                                {item.variations && item.variations.length > 0 && (
+                                    <p className="text-xs text-[#6F5A4A]/60 mt-1 font-medium">{item.variations.join(' • ')}</p>
+                                )}
+                             </div>
 
-                                {/* variations as pills */}
-                                {item.variations &&
-                                  item.variations.length > 0 && (
-                                    <div className="mt-2 flex flex-wrap gap-2">
-                                      {item.variations.map((v, i) => (
-                                        <span
-                                          key={i}
-                                          className="text-xs bg-gray-100 text-gray-700 px-2 py-1 rounded-full"
-                                        >
-                                          {v}
-                                        </span>
-                                      ))}
-                                    </div>
-                                  )}
-
-                                <div
-                                  className="mt-2 text-sm font-bold text-[#C46A47]"
-                                >
-                                  Rs. {item.price.toFixed(0)}
+                             <div className="flex items-center justify-between mt-4">
+                                {/* Quantity Controls */}
+                                <div className="flex items-center bg-white/40 rounded-xl border border-[#E3D6C6]/50 p-1">
+                                    <button 
+                                        onClick={() => updateQuantity(item.id, Math.max(1, item.quantity - 1), item.variations)}
+                                        className="w-8 h-8 rounded-lg hover:bg-white flex items-center justify-center transition-all text-[#6B3F2A]"
+                                    >
+                                        -
+                                    </button>
+                                    <span className="w-10 text-center text-sm font-black text-[#6B3F2A]">{item.quantity}</span>
+                                    <button 
+                                        onClick={() => updateQuantity(item.id, item.quantity + 1, item.variations)}
+                                        className="w-8 h-8 rounded-lg hover:bg-white flex items-center justify-center transition-all text-[#6B3F2A]"
+                                    >
+                                        +
+                                    </button>
                                 </div>
-                              </div>
-
-                              {/* remove button */}
-                              <motion.button
-                                whileTap={{ scale: 0.92 }}
-                                onClick={() =>
-                                  removeFromCart(item.id, item.variations)
-                                }
-                                className="text-[#6F5A4A] hover:text-[#8B2E2E] p-2 rounded-full transition"
-                                aria-label={`Remove ${item.title}`}
-                              >
-                                <FaTrashAlt />
-                              </motion.button>
-                            </div>
-
-                            {/* quantity control */}
-                            <div className="mt-3 flex items-center gap-3">
-                              <motion.button
-                                whileTap={{ scale: 0.9 }}
-                                onClick={() =>
-                                  updateQuantity(
-                                    item.id,
-                                    Math.max(1, item.quantity - 1),
-                                    item.variations
-                                  )
-                                }
-                                className="w-8 h-8 rounded-full flex items-center justify-center text-white bg-[#6B3F2A] hover:bg-[#C46A47] transition-colors shadow-sm"
-                                aria-label="Decrease quantity"
-                              >
-                                -
-                              </motion.button>
-
-                              <div className="px-3 py-1 text-sm font-bold text-[#2E1C14] bg-white rounded-full border border-[#E3D6C6]">
-                                {item.quantity}
-                              </div>
-
-                              <motion.button
-                                whileTap={{ scale: 0.9 }}
-                                onClick={() =>
-                                  updateQuantity(
-                                    item.id,
-                                    item.quantity + 1,
-                                    item.variations
-                                  )
-                                }
-                                className="w-8 h-8 rounded-full flex items-center justify-center text-white bg-[#6B3F2A] hover:bg-[#C46A47] transition-colors shadow-sm"
-                                aria-label="Increase quantity"
-                              >
-                                +
-                              </motion.button>
-                            </div>
+                                <p className="font-black text-lg text-[#C46A47]">Rs. {item.price.toFixed(0)}</p>
+                             </div>
                           </div>
                         </motion.li>
                       );
@@ -344,51 +255,40 @@ const checkoutUrl =
               )}
             </div>
 
-            {/* Footer (sticky) */}
-            <div className="border-t border-[#E3D6C6] p-6 bg-white/50 backdrop-blur-sm">
-              <div className="max-w-[100%] mx-auto flex flex-col sm:flex-row items-center gap-4">
-                <div className="flex-1 w-full text-center sm:text-left">
-                  <div className="text-xs uppercase tracking-wider font-bold text-[#6F5A4A] mb-1">Total Amount</div>
-                  <motion.div
-                    key={totalAmount} // trigger animation when total changes
-                    initial={{ opacity: 0, scale: 0.9 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    transition={{ duration: 0.4 }}
-                    className="text-3xl font-black text-[#C46A47]"
-                  >
-                    Rs. {totalAmount.toFixed(0)}
-                  </motion.div>
+            {/* Footer Totals */}
+            <div className="bg-white p-10 rounded-t-[40px] shadow-[0_-20px_50px_rgba(0,0,0,0.05)] border-t border-[#E3D6C6]/50 relative z-10 transition-all">
+                <div className="space-y-4 mb-8">
+                    <div className="flex justify-between items-center">
+                        <span className="text-sm font-medium text-[#6F5A4A]/60 uppercase tracking-widest">Subtotal</span>
+                        <span className="text-sm font-bold text-[#6B3F2A]">Rs. {totalAmount.toFixed(0)}</span>
+                    </div>
+                    <div className="flex justify-between items-center pb-4 border-b border-dashed border-[#E3D6C6]">
+                        <span className="text-sm font-medium text-[#6F5A4A]/60 uppercase tracking-widest">Architectural Tax</span>
+                        <span className="text-sm font-bold text-[#6B3F2A]">Included</span>
+                    </div>
+                    <div className="flex justify-between items-center pt-2">
+                        <span className="text-lg font-black text-[#6B3F2A]">Total Estimate</span>
+                        <span className="text-3xl font-black text-[#C46A47] tracking-tighter">Rs. {totalAmount.toFixed(0)}</span>
+                    </div>
                 </div>
 
-                <div className="flex gap-3 w-full sm:w-auto">
-                  <motion.button
-                    whileTap={{ scale: 0.95 }}
-                    onClick={() => {
-                      clearCart();
-                    }}
-                    className="flex-1 sm:flex-none px-6 py-3 rounded-2xl text-[#8B2E2E] font-bold border-2 border-[#8B2E2E]/10 hover:bg-[#8B2E2E]/5 transition-all"
-                  >
-                    Clear
-                  </motion.button>
-
-                  <motion.div
-                    animate={{ scale: [1, 1.02, 1] }}
-                    transition={{ repeat: Infinity, duration: 2 }}
-                    className="flex-1 sm:flex-none"
-                  >
-                    <Link
-                      href={checkoutUrl}
-                      className={`w-full inline-flex items-center justify-center gap-3 px-8 py-3 rounded-2xl text-white font-bold shadow-lg ${BRAND_GRADIENT} hover:scale-[1.02] active:scale-95 transition-all hover:text-white hover:no-underline`}
-                      onClick={handleClose}
+                <div className="flex gap-4">
+                    <motion.button
+                        whileTap={{ scale: 0.95 }}
+                        onClick={clearCart}
+                        disabled={cartItems.length === 0}
+                        className="flex-shrink-0 w-16 h-16 rounded-2xl flex items-center justify-center border-2 border-[#8B2E2E]/10 text-[#8B2E2E] hover:bg-[#8B2E2E]/5 transition-all disabled:opacity-30"
                     >
-                      <span>Checkout</span>
-                      <span className="text-xs bg-black/20 px-2 py-1 rounded-lg">
-                        {itemCount}
-                      </span>
+                        <FaTrashAlt size={20} />
+                    </motion.button>
+                    <Link
+                        href={checkoutUrl}
+                        className={`flex-1 h-16 inline-flex items-center justify-center rounded-2xl bg-[#C46A47] text-white font-black text-xl shadow-[0_20px_40px_-10px_rgba(196,106,71,0.4)] hover:bg-[#A65638] hover:scale-[1.02] active:scale-95 transition-all disabled:opacity-50 ${cartItems.length === 0 ? 'pointer-events-none opacity-50' : ''}`}
+                        onClick={handleClose}
+                    >
+                        Secure Checkout
                     </Link>
-                  </motion.div>
                 </div>
-              </div>
             </div>
           </motion.div>
         </motion.aside>

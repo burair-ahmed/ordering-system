@@ -41,13 +41,21 @@ const AddToCartButton: FC<AddToCartButtonProps> = ({
   return (
     <button
       onClick={handleAddToCart}
-      className={`relative overflow-hidden rounded-2xl px-8 py-3 mt-6 transition-all duration-300 ease-in-out font-bold text-white shadow-lg
-    ${disabled ? "bg-gray-300 cursor-not-allowed grayscale" : "bg-gradient-to-r from-[#C46A47] to-[#A65638] hover:scale-[1.03] hover:shadow-[#C46A47]/20"} 
-    ${className}`}
       disabled={disabled}
+      className={`group relative overflow-hidden rounded-2xl px-10 py-4 transition-all duration-500 ease-out font-black text-lg text-white tracking-tight
+    ${disabled 
+      ? "bg-[#6B3F2A]/10 text-[#6B3F2A]/30 cursor-not-allowed border border-[#6B3F2A]/10 shadow-none" 
+      : "bg-[#C46A47] hover:bg-[#A65638] shadow-[0_20px_40px_-10px_rgba(196,106,71,0.4)] hover:shadow-[0_25px_50px_-12px_rgba(196,106,71,0.5)] hover:scale-[1.02] active:scale-95 border-b-4 border-[#8A4A32] hover:border-[#7A412C]"
+    } 
+    ${className}`}
     >
-      <div className="flex items-center gap-2 mx-auto">
-        <span className="text-lg">Add to Cart</span>
+      {/* Shine effect */}
+      {!disabled && (
+        <div className="absolute inset-0 w-full h-full bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:animate-shimmer transition-transform" />
+      )}
+      
+      <div className="relative flex items-center justify-center gap-3">
+        <span>{disabled ? "Sold Out" : "Add to Bag"}</span>
       </div>
     </button>
   );
