@@ -1,0 +1,550 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+
+/* globals.css */
+/* 🔥 Custom shimmer animation */
+@layer utilities {
+  .skeleton {
+    @apply relative overflow-hidden bg-gradient-to-r from-[#C46A47] via-[#A65638] to-[#C46A47];
+    background-size: 200% 100%;
+    animation: shimmer 4s infinite linear;
+  }
+
+  @keyframes shimmer {
+    0% {
+      background-position: -200% 0;
+    }
+
+    100% {
+      background-position: 200% 0;
+    }
+  }
+}
+
+/* Apply Poppins font to the entire page */
+body {
+  font-family: var(--font-poppins), 'Inter', sans-serif;
+  line-height: 1.6;
+  margin: 0;
+  padding: 0;
+  background-color: hsl(var(--background));
+  color: hsl(var(--foreground));
+}
+
+/* Headings */
+h1,
+h2,
+h3 {
+  font-family: var(--font-poppins), sans-serif;
+  font-weight: 700;
+  color: hsl(var(--secondary));
+  /* Masala Brown */
+  margin: 0;
+  padding: 0;
+}
+
+h1 {
+  font-size: 48px;
+}
+
+h2 {
+  font-size: 32px;
+  font-weight: 600;
+}
+
+h3 {
+  font-size: 24px;
+  font-weight: 600;
+}
+
+/* Paragraphs */
+p {
+  font-family: 'Inter', 'Roboto', sans-serif;
+  font-weight: 400;
+  font-size: 16px;
+  margin-bottom: 1rem;
+  color: hsl(var(--muted-foreground));
+  /* Soft Brown */
+}
+
+/* Links */
+a {
+  font-family: var(--font-poppins), sans-serif;
+  text-decoration: none;
+  color: inherit;
+  /* Inherit color from parent */
+  transition: color 0.3s ease;
+}
+
+a:hover,
+a:focus {
+  text-decoration: underline;
+  color: #C46A47;
+  /* Custom color on hover */
+}
+
+/* Lists */
+ul,
+ol {
+  font-family: var(--font-poppins), sans-serif;
+  margin: 0;
+  padding: 0 20px;
+}
+
+li {
+  font-family: var(--font-poppins), sans-serif;
+  font-weight: 400;
+  margin-bottom: 0.5rem;
+}
+
+/* Premium Button System */
+.btn-primary {
+  background-color: hsl(var(--chai-clay));
+  color: #FFFFFF;
+  border-radius: 14px;
+  padding: 14px 22px;
+  font-weight: 600;
+  box-shadow: 0 8px 20px rgba(196, 106, 71, 0.25);
+  transition: all 0.3s ease;
+}
+
+.btn-primary:hover {
+  background-color: hsl(var(--cinnamon-rust));
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px rgba(196, 106, 71, 0.35);
+}
+
+.btn-secondary {
+  background-color: transparent;
+  border: 2px solid hsl(var(--chai-clay));
+  color: hsl(var(--chai-clay));
+  border-radius: 14px;
+  padding: 12px 20px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.btn-secondary:hover {
+  background-color: rgba(196, 106, 71, 0.05);
+  transform: translateY(-2px);
+}
+
+/* Premium Card System */
+.premium-card {
+  background-color: #FFFFFF;
+  border: 1px solid hsl(var(--border));
+  border-radius: 18px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  overflow: hidden;
+}
+
+.premium-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 15px 35px rgba(196, 106, 71, 0.1);
+  border-color: rgba(196, 106, 71, 0.2);
+}
+
+/* Form Design */
+input,
+select,
+textarea {
+  font-family: 'Inter', sans-serif;
+  background-color: #FFFFFF;
+  border: 1px solid hsl(var(--border));
+  border-radius: 12px;
+  padding: 12px 16px;
+  transition: all 0.3s ease;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  border-color: hsl(var(--chai-clay));
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(196, 106, 71, 0.15);
+}
+
+::placeholder {
+  color: hsl(var(--soft-brown));
+}
+
+label {
+  color: hsl(var(--masala-brown));
+  font-weight: 500;
+  margin-bottom: 6px;
+  display: block;
+}
+
+
+/* Strong and Bold Text */
+strong,
+b {
+  font-family: var(--font-poppins), sans-serif;
+  font-weight: 700;
+}
+
+/* Italics */
+em,
+i {
+  font-family: var(--font-poppins), sans-serif;
+  font-style: italic;
+}
+
+/* Blockquotes */
+blockquote {
+  font-family: var(--font-poppins), sans-serif;
+  font-style: italic;
+  margin: 1.5rem 0;
+  padding-left: 20px;
+  border-left: 4px solid #741052;
+}
+
+/* Code blocks and inline code */
+code,
+pre {
+  font-family: 'Courier New', monospace;
+  background-color: #f4f4f4;
+  padding: 0.2rem;
+  border-radius: 5px;
+}
+
+pre {
+  padding: 1rem;
+  overflow-x: auto;
+}
+
+/* Tables */
+table {
+  font-family: var(--font-poppins), sans-serif;
+  border-collapse: collapse;
+  width: 100%;
+  margin: 1rem 0;
+}
+
+th,
+td {
+  padding: 1rem;
+  border: 1px solid #ddd;
+}
+
+th {
+  font-weight: 600;
+  text-align: left;
+}
+
+/* Block and inline elements */
+div,
+span,
+section,
+article {
+  font-family: var(--font-poppins), sans-serif;
+}
+
+
+
+
+/* Add this to your global stylesheet (e.g., tailwind.css or in a separate file) */
+@keyframes fadeIn {
+  0% {
+    opacity: 0;
+  }
+
+  100% {
+    opacity: 1;
+  }
+}
+
+.fadeIn {
+  animation: fadeIn 0.5s ease-out;
+}
+
+
+/* Button Styling */
+.cartBtn {
+  width: 155px;
+  height: 40px;
+  border: none;
+  border-radius: 25px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  color: white;
+  font-weight: 500;
+  position: relative;
+  background-color: rgb(0, 0, 0);
+  box-shadow: 0 20px 30px -7px rgba(27, 27, 27, 0.219);
+  transition: all 0.3s ease-in-out;
+  cursor: pointer;
+  overflow: hidden;
+}
+
+.cart {
+  z-index: 2;
+}
+
+.cartBtn:active {
+  transform: scale(0.96);
+}
+
+.product {
+  position: absolute;
+  width: 12px;
+  border-radius: 3px;
+  content: "";
+  left: 17px;
+  bottom: 23px;
+  opacity: 0;
+  z-index: 1;
+  fill: rgb(211, 211, 211);
+}
+
+.cartBtn:hover .product {
+  animation: slide-in-top 1.2s cubic-bezier(0.250, 0.460, 0.450, 0.940) both;
+}
+
+@keyframes slide-in-top {
+  0% {
+    transform: translateY(-30px);
+    opacity: 1;
+  }
+
+  100% {
+    transform: translateY(0) rotate(-90deg);
+    opacity: 1;
+  }
+}
+
+.cartBtn:hover .cart {
+  animation: slide-in-left 1s cubic-bezier(0.250, 0.460, 0.450, 0.940) both;
+}
+
+@keyframes slide-in-left {
+  0% {
+    transform: translateX(-10px);
+    opacity: 0;
+  }
+
+  100% {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+/* Button Styling */
+/* Menu Item Card */
+.menu-item-card {
+  display: flex;
+  /* Enables flexbox */
+  flex-direction: column;
+  /* Stacks items vertically */
+  align-items: center;
+  /* Centers items horizontally */
+  justify-content: center;
+  /* Centers items vertically */
+  border-radius: 10px;
+  text-align: center;
+  width: 100%;
+  padding: 0px 0px 20px 0px;
+  /* Adds some spacing inside the card */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  /* Optional: adds shadow for better look */
+  margin: 10px;
+  /* Adds spacing between cards */
+}
+
+.menu-item-card:hover {
+  transition: 1000ms;
+  display: flex;
+  /* Enables flexbox */
+  flex-direction: column;
+  /* Stacks items vertically */
+  align-items: center;
+  /* Centers items horizontally */
+  justify-content: center;
+  /* Centers items vertically */
+  border-radius: 10px;
+  text-align: center;
+  width: 100%;
+  border: 2px black solid;
+  padding: 0px 0px 20px 0px;
+  /* Adds some spacing inside the card */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  /* Optional: adds shadow for better look */
+  margin: 10px;
+  /* Adds spacing between cards */
+}
+
+/* Menu Item Card */
+
+.fading-gradient {
+  width: 100%;
+  /* Adjust as needed */
+  height: 200px;
+  /* Adjust as needed */
+  background: linear-gradient(180deg, #741052 10%, rgba(116, 16, 82, 0) 100%);
+}
+
+
+
+
+/* Make the checkbox round */
+.custom-checkbox {
+  width: 16px;
+  /* Default size */
+  height: 16px;
+  /* Default size */
+  border: 2px solid #ccc;
+  /* Neutral border */
+  border-radius: 50%;
+  /* Makes it round */
+  background-color: white;
+  /* Default background */
+  appearance: none;
+  /* Removes default checkbox styling */
+  cursor: pointer;
+  /* Adds pointer cursor for interactivity */
+  transition: background-color 0.3s, border-color 0.3s;
+  /* Smooth transitions */
+}
+
+/* Apply styles when the checkbox is checked */
+.custom-checkbox:checked {
+  background-color: #731351;
+  /* Checked background color */
+  border-color: #731351;
+  /* Border matches the background */
+}
+
+/* Apply styles when the checkbox is focused (accessibility) */
+.custom-checkbox:focus {
+  outline: none;
+  /* Removes default outline */
+  box-shadow: 0 0 0 3px rgba(115, 19, 81, 0.5);
+  /* Adds focus ring */
+}
+
+/* Apply styles when the checkbox is active (pressed) */
+.custom-checkbox:active {
+  background-color: #731351;
+  /* Active background color */
+}
+
+.sidebar {
+  transition: width 0.3s ease;
+}
+
+.sidebar-collapsed .nav-label {
+  display: none;
+}
+
+
+
+
+body {
+  font-family: Arial, Helvetica, sans-serif;
+  /* margin-bottom: 5em; */
+}
+
+
+/* Apply conditionally to remove the large top padding on mobile */
+@media (max-width: 768px) {
+  .pt-16 {
+    padding-top: 2rem;
+    /* Reduce padding for mobile */
+  }
+
+  /* Remove negative margin */
+  .-mt-5 {
+    margin-top: 0;
+    /* Adjust margin for mobile */
+  }
+}
+
+/* Adjust padding in mobile */
+@media (max-width: 768px) {
+  .pt-16 {
+    padding-top: 0;
+    /* No extra space on mobile */
+  }
+
+  .hero {
+    margin-top: 1em;
+  }
+}
+
+@media (max-width: 768px) {
+  .fixed {
+    bottom: 0;
+    /* Ensure it stays at the bottom without affecting the hero section */
+  }
+}
+
+
+
+@layer base {
+  :root {
+    --background: 39 64% 94%;
+    /* Cream Milk #FAF3E6 */
+    --foreground: 18 39% 13%;
+    /* Dark Tea #2E1C14 */
+    --card: 0 0% 100%;
+    --card-foreground: 18 39% 13%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 18 39% 13%;
+    --primary: 17 53% 52%;
+    /* Chai Clay #C46A47 */
+    --primary-foreground: 39 64% 94%;
+    --secondary: 19 44% 29%;
+    /* Masala Brown #6B3F2A */
+    --secondary-foreground: 39 64% 94%;
+    --muted: 37 38% 90%;
+    /* Milk Foam #EFE7DB */
+    --muted-foreground: 25 20% 36%;
+    /* Soft Brown #6F5A4A */
+    --accent: 17 50% 43%;
+    /* Cinnamon Rust #A65638 */
+    --accent-foreground: 39 64% 94%;
+    --destructive: 0 50% 36%;
+    /* Error #8B2E2E */
+    --destructive-foreground: 0 0% 98%;
+    --border: 33 28% 83%;
+    /* Warm Sand #E3D6C6 */
+    --input: 33 28% 83%;
+    --ring: 17 53% 52%;
+    --chart-1: 17 53% 52%;
+    --chart-2: 126 17% 37%;
+    /* Cardamom Green #4F6F52 */
+    --chart-3: 19 44% 29%;
+    --chart-4: 17 50% 43%;
+    --chart-5: 25 20% 36%;
+    --radius: 14px;
+
+    /* Custom Brand Variable */
+    --chai-clay: 17 53% 52%;
+    --masala-brown: 19 44% 29%;
+    --cream-milk: 39 64% 94%;
+    --cinnamon-rust: 17 50% 43%;
+    --cardamom-green: 126 17% 37%;
+    --dark-tea: 18 39% 13%;
+    --soft-brown: 25 20% 36%;
+    --warm-sand: 33 28% 83%;
+    --milk-foam: 37 38% 90%;
+  }
+
+}
+
+
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+  }
+}
