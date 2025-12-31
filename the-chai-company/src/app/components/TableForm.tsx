@@ -1,11 +1,92 @@
 /* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-unused-vars */
 'use client'
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { useOrder } from "../context/OrderContext";
 import { motion, AnimatePresence } from "framer-motion";
-import { Bike, ShoppingBag, Utensils, MapPin, Users, ChevronRight, Check } from "lucide-react";
+import { Bike, ShoppingBag, Utensils, MapPin, Users, ChevronRight, Check, ChevronDown } from "lucide-react";
+
+// --- Custom Select Component ---
+interface CustomSelectProps {
+  options: string[];
+  value: string;
+  onChange: (value: string) => void;
+  placeholder: string;
+  icon: any;
+}
+
+function CustomSelect({ options, value, onChange, placeholder, icon: Icon }: CustomSelectProps) {
+  const [isOpen, setIsOpen] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
+        setIsOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  return (
+    <div className="relative" ref={containerRef}>
+      <button
+        type="button"
+        onClick={() => setIsOpen(!isOpen)}
+        className={`w-full flex items-center justify-between bg-[#FAF3E6] border text-[#2E1C14] rounded-xl px-5 py-4 focus:outline-none transition-all font-medium text-lg hover:bg-[#F5EBE0]
+          ${isOpen ? 'border-[#C46A47] ring-2 ring-[#C46A47]/20' : 'border-[#E3D6C6]'}`}
+      >
+        <span className="flex items-center gap-3">
+           <div className={`p-2 rounded-full ${value ? 'bg-[#C46A47] text-white' : 'bg-[#E3D6C6]/50 text-[#6F5A4A]'}`}>
+              <Icon size={18} strokeWidth={2.5} />
+           </div>
+           <span className={value ? "text-[#2E1C14]" : "text-[#6F5A4A]"}>
+             {value || placeholder}
+           </span>
+        </span>
+        <ChevronDown 
+          className={`text-[#6F5A4A] transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`} 
+          size={20} 
+        />
+      </button>
+
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div
+            initial={{ opacity: 0, y: -10, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -10, scale: 0.95 }}
+            transition={{ duration: 0.2, ease: "easeOut" }}
+            className="absolute z-50 w-full mt-2 bg-[#FAF3E6] border border-[#E3D6C6] rounded-xl shadow-2xl overflow-hidden"
+          >
+            <div className="max-h-60 overflow-y-auto custom-scrollbar p-2">
+              {options.map((option, idx) => (
+                <button
+                  key={idx}
+                  type="button"
+                  onClick={() => {
+                    onChange(option);
+                    setIsOpen(false);
+                  }}
+                  className={`w-full flex items-center justify-between px-4 py-3 rounded-lg text-left transition-colors mb-1 last:mb-0
+                    ${value === option 
+                      ? 'bg-[#C46A47]/10 text-[#C46A47] font-semibold' 
+                      : 'text-[#6F5A4A] hover:bg-[#C46A47]/5 hover:text-[#6B3F2A]'}`}
+                >
+                  <span className="truncate mr-2">{option}</span>
+                  {value === option && <Check size={16} strokeWidth={3} />}
+                </button>
+              ))}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}
 
 export default function OrderTypeModal() {
   const [isOpen, setIsOpen] = useState(true);
@@ -149,48 +230,34 @@ export default function OrderTypeModal() {
               >
                 <div className="bg-white p-6 rounded-2xl border border-[#E3D6C6]/50 shadow-inner mb-6">
                   {orderType === "delivery" && (
-                    <div className="space-y-2">
-                       <label className="flex items-center gap-2 text-sm font-bold text-[#6B3F2A] uppercase tracking-wider mb-2">
+                    <div className="space-y-4">
+                       <label className="flex items-center gap-2 text-sm font-bold text-[#6B3F2A] uppercase tracking-wider">
                         <MapPin size={16} className="text-[#C46A47]" />
                         Select Delivery Area
                       </label>
-                      <div className="relative">
-                        <select
-                          value={selectedArea}
-                          onChange={(e) => setSelectedArea(e.target.value)}
-                          required
-                          className="w-full appearance-none bg-[#FAF3E6] border border-[#E3D6C6] text-[#2E1C14] rounded-xl px-5 py-4 focus:outline-none focus:ring-2 focus:ring-[#C46A47] focus:border-transparent transition-all font-medium text-lg cursor-pointer hover:bg-[#F5EBE0]"
-                        >
-                          <option value="" disabled>Choose your location...</option>
-                          {deliveryAreas.map((area, idx) => (
-                            <option key={idx} value={area}>{area}</option>
-                          ))}
-                        </select>
-                        <ChevronRight className="absolute right-4 top-1/2 -translate-y-1/2 text-[#6F5A4A] pointer-events-none rotate-90" size={20} />
-                      </div>
+                      <CustomSelect 
+                        options={deliveryAreas} 
+                        value={selectedArea} 
+                        onChange={setSelectedArea} 
+                        placeholder="Choose your location..." 
+                        icon={MapPin}
+                      />
                     </div>
                   )}
 
                   {orderType === "dinein" && (
-                     <div className="space-y-2">
-                      <label className="flex items-center gap-2 text-sm font-bold text-[#6B3F2A] uppercase tracking-wider mb-2">
+                     <div className="space-y-4">
+                      <label className="flex items-center gap-2 text-sm font-bold text-[#6B3F2A] uppercase tracking-wider">
                         <Users size={16} className="text-[#C46A47]" />
                         Select Table Number
                       </label>
-                      <div className="relative">
-                        <select
-                          value={tableNumber}
-                          onChange={(e) => setTableNumber(e.target.value)}
-                          required
-                          className="w-full appearance-none bg-[#FAF3E6] border border-[#E3D6C6] text-[#2E1C14] rounded-xl px-5 py-4 focus:outline-none focus:ring-2 focus:ring-[#C46A47] focus:border-transparent transition-all font-medium text-lg cursor-pointer hover:bg-[#F5EBE0]"
-                        >
-                          <option value="" disabled>Tap to select table...</option>
-                          {generateTableOptions().map((table, idx) => (
-                            <option key={idx} value={table}>{table}</option>
-                          ))}
-                        </select>
-                        <ChevronRight className="absolute right-4 top-1/2 -translate-y-1/2 text-[#6F5A4A] pointer-events-none rotate-90" size={20} />
-                      </div>
+                      <CustomSelect 
+                        options={generateTableOptions()} 
+                        value={tableNumber} 
+                        onChange={setTableNumber} 
+                        placeholder="Tap to select table..." 
+                        icon={Utensils}
+                      />
                     </div>
                   )}
 
