@@ -52,7 +52,7 @@ const Footer: FC = () => {
           >
             <Link href={tableId ? `/order?tableId=${tableId}` : "/"}>
               <Image
-                src="the-chai-company\public\logo.webp"
+                src="/logo.webp"
                 alt="Logo"
                 width={140}
                 height={140}

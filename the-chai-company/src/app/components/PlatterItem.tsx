@@ -57,7 +57,10 @@ const PlatterItem: FC<PlatterItemProps> = ({ platter }) => {
         name: category.categoryName,
         type: 'single' as const,
         required: true, // Platter categories are typically required
-        options: categoryItems[category.categoryName] || []
+        options: (categoryItems[category.categoryName] || []).map(opt => ({
+          ...opt,
+          price: 0 // Main platter category options are included in base price
+        }))
       })),
       // Additional choices as optional categories
       ...platter.additionalChoices.map((choice, index) => ({
