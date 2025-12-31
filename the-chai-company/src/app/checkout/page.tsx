@@ -927,7 +927,7 @@ ${items
                 />
 
                 <motion.div
-                  className="relative w-full max-w-5xl bg-[#FAF3E6] rounded-[48px] shadow-[0_64px_128px_-32px_rgba(0,0,0,0.4)] overflow-hidden flex flex-col md:flex-row h-full max-h-[90vh] border border-white/20"
+                  className="relative w-full max-w-5xl bg-[#FAF3E6] rounded-[48px] shadow-[0_64px_128px_-32px_rgba(0,0,0,0.4)] overflow-hidden flex flex-col md:flex-row h-full max-h-[80vh] border border-white/20"
                   initial={{ scale: 0.9, opacity: 0, y: 40 }}
                   animate={{ scale: 1, opacity: 1, y: 0 }}
                   exit={{ scale: 0.9, opacity: 0, y: 40 }}
