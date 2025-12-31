@@ -40,7 +40,36 @@
     }
   }
 
-  /* Custom Premium Scrollbar */
+
+@layer base {
+  /* Global Scrollbar Theme */
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: #FAF3E6; /* Cream Milk */
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: #C46A47; /* Chai Clay */
+    border-radius: 9999px;
+    border: 2px solid #FAF3E6; /* Creates a floating effect */
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: #A65638; /* Cinnamon Rust */
+  }
+
+  /* Firefox Support */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: #C46A47 #FAF3E6;
+  }
+}
+
+  /* Custom Premium Scrollbar Utility */
   .custom-scrollbar::-webkit-scrollbar {
     width: 6px;
   }
