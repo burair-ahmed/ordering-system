@@ -419,8 +419,16 @@ const ThankYouPage: FC = () => {
         <div className="mt-4 border-t border-gray-200 pt-3 space-y-2 text-sm text-gray-700">
           <div className="flex items-center justify-between">
             <span>Subtotal</span>
-            <span>Rs. {(orderDetails.totalAmount || 0).toFixed(2)}</span>
+            <span>Rs. {(orderDetails.items.reduce((sum, item) => sum + (item.price * item.quantity), 0)).toFixed(2)}</span>
           </div>
+           
+           <div className="flex items-center justify-between text-green-600">
+            <span>Discount (10%)</span>
+            <span>
+              - Rs. {(orderDetails.items.reduce((sum, item) => sum + (item.price * item.quantity), 0) * 0.10).toFixed(2)}
+            </span>
+          </div>
+
           {orderType === 'delivery' && (
             <div className="flex items-center justify-between">
               <span>Delivery</span>
@@ -432,7 +440,7 @@ const ThankYouPage: FC = () => {
             <span>
               Rs.{' '}
               {(
-                (orderDetails.totalAmount || 0) +
+                (orderDetails.items.reduce((sum, item) => sum + (item.price * item.quantity), 0) * 0.90) +
                 (orderType === 'delivery' ? orderDetails.deliveryCharge || 0 : 0)
               ).toFixed(2)}
             </span>
@@ -586,11 +594,15 @@ const ThankYouPage: FC = () => {
           ).toFixed(2)}${it.variations && it.variations.length ? ` (${it.variations.join(', ')})` : ''}`
       ),
       '',
-      `Subtotal: Rs.${(orderDetails.totalAmount || 0).toFixed(2)}`,
+      `Subtotal: Rs.${((orderDetails.items || []).reduce((sum, item) => sum + (item.price * item.quantity), 0)).toFixed(2)}`,
+       `Discount (10%): - Rs.${((orderDetails.items || []).reduce((sum, item) => sum + (item.price * item.quantity), 0) * 0.10).toFixed(2)}`,
       orderDetails.ordertype === 'delivery'
         ? `Delivery: Rs.${(orderDetails.deliveryCharge || 0).toFixed(2)}`
         : '',
-      `Total: Rs.${total.toFixed(2)}`,
+      `Total: Rs.${(
+        ((orderDetails.items || []).reduce((sum, item) => sum + (item.price * item.quantity), 0) * 0.90) +
+        (orderDetails.ordertype === 'delivery' ? orderDetails.deliveryCharge || 0 : 0)
+      ).toFixed(2)}`,
     ]
       .filter(Boolean)
       .join('\n');
