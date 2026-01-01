@@ -14,7 +14,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         image, 
         categories, 
         platterCategory,
-        additionalChoices // Destructure additionalChoices from body
+        additionalChoices, // Destructure additionalChoices from body
+        discountType,
+        discountValue,
+        isVisible
       } = req.body;
 
       // Validate image format (base64 check)
@@ -36,7 +39,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         image,
         categories,
         platterCategory,
-        additionalChoices // Include additionalChoices
+        additionalChoices, // Include additionalChoices
+        discountType,
+        discountValue,
+        isVisible
       });
 
       const savedPlatter = await newPlatter.save();

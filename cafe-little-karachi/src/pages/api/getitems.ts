@@ -11,7 +11,9 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
   if (req.method === "GET") {
     try {
       // Fetch menu items for the specified category with pagination
-      const query = category ? { category } : {}; // Apply category filter if specified
+      const query = category 
+        ? { category, isVisible: { $ne: false } } 
+        : { isVisible: { $ne: false } }; // Apply category filter if specified and filter invisible items
       const menuItems = await MenuItem.find(query)
         .skip((Number(page) - 1) * Number(limit)) // Skip based on the page
         .limit(Number(limit)); // Limit the number of items fetched

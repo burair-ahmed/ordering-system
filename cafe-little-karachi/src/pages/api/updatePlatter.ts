@@ -14,6 +14,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       categories,
       additionalChoices,
       status,
+      discountType,
+      discountValue,
+      isVisible,
     } = req.body;
 
     try {
@@ -25,7 +28,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
       const platter = await Platter.findOneAndUpdate(
         { _id: id }, // Use _id if your schema uses MongoDB's default ObjectId
-        { title, description, basePrice, platterCategory, image, categories, additionalChoices, status },
+        { title, description, basePrice, platterCategory, image, categories, additionalChoices, status, discountType, discountValue, isVisible },
         { new: true }
       );
 

@@ -23,6 +23,9 @@ interface IPlatter extends Document {
   createdAt: Date;
   status: 'in stock' | 'out of stock'; // Stock status
   additionalChoices: IAdditionalChoice[]; // Additional choices like meat, soup, etc.
+  discountType?: 'percentage' | 'fixed'; // Discount type
+  discountValue?: number; // Discount value
+  isVisible: boolean; // Visibility on order page
 }
 
 const PlatterSchema: Schema = new Schema({
@@ -45,18 +48,21 @@ const PlatterSchema: Schema = new Schema({
   createdAt: { type: Date, default: Date.now },
   status: { type: String, enum: ['in stock', 'out of stock'], required: true, default: 'in stock' }, // In-stock status
   
-  // Additional choices like sauces, meat cuts, etc.
   additionalChoices: [
     {
-      heading: { type: String, required: false }, // Heading for the additional choice (e.g., "Meat", "Soup")
+      heading: { type: String, required: true },
       options: [
         {
-          name: { type: String, required: false }, // Option name (e.g., "Chicken", "Beef")
-          uuid: { type: String, required: false, default: uuidv4 }, // UUID for the option
+          name: { type: String, required: true },
+          price: { type: Number, required: true },
+          uuid: { type: String, required: true, default: uuidv4 },
         },
       ],
     },
   ],
+  discountType: { type: String, enum: ['percentage', 'fixed'] },
+  discountValue: { type: Number, default: 0 },
+  isVisible: { type: Boolean, default: true },
 });
 
 export default mongoose.models.Platters || mongoose.model<IPlatter>('Platters', PlatterSchema); 

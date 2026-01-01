@@ -19,6 +19,9 @@ interface MenuItemData {
   variations: Variation[];
   category: string;
   status: "in stock" | "out of stock";
+  discountType?: 'percentage' | 'fixed';
+  discountValue?: number;
+  isVisible?: boolean;
 }
 
 interface Variation {
@@ -32,10 +35,13 @@ interface Platter {
   description: string;
   basePrice: number;
   image: string;
-  platterCategory: string;  // New field for platter category
+  platterCategory: string;
   status: "in stock" | "out of stock";
   categories: Category[];
   additionalChoices: AdditionalChoice[];
+  discountType?: 'percentage' | 'fixed';
+  discountValue?: number;
+  isVisible?: boolean;
 }
 
 interface CategoryOption {

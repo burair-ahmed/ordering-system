@@ -16,6 +16,9 @@ import {
   Trash2,
   Upload,
   Layers,
+  Percent,
+  Eye,
+  EyeOff,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -39,6 +42,9 @@ const AddMenuItemForm = () => {
     image: null as File | string | null,
     description: "",
     category: "",
+    discountType: "percentage",
+    discountValue: "",
+    isVisible: true,
   });
 
   // Computed properties for backward compatibility
@@ -143,6 +149,9 @@ const AddMenuItemForm = () => {
     const menuItemData = {
       ...formData,
       variations: apiVariations,
+      discountType: formData.discountType,
+      discountValue: Number(formData.discountValue),
+      isVisible: formData.isVisible,
     };
 
     try {
@@ -160,6 +169,9 @@ const AddMenuItemForm = () => {
           image: null,
           description: "",
           category: "",
+          discountType: "percentage",
+          discountValue: "",
+          isVisible: true,
         });
         setVariationConfig({
           simpleVariations: [],
@@ -248,6 +260,59 @@ const AddMenuItemForm = () => {
                   step="0.01"
                   required
                 />
+              </div>
+            </div>
+
+            {/* Discount and Visibility */}
+            <div className="grid md:grid-cols-2 gap-6">
+               <div className="space-y-2">
+                <Label htmlFor="discountValue" className="text-sm font-semibold text-gray-700 flex items-center gap-2">
+                  <Percent className="h-4 w-4" />
+                  Discount (Optional)
+                </Label>
+                <div className="flex gap-2">
+                  <Input
+                    id="discountValue"
+                    name="discountValue"
+                    type="number"
+                    value={formData.discountValue}
+                    onChange={handleInputChange}
+                    placeholder="0"
+                    className="h-12 border-2 focus:border-[#741052] transition-colors flex-1"
+                    min="0"
+                  />
+                  <Select
+                    value={formData.discountType}
+                    onValueChange={(value) => setFormData(prev => ({ ...prev, discountType: value }))}
+                  >
+                    <SelectTrigger className="w-[120px] h-12 border-2 focus:border-[#741052] transition-colors">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="percentage">%</SelectItem>
+                      <SelectItem value="fixed">Fixed</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label className="text-sm font-semibold text-gray-700 flex items-center gap-2">
+                  {formData.isVisible ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
+                  Visibility
+                </Label>
+                <div className="flex items-center space-x-3 p-3 border-2 border-gray-200 rounded-xl bg-gray-50 h-12">
+                   <input
+                    type="checkbox"
+                    id="isVisible"
+                    checked={formData.isVisible}
+                    onChange={(e) => setFormData(prev => ({ ...prev, isVisible: e.target.checked }))}
+                    className="w-5 h-5 rounded border-2 border-gray-300 text-[#741052] focus:ring-[#741052] focus:ring-2 cursor-pointer"
+                  />
+                  <Label htmlFor="isVisible" className="text-sm font-medium text-gray-700 cursor-pointer select-none">
+                    {formData.isVisible ? "Visible on Menu" : "Hidden from Menu"}
+                  </Label>
+                </div>
               </div>
             </div>
 

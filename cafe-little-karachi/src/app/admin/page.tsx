@@ -22,6 +22,8 @@ import {
   Menu as MenuIcon,
   X,
   Box,
+  Eye,
+  EyeOff,
 } from 'lucide-react';
 import { useTheme } from 'next-themes';
 
@@ -75,6 +77,9 @@ interface MenuItem {
   image: string;
   variations: Variation[];
   status: 'in stock' | 'out of stock';
+  discountType?: 'percentage' | 'fixed';
+  discountValue?: number;
+  isVisible?: boolean;
 }
 interface Option {
   name: string;
@@ -97,6 +102,9 @@ interface PlatterItem {
   platterCategory: string;
   image: string;
   status: 'in stock' | 'out of stock';
+  discountType?: 'percentage' | 'fixed';
+  discountValue?: number;
+  isVisible?: boolean;
   additionalChoices: AdditionalChoice[];
   categories: Category[];
 }
@@ -260,6 +268,42 @@ const AdminDashboard: FC = () => {
       console.error(e);
     } finally {
       setLoadingPlatter(false);
+    }
+  };
+
+  const toggleMenuItemVisibility = async (item: MenuItem) => {
+    try {
+      const res = await fetch('/api/updateItem', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ...item, id: item._id, isVisible: !item.isVisible }),
+      });
+      if (res.ok) {
+        toast({ title: 'Success', description: `Item is now ${!item.isVisible ? 'visible' : 'hidden'}` });
+        fetchMenuItems();
+      } else {
+        throw new Error('Failed to update');
+      }
+    } catch (error) {
+       toast({ title: 'Error', description: 'Failed to update visibility', variant: 'destructive' });
+    }
+  };
+
+  const togglePlatterItemVisibility = async (item: PlatterItem) => {
+    try {
+      const res = await fetch('/api/updatePlatter', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ...item, id: item._id, isVisible: !item.isVisible }),
+      });
+      if (res.ok) {
+         toast({ title: 'Success', description: `Platter is now ${!item.isVisible ? 'visible' : 'hidden'}` });
+        fetchPlatterItems();
+      } else {
+        throw new Error('Failed to update');
+      }
+    } catch (error) {
+       toast({ title: 'Error', description: 'Failed to update visibility', variant: 'destructive' });
     }
   };
 
@@ -540,9 +584,213 @@ const AdminDashboard: FC = () => {
                       )}
           
                       {/* Menu Items */}
-          {activeTab==='menu'&&(<section className="space-y-4 h-[calc(100vh-200px)] overflow-y-auto pr-2"><div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sticky top-0 bg-white dark:bg-neutral-950 z-10 pb-2"><div className="space-y-1"><h2 className="text-xl font-semibold">Menu Management</h2><p className="text-sm text-neutral-500">Edit, filter, and preview menu items.</p></div><div className="flex items-center gap-2"><div className="relative"><Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400"/><Input value={menuQuery} onChange={(e)=>setMenuQuery(e.target.value)} placeholder="Search by name or category" className="h-10 w-72 pl-9"/></div><Button variant="outline" onClick={fetchMenuItems}>Refresh</Button></div></div><div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">{loadingMenu?Array.from({length:6}).map((_,i)=>(<Card key={i} className="overflow-hidden"><Skeleton className="h-40 w-full"/><div className="space-y-2 p-4"><Skeleton className="h-5 w-1/2"/><Skeleton className="h-4 w-3/4"/><Skeleton className="h-9 w-24"/></div></Card>)):filteredMenu.length>0?filteredMenu.map((item)=>(<Card key={item._id} className="overflow-hidden"><div className="flex h-40 items-center justify-center bg-neutral-100 dark:bg-neutral-900"><Image src={item.image} alt={item.title} width={140} height={140} className="h-28 w-28 rounded-lg object-cover"/></div><CardContent className="space-y-3 p-4"><div><div className="flex items-center justify-between"><h3 className="text-base font-semibold">{item.title}</h3><Badge variant={item.status==='in stock'?'default':'destructive'}>{item.status}</Badge></div><p className="mt-1 line-clamp-2 text-sm text-neutral-600 dark:text-neutral-400">{item.description}</p></div><div className="flex items-center justify-between"><span className="text-sm text-neutral-500">{item.category}</span><Button size="sm" onClick={()=>handleEditMenuItem(item)}>Edit</Button></div></CardContent></Card>)):(<Card><CardContent className="p-6 text-sm text-neutral-500">No menu items available.</CardContent></Card>)}</div></section>)}
+            {activeTab === 'menu' && (
+              <section className="space-y-4 h-[calc(100vh-200px)] overflow-y-auto pr-2">
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sticky top-0 bg-white dark:bg-neutral-950 z-10 pb-2">
+                  <div className="space-y-1">
+                    <h2 className="text-xl font-semibold">Menu Management</h2>
+                    <p className="text-sm text-neutral-500">Edit, filter, and preview menu items.</p>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="relative">
+                      <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400" />
+                      <Input
+                        value={menuQuery}
+                        onChange={(e) => setMenuQuery(e.target.value)}
+                        placeholder="Search by name or category"
+                        className="h-10 w-72 pl-9"
+                      />
+                    </div>
+                    <Button variant="outline" onClick={fetchMenuItems}>
+                      Refresh
+                    </Button>
+                  </div>
+                </div>
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                  {loadingMenu ? (
+                    Array.from({ length: 6 }).map((_, i) => (
+                      <Card key={i} className="overflow-hidden">
+                        <Skeleton className="h-40 w-full" />
+                        <div className="space-y-2 p-4">
+                          <Skeleton className="h-5 w-1/2" />
+                          <Skeleton className="h-4 w-3/4" />
+                          <Skeleton className="h-9 w-24" />
+                        </div>
+                      </Card>
+                    ))
+                  ) : filteredMenu.length > 0 ? (
+                    filteredMenu.map((item) => (
+                      <Card key={item._id} className="overflow-hidden relative group">
+                        <div className="flex h-40 items-center justify-center bg-neutral-100 dark:bg-neutral-900 relative">
+                           {/* Discount Badge */}
+                           {item.discountValue !== undefined && item.discountValue > 0 && (
+                            <div className="absolute top-2 left-2 bg-[#741052] text-white text-xs font-bold px-2 py-1 rounded-full z-10">
+                              {item.discountType === 'percentage' ? `-${item.discountValue}%` : `-Rs ${item.discountValue}`}
+                            </div>
+                           )}
+                           {/* Visibility Overlay if hidden */}
+                           {!item.isVisible && (
+                             <div className="absolute inset-0 bg-black/40 flex items-center justify-center z-20">
+                               <span className="text-white font-bold bg-black/50 px-3 py-1 rounded-full backdrop-blur-sm flex items-center gap-2">
+                                 <EyeOff className="h-4 w-4"/> Hidden
+                               </span>
+                             </div>
+                           )}
+                          <Image
+                            src={item.image}
+                            alt={item.title}
+                            width={140}
+                            height={140}
+                            className={`h-28 w-28 rounded-lg object-cover transition-opacity ${!item.isVisible ? 'opacity-50' : ''}`}
+                          />
+                        </div>
+                        <CardContent className="space-y-3 p-4">
+                          <div>
+                            <div className="flex items-center justify-between">
+                              <h3 className="text-base font-semibold">{item.title}</h3>
+                              <Badge variant={item.status === 'in stock' ? 'default' : 'destructive'}>
+                                {item.status}
+                              </Badge>
+                            </div>
+                            <p className="mt-1 line-clamp-2 text-sm text-neutral-600 dark:text-neutral-400">
+                              {item.description}
+                            </p>
+                          </div>
+                          <div className="flex items-center justify-between mt-4">
+                            <span className="text-sm text-neutral-500 font-medium">Rs {item.price}</span>
+                            <div className="flex gap-2">
+                              <Button
+                                size="icon"
+                                variant="ghost"
+                                onClick={() => toggleMenuItemVisibility(item)}
+                                className="text-neutral-500 hover:text-[#741052]"
+                                title={item.isVisible ? "Hide from Menu" : "Show on Menu"}
+                              >
+                                {item.isVisible ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
+                              </Button>
+                              <Button size="sm" onClick={() => handleEditMenuItem(item)}>
+                                Edit
+                              </Button>
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))
+                  ) : (
+                    <Card>
+                      <CardContent className="p-6 text-sm text-neutral-500">
+                        No menu items available.
+                      </CardContent>
+                    </Card>
+                  )}
+                </div>
+              </section>
+            )}
                       {/* Platter Items */}
-          {activeTab==="platter"&&(<section className="space-y-4"><div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"><div className="space-y-1"><h2 className="text-xl font-semibold">Platter Management</h2><p className="text-sm text-neutral-500">Edit, filter, and preview platters.</p></div><div className="flex items-center gap-2"><div className="relative"><Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400"/><Input value={platterQuery} onChange={e=>setPlatterQuery(e.target.value)} placeholder="Search by name or category" className="h-10 w-72 pl-9"/></div><Button variant="outline" onClick={fetchPlatterItems}>Refresh</Button></div></div><div className="max-h-[600px] overflow-y-auto pr-2"><div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">{loadingPlatter?Array.from({length:6}).map((_,i)=>(<Card key={i} className="overflow-hidden"><Skeleton className="h-40 w-full"/><div className="space-y-2 p-4"><Skeleton className="h-5 w-1/2"/><Skeleton className="h-4 w-3/4"/><Skeleton className="h-9 w-24"/></div></Card>)):filteredPlatters.length>0?filteredPlatters.map(item=>(<Card key={item._id} className="overflow-hidden"><div className="flex h-40 items-center justify-center bg-neutral-100 dark:bg-neutral-900"><Image src={item.image} alt={item.title} width={140} height={140} className="h-28 w-28 rounded-lg object-cover"/></div><CardContent className="space-y-3 p-4"><div><div className="flex items-center justify-between"><h3 className="text-base font-semibold">{item.title}</h3><Badge variant={item.status==="in stock"?"default":"destructive"}>{item.status}</Badge></div><p className="mt-1 line-clamp-2 text-sm text-neutral-600 dark:text-neutral-400">{item.description}</p></div><div className="flex items-center justify-between"><span className="text-sm text-neutral-500">{item.platterCategory}</span><Button size="sm" onClick={()=>handleEditPlatterItem(item)}>Edit</Button></div></CardContent></Card>)):(<Card><CardContent className="p-6 text-sm text-neutral-500">No platter items available.</CardContent></Card>)}</div></div></section>)}
+            {activeTab === "platter" && (
+              <section className="space-y-4">
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                  <div className="space-y-1">
+                    <h2 className="text-xl font-semibold">Platter Management</h2>
+                    <p className="text-sm text-neutral-500">Edit, filter, and preview platters.</p>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="relative">
+                      <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400" />
+                      <Input
+                        value={platterQuery}
+                        onChange={(e) => setPlatterQuery(e.target.value)}
+                        placeholder="Search by name or category"
+                        className="h-10 w-72 pl-9"
+                      />
+                    </div>
+                    <Button variant="outline" onClick={fetchPlatterItems}>
+                      Refresh
+                    </Button>
+                  </div>
+                </div>
+                <div className="max-h-[600px] overflow-y-auto pr-2">
+                  <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                    {loadingPlatter ? (
+                      Array.from({ length: 6 }).map((_, i) => (
+                        <Card key={i} className="overflow-hidden">
+                          <Skeleton className="h-40 w-full" />
+                          <div className="space-y-2 p-4">
+                            <Skeleton className="h-5 w-1/2" />
+                            <Skeleton className="h-4 w-3/4" />
+                            <Skeleton className="h-9 w-24" />
+                          </div>
+                        </Card>
+                      ))
+                    ) : filteredPlatters.length > 0 ? (
+                      filteredPlatters.map((item) => (
+                        <Card key={item._id} className="overflow-hidden relative group">
+                          <div className="flex h-40 items-center justify-center bg-neutral-100 dark:bg-neutral-900 relative">
+                             {/* Discount Badge */}
+                             {item.discountValue !== undefined && item.discountValue > 0 && (
+                              <div className="absolute top-2 left-2 bg-[#741052] text-white text-xs font-bold px-2 py-1 rounded-full z-10">
+                                {item.discountType === 'percentage' ? `-${item.discountValue}%` : `-Rs ${item.discountValue}`}
+                              </div>
+                             )}
+                             {/* Visibility Overlay */}
+                             {!item.isVisible && (
+                               <div className="absolute inset-0 bg-black/40 flex items-center justify-center z-20">
+                                 <span className="text-white font-bold bg-black/50 px-3 py-1 rounded-full backdrop-blur-sm flex items-center gap-2">
+                                   <EyeOff className="h-4 w-4"/> Hidden
+                                 </span>
+                               </div>
+                             )}
+                            <Image
+                              src={item.image}
+                              alt={item.title}
+                              width={140}
+                              height={140}
+                              className={`h-28 w-28 rounded-lg object-cover transition-opacity ${!item.isVisible ? 'opacity-50' : ''}`}
+                            />
+                          </div>
+                          <CardContent className="space-y-3 p-4">
+                            <div>
+                              <div className="flex items-center justify-between">
+                                <h3 className="text-base font-semibold">{item.title}</h3>
+                                <Badge variant={item.status === "in stock" ? "default" : "destructive"}>
+                                  {item.status}
+                                </Badge>
+                              </div>
+                              <p className="mt-1 line-clamp-2 text-sm text-neutral-600 dark:text-neutral-400">
+                                {item.description}
+                              </p>
+                            </div>
+                            <div className="flex items-center justify-between mt-4">
+                              <span className="text-sm text-neutral-500 font-medium">{item.platterCategory}</span>
+                              <div className="flex gap-2">
+                                <Button
+                                  size="icon"
+                                  variant="ghost"
+                                  onClick={() => togglePlatterItemVisibility(item)}
+                                  className="text-neutral-500 hover:text-[#741052]"
+                                  title={item.isVisible ? "Hide from Menu" : "Show on Menu"}
+                                >
+                                  {item.isVisible ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
+                                </Button>
+                                <Button size="sm" onClick={() => handleEditPlatterItem(item)}>
+                                  Edit
+                                </Button>
+                              </div>
+                            </div>
+                          </CardContent>
+                        </Card>
+                      ))
+                    ) : (
+                      <Card>
+                        <CardContent className="p-6 text-sm text-neutral-500">
+                          No platter items available.
+                        </CardContent>
+                      </Card>
+                    )}
+                  </div>
+                </div>
+              </section>
+            )}
           
           
           

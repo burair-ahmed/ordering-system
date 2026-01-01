@@ -34,6 +34,9 @@ interface EditPlatterFormProps {
     additionalChoices: AdditionalChoice[];
     categories: Category[];
     status: "in stock" | "out of stock";
+    discountType?: 'percentage' | 'fixed';
+    discountValue?: number;
+    isVisible?: boolean;
   };
   onClose: () => void;
   onUpdate: () => void;
@@ -130,6 +133,9 @@ const EditPlatterForm: React.FC<EditPlatterFormProps> = ({ item, onClose, onUpda
     platterCategory: item.platterCategory || "",
     image: item.image || "",
     status: item.status || "in stock",
+    discountType: item.discountType || "percentage",
+    discountValue: item.discountValue || 0,
+    isVisible: item.isVisible !== undefined ? item.isVisible : true,
   });
 
   const [loading, setLoading] = useState(false);
@@ -404,6 +410,53 @@ const EditPlatterForm: React.FC<EditPlatterFormProps> = ({ item, onClose, onUpda
                 onChange={handleChange}
                 className="w-full border border-gray-300 dark:border-gray-700 rounded-lg px-4 py-2 focus:ring-2 focus:ring-[#741052] focus:outline-none"
               />
+            </div>
+
+            {/* Discount */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                Discount
+              </label>
+              <div className="flex gap-2">
+                <input
+                  type="number"
+                  name="discountValue"
+                  value={formData.discountValue}
+                  onChange={handleChange}
+                  placeholder="0"
+                  className="w-full border border-gray-300 dark:border-gray-700 rounded-lg px-4 py-2 focus:ring-2 focus:ring-[#741052] focus:outline-none"
+                />
+                <select
+                  name="discountType"
+                  value={formData.discountType}
+                  onChange={handleChange}
+                  className="border border-gray-300 dark:border-gray-700 rounded-lg px-4 py-2 focus:ring-2 focus:ring-[#741052] focus:outline-none bg-white"
+                >
+                  <option value="percentage">%</option>
+                  <option value="fixed">Fixed</option>
+                </select>
+              </div>
+            </div>
+
+            {/* Visibility */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                Visibility
+              </label>
+              <div 
+                className="flex items-center gap-3 p-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-gray-50 cursor-pointer"
+                onClick={() => setFormData(prev => ({ ...prev, isVisible: !prev.isVisible }))}
+              >
+                 <input
+                  type="checkbox"
+                  checked={formData.isVisible}
+                  onChange={(e) => setFormData(prev => ({ ...prev, isVisible: e.target.checked }))}
+                  className="w-4 h-4 text-[#741052] focus:ring-[#741052] cursor-pointer"
+                />
+                <span className="text-sm text-gray-700 select-none">
+                  {formData.isVisible ? "Visible on Menu" : "Hidden from Menu"}
+                </span>
+              </div>
             </div>
 
             <div>

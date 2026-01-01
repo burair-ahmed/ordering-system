@@ -2,7 +2,7 @@ import React, { useState, useMemo, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { VariationConfig, SimpleVariation } from "../../types/variations";
 import { toast } from "sonner";
-import { X, Save, Plus, Trash2, Upload, Edit, Layers } from "lucide-react";
+import { X, Save, Plus, Trash2, Upload, Edit, Layers, Percent, Eye, EyeOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -25,6 +25,9 @@ interface EditMenuItemFormProps {
     image: string; // Base64 string
     variations: LegacyVariation[];
     status: "in stock" | "out of stock";
+    discountType?: 'percentage' | 'fixed';
+    discountValue?: number;
+    isVisible?: boolean;
   };
   onClose: () => void;
   onUpdate: () => void;
@@ -55,6 +58,9 @@ const EditMenuItemForm: React.FC<EditMenuItemFormProps> = ({
     category: item.category || "",
     image: item.image || "",
     status: item.status || "in stock",
+    discountType: item.discountType || "percentage",
+    discountValue: item.discountValue || 0,
+    isVisible: item.isVisible !== undefined ? item.isVisible : true,
   });
 
   const [loading, setLoading] = useState(false);
@@ -285,7 +291,62 @@ const EditMenuItemForm: React.FC<EditMenuItemFormProps> = ({
                       />
                     </div>
 
-                    {/* Category */}
+                     {/* Discount and Visibility */}
+                    <div className="grid grid-cols-1 gap-4">
+                      {/* Discount */}
+                      <div>
+                        <Label htmlFor="discountValue" className="text-sm font-semibold text-gray-700 flex items-center gap-2">
+                          <Percent className="h-4 w-4" />
+                          Discount
+                        </Label>
+                        <div className="flex gap-2 mt-1">
+                          <Input
+                            id="discountValue"
+                            name="discountValue"
+                            type="number"
+                            value={formData.discountValue}
+                            onChange={handleChange}
+                            placeholder="0"
+                            min="0"
+                            className="focus:ring-[#741052] focus:border-[#741052]"
+                          />
+                          <Select
+                            value={formData.discountType}
+                            onValueChange={(value) => setFormData(prev => ({ ...prev, discountType: value as 'percentage' | 'fixed' }))}
+                          >
+                            <SelectTrigger className="w-[100px] border focus:ring-[#741052] focus:border-[#741052]">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="percentage">%</SelectItem>
+                              <SelectItem value="fixed">Fix</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                      </div>
+
+                      {/* Visibility */}
+                      <div>
+                        <Label className="text-sm font-semibold text-gray-700 flex items-center gap-2">
+                           {formData.isVisible ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
+                           Visibility
+                        </Label>
+                        <div 
+                          className="mt-1 flex items-center gap-3 p-3 border rounded-md bg-gray-50 cursor-pointer"
+                          onClick={() => setFormData(prev => ({ ...prev, isVisible: !prev.isVisible }))}
+                        >
+                           <input
+                            type="checkbox"
+                            checked={formData.isVisible}
+                            onChange={(e) => setFormData(prev => ({ ...prev, isVisible: e.target.checked }))}
+                            className="w-4 h-4 text-[#741052] focus:ring-[#741052] cursor-pointer"
+                          />
+                          <span className="text-sm text-gray-700 select-none">
+                            {formData.isVisible ? "Visible" : "Hidden"}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
                     <div>
                       <Label htmlFor="category" className="text-sm font-semibold text-gray-700 flex items-center gap-2">
                         <Layers className="h-4 w-4" />

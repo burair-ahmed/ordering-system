@@ -17,6 +17,9 @@ import {
   Save,
   Trash2,
   Upload,
+  Percent,
+  Eye,
+  EyeOff,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -71,6 +74,9 @@ const AddPlatterForm = () => {
   const [basePrice, setBasePrice] = useState<number>(0);
   const [image, setImage] = useState<string | null>(null);
   const [platterCategory, setPlatterCategory] = useState("");
+  const [discountType, setDiscountType] = useState<'percentage' | 'fixed'>('percentage');
+  const [discountValue, setDiscountValue] = useState<number | ''>('');
+  const [isVisible, setIsVisible] = useState(true);
 
   // Convert legacy structure to VariationConfig
   const [variationConfig, setVariationConfig] = useState<VariationConfig>({
@@ -302,6 +308,9 @@ const AddPlatterForm = () => {
       platterCategory,
       categories: apiCategories,
       additionalChoices: apiAdditionalChoices,
+      discountType,
+      discountValue: Number(discountValue),
+      isVisible,
     };
 
     try {
@@ -321,6 +330,9 @@ const AddPlatterForm = () => {
         setBasePrice(0);
         setImage(null);
         setPlatterCategory("");
+        setDiscountType("percentage");
+        setDiscountValue("");
+        setIsVisible(true);
         setVariationConfig({
           categories: [{
             id: `category-${Date.now()}`,
@@ -481,6 +493,57 @@ const AddPlatterForm = () => {
                     <Upload className="h-4 w-4" />
                     {image ? 'Change Image' : 'Upload Image'}
                   </Button>
+                </div>
+              </div>
+            </div>
+
+            <div className="grid md:grid-cols-2 gap-6">
+               {/* Discount */}
+               <div className="space-y-2">
+                <Label htmlFor="discountValue" className="text-sm font-semibold text-gray-700 flex items-center gap-2">
+                  <Percent className="h-4 w-4" />
+                  Discount (Optional)
+                </Label>
+                <div className="flex gap-2">
+                  <Input
+                    id="discountValue"
+                    type="number"
+                    value={discountValue}
+                    onChange={(e) => setDiscountValue(e.target.value === '' ? '' : Number(e.target.value))}
+                    placeholder="0"
+                    className="h-12 border-2 focus:border-[#741052] transition-colors flex-1"
+                    min="0"
+                  />
+                  <div className="relative">
+                    <select
+                      value={discountType}
+                      onChange={(e) => setDiscountType(e.target.value as 'percentage' | 'fixed')}
+                      className="h-12 w-[120px] border-2 focus:border-[#741052] transition-colors rounded-md px-3 bg-white appearance-none"
+                    >
+                      <option value="percentage">%</option>
+                      <option value="fixed">Fixed</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+               {/* Visibility */}
+               <div className="space-y-2">
+                <Label className="text-sm font-semibold text-gray-700 flex items-center gap-2">
+                  {isVisible ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
+                  Visibility
+                </Label>
+                <div className="flex items-center space-x-3 p-3 border-2 border-gray-200 rounded-xl bg-gray-50 h-12">
+                    <input
+                    type="checkbox"
+                    id="isVisible"
+                    checked={isVisible}
+                    onChange={(e) => setIsVisible(e.target.checked)}
+                    className="w-5 h-5 rounded border-2 border-gray-300 text-[#741052] focus:ring-[#741052] focus:ring-2 cursor-pointer"
+                  />
+                  <Label htmlFor="isVisible" className="text-sm font-medium text-gray-700 cursor-pointer select-none">
+                    {isVisible ? "Visible on Menu" : "Hidden from Menu"}
+                  </Label>
                 </div>
               </div>
             </div>

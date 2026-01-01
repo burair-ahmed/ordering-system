@@ -38,6 +38,8 @@ interface PlatterItemProps {
     categories: Category[];
     additionalChoices: AdditionalChoice[];
     status: "in stock" | "out of stock";
+    discountType?: 'percentage' | 'fixed';
+    discountValue?: number;
   };
 }
 
@@ -79,6 +81,19 @@ const PlatterItem: FC<PlatterItemProps> = ({ platter }) => {
     allowMultipleCategories: true, // Platters can have multiple category types
   }), [platter.categories, platter.additionalChoices, categoryItems]);
 
+  const originalBasePrice = platter.basePrice || 0;
+
+  // Calculate discounted base price
+  const basePrice = useMemo(() => {
+    if (!platter.discountValue || platter.discountValue <= 0) return originalBasePrice;
+    if (platter.discountType === 'percentage') {
+      return originalBasePrice * (1 - platter.discountValue / 100);
+    } else if (platter.discountType === 'fixed') {
+      return Math.max(0, originalBasePrice - platter.discountValue);
+    }
+    return originalBasePrice;
+  }, [originalBasePrice, platter.discountType, platter.discountValue]);
+
   // Use the variation selector hook
   const {
     selections,
@@ -87,7 +102,7 @@ const PlatterItem: FC<PlatterItemProps> = ({ platter }) => {
     selectCategoryVariation,
     getFlattenedVariations,
     isValid
-  } = useVariationSelector(variationConfig, platter.basePrice);
+  } = useVariationSelector(variationConfig, basePrice);
 
   // Fetch category items when modal opens
   const fetchCategoryItems = useCallback(async (categoryName: string) => {
@@ -170,9 +185,16 @@ const PlatterItem: FC<PlatterItemProps> = ({ platter }) => {
           <div className="absolute bottom-0 left-0 w-full h-6 bg-gradient-to-t from-white to-transparent"></div>
         </div>
 
-        <p className="font-bold text-lg bg-gradient-to-r from-[#741052] to-[#d0269b] text-transparent bg-clip-text mt-auto">
-          Rs.{platter.basePrice.toFixed(2)}
-        </p>
+        <div className="flex items-center gap-2 mt-auto">
+          <p className="font-bold text-lg bg-gradient-to-r from-[#741052] to-[#d0269b] text-transparent bg-clip-text">
+            Rs.{basePrice.toFixed(2)}
+          </p>
+          {platter.discountValue !== undefined && platter.discountValue > 0 && (
+            <p className="text-sm text-gray-400 line-through">
+              Rs.{originalBasePrice.toFixed(2)}
+            </p>
+          )}
+        </div>
 
         <motion.button
           whileHover={platter.status === "in stock" ? { scale: 1.05 } : {}}
@@ -243,9 +265,16 @@ rounded-2xl p-4 sm:p-6 max-w-4xl w-full max-h-[90vh] overflow-y-auto flex flex-c
                   {platter.title}
                 </h2>
                 <p className="text-gray-600 mt-3">{platter.description}</p>
-                <p className="text-xl font-bold mt-4 bg-gradient-to-r from-[#741052] to-[#d0269b] text-transparent bg-clip-text">
-                  Rs.{totalPrice.toFixed(2)}
-                </p>
+                <div className="flex items-center gap-3 mt-4">
+                  <p className="text-xl font-bold bg-gradient-to-r from-[#741052] to-[#d0269b] text-transparent bg-clip-text">
+                    Rs.{totalPrice.toFixed(2)}
+                  </p>
+                  {platter.discountValue !== undefined && platter.discountValue > 0 && (
+                    <p className="text-sm text-gray-400 line-through">
+                      Rs.{(totalPrice + (originalBasePrice - basePrice)).toFixed(2)}
+                    </p>
+                  )}
+                </div>
 
                 {/* Variations */}
                 <div className="mt-6">

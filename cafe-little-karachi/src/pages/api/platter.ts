@@ -9,7 +9,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
 
     // Perform different actions based on the HTTP method
     if (req.method === 'GET') {
-      const platters = await Platter.find();
+      const platters = await Platter.find({ isVisible: { $ne: false } });
       res.status(200).json(platters);
     } else if (req.method === 'POST') {
       const newPlatter = new Platter(req.body);

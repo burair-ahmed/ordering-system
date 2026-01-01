@@ -11,6 +11,9 @@ interface IMenuItem extends Document {
   category: string; // Use 'string' instead of 'String'
   createdAt: Date;
   status: 'in stock' | 'out of stock'; // New status field
+  discountType?: 'percentage' | 'fixed'; // Discount type
+  discountValue?: number; // Discount value
+  isVisible: boolean; // Visibility on order page
 }
 
 const MenuItemSchema: Schema = new Schema({
@@ -29,6 +32,9 @@ const MenuItemSchema: Schema = new Schema({
   category: { type: String, required: true }, // Change 'String' to 'string'
   createdAt: { type: Date, default: Date.now },
   status: { type: String, enum: ['in stock', 'out of stock'], required: true, default: 'in stock' }, // New status field
+  discountType: { type: String, enum: ['percentage', 'fixed'] },
+  discountValue: { type: Number, default: 0 },
+  isVisible: { type: Boolean, default: true },
 });
 
 export default mongoose.models.MenuItems || mongoose.model<IMenuItem>('MenuItems', MenuItemSchema);

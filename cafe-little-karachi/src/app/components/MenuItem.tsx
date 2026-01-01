@@ -22,6 +22,8 @@ interface MenuItemData {
   image: string;
   variations: Variation[];
   status: "in stock" | "out of stock";
+  discountType?: 'percentage' | 'fixed';
+  discountValue?: number;
 }
 
 interface MenuItemProps {
@@ -33,7 +35,18 @@ const MenuItem: FC<MenuItemProps> = ({ item }) => {
   const [showAddedMessage, setShowAddedMessage] = useState(false);
 
   const itemId = item.id ? item.id.toString() : "0";
-  const basePrice = typeof item.price === "number" ? item.price : 0;
+  const originalPrice = typeof item.price === "number" ? item.price : 0;
+
+  // Calculate discounted base price
+  const basePrice = useMemo(() => {
+    if (!item.discountValue || item.discountValue <= 0) return originalPrice;
+    if (item.discountType === 'percentage') {
+      return originalPrice * (1 - item.discountValue / 100);
+    } else if (item.discountType === 'fixed') {
+      return Math.max(0, originalPrice - item.discountValue);
+    }
+    return originalPrice;
+  }, [originalPrice, item.discountType, item.discountValue]);
 
   // Convert legacy variations to new format
   const variationConfig: VariationConfig = useMemo(() => ({
@@ -106,9 +119,16 @@ const MenuItem: FC<MenuItemProps> = ({ item }) => {
         </div>
 
         {/* Price */}
-        <p className="font-bold text-lg bg-gradient-to-r from-[#741052] to-[#d0269b] text-transparent bg-clip-text mt-auto">
-          Rs.{basePrice.toFixed(2)}
-        </p>
+        <div className="flex items-center gap-2 mt-auto">
+          <p className="font-bold text-lg bg-gradient-to-r from-[#741052] to-[#d0269b] text-transparent bg-clip-text">
+            Rs.{basePrice.toFixed(2)}
+          </p>
+          {item.discountValue !== undefined && item.discountValue > 0 && (
+            <p className="text-sm text-gray-400 line-through">
+              Rs.{originalPrice.toFixed(2)}
+            </p>
+          )}
+        </div>
 
         {/* Add to cart button */}
         <motion.button
@@ -181,9 +201,16 @@ const MenuItem: FC<MenuItemProps> = ({ item }) => {
                 </h2>
                 <p className="text-gray-600 mt-3">{item.description}</p>
 
-                <p className="text-xl font-bold mt-4 bg-gradient-to-r from-[#741052] to-[#d0269b] text-transparent bg-clip-text">
-                  Rs.{totalPrice.toFixed(2)}
-                </p>
+                <div className="flex items-center gap-3 mt-4">
+                  <p className="text-xl font-bold bg-gradient-to-r from-[#741052] to-[#d0269b] text-transparent bg-clip-text">
+                    Rs.{totalPrice.toFixed(2)}
+                  </p>
+                  {item.discountValue !== undefined && item.discountValue > 0 && selections.simple === null && (
+                    <p className="text-sm text-gray-400 line-through">
+                      Rs.{originalPrice.toFixed(2)}
+                    </p>
+                  )}
+                </div>
 
                 {/* Variations */}
                 {variationConfig.simpleVariations && variationConfig.simpleVariations.length > 0 && (
