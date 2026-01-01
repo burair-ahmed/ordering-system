@@ -336,9 +336,13 @@ const CheckoutPageContent: FC = () => {
     [detectedArea, formData.ordertype]
   );
 
+  const discountAmount = useMemo(() => {
+    return totalAmount * 0.10;
+  }, [totalAmount]);
+
   const finalAmount = useMemo(() =>
-    totalAmount + deliveryCharge,
-    [totalAmount, deliveryCharge]
+    (totalAmount - discountAmount) + deliveryCharge,
+    [totalAmount, discountAmount, deliveryCharge]
   );
 
   // Inside the component, before return:
@@ -442,7 +446,9 @@ New Order Received:
 - Customer Name: ${customerName}
 - Table Number: ${tableNumber}
 - Payment Method: ${paymentMethod}
-- Total Amount: Rs. ${totalAmount.toFixed(2)}
+- Subtotal: Rs. ${totalAmount.toFixed(2)}
+- Discount: Rs. ${(totalAmount * 0.10).toFixed(2)}
+- Total Amount: Rs. ${order.totalAmount.toFixed(2)}
 - Items:
 ${items
   .map(
@@ -922,6 +928,11 @@ ${items
                       <span className="font-medium">Rs. {totalAmount.toFixed(2)}</span>
                     </div>
 
+                    <div className="flex justify-between text-sm text-green-600">
+                      <span>Discount (10%)</span>
+                      <span className="font-medium">- Rs. {discountAmount.toFixed(2)}</span>
+                    </div>
+
                     {formData.ordertype === "delivery" && (
                       <div className="flex justify-between text-sm">
                         <span className="text-gray-600">Delivery Charges</span>
@@ -1117,6 +1128,10 @@ ${items
                             <div className="flex justify-between">
                               <span className="text-gray-600">Subtotal:</span>
                               <span className="font-medium">Rs. {totalAmount.toFixed(2)}</span>
+                            </div>
+                            <div className="flex justify-between text-green-600">
+                              <span>Discount (10%):</span>
+                              <span className="font-medium">- Rs. {discountAmount.toFixed(2)}</span>
                             </div>
                             {formData.ordertype === "delivery" && (
                               <div className="flex justify-between">
