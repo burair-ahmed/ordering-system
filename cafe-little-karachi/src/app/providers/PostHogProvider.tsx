@@ -28,10 +28,19 @@ function PostHogPageView() {
 export function CSPostHogProvider({ children }: { children: React.ReactNode }) {
     useEffect(() => {
       if (typeof window !== 'undefined') {
-        posthog.init(process.env.NEXT_PUBLIC_POSTHOG_KEY || '', {
-          api_host: process.env.NEXT_PUBLIC_POSTHOG_HOST || 'https://us.i.posthog.com',
-          person_profiles: 'identified_only', // or 'always' to create profiles for anonymous users as well
-          capture_pageview: false, // Usage of Next.js router for page views
+        const key = process.env.NEXT_PUBLIC_POSTHOG_KEY
+        const host = process.env.NEXT_PUBLIC_POSTHOG_HOST
+        
+        console.log('Initializing PostHog with:', { key: key ? 'Present' : 'Missing', host })
+
+        posthog.init(key || '', {
+          api_host: host || 'https://us.i.posthog.com',
+          person_profiles: 'identified_only', 
+          capture_pageview: false, 
+          loaded: (ph) => {
+            console.log('PostHog loaded successfully', ph)
+            ph.debug() // Enable debug mode
+          }
         })
       }
     }, [])
