@@ -9,6 +9,7 @@ import Footer from "./components/Footer";
 // import { Toaster } from "@/components/ui/toaster"
 import { ThemeProvider } from "next-themes";
 import { Toaster } from "sonner";
+import { CSPostHogProvider } from './providers/PostHogProvider';
 import RestaurantStatusPopup from "./components/RestaurantStatusPopup";
 
 const poppins = localFont({
@@ -49,19 +50,21 @@ export default function RootLayout({
   return (
    <html lang="en" suppressHydrationWarning>
   <body className={`${poppins.variable} antialiased`}>
-    <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-      <TableProvider>
-        <CartProvider>
-        <OrderProvider>
-          <RestaurantStatusPopup/>
-          <Header />
-          {children}
-          <Footer />
-        </OrderProvider>
-        </CartProvider>
-      </TableProvider>
-      <Toaster richColors/>
-    </ThemeProvider>
+    <CSPostHogProvider>
+      <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+        <TableProvider>
+          <CartProvider>
+          <OrderProvider>
+            <RestaurantStatusPopup/>
+            <Header />
+            {children}
+            <Footer />
+          </OrderProvider>
+          </CartProvider>
+        </TableProvider>
+        <Toaster richColors/>
+      </ThemeProvider>
+    </CSPostHogProvider>
   </body>
 </html>
 
