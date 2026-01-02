@@ -10,6 +10,7 @@ import { VariationSelector } from "../../components/variations/VariationSelector
 import { useVariationSelector } from "../../hooks/useVariationSelector";
 import { VariationConfig } from "../../types/variations";
 import { X, Check } from "lucide-react";
+import posthog from 'posthog-js';
 
 interface CategoryOption {
   uuid: string;
@@ -136,6 +137,15 @@ const PlatterItem: FC<PlatterItemProps> = ({ platter }) => {
   }, [showModal, fetchCategoryItems, platter.categories]);
 
   const handleItemAdded = () => {
+    // Track Add Platter to Cart Journey Event
+    posthog.capture('journey_add_item', {
+      item_id: platter.id,
+      item_name: platter.title,
+      price: totalPrice,
+      has_variations: true, // Platters always have variations/choices
+      is_platter: true
+    });
+
     setShowAddedMessage(true);
     setTimeout(() => setShowAddedMessage(false), 1500);
   };
@@ -146,7 +156,15 @@ const PlatterItem: FC<PlatterItemProps> = ({ platter }) => {
       <motion.div
         whileHover={{ scale: 1.03, y: -4 }}
         whileTap={{ scale: 0.98 }}
-        onClick={() => setShowModal(true)}
+        onClick={() => {
+          posthog.capture('journey_view_item_details', {
+            item_name: platter.title,
+            price: basePrice,
+            category: 'Platter', // Explicitly marking as Platter
+            is_platter: true
+          });
+          setShowModal(true);
+        }}
         className="relative flex flex-col p-4 rounded-2xl cursor-pointer 
         bg-white/70 backdrop-blur-lg shadow-lg 
         border border-transparent hover:border-[#741052] transition-all duration-300"

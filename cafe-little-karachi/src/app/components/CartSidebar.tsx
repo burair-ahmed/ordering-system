@@ -10,6 +10,7 @@ import { FaTrashAlt } from "react-icons/fa";
 import { useCart } from "../context/CartContext"; // keep your existing context
 import { X } from "lucide-react";
 import { useOrder } from "../context/OrderContext";
+import posthog from 'posthog-js';
 
 const BRAND_FROM = "#741052";
 const BRAND_TO = "#d0269b";
@@ -419,7 +420,14 @@ const checkoutUrl =
                       <Link
                         href={checkoutUrl}
                         className={`inline-flex items-center gap-3 px-4 py-2 rounded-full text-white font-semibold shadow ${BRAND_GRADIENT}`}
-                        onClick={handleClose}
+                        onClick={() => {
+                          posthog.capture('journey_start_checkout', {
+                            cart_value: totalAmount,
+                            item_count: itemCount,
+                            order_type: orderType
+                          });
+                          handleClose();
+                        }}
                       >
                         <span>Checkout</span>
                         <span className="text-xs bg-white/20 px-2 py-1 rounded-full hover:text-black">

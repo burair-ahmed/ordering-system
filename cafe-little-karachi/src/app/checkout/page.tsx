@@ -37,6 +37,7 @@ import {
   Calculator,
   Mail,
 } from "lucide-react";
+import posthog from 'posthog-js';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -370,6 +371,23 @@ const CheckoutPageContent: FC = () => {
       totalAmount: finalAmount,
       status: "Received",
     };
+
+    // Identify the user to link this session to their email/phone
+    const userId = formData.email || formData.phone || `user_${Date.now()}`;
+    posthog.identify(userId, {
+      email: formData.email,
+      name: formData.name,
+      phone: formData.phone
+    });
+
+    // Track Order Submission Journey Event
+    posthog.capture('journey_submit_order', {
+      order_type: formData.ordertype,
+      payment_method: formData.paymentMethod,
+      item_count: cartItems.length,
+      total_amount: finalAmount,
+      delivery_charge: deliveryCharge
+    });
 
     try {
       const res = await fetch("/api/orders", {

@@ -8,6 +8,7 @@ import { VariationSelector } from "../../components/variations/VariationSelector
 import { useVariationSelector } from "../../hooks/useVariationSelector";
 import { VariationConfig } from "../../types/variations";
 import { X, Check } from "lucide-react";
+import posthog from 'posthog-js';
 
 interface Variation {
   name: string;
@@ -24,6 +25,7 @@ interface MenuItemData {
   status: "in stock" | "out of stock";
   discountType?: 'percentage' | 'fixed';
   discountValue?: number;
+  category: string;
 }
 
 interface MenuItemProps {
@@ -70,6 +72,14 @@ const MenuItem: FC<MenuItemProps> = ({ item }) => {
   } = useVariationSelector(variationConfig, basePrice);
 
   const handleItemAdded = () => {
+    // Track Add to Cart Journey Event
+    posthog.capture('journey_add_item', {
+      item_id: itemId,
+      item_name: item.title,
+      price: totalPrice,
+      has_variations: selections.simple !== null
+    });
+
     setShowAddedMessage(true);
     setTimeout(() => setShowAddedMessage(false), 1500);
   };
@@ -80,7 +90,14 @@ const MenuItem: FC<MenuItemProps> = ({ item }) => {
       <motion.div
         whileHover={{ scale: 1.03, y: -4 }}
         whileTap={{ scale: 0.98 }}
-        onClick={() => setShowModal(true)}
+        onClick={() => {
+          posthog.capture('journey_view_item_details', {
+            item_name: item.title,
+            price: basePrice,
+            category: item.category
+          });
+          setShowModal(true);
+        }}
         className="relative flex flex-col p-4 rounded-2xl cursor-pointer 
         bg-white/70 backdrop-blur-lg shadow-lg 
         border border-transparent hover:border-[#741052] transition-all duration-300"

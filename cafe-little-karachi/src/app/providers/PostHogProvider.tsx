@@ -35,7 +35,7 @@ export function CSPostHogProvider({ children }: { children: React.ReactNode }) {
 
         posthog.init(key || '', {
           api_host: host || 'https://us.i.posthog.com',
-          person_profiles: 'identified_only', 
+          person_profiles: 'always', // Track anonymous users as separate profiles
           capture_pageview: false, 
           loaded: (ph) => {
             console.log('PostHog loaded successfully', ph)

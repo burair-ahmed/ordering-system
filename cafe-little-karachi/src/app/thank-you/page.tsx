@@ -7,6 +7,7 @@ import Lottie from 'lottie-react';
 import successAnimation from '../../../public/lotties/success-check.json';
 import { TypeAnimation } from 'react-type-animation';
 import { toast } from 'sonner';
+import posthog from 'posthog-js';
 import { useCart } from '../context/CartContext';
 import {
   CheckCircle,
@@ -209,6 +210,17 @@ const ThankYouPage: FC = () => {
   // Play success sound + toast once when we have an order number
   useEffect(() => {
     if (!orderNumber || hasPlayedSound || prefersReducedMotion) return;
+    
+    // Track Order Success Journey Event
+    posthog.capture('journey_order_success', {
+      order_id: orderNumber,
+      order_type: orderType,
+      table_id: tableId || 'N/A'
+    });
+
+    // Reset session so next order is a new user (important for kiosk/testing)
+    posthog.reset();
+
     audioRef.current = new Audio('/notification/notification.mp3');
     audioRef.current.volume = 0.6;
     audioRef.current.play().catch(() => null);
