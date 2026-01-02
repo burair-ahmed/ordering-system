@@ -12,20 +12,10 @@ function PostHogPageView() {
   const area = searchParams?.get('area')
 
   useEffect(() => {
-    // 1. Track page views
-    if (pathname && posthog) {
-      let url = window.origin + pathname
-      if (searchParams?.toString()) {
-        url = url + `?${searchParams.toString()}`
-      }
-      posthog.capture('$pageview', {
-        '$current_url': url,
-      })
-    }
-
-    // 2. Reset Identity if Area Changes (Treat as new "User Journey")
+    // 1. Reset Identity if Area Changes (Treat as new "User Journey")
+    // Use localStorage to persist across tabs/restarts
     if (area) {
-      const lastArea = sessionStorage.getItem('posthog_last_area');
+      const lastArea = localStorage.getItem('posthog_last_area');
       
       // If we have a stored area, and it's different from current -> RESET
       if (lastArea && lastArea !== area) {
@@ -34,7 +24,34 @@ function PostHogPageView() {
       }
       
       // Update stored area
-      sessionStorage.setItem('posthog_last_area', area);
+      localStorage.setItem('posthog_last_area', area);
+    }
+
+    // 2. Track page views (Now runs after potential reset)
+    if (pathname && posthog) {
+      let url = window.origin + pathname
+      if (searchParams?.toString()) {
+        url = url + `?${searchParams.toString()}`
+      }
+
+      // Construct a readable Page Name
+      let pageName = 'Unknown Page';
+      if (pathname === '/') {
+        pageName = 'Home';
+      } else if (pathname.includes('/order')) {
+        const areaName = searchParams?.get('area') || 'Unknown Area';
+        pageName = `Menu - ${areaName}`;
+      } else if (pathname.includes('/checkout')) {
+        pageName = 'Checkout';
+      } else if (pathname.includes('/thank-you')) {
+        pageName = 'Thank You';
+      }
+
+      posthog.capture('$pageview', {
+        '$current_url': url,
+        'page_name': pageName, // Custom readable name
+        'area_context': searchParams?.get('area') || 'N/A' // Explicitly track area as a property
+      })
     }
   }, [pathname, searchParams, area])
 
