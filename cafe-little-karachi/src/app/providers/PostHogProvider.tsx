@@ -9,8 +9,10 @@ function PostHogPageView() {
   const pathname = usePathname()
   const searchParams = useSearchParams()
 
+  const area = searchParams?.get('area')
+
   useEffect(() => {
-    // Track page views
+    // 1. Track page views
     if (pathname && posthog) {
       let url = window.origin + pathname
       if (searchParams?.toString()) {
@@ -20,7 +22,21 @@ function PostHogPageView() {
         '$current_url': url,
       })
     }
-  }, [pathname, searchParams])
+
+    // 2. Reset Identity if Area Changes (Treat as new "User Journey")
+    if (area) {
+      const lastArea = sessionStorage.getItem('posthog_last_area');
+      
+      // If we have a stored area, and it's different from current -> RESET
+      if (lastArea && lastArea !== area) {
+        console.log('[PostHog] Area changed from', lastArea, 'to', area, '- Resetting Session');
+        posthog.reset();
+      }
+      
+      // Update stored area
+      sessionStorage.setItem('posthog_last_area', area);
+    }
+  }, [pathname, searchParams, area])
 
   return null
 }
