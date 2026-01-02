@@ -152,6 +152,27 @@ const MenuItem: FC<MenuItemProps> = ({ item }) => {
           whileHover={item.status === "in stock" ? { scale: 1.05 } : {}}
           whileTap={item.status === "in stock" ? { scale: 0.97 } : {}}
           disabled={item.status === "out of stock"}
+          onClick={(e) => {
+            e.stopPropagation(); // Prevent opening modal if we want direct add, OR...
+            // Wait, if this button is "Add to Cart", does it add to cart?
+            // Currently it has NO onClick, so it bubbles to card click -> opens modal.
+            // If we want "Quick Add" (One click add), we need to implement it here.
+            
+            // BUT, if the intention is JUST to ensure the event fires, bubbling is fine.
+            // UNLESS the user mistakenly thinks the button adds to cart.
+            
+            // Let's assume the current behavior (open modal) is CORRECT for the "View" step.
+            // So my previous explanation about "Quick Add Trap" might have been based on a misunderstanding of the code 
+            // OR I missed where the logic updates.
+            
+            // Let's implement the `onClick` to be EXPLICIT about firing the event, just in case bubbling behaves weirdly with some elements.
+            posthog.capture('journey_view_item_details', {
+              item_name: item.title,
+              price: basePrice,
+              category: item.category
+            });
+            setShowModal(true);
+          }}
           className={`mt-3 py-2 px-6 rounded-full font-medium text-white transition-all duration-300
             ${
               item.status === "out of stock"

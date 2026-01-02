@@ -218,6 +218,16 @@ const PlatterItem: FC<PlatterItemProps> = ({ platter }) => {
           whileHover={platter.status === "in stock" ? { scale: 1.05 } : {}}
           whileTap={platter.status === "in stock" ? { scale: 0.97 } : {}}
           disabled={platter.status === "out of stock"}
+          onClick={(e) => {
+            e.stopPropagation();
+            posthog.capture('journey_view_item_details', {
+              item_name: platter.title,
+              price: basePrice,
+              category: 'Platter',
+              is_platter: true
+            });
+            setShowModal(true);
+          }}
           className={`mt-3 py-2 px-6 rounded-full font-medium text-white transition-all duration-300
             ${
               platter.status === "out of stock"

@@ -40,10 +40,39 @@ export function CSPostHogProvider({ children }: { children: React.ReactNode }) {
           loaded: (ph) => {
             console.log('PostHog loaded successfully', ph)
             ph.debug() // Enable debug mode
+            
+            // Log the current Distinct ID for debugging
+            console.log('Current PostHog Distinct ID:', ph.get_distinct_id());
           }
         })
       }
     }, [])
+
+    // Developer Debug Tool for Resetting Session
+    const handleReset = () => {
+      posthog.reset();
+      window.location.reload();
+    };
+
+    /* Optional: Show a tiny reset button in bottom-left only in DEV mode */
+    /* Uncomment below if you want a visible button on screen */
+    // if (process.env.NODE_ENV === 'development') {
+    //   return (
+    //     <PostHogProvider client={posthog}>
+    //       <Suspense fallback={null}>
+    //         <PostHogPageView /> 
+    //       </Suspense>
+    //       {children}
+    //       <button 
+    //         onClick={handleReset}
+    //         style={{ position: 'fixed', bottom: 10, left: 10, zIndex: 9999, background: 'red', color: 'white', padding: '5px' }}
+    //       >
+    //         Reset Session
+    //       </button>
+    //     </PostHogProvider>
+    //   )
+    // }
+
 
   return (
     <PostHogProvider client={posthog}>
