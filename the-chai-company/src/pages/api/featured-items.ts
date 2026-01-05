@@ -21,14 +21,32 @@ export default async function handler(
     let featuredQuery = { isFeatured: true };
 
     // Try to get config
+    // Try to get config
     const config = await PageConfig.findOne({ type: "order-page" });
-    if (config) {
-        if (config.bestSellerItemId) {
-            bestSellerQuery = { _id: config.bestSellerItemId } as any;
+    
+    let bestSellerId: string | undefined;
+    let featuredIds: string[] = [];
+
+    if (config && config.sections) {
+        // Find best seller section
+        const bestSellerSection = config.sections.find((s: any) => s.type === 'best-seller' && s.isVisible);
+        if (bestSellerSection && bestSellerSection.props?.itemIds?.length > 0) {
+            bestSellerId = bestSellerSection.props.itemIds[0];
         }
-        if (config.featuredItemIds && config.featuredItemIds.length > 0) {
-            featuredQuery = { _id: { $in: config.featuredItemIds } } as any;
-        }
+
+        // Find featured sections (could be multiple, we'll merge them or take headers)
+        config.sections
+            .filter((s: any) => s.type === 'featured' && s.isVisible && s.props?.itemIds)
+            .forEach((s: any) => {
+                s.props.itemIds.forEach((id: string) => featuredIds.push(id));
+            });
+    }
+
+    if (bestSellerId) {
+        bestSellerQuery = { _id: bestSellerId } as any;
+    }
+    if (featuredIds.length > 0) {
+        featuredQuery = { _id: { $in: featuredIds } } as any;
     }
 
     // Fetch Best Seller (Single)
@@ -38,8 +56,8 @@ export default async function handler(
     // If not found in MenuItems, check Platters (if using universal ID this is tricky without knowing model)
     // If we used the query { isBestSeller: true } filtering is easy.
     // If we have a specific ID, we might need to check both if we don't know the type.
-    if (bestSellers.length === 0 && config?.bestSellerItemId) {
-         const platter = await Platter.findOne({ _id: config.bestSellerItemId });
+    if (bestSellers.length === 0 && bestSellerId) {
+         const platter = await Platter.findOne({ _id: bestSellerId });
          if (platter) bestSellers = [platter];
     } else if (bestSellers.length === 0) {
         // Fallback to legacy flag check if config ID didn't match anything 
@@ -57,9 +75,9 @@ export default async function handler(
     // 2. Used IDs vs Wanted IDs -> Fetch remaining from Platter.
     
     let featuredPlatters: any[] = [];
-    if (config?.featuredItemIds && config.featuredItemIds.length > 0) {
+    if (featuredIds.length > 0) {
         const foundIds = new Set(featuredMenu.map(i => i._id.toString()));
-        const missingIds = config.featuredItemIds.map(id => id.toString()).filter(id => !foundIds.has(id));
+        const missingIds = featuredIds.map(id => id.toString()).filter(id => !foundIds.has(id));
         
         if (missingIds.length > 0) {
             featuredPlatters = await Platter.find({ _id: { $in: missingIds } });
