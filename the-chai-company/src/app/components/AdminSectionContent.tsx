@@ -34,6 +34,7 @@ import { Input } from "@/components/ui/input";
 import { v4 as uuidv4 } from "uuid";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { toast } from "sonner";
 
 // --- Types ---
 interface MenuItem {
@@ -312,9 +313,9 @@ export default function AdminSectionContent() {
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify({ sections })
           });
-          alert("Layout Saved Successfully!");
+          toast.success("Layout saved successfully.");
       } catch (e) {
-          alert("Failed to save");
+          toast.error("Failed to save layout.");
       } finally {
           setSaving(false);
       }

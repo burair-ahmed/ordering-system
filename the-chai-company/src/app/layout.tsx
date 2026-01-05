@@ -8,7 +8,7 @@ import { OrderProvider } from "./context/OrderContext";
 import Footer from "./components/Footer";
 // import { Toaster } from "@/components/ui/toaster"
 import { ThemeProvider } from "next-themes";
-import { Toaster } from "sonner";
+import { Toaster } from "@/components/ui/sonner";
 import RestaurantStatusPopup from "./components/RestaurantStatusPopup";
 
 const poppins = localFont({
