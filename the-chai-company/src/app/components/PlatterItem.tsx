@@ -134,7 +134,7 @@ const PlatterItem: FC<PlatterItemProps> = ({ platter }) => {
         onClick={() => setShowModal(true)}
         className="relative flex flex-col p-4 rounded-[24px] cursor-pointer 
         bg-white border border-[#E3D6C6]/60 shadow-[0_10px_30px_-10px_rgba(107,63,42,0.05)]
-        hover:shadow-[0_40px_80px_-20px_rgba(196,106,71,0.15)] hover:border-[#C46A47]/40 transition-all duration-500 group overflow-hidden h-full min-h-[420px]"
+        hover:shadow-[0_40px_80px_-20px_rgba(196,106,71,0.15)] hover:border-[#C46A47]/40 transition-all duration-500 group overflow-hidden h-full"
       >
         {/* Decorative background element */}
         <div className="absolute top-0 right-0 w-32 h-32 bg-[#C46A47]/5 rounded-full blur-3xl -translate-y-12 translate-x-12 group-hover:bg-[#C46A47]/10 transition-colors" />
@@ -171,12 +171,12 @@ const PlatterItem: FC<PlatterItemProps> = ({ platter }) => {
         </div>
 
         {/* Description */}
-        <p className="text-xs md:text-sm text-[#6F5A4A]/80 line-clamp-2 mb-4 md:mb-6 leading-relaxed font-light">
+        <p className="text-xs md:text-sm text-[#6F5A4A]/80 line-clamp-2 mb-2 leading-relaxed font-light">
           {platter.description}
         </p>
 
         {/* Price & Action */}
-        <div className="mt-auto flex items-end justify-between">
+        <div className="mt-auto flex items-center justify-between">
           <div>
             <span className="text-[10px] md:text-xs text-[#C46A47] font-bold uppercase tracking-widest block mb-0.5 opacity-60">Price</span>
             <p className="font-black text-xl md:text-2xl text-[#C46A47] flex items-baseline gap-1">
