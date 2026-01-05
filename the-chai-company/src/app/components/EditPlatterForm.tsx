@@ -458,6 +458,8 @@ const EditPlatterForm: React.FC<EditPlatterFormProps> = ({ item, onClose, onUpda
                 <option value="out of stock">Out of Stock</option>
               </select>
             </div>
+
+
           </div>
 
           {/* Right Column */}

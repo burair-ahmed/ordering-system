@@ -29,6 +29,8 @@ const MenuItemSchema: Schema = new Schema({
   category: { type: String, required: true }, // Change 'String' to 'string'
   createdAt: { type: Date, default: Date.now },
   status: { type: String, enum: ['in stock', 'out of stock'], required: true, default: 'in stock' }, // New status field
+  isBestSeller: { type: Boolean, default: false },
+  isFeatured: { type: Boolean, default: false },
 });
 
 export default mongoose.models.MenuItems || mongoose.model<IMenuItem>('MenuItems', MenuItemSchema);

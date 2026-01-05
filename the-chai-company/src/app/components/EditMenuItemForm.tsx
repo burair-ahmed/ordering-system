@@ -374,6 +374,8 @@ const EditMenuItemForm: React.FC<EditMenuItemFormProps> = ({
                               <div className="w-2 h-2 bg-red-500 rounded-full"></div>
                               Out of Stock
                             </div>
+
+
                           </SelectItem>
                         </SelectContent>
                       </Select>

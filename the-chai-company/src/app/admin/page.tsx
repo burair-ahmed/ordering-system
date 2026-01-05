@@ -33,6 +33,7 @@ import AnalyticsPage from '../components/Analytics';
 import CompletedOrders from '../components/CompletedOrders';
 import AddPlatterForm from '../components/AddPlatterForm';
 import EditPlatterForm from '../components/EditPlatterForm';
+import AdminSectionContent from '../components/AdminSectionContent';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -110,6 +111,7 @@ type TabKey =
   | 'tables'
   | 'completedOrders'
   | 'analytics'
+  | 'sections'
   | 'settings';
 
 const TABS: { key: TabKey; label: string; icon: any }[] = [
@@ -121,8 +123,13 @@ const TABS: { key: TabKey; label: string; icon: any }[] = [
   { key: 'tables', label: 'Tables', icon: Table2 },
   { key: 'completedOrders', label: 'Completed', icon: Archive },
   { key: 'analytics', label: 'Analytics', icon: BarChart3 },
+  { key: 'sections', label: 'Section Content', icon: LayoutDashboard },
   { key: 'settings', label: 'Settings', icon: Settings },
 ];
+
+
+
+
 
 const BRAND = {
   primary: 'from-[#C46A47] to-[#A65638]',
@@ -588,6 +595,10 @@ const AdminDashboard: FC = () => {
                         </Card>
                       )}
           
+                      {activeTab === 'sections' && (
+                          <AdminSectionContent />
+                      )}
+
                       {activeTab === 'settings' && (
                         <Card className="rounded-[18px]">
                           <CardHeader>

@@ -482,6 +482,8 @@ const AddPlatterForm = () => {
                     {image ? 'Change Image' : 'Upload Image'}
                   </Button>
                 </div>
+
+
               </div>
             </div>
 

@@ -57,6 +57,8 @@ const PlatterSchema: Schema = new Schema({
       ],
     },
   ],
+  isBestSeller: { type: Boolean, default: false },
+  isFeatured: { type: Boolean, default: false },
 });
 
 export default mongoose.models.Platters || mongoose.model<IPlatter>('Platters', PlatterSchema); 

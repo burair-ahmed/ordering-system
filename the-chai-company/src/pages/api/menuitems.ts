@@ -14,7 +14,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
   await testMongoConnection();
 
   if (req.method === "POST") {
-    const { title, price, description, image, variations, category } = req.body;
+    const { title, price, description, image, variations, category, isBestSeller, isFeatured } = req.body;
 
     // Validate input
     if (!title || !price || !description || !category) {
@@ -35,6 +35,8 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
         image,
         variations: variationsWithUUID, // Use the updated variations
         category,
+        isBestSeller: isBestSeller || false,
+        isFeatured: isFeatured || false,
       });
 
       const result = await newMenuItem.save();

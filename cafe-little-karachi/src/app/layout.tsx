@@ -50,7 +50,7 @@ export default function RootLayout({
 }>) {
   return (
    <html lang="en" suppressHydrationWarning>
-  <body className={`${poppins.variable} antialiased`}>
+  <body className={`${poppins.variable} antialiased`} suppressHydrationWarning>
     <CSPostHogProvider>
       <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
         <TableProvider>
