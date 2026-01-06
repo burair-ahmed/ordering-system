@@ -1,10 +1,10 @@
 // src/pages/api/tables/index.ts
 import { NextApiRequest, NextApiResponse } from "next";
-import testMongoConnection from "../../../lib/testConnection";
+import connectDB from "@/lib/db";
 import Table from "../../../models/tableSchema";
 
 const handler = async (req: NextApiRequest, res: NextApiResponse) => {
-  await testMongoConnection();
+  await connectDB();
 
   if (req.method === "GET") {
     try {

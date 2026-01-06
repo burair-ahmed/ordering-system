@@ -50,6 +50,11 @@ interface PageSection {
 export default function MenuPage() {
   const [sections, setSections] = useState<PageSection[]>([]);
   const [loadingConfig, setLoadingConfig] = useState(true);
+  const menuRef = useRef<HTMLDivElement>(null);
+
+  const scrollToMenu = () => {
+    menuRef.current?.scrollIntoView({ behavior: 'smooth' });
+  };
 
   // Data Stores
   const [itemsByCat, setItemsByCat] = useState<{ [key: string]: any[] }>({});
@@ -181,7 +186,7 @@ export default function MenuPage() {
               if (s.props.sourceType === 'category' && s.props.categoryId) {
                   // If not loaded, load
                   if (!itemsByCat[s.props.categoryId]) {
-                      loadCategory(s.props.categoryId);
+                       loadCategory(s.props.categoryId);
                   }
               }
           }
@@ -195,7 +200,7 @@ export default function MenuPage() {
           const itemId = section.props.itemIds?.[0];
           const item = itemId ? itemsById[itemId] : null;
           if (!item && !loadingConfig) return null; // Don't show if missing
-          return <BestSeller key={section.id} item={item} />;
+          return <BestSeller key={section.id} item={item} onOrder={scrollToMenu} />;
       }
 
       if (section.type === 'featured') {
@@ -250,8 +255,8 @@ export default function MenuPage() {
 
   return (
     <div className="bg-[#FAF3E6] min-h-screen text-[#2E1C14]">
-      <Hero />
-      <div className="pb-20">
+      <Hero onOrder={scrollToMenu} />
+      <div className="pb-20" ref={menuRef}>
           {sections.map(section => (
               <div key={section.id}>
                   {renderSection(section)}

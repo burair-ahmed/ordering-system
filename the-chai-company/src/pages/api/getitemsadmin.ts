@@ -1,10 +1,10 @@
 import { NextApiRequest, NextApiResponse } from "next";
-import connectToDatabase from "../../lib/testConnection"; // Replace with your actual database connection function
+import connectDB from "@/lib/db";
 import MenuItem from "../../models/MenuItem"; // Your Mongoose model for MenuItem
 
 const handler = async (req: NextApiRequest, res: NextApiResponse) => {
   // Connect to the database
-  await connectToDatabase();
+  await connectDB();
 
   if (req.method === "GET") {
     try {

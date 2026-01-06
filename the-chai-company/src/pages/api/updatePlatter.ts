@@ -1,6 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import Platter from '../../models/Platter';
-import testMongoConnection from '../../lib/testConnection';
+import connectDB from "@/lib/db";
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method === 'PUT') {
@@ -23,7 +23,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         return res.status(400).json({ message: 'Missing required fields' });
       }
 
-      await testMongoConnection();
+      await connectDB();
 
       const platter = await Platter.findOneAndUpdate(
         { _id: id }, // Use _id if your schema uses MongoDB's default ObjectId

@@ -1,11 +1,11 @@
 import { NextApiRequest, NextApiResponse } from 'next';
-import testMongoConnection from '../../lib/testConnection'; // Import the testMongoConnection function
+import connectDB from "@/lib/db";
 import Platter from '../../models/Platter'; // Assuming you have a Platter model in the models folder
 
 const handler = async (req: NextApiRequest, res: NextApiResponse) => {
   try {
     // Establish the MongoDB connection but don't store it if not needed
-    await testMongoConnection(); // Only call the function if you need to test the connection
+    await connectDB();
 
     // Perform different actions based on the HTTP method
     if (req.method === 'GET') {

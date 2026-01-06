@@ -1,9 +1,9 @@
 import { NextApiRequest, NextApiResponse } from 'next';
-import testMongoConnection from '../../lib/testConnection'; // Import your database connection helper
+import connectDB from "@/lib/db";
 import MenuItem from '../../models/MenuItem'; // Replace with your menu item model
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  await testMongoConnection(); // Ensure the database is connected
+  await connectDB();
 
   if (req.method === 'PUT') {
     const { id, title, description, price, category, variations, image, status, isBestSeller, isFeatured } = req.body;

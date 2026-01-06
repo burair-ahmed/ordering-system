@@ -3,7 +3,7 @@
 import { motion } from 'framer-motion';
 import Image from 'next/image';
 
-export default function Hero() {
+export default function Hero({ onOrder }: { onOrder?: () => void }) {
   return (
     <section className="relative h-[60vh] md:h-[70vh] flex items-center justify-center overflow-hidden bg-[#2E1C14]">
       {/* Background with dynamic parallax-like feel */}
@@ -49,7 +49,10 @@ export default function Hero() {
             transition={{ delay: 1 }}
             className="mt-12 flex flex-col sm:flex-row items-center justify-center gap-4"
           >
-            <button className="px-8 py-4 rounded-2xl bg-[#C46A47] text-white font-bold text-lg shadow-[0_20px_40px_-10px_rgba(196,106,71,0.5)] hover:bg-[#A65638] transition-all hover:scale-105 active:scale-95">
+            <button 
+              onClick={onOrder}
+              className="px-8 py-4 rounded-2xl bg-[#C46A47] text-white font-bold text-lg shadow-[0_20px_40px_-10px_rgba(196,106,71,0.5)] hover:bg-[#A65638] transition-all hover:scale-105 active:scale-95"
+            >
               Order Now
             </button>
             <button className="px-8 py-4 rounded-2xl bg-white/10 backdrop-blur-lg border border-white/20 text-white font-bold text-lg hover:bg-white/20 transition-all">

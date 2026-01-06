@@ -1,9 +1,9 @@
 import { NextApiRequest, NextApiResponse } from "next";
-import testMongoConnection from "../../../lib/testConnection";  // Reuse your MongoDB connection utility
+import connectDB from "@/lib/db";
 import Table from "../../../models/tableSchema";  // Import the Table model
 
 const handler = async (req: NextApiRequest, res: NextApiResponse) => {
-  await testMongoConnection();
+  await connectDB();
 
   const { id } = req.query;  // Get table ID from the URL
 

@@ -1,5 +1,5 @@
 import { NextApiRequest, NextApiResponse } from "next";
-import testMongoConnection from "../../lib/testConnection";
+import connectDB from "@/lib/db";
 import Order from "../../models/Order";
 
 const PASSWORD = process.env.DELETE_PASSWORD || "securepassword"; // Use a secure password from environment variables
@@ -18,7 +18,7 @@ const deleteOrderHandler = async (req: NextApiRequest, res: NextApiResponse) => 
     }
 
     try {
-      await testMongoConnection();
+      await connectDB();
       const deletedOrder = await Order.findOneAndDelete({ orderNumber });
 
       if (!deletedOrder) {

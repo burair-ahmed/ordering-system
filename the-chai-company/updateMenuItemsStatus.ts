@@ -1,8 +1,9 @@
+require('dotenv').config();
 const mongoose = require('mongoose');
 const MenuItems = require('./src/models/MenuItem'); // Correct the path if needed
 
-// MongoDB connection string
-const MONGODB_URI = 'mongodb+srv://admin:jHG1csS4fbZWUcrL@cafe-little.mfqm3.mongodb.net/?retryWrites=true&w=majority&appName=cafe-little';
+// MongoDB connection string from environment variable
+const MONGODB_URI = process.env.MONGODB_URI;
 
 // Function to update the status of menu items
 async function updateMenuItemsStatus() {

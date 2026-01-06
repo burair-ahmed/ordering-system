@@ -4,9 +4,10 @@ import { Button } from "@/components/ui/button";
 
 interface BestSellerProps {
   item: any; // Using any for now to support both MenuItem and Platter, can be refined to a Union type
+  onOrder?: () => void;
 }
 
-const BestSeller = ({ item }: BestSellerProps) => {
+const BestSeller = ({ item, onOrder }: BestSellerProps) => {
   if (!item) return null;
 
   return (
@@ -38,6 +39,7 @@ const BestSeller = ({ item }: BestSellerProps) => {
                  Rs. {item.price || item.basePrice}
                 </div>
                 <Button 
+                  onClick={onOrder}
                   className="bg-[#FF8C00] hover:bg-[#E07B00] text-white px-8 py-6 rounded-xl text-lg font-semibold shadow-lg transition-transform hover:scale-105 active:scale-95"
                 >
                   Order Now

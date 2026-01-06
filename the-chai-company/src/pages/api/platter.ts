@@ -1,11 +1,11 @@
 import { NextApiRequest, NextApiResponse } from 'next';
-import testMongoConnection from '../../lib/testConnection'; // Import the testMongoConnection function
+import connectDB from "@/lib/db";
 import Platter from '../../models/Platter'; // Assuming you have a Platter model in the models folder
 
 const handler = async (req: NextApiRequest, res: NextApiResponse) => {
   try {
    
-    await testMongoConnection();
+    await connectDB();
 
     // Perform different actions based on the HTTP method
     if (req.method === 'GET') {

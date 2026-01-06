@@ -151,10 +151,10 @@ export default function OrderTypeModal() {
         initial={{ scale: 0.9, opacity: 0, y: 20 }}
         animate={{ scale: 1, opacity: 1, y: 0 }}
         transition={{ type: "spring", stiffness: 300, damping: 25 }}
-        className="relative w-full max-w-2xl bg-[#FAF3E6] rounded-[32px] overflow-hidden shadow-[0_20px_60px_-15px_rgba(0,0,0,0.3)] border border-[#E3D6C6]/50"
+        className="relative w-full max-w-2xl bg-[#FAF3E6] rounded-[32px] shadow-[0_20px_60px_-15px_rgba(0,0,0,0.3)] border border-[#E3D6C6]/50"
       >
         {/* Decorative Top Bar */}
-        <div className="h-2 w-full bg-gradient-to-r from-[#C46A47] via-[#A65638] to-[#6B3F2A]" />
+        <div className="h-2 w-full bg-gradient-to-r from-[#C46A47] via-[#A65638] to-[#6B3F2A] rounded-t-[32px]" />
 
         <div className="p-8 md:p-10">
           <div className="text-center mb-10">
@@ -226,7 +226,7 @@ export default function OrderTypeModal() {
                 animate={{ opacity: 1, height: 'auto' }}
                 exit={{ opacity: 0, height: 0 }}
                 onSubmit={handleSubmit}
-                className="overflow-hidden"
+                className=""
               >
                 <div className="bg-white p-6 rounded-2xl border border-[#E3D6C6]/50 shadow-inner mb-6">
                   {orderType === "delivery" && (

@@ -1,6 +1,6 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import { v4 as uuidv4 } from "uuid";  // Import UUID
-import testMongoConnection from "../../lib/testConnection";
+import connectDB from "@/lib/db";
 import MenuItem from "../../models/MenuItem";
 
 // Define an interface for the variation
@@ -11,7 +11,7 @@ interface Variation {
 }
 
 const handler = async (req: NextApiRequest, res: NextApiResponse) => {
-  await testMongoConnection();
+  await connectDB();
 
   if (req.method === "POST") {
     const { title, price, description, image, variations, category, isBestSeller, isFeatured } = req.body;

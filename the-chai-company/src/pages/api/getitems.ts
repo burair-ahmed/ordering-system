@@ -1,9 +1,9 @@
 import { NextApiRequest, NextApiResponse } from "next";
-import connectToDatabase from "../../lib/testConnection";
+import connectDB from "@/lib/db";
 import MenuItem from "../../models/MenuItem";
 
 const handler = async (req: NextApiRequest, res: NextApiResponse) => {
-  await connectToDatabase();
+  await connectDB();
 
   // Handling pagination params (page and limit)
   const { page = 1, limit = 10, category = "" } = req.query;

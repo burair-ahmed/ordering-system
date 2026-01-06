@@ -1,11 +1,11 @@
 import { NextApiRequest, NextApiResponse } from "next";
-import testMongoConnection from "../../lib/testConnection"; // MongoDB connection utility
+import connectDB from "@/lib/db";
 import Platter from "../../models/Platter"; // Platter model
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method === "POST") {
     try {
-      await testMongoConnection();
+    await connectDB();
 
       const { 
         title, 
