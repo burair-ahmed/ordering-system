@@ -49,18 +49,17 @@ interface PageSection {
   isVisible: boolean;
   props: {
     sourceType?: 'category' | 'manual'; 
+    itemType?: 'menu' | 'platter'; // New field for differentiating categories
     categoryId?: string; 
     itemIds?: string[];
   };
 }
 
-// --- Mock Data for Categories (Should optimally fetch from backend) ---
-const AVAILABLE_CATEGORIES = [
-    "Chinese","Beast BBQ","Rolls Royce","Flavoured Feast","Burger-E-Karachi", "Chicken Karahis",
-    "Mutton Karahis","Handi and Qeema","Marvellous Matka Biryani Chicken/Beef","Charming Chai",
-    "Paratha Performance","Very Fast Food","Shawarmania","French Boys Fries","Rice","Beverages",
-    "Juicy Lucy","Roti Shoti","Very Extra", "CLK Deals","Meal Boxes","Sharing Platters","BBQ Deals","Fast Food Deals"
-];
+// --- Types ---
+interface CategoryItem {
+    _id: string;
+    name: string;
+}
 
 const SECTION_Types = [
     { type: 'best-seller', label: 'Best Seller Section', desc: 'Highlights a single product' },
@@ -70,12 +69,14 @@ const SECTION_Types = [
 ];
 
 // --- Sortable Section Component ---
-function SortableSection({ section, index, updateSection, removeSection, items }: {
+function SortableSection({ section, index, updateSection, removeSection, items, categories, platterCategories }: {
     section: PageSection;
     index: number;
     updateSection: (id: string, updates: Partial<PageSection>) => void;
     removeSection: (id: string) => void;
     items: MenuItem[];
+    categories: CategoryItem[];
+    platterCategories: CategoryItem[];
 }) {
     const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id: section.id });
     const [expanded, setExpanded] = useState(false);
@@ -156,12 +157,29 @@ function SortableSection({ section, index, updateSection, removeSection, items }
                                 </Select>
                             </div>
                         )}
+                        
+                        {/* New Item Type Selector for Category Source */}
+                        {section.props.sourceType === 'category' && ['grid', 'slider'].includes(section.type) && (
+                            <div>
+                                <Label>Item Type</Label>
+                                <Select 
+                                    value={section.props.itemType || 'menu'} 
+                                    onValueChange={(val: any) => updateProps({ itemType: val, categoryId: "" })}
+                                >
+                                    <SelectTrigger><SelectValue /></SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="menu">Menu Items</SelectItem>
+                                        <SelectItem value="platter">Platters</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                        )}
                     </div>
 
                     {/* Category Selector */}
                     {section.props.sourceType === 'category' && (['grid', 'slider'].includes(section.type)) && (
                         <div>
-                            <Label>Select Category</Label>
+                            <Label>Select {section.props.itemType === 'platter' ? 'Platter ' : ''}Category</Label>
                             <Select 
                                 value={section.props.categoryId} 
                                 onValueChange={(val) => updateProps({ categoryId: val })}
@@ -169,9 +187,9 @@ function SortableSection({ section, index, updateSection, removeSection, items }
                                 <SelectTrigger>
                                     <SelectValue placeholder="Choose category..." />
                                 </SelectTrigger>
-                                <SelectContent className="max-h-[200px]">
-                                    {AVAILABLE_CATEGORIES.map(cat => (
-                                        <SelectItem key={cat} value={cat}>{cat}</SelectItem>
+                                <SelectContent className="max-h-[300px]">
+                                    {(section.props.itemType === 'platter' ? platterCategories : categories).map(cat => (
+                                        <SelectItem key={cat._id} value={cat.name}>{cat.name}</SelectItem>
                                     ))}
                                 </SelectContent>
                             </Select>
@@ -231,6 +249,8 @@ function SortableSection({ section, index, updateSection, removeSection, items }
 export default function AdminSectionContent() {
   const [sections, setSections] = useState<PageSection[]>([]);
   const [items, setItems] = useState<MenuItem[]>([]);
+  const [categories, setCategories] = useState<CategoryItem[]>([]);
+  const [platterCategories, setPlatterCategories] = useState<CategoryItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   
@@ -245,11 +265,16 @@ export default function AdminSectionContent() {
 
   const fetchData = async () => {
     try {
-        const [configRes, menuRes, platterRes] = await Promise.all([
+        const [configRes, menuRes, platterRes, categoriesRes, platterCatsRes] = await Promise.all([
             fetch("/api/page-config").then(r => r.json()),
             fetch("/api/getitemsadmin").then(r => r.json()),
-            fetch("/api/platteradmin").then(r => r.json())
+            fetch("/api/platteradmin").then(r => r.json()),
+            fetch("/api/categories").then(r => r.json()),
+            fetch("/api/platter-categories").then(r => r.json())
         ]);
+        
+        setCategories(categoriesRes || []);
+        setPlatterCategories(platterCatsRes || []);
         
         const combinedItems = [
             ...(menuRes || []),
@@ -277,7 +302,8 @@ export default function AdminSectionContent() {
           isVisible: true,
           props: {
               sourceType: 'category',
-              categoryId: AVAILABLE_CATEGORIES[0], // Default to first category
+              itemType: 'menu',
+              categoryId: categories.length > 0 ? categories[0].name : "",
               itemIds: []
           }
       };
@@ -370,11 +396,6 @@ export default function AdminSectionContent() {
                     strategy={verticalListSortingStrategy}
                   >
                       <div className="max-w-3xl mx-auto pb-20">
-                          {sections.length === 0 && (
-                              <div className="text-center py-20 text-gray-400 dashed-border rounded-xl border-2 border-dashed">
-                                  Select a section from the left to start building your page.
-                              </div>
-                          )}
                           {sections.map((section, index) => (
                               <SortableSection 
                                 key={section.id} 
@@ -383,6 +404,8 @@ export default function AdminSectionContent() {
                                 updateSection={updateSection}
                                 removeSection={removeSection}
                                 items={items}
+                                categories={categories}
+                                platterCategories={platterCategories}
                               />
                           ))}
                       </div>

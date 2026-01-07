@@ -14,7 +14,7 @@ export default function Hero({ onOrder }: { onOrder?: () => void }) {
         className="absolute inset-0 z-0"
       >
         <Image
-          src="/bg-hero.webp"
+          src="/bg-hero1.webp"
           alt="Premium Chai Background"
           fill
           className="object-cover object-center scale-105"

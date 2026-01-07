@@ -154,7 +154,7 @@ const CategorySection = ({
                     viewport={{ once: true }}
                     transition={{ duration: 0.4, delay: index * 0.05 }}
                   >
-                    {isPlatter ? <PlatterItem platter={item} /> : <MenuItem item={item} />}
+                    {isPlatter || item.basePrice !== undefined ? <PlatterItem platter={item} /> : <MenuItem item={item} />}
                   </motion.div>
                  );
               })}

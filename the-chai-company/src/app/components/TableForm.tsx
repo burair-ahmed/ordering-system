@@ -14,11 +14,16 @@ interface CustomSelectProps {
   onChange: (value: string) => void;
   placeholder: string;
   icon: any;
+  onOpenStateChange?: (isOpen: boolean) => void;
 }
 
-function CustomSelect({ options, value, onChange, placeholder, icon: Icon }: CustomSelectProps) {
+function CustomSelect({ options, value, onChange, placeholder, icon: Icon, onOpenStateChange }: CustomSelectProps) {
   const [isOpen, setIsOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    onOpenStateChange?.(isOpen);
+  }, [isOpen, onOpenStateChange]);
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -93,6 +98,7 @@ export default function OrderTypeModal() {
   const [orderType, setOrderType] = useState<"delivery" | "pickup" | "dinein" | "">("");
   const [selectedArea, setSelectedArea] = useState("");
   const [tableNumber, setTableNumber] = useState("");
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const router = useRouter();
   const { setOrder } = useOrder();
 
@@ -151,10 +157,11 @@ export default function OrderTypeModal() {
         initial={{ scale: 0.9, opacity: 0, y: 20 }}
         animate={{ scale: 1, opacity: 1, y: 0 }}
         transition={{ type: "spring", stiffness: 300, damping: 25 }}
-        className="relative w-full max-w-2xl bg-[#FAF3E6] rounded-[32px] shadow-[0_20px_60px_-15px_rgba(0,0,0,0.3)] border border-[#E3D6C6]/50"
+        className={`relative w-full max-w-2xl bg-[#FAF3E6] rounded-[32px] shadow-[0_20px_60px_-15px_rgba(0,0,0,0.3)] border border-[#E3D6C6]/50 
+          ${isDropdownOpen ? 'overflow-visible' : 'overflow-hidden'}`}
       >
-        {/* Decorative Top Bar */}
-        <div className="h-2 w-full bg-gradient-to-r from-[#C46A47] via-[#A65638] to-[#6B3F2A] rounded-t-[32px]" />
+        {/* Decorative Top Bar - Fused structurally, clipped by parent overflow */}
+        <div className="h-1.5 md:h-2 w-full bg-gradient-to-r from-[#C46A47] via-[#A65638] to-[#6B3F2A]" />
 
         <div className="p-8 md:p-10">
           <div className="text-center mb-10">
@@ -241,6 +248,7 @@ export default function OrderTypeModal() {
                         onChange={setSelectedArea} 
                         placeholder="Choose your location..." 
                         icon={MapPin}
+                        onOpenStateChange={setIsDropdownOpen}
                       />
                     </div>
                   )}
@@ -257,6 +265,7 @@ export default function OrderTypeModal() {
                         onChange={setTableNumber} 
                         placeholder="Tap to select table..." 
                         icon={Utensils}
+                        onOpenStateChange={setIsDropdownOpen}
                       />
                     </div>
                   )}
