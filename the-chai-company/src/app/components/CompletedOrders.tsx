@@ -18,6 +18,7 @@ import {
   Check,
   X,
 } from 'lucide-react';
+import { toast } from 'sonner';
 import Preloader from './Preloader';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -70,7 +71,7 @@ const CompletedOrders: FC = () => {
         setPage(data.page || targetPage);
         setTotalPages(data.totalPages || 1);
       } else {
-        alert('Failed to fetch completed orders.');
+        toast.error('Failed to fetch completed orders.');
       }
     } catch (error) {
       console.error('Error fetching completed orders:', error);

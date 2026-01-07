@@ -35,6 +35,7 @@ import { v4 as uuidv4 } from "uuid";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
+import { LuxuryConfirmModal } from "./LuxuryConfirmModal";
 
 // --- Types ---
 interface MenuItem {
@@ -253,6 +254,8 @@ export default function AdminSectionContent() {
   const [platterCategories, setPlatterCategories] = useState<CategoryItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [sectionToDelete, setSectionToDelete] = useState<string | null>(null);
   
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -311,8 +314,14 @@ export default function AdminSectionContent() {
   };
 
   const removeSection = (id: string) => {
-      if (confirm("Are you sure you want to delete this section?")) {
-          setSections(sections.filter(s => s.id !== id));
+      setSectionToDelete(id);
+      setIsDeleteModalOpen(true);
+  };
+
+  const handleConfirmDelete = () => {
+      if (sectionToDelete) {
+          setSections(sections.filter(s => s.id !== sectionToDelete));
+          setSectionToDelete(null);
       }
   };
 
@@ -413,6 +422,16 @@ export default function AdminSectionContent() {
               </DndContext>
           </div>
       </div>
+      
+      <LuxuryConfirmModal 
+        isOpen={isDeleteModalOpen}
+        title="Delete Section"
+        message="Are you sure you want to remove this section? This action cannot be undone."
+        confirmLabel="Delete Section"
+        onConfirm={handleConfirmDelete}
+        onClose={() => setIsDeleteModalOpen(false)}
+        variant="danger"
+      />
     </div>
   );
 }
