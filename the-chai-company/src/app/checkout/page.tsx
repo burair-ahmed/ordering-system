@@ -835,15 +835,15 @@ ${items
                   </div>
 
                   {/* Pricing Breakdown */}
-                  <div className="mt-10 pt-8 border-t border-[#FAF3E6]/10 space-y-4">
+                  <div className="mt-10 pt-8 border-t border-[#fff]/10 space-y-4">
                     <div className="flex justify-between items-center group">
-                      <span className="text-[#FAF3E6]/40 text-[11px] font-black uppercase tracking-widest">Subtotal</span>
+                      <span className="text-[#fff] text-[11px] font-black uppercase tracking-widest">Subtotal</span>
                       <span className="font-bold">Rs. {totalAmount.toFixed(2)}</span>
                     </div>
                     
                     {formData.ordertype === "delivery" && (
                       <div className="flex justify-between items-center">
-                        <span className="text-sm font-medium text-[#6F5A4A]/60 uppercase tracking-widest">Delivery Charge</span>
+                        <span className="text-sm font-medium text-[#fff] uppercase tracking-widest">Delivery Charge</span>
                         <div className="flex items-center gap-2">
                              <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></div>
                              <span className="font-bold">Rs. {deliveryCharge.toFixed(2)}</span>
@@ -858,15 +858,15 @@ ${items
                       </div>
                     )}
 
-                    <div className="pt-6 mt-2 border-t border-dashed border-[#FAF3E6]/20">
+                    <div className="pt-6 mt-2 border-t border-dashed border-[#fff]/20">
                       <div className="flex justify-between items-end">
                         <div className="space-y-1">
-                             <p className="text-[#FAF3E6]/40 text-[10px] font-black uppercase tracking-widest">Total</p>
+                             <p className="text-[#fff] text-[10px] font-black uppercase tracking-widest">Total</p>
                              <p className="text-3xl font-black text-white tracking-tight">Total.<span className="text-[#C46A47]">_</span></p>
                         </div>
                         <div className="text-right">
                              <p className="text-4xl font-black text-[#C46A47]">Rs. {(finalAmount + Number(tipAmount || 0)).toFixed(0)}</p>
-                             <p className="text-[10px] text-[#FAF3E6]/30 font-medium">Incl. all taxes</p>
+                             <p className="text-[10px] text-[#fff] font-medium">Incl. all taxes</p>
                         </div>
                       </div>
                     </div>
@@ -884,7 +884,7 @@ ${items
                     >
                       <div className="absolute inset-0 bg-white/10 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000"></div>
                       <ArrowRight size={24} className="group-hover:translate-x-1 transition-transform" />
-                      Commit Order
+                      Place Order
                     </button>
                     <p className="text-center text-[10px] text-[#FAF3E6]/30 font-black uppercase tracking-widest mt-6 flex items-center justify-center gap-2">
                         <ShieldCheck size={12} className="text-[#C46A47]" /> Secure Checkout
@@ -982,12 +982,12 @@ ${items
                              </div>
                         )}
                          {Number(tipAmount) > 0 && (
-                             <div className="flex justify-between text-xs font-black text-[#C46A47]">
+                             <div className="flex justify-between text-xs font-black text-[#fff]">
                                 <span>Artisan Tip</span>
                                 <span>Rs. {tipAmount}</span>
                              </div>
                         )}
-                        <div className="flex justify-between items-end pt-4 border-t border-[#FAF3E6]/20">
+                        <div className="flex justify-between items-end pt-4 border-t border-[#fff]/20">
                             <span className="text-2xl font-black text-white">Total</span>
                             <span className="text-3xl font-black text-[#C46A47]">Rs. {(finalAmount + Number(tipAmount || 0)).toFixed(0)}</span>
                         </div>
