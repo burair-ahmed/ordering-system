@@ -137,13 +137,10 @@ export function useVariationSelector(config: VariationConfig, basePrice: number 
 
   // Get flattened variations for cart/order
   const getFlattenedVariations = useCallback((): string[] => {
-    const simpleVars = selections.simple.map(v =>
-      `${v.categoryId || 'Simple'}: ${v.optionName}`
-    );
-    const categoryVars = Object.entries(selections.categories)
-      .flatMap(([categoryId, vars]) =>
-        vars.map(v => `${categoryId}: ${v.optionName}`)
-      );
+    const simpleVars = selections.simple.map(v => v.optionName);
+    const categoryVars = Object.values(selections.categories)
+      .flat()
+      .map(v => v.optionName);
     return [...simpleVars, ...categoryVars];
   }, [selections]);
 

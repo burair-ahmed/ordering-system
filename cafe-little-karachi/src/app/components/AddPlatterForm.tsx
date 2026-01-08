@@ -35,6 +35,8 @@ const AddPlatterForm = () => {
   const [availableCategories, setAvailableCategories] = useState<{ _id: string, name: string }[]>([]);
   // New Platter Categories (for the platter itself)
   const [availablePlatterCategories, setAvailablePlatterCategories] = useState<{ _id: string, name: string }[]>([]);
+  // All Menu Items (for individual selection)
+  const [allMenuItems, setAllMenuItems] = useState<{ _id: string, title: string, category: string }[]>([]);
   
   const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
   const [isPlatterCategoryModalOpen, setIsPlatterCategoryModalOpen] = useState(false);
@@ -53,6 +55,12 @@ const AddPlatterForm = () => {
       .then(res => res.json())
       .then(data => setAvailablePlatterCategories(data))
       .catch(err => console.error("Error fetching platter categories:", err));
+
+    // Fetch All Menu Items
+    fetch('/api/getitemsadmin')
+      .then(res => res.json())
+      .then(data => setAllMenuItems(data))
+      .catch(err => console.error("Error fetching menu items:", err));
   }, []);
 
   // Handler for Item Categories (Old) - Only for indices >= 0
@@ -87,17 +95,25 @@ const AddPlatterForm = () => {
         name: "",
         type: 'single' as const,
         required: true,
-        options: []
-      }
+        options: [],
+        selectionType: 'category' as 'category' | 'items',
+        itemIds: []
+      } as any
     ],
     allowMultipleCategories: true,
   });
+
+  // Since VariationConfig type in types/variations.ts doesn't have selectionType/itemIds,
+  // we'll use a local extending type for the form state or just cast it.
+  // For the sake of this form, we'll keep it in variationConfig and cast when needed.
 
   // Computed properties for backward compatibility with existing UI
   const categories = useMemo(() =>
     variationConfig.categories?.map(cat => ({
       categoryName: cat.name,
-      options: cat.options.map(opt => ({ name: opt.name }))
+      options: cat.options.map(opt => ({ name: opt.name })),
+      selectionType: (cat as any).selectionType || 'category',
+      itemIds: (cat as any).itemIds || []
     })) || [],
     [variationConfig.categories]
   );
@@ -127,6 +143,41 @@ const AddPlatterForm = () => {
     });
   };
 
+  const handleSelectionTypeChange = (index: number, type: 'category' | 'items') => {
+    setVariationConfig(prev => {
+      const updatedCategories = [...(prev.categories || [])];
+      if (updatedCategories[index]) {
+        updatedCategories[index] = {
+          ...updatedCategories[index],
+          selectionType: type,
+          // Reset relevant fields when switching
+          name: '',
+          itemIds: []
+        } as any;
+      }
+      return {
+        ...prev,
+        categories: updatedCategories
+      };
+    });
+  };
+
+  const handleItemIdsChange = (index: number, itemIds: string[]) => {
+    setVariationConfig(prev => {
+      const updatedCategories = [...(prev.categories || [])];
+      if (updatedCategories[index]) {
+        updatedCategories[index] = {
+          ...updatedCategories[index],
+          itemIds: itemIds
+        } as any;
+      }
+      return {
+        ...prev,
+        categories: updatedCategories
+      };
+    });
+  };
+
   const handleAddCategory = () => {
     setVariationConfig(prev => ({
       ...prev,
@@ -137,8 +188,10 @@ const AddPlatterForm = () => {
           name: "",
           type: 'single' as const,
           required: true,
-          options: []
-        }
+          options: [],
+          selectionType: 'category' as 'category' | 'items',
+          itemIds: []
+        } as any
       ]
     }));
   };
@@ -242,8 +295,10 @@ const AddPlatterForm = () => {
             name: "",
             price: 0,
             available: true
-          }]
-        }
+          }],
+          selectionType: 'category' as 'category' | 'items',
+          itemIds: []
+        } as any
       ]
     }));
   };
@@ -292,7 +347,9 @@ const AddPlatterForm = () => {
 
     const apiCategories = requiredCategories.map(cat => ({
       categoryName: cat.name,
-      options: cat.options.map(opt => ({ name: opt.name }))
+      options: cat.options.map(opt => ({ name: opt.name })),
+      selectionType: (cat as any).selectionType || 'category',
+      itemIds: (cat as any).itemIds || []
     }));
 
     const apiAdditionalChoices = additionalCategories.map(cat => ({
@@ -339,8 +396,10 @@ const AddPlatterForm = () => {
             name: "",
             type: 'single' as const,
             required: true,
-            options: []
-          }],
+            options: [],
+            selectionType: 'category' as 'category' | 'items',
+            itemIds: []
+          } as any],
           allowMultipleCategories: true,
         });
       } else {
@@ -599,45 +658,128 @@ const AddPlatterForm = () => {
                   animate={{ opacity: 1, x: 0 }}
                   exit={{ opacity: 0, x: 20 }}
                   transition={{ duration: 0.3 }}
-                  className="flex gap-3 items-end"
+                  className="flex flex-col gap-4 p-4 border-2 border-gray-100 rounded-2xl bg-white shadow-sm"
                 >
-                  <div className="flex-1">
-                    <Label className="text-sm font-medium text-gray-600 mb-2 block">
+                  <div className="flex justify-between items-center bg-gray-50/50 p-2 rounded-xl mb-2">
+                    <span className="text-xs font-black uppercase tracking-widest text-[#741052] ml-2">
                       Category {categoryIndex + 1}
-                    </Label>
-                    <div className="relative">
-                      <select
-                        value={category.categoryName}
-                        onChange={(e) => {
-                          if (e.target.value === '__new__') {
-                            setActiveCategoryIndex(categoryIndex);
-                            setIsCategoryModalOpen(true);
-                          } else {
-                            handleCategoryChange(categoryIndex, e.target.value);
-                          }
-                        }}
-                        className="h-12 w-full border-2 focus:border-[#741052] transition-colors rounded-md px-3 bg-white"
-                        required
+                    </span>
+                    <div className="flex gap-2">
+                      <button
+                        type="button"
+                        onClick={() => handleSelectionTypeChange(categoryIndex, 'category')}
+                        className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                          category.selectionType === 'category'
+                            ? 'bg-[#741052] text-white'
+                            : 'bg-white text-gray-400 border border-gray-200 hover:border-[#741052]/30'
+                        }`}
                       >
-                        <option value="">Select a Category</option>
-                        {availableCategories.map((cat) => (
-                          <option key={cat._id} value={cat.name}>
-                            {cat.name}
-                          </option>
-                        ))}
-                        <option value="__new__" className="font-semibold text-[#741052]">+ Create New Category</option>
-                      </select>
+                        Category Mode
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleSelectionTypeChange(categoryIndex, 'items')}
+                        className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                          category.selectionType === 'items'
+                            ? 'bg-[#741052] text-white'
+                            : 'bg-white text-gray-400 border border-gray-200 hover:border-[#741052]/30'
+                        }`}
+                      >
+                        Individual Items
+                      </button>
                     </div>
                   </div>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="icon"
-                    onClick={() => handleRemoveCategory(categoryIndex)}
-                    className="h-12 w-12 border-2 border-red-200 hover:border-red-400 hover:bg-red-50"
-                  >
-                    <Trash2 className="h-4 w-4 text-red-500" />
-                  </Button>
+
+                  <div className="flex gap-3 items-end">
+                    <div className="flex-1">
+                      {category.selectionType === 'category' ? (
+                        <>
+                          <Label className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2 block ml-1">
+                            Select Item Category
+                          </Label>
+                          <div className="relative">
+                            <select
+                              value={category.categoryName}
+                              onChange={(e) => {
+                                if (e.target.value === '__new__') {
+                                  setActiveCategoryIndex(categoryIndex);
+                                  setIsCategoryModalOpen(true);
+                                } else {
+                                  handleCategoryChange(categoryIndex, e.target.value);
+                                }
+                              }}
+                              className="h-12 w-full border-2 border-gray-100 focus:border-[#741052] transition-colors rounded-xl px-4 bg-white text-sm font-medium"
+                              required
+                            >
+                              <option value="">Select a Category</option>
+                              {availableCategories.map((cat) => (
+                                <option key={cat._id} value={cat.name}>
+                                  {cat.name}
+                                </option>
+                              ))}
+                              <option value="__new__" className="font-semibold text-[#741052]">+ Create New Category</option>
+                            </select>
+                          </div>
+                        </>
+                      ) : (
+                        <div className="space-y-4">
+                          <div className="flex justify-between items-center mb-1">
+                            <Label className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">
+                              Select Specific Items
+                            </Label>
+                            <span className="text-[10px] bg-[#741052]/10 text-[#741052] px-2 py-0.5 rounded-full font-bold">
+                              {category.itemIds?.length || 0} Selected
+                            </span>
+                          </div>
+                          <div className="border-2 border-gray-100 rounded-xl max-h-48 overflow-y-auto p-2 bg-gray-50/30">
+                            {allMenuItems.length > 0 ? (
+                              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                                {allMenuItems.map((item) => (
+                                  <label 
+                                    key={item._id} 
+                                    className={`flex items-center gap-3 p-2.5 rounded-lg border-2 transition-all cursor-pointer group ${
+                                      category.itemIds?.includes(item._id)
+                                        ? 'border-[#741052] bg-[#741052]/5'
+                                        : 'border-transparent hover:bg-white hover:shadow-sm'
+                                    }`}
+                                  >
+                                    <input
+                                      type="checkbox"
+                                      checked={category.itemIds?.includes(item._id)}
+                                      onChange={(e) => {
+                                        const currentIds = [...(category.itemIds || [])];
+                                        if (e.target.checked) {
+                                          handleItemIdsChange(categoryIndex, [...currentIds, item._id]);
+                                        } else {
+                                          handleItemIdsChange(categoryIndex, currentIds.filter(id => id !== item._id));
+                                        }
+                                      }}
+                                      className="w-4 h-4 rounded border-gray-300 text-[#741052] focus:ring-[#741052]"
+                                    />
+                                    <div className="flex flex-col min-w-0">
+                                      <span className="text-xs font-bold text-gray-700 truncate">{item.title}</span>
+                                      <span className="text-[9px] font-black uppercase text-gray-400 tracking-wider truncate">{item.category}</span>
+                                    </div>
+                                  </label>
+                                ))}
+                              </div>
+                            ) : (
+                              <p className="text-center py-8 text-xs text-gray-400 font-medium italic">No items found</p>
+                            )}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="icon"
+                      onClick={() => handleRemoveCategory(categoryIndex)}
+                      className="h-12 w-12 border-2 border-red-50/50 hover:border-red-400 hover:bg-red-50 transition-all rounded-xl"
+                    >
+                      <Trash2 className="h-5 w-5 text-red-500" />
+                    </Button>
+                  </div>
                 </motion.div>
               ))}
             </AnimatePresence>

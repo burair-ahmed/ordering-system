@@ -18,7 +18,12 @@ interface IPlatter extends Document {
   basePrice: number;
   description: string;
   image: string;
-  categories: { categoryName: string; options: { name: string }[] }[]; // Categories with options, no price for options
+  categories: { 
+    categoryName: string; 
+    options: { name: string }[];
+    selectionType: 'category' | 'items';
+    itemIds?: string[];
+  }[]; // Categories with options or specific items
   platterCategory: string; // New field for platter category
   createdAt: Date;
   status: 'in stock' | 'out of stock'; // Stock status
@@ -37,6 +42,8 @@ const PlatterSchema: Schema = new Schema({
   categories: [
     {
       categoryName: { type: String, required: false }, // Name of the category (e.g., "Soup", "Meat Cut")
+      selectionType: { type: String, enum: ['category', 'items'], default: 'category' },
+      itemIds: [{ type: String }],
       options: [
         {
           name: { type: String, required: false }, // Options for the category (e.g., "Chicken Tikka", "Beef Gravy")

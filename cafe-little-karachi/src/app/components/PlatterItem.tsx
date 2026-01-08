@@ -22,6 +22,8 @@ interface CategoryOption {
 interface Category {
   categoryName: string;
   options: CategoryOption[];
+  selectionType?: 'category' | 'items';
+  itemIds?: string[];
 }
 
 interface AdditionalChoice {
@@ -55,16 +57,19 @@ const PlatterItem: FC<PlatterItemProps> = ({ platter }) => {
   const variationConfig: VariationConfig = useMemo(() => ({
     categories: [
       // Main categories (dynamic from API)
-      ...platter.categories.map((category, index) => ({
-        id: `category-${index}`,
-        name: category.categoryName,
-        type: 'single' as const,
-        required: true, // Platter categories are typically required
-        options: (categoryItems[category.categoryName] || []).map(opt => ({
-          ...opt,
-          price: 0 // Main platter category options are included in base price
-        }))
-      })),
+      ...platter.categories.map((category, index) => {
+        const categoryKey = category.categoryName || `Selection-${index}`;
+        return {
+          id: `category-${index}`,
+          name: category.categoryName || "Select Options",
+          type: 'single' as const,
+          required: true, // Platter categories are typically required
+          options: (categoryItems[categoryKey] || []).map(opt => ({
+            ...opt,
+            price: 0 // Main platter category options are included in base price
+          }))
+        };
+      }),
       // Additional choices as optional categories
       ...platter.additionalChoices.map((choice, index) => ({
         id: `additional-${index}`,
@@ -122,13 +127,35 @@ const PlatterItem: FC<PlatterItemProps> = ({ platter }) => {
     }
   }, []);
 
+  const fetchItemsByIds = useCallback(async (ids: string[]) => {
+    try {
+      const response = await fetch(`/api/getitems?ids=${ids.join(',')}`);
+      const data = await response.json();
+      return data.map((item: any) => ({
+        id: item.id?.toString() || item._id,
+        name: item.title,
+        price: item.price || 0,
+        available: item.status === 'in stock'
+      }));
+    } catch (error) {
+      console.error("Error fetching specific items:", error);
+      return [];
+    }
+  }, []);
+
   useEffect(() => {
     if (showModal) {
       const fetchItemsForCategories = async () => {
         const itemsForCategories: { [key: string]: any[] } = {};
         for (const category of platter.categories) {
-          const items = await fetchCategoryItems(category.categoryName);
-          itemsForCategories[category.categoryName] = items;
+          let items = [];
+          if (category.selectionType === 'items' && category.itemIds && category.itemIds.length > 0) {
+            items = await fetchItemsByIds(category.itemIds);
+          } else if (category.categoryName) {
+            items = await fetchCategoryItems(category.categoryName);
+          }
+          const categoryKey = category.categoryName || `Selection-${platter.categories.indexOf(category)}`;
+          itemsForCategories[categoryKey] = items;
         }
         setCategoryItems(itemsForCategories);
       };

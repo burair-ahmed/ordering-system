@@ -21,6 +21,8 @@ interface AdditionalChoice {
 interface Category {
   categoryName: string;
   options: { name: string }[];
+  selectionType?: 'category' | 'items';
+  itemIds?: string[];
 }
 
 interface EditPlatterFormProps {
@@ -47,6 +49,8 @@ const EditPlatterForm: React.FC<EditPlatterFormProps> = ({ item, onClose, onUpda
   const [availableCategories, setAvailableCategories] = useState<{ _id: string, name: string }[]>([]);
   // Platter Categories (New)
   const [availablePlatterCategories, setAvailablePlatterCategories] = useState<{ _id: string, name: string }[]>([]);
+  // All Menu Items (for individual selection)
+  const [allMenuItems, setAllMenuItems] = useState<{ _id: string, title: string, category: string }[]>([]);
   
   const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
   const [isPlatterCategoryModalOpen, setIsPlatterCategoryModalOpen] = useState(false);
@@ -65,6 +69,12 @@ const EditPlatterForm: React.FC<EditPlatterFormProps> = ({ item, onClose, onUpda
       .then(res => res.json())
       .then(data => setAvailablePlatterCategories(data))
       .catch(err => console.error("Error fetching platter categories:", err));
+
+    // Fetch All Menu Items
+    fetch('/api/getitemsadmin')
+      .then(res => res.json())
+      .then(data => setAllMenuItems(data))
+      .catch(err => console.error("Error fetching menu items:", err));
   }, []);
 
   // Handler for Item Categories - only for indices >= 0
@@ -98,8 +108,10 @@ const EditPlatterForm: React.FC<EditPlatterFormProps> = ({ item, onClose, onUpda
           name: opt.name,
           price: 0,
           available: true
-        }))
-      });
+        })),
+        selectionType: (category as any).selectionType || 'category',
+        itemIds: (category as any).itemIds || []
+      } as any);
     });
 
     // Convert additional choices (optional)
@@ -144,7 +156,9 @@ const EditPlatterForm: React.FC<EditPlatterFormProps> = ({ item, onClose, onUpda
   const categories = useMemo(() =>
     variationConfig.categories?.filter(cat => cat.required).map(cat => ({
       categoryName: cat.name,
-      options: cat.options.map(opt => ({ name: opt.name }))
+      options: cat.options.map(opt => ({ name: opt.name })),
+      selectionType: (cat as any).selectionType || 'category',
+      itemIds: (cat as any).itemIds || []
     })) || [],
     [variationConfig.categories]
   );
@@ -152,10 +166,47 @@ const EditPlatterForm: React.FC<EditPlatterFormProps> = ({ item, onClose, onUpda
   const additionalChoices = useMemo(() =>
     variationConfig.categories?.filter(cat => !cat.required).map(cat => ({
       heading: cat.name,
-      options: cat.options.map(opt => ({ name: opt.name, uuid: opt.id }))
+      options: cat.options.map(opt => ({ name: opt.name, uuid: opt.id })),
+      selectionType: (cat as any).selectionType || 'category',
+      itemIds: (cat as any).itemIds || []
     })) || [],
     [variationConfig.categories]
   );
+
+  const handleSelectionTypeChange = (index: number, type: 'category' | 'items') => {
+    setVariationConfig(prev => {
+      const updatedCategories = [...(prev.categories || [])];
+      if (updatedCategories[index]) {
+        updatedCategories[index] = {
+          ...updatedCategories[index],
+          selectionType: type,
+          // Reset relevant fields when switching
+          name: '',
+          itemIds: []
+        } as any;
+      }
+      return {
+        ...prev,
+        categories: updatedCategories
+      };
+    });
+  };
+
+  const handleItemIdsChange = (index: number, itemIds: string[]) => {
+    setVariationConfig(prev => {
+      const updatedCategories = [...(prev.categories || [])];
+      if (updatedCategories[index]) {
+        updatedCategories[index] = {
+          ...updatedCategories[index],
+          itemIds: itemIds
+        } as any;
+      }
+      return {
+        ...prev,
+        categories: updatedCategories
+      };
+    });
+  };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -219,12 +270,14 @@ const EditPlatterForm: React.FC<EditPlatterFormProps> = ({ item, onClose, onUpda
           id: `category-${Date.now()}`,
           name: "",
           type: 'single' as const,
-          required: true,
-          options: []
-        }
-      ]
-    }));
-  };
+           required: true,
+           options: [],
+           selectionType: 'category' as 'category' | 'items',
+           itemIds: []
+         } as any
+       ]
+     }));
+   };
 
   const handleAdditionalChoiceChange = (index: number, field: string, value: string, optionIndex?: number) => {
     setVariationConfig(prev => {
@@ -328,10 +381,12 @@ const EditPlatterForm: React.FC<EditPlatterFormProps> = ({ item, onClose, onUpda
       const requiredCategories = variationConfig.categories?.filter(cat => cat.required) || [];
       const additionalCategories = variationConfig.categories?.filter(cat => !cat.required) || [];
 
-      const apiCategories = requiredCategories.map(cat => ({
-        categoryName: cat.name,
-        options: cat.options.map(opt => ({ name: opt.name }))
-      }));
+       const apiCategories = requiredCategories.map(cat => ({
+         categoryName: cat.name,
+         options: cat.options.map(opt => ({ name: opt.name })),
+         selectionType: (cat as any).selectionType || 'category',
+         itemIds: (cat as any).itemIds || []
+       }));
 
       const apiAdditionalChoices = additionalCategories.map(cat => ({
         heading: cat.name,
@@ -342,12 +397,12 @@ const EditPlatterForm: React.FC<EditPlatterFormProps> = ({ item, onClose, onUpda
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          id: item._id,
-          ...formData,
-          categories: apiCategories,
-          additionalChoices: apiAdditionalChoices
-        }),
-      });
+           id: item._id,
+           ...formData,
+           categories: apiCategories,
+           additionalChoices: apiAdditionalChoices
+         }),
+       });
 
       const data = await response.json();
       if (!response.ok) throw new Error("Failed to update platter");
@@ -560,41 +615,135 @@ const EditPlatterForm: React.FC<EditPlatterFormProps> = ({ item, onClose, onUpda
                 Categories
               </label>
               {categories.map((category, categoryIndex) => (
-                <div key={categoryIndex} className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg shadow-sm mb-4">
-                    <div className="relative mb-2">
-                      <select
-                        value={category.categoryName}
-                        onChange={(e) => {
-                          if (e.target.value === '__new__') {
-                            setActiveCategoryIndex(categoryIndex);
-                            setIsCategoryModalOpen(true);
-                          } else {
-                            handleCategoryChange(categoryIndex, e.target.value);
-                          }
-                        }}
-                        className="w-full border border-gray-300 dark:border-gray-700 rounded-lg px-4 py-2 focus:ring-2 focus:ring-[#741052] focus:outline-none bg-white"
+                <div key={categoryIndex} className="bg-gray-50 dark:bg-gray-800 p-6 rounded-2xl shadow-sm mb-6 border border-gray-100 dark:border-gray-700">
+                  <div className="flex justify-between items-center mb-4 pb-2 border-b border-gray-100 dark:border-gray-700">
+                    <span className="text-xs font-black uppercase tracking-widest text-[#741052]">
+                      Category {categoryIndex + 1}
+                    </span>
+                    <div className="flex gap-2">
+                      <button
+                        type="button"
+                        onClick={() => handleSelectionTypeChange(categoryIndex, 'category')}
+                        className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                          (category as any).selectionType === 'category'
+                            ? 'bg-[#741052] text-white'
+                            : 'bg-white dark:bg-gray-900 text-gray-400 border border-gray-200 dark:border-gray-700'
+                        }`}
                       >
-                        <option value="">Select a Category</option>
-                        {availableCategories.map((cat) => (
-                          <option key={cat._id} value={cat.name}>
-                            {cat.name}
-                          </option>
-                        ))}
-                        <option value="__new__" className="font-semibold text-[#741052]">+ Create New Category</option>
-                      </select>
+                        Category
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleSelectionTypeChange(categoryIndex, 'items')}
+                        className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                          (category as any).selectionType === 'items'
+                            ? 'bg-[#741052] text-white'
+                            : 'bg-white dark:bg-gray-900 text-gray-400 border border-gray-200 dark:border-gray-700'
+                        }`}
+                      >
+                        Items
+                      </button>
                     </div>
-                  {category.options.map((option, optionIndex) => (
-                    <input
-                      key={optionIndex}
-                      type="text"
-                      value={option.name}
-                      onChange={(e) =>
-                        handleCategoryOptionChange(categoryIndex, optionIndex, e.target.value)
-                      }
-                      placeholder="Option Name"
-                      className="w-full border border-gray-300 dark:border-gray-700 rounded-lg px-4 py-2 mb-2 focus:ring-2 focus:ring-[#741052] focus:outline-none"
-                    />
-                  ))}
+                  </div>
+
+                  {(category as any).selectionType === 'category' ? (
+                    <div className="space-y-4">
+                      <div className="relative">
+                        <label className="block text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1 ml-1">
+                          Item Category
+                        </label>
+                        <select
+                          value={category.categoryName}
+                          onChange={(e) => {
+                            if (e.target.value === '__new__') {
+                              setActiveCategoryIndex(categoryIndex);
+                              setIsCategoryModalOpen(true);
+                            } else {
+                              handleCategoryChange(categoryIndex, e.target.value);
+                            }
+                          }}
+                          className="w-full border border-gray-300 dark:border-gray-700 rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-[#741052] focus:outline-none bg-white dark:bg-gray-900 text-sm"
+                        >
+                          <option value="">Select a Category</option>
+                          {availableCategories.map((cat) => (
+                            <option key={cat._id} value={cat.name}>
+                              {cat.name}
+                            </option>
+                          ))}
+                          <option value="__new__" className="font-semibold text-[#741052]">+ Create New Category</option>
+                        </select>
+                      </div>
+                      
+                      <div className="space-y-2">
+                        <label className="block text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1 ml-1">
+                          Options Preview
+                        </label>
+                        {category.options.map((option, optionIndex) => (
+                          <input
+                            key={optionIndex}
+                            type="text"
+                            value={option.name}
+                            onChange={(e) =>
+                              handleCategoryOptionChange(categoryIndex, optionIndex, e.target.value)
+                            }
+                            placeholder="Option Name"
+                            className="w-full border border-gray-300 dark:border-gray-700 rounded-xl px-4 py-2 focus:ring-2 focus:ring-[#741052] focus:outline-none dark:bg-gray-900 text-sm"
+                          />
+                        ))}
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="space-y-4">
+                      <div className="flex justify-between items-center px-1">
+                        <label className="block text-[10px] font-black uppercase tracking-widest text-gray-400">
+                          Select Specific Items
+                        </label>
+                        <span className="text-[10px] bg-[#741052]/10 text-[#741052] px-2 py-0.5 rounded-full font-bold">
+                          {(category as any).itemIds?.length || 0} Selected
+                        </span>
+                      </div>
+                      <div className="border border-gray-200 dark:border-gray-700 rounded-xl max-h-60 overflow-y-auto p-2 bg-white dark:bg-gray-950">
+                        <div className="grid grid-cols-1 gap-1.5 focus:outline-none">
+                          {allMenuItems.map((item) => (
+                             <label 
+                              key={item._id} 
+                              className={`flex items-center gap-3 p-2 rounded-lg border transition-all cursor-pointer ${
+                                (category as any).itemIds?.includes(item._id)
+                                  ? 'border-[#741052] bg-[#741052]/5 dark:bg-[#741052]/10'
+                                  : 'border-transparent hover:bg-gray-50 dark:hover:bg-gray-900'
+                              }`}
+                            >
+                              <input
+                                type="checkbox"
+                                checked={(category as any).itemIds?.includes(item._id)}
+                                onChange={(e) => {
+                                  const currentIds = [...((category as any).itemIds || [])];
+                                  if (e.target.checked) {
+                                    handleItemIdsChange(categoryIndex, [...currentIds, item._id]);
+                                  } else {
+                                    handleItemIdsChange(categoryIndex, currentIds.filter(id => id !== item._id));
+                                  }
+                                }}
+                                className="w-4 h-4 rounded border-gray-300 text-[#741052] focus:ring-[#741052]"
+                              />
+                              <div className="flex flex-col min-w-0">
+                                <span className="text-xs font-bold text-gray-700 dark:text-gray-200 truncate">{item.title}</span>
+                                <span className="text-[9px] font-black uppercase text-gray-400 tracking-wider truncate">{item.category}</span>
+                              </div>
+                            </label>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                  
+                  <button
+                    type="button"
+                    onClick={() => handleRemoveCategory(categoryIndex)}
+                    className="w-full mt-4 text-[10px] font-black uppercase tracking-widest text-red-500 hover:text-red-600 transition-colors"
+                  >
+                    Remove Category
+                  </button>
                 </div>
               ))}
               
