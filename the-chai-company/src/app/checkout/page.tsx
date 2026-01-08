@@ -528,7 +528,7 @@ ${items
           >
             <div className="inline-block relative">
               <span className="inline-block text-[#C46A47] text-xs md:text-sm font-black uppercase tracking-[0.4em] mb-4">
-                The Final Step
+                Fill in your details
               </span>
               <h1 className="text-4xl md:text-5xl lg:text-7xl font-black text-[#2E1C14] tracking-tighter leading-none mb-6">
                 Checkout<span className="text-[#C46A47]">.</span>
@@ -536,7 +536,7 @@ ${items
               <div className="h-1.5 w-24 bg-[#C46A47] mx-auto rounded-full" />
             </div>
             <p className="mt-8 text-[#6F5A4A] text-lg md:text-xl font-light opacity-80 max-w-2xl mx-auto leading-relaxed">
-              Curating your perfect tea experience. Review your selections and finalize your journey with us.
+              Curating your perfect tea experience. Review your order details below.
             </p>
           </motion.div>
 
@@ -599,7 +599,7 @@ ${items
                       className="mt-8 space-y-3 pt-8 border-t border-[#E3D6C6]/30"
                     >
                        <label className="text-[10px] font-black uppercase tracking-[0.2em] text-[#C46A47] ml-1 flex items-center gap-2">
-                        <Utensils size={14} /> Table Allocation
+                        <Utensils size={14} /> Table Number
                       </label>
                       <Input
                         name="tableNumber"
@@ -608,7 +608,7 @@ ${items
                         className="h-16 bg-[#E3D6C6]/20 border-transparent rounded-2xl px-6 text-[#6B3F2A] font-black text-xl cursor-not-allowed"
                         disabled
                       />
-                      <p className="text-[10px] text-[#6F5A4A] opacity-50 ml-1 italic font-medium">Table detected via cryptographic link.</p>
+                      <p className="text-[10px] text-[#6F5A4A] opacity-50 ml-1 italic font-medium">Table detected automatically.</p>
                     </motion.div>
                   )}
 
@@ -622,7 +622,7 @@ ${items
                     >
                       <div className="space-y-3">
                         <label htmlFor="phone" className="text-[10px] font-black uppercase tracking-[0.2em] text-[#C46A47] ml-1 flex items-center gap-2">
-                          <Phone size={14} /> Contact Line
+                          <Phone size={14} /> Phone Number
                         </label>
                         <Input
                           id="phone"
@@ -637,7 +637,7 @@ ${items
                       </div>
                       <div className="space-y-3">
                         <label htmlFor="area" className="text-[10px] font-black uppercase tracking-[0.2em] text-[#C46A47] ml-1 flex items-center gap-2">
-                          <MapPin size={14} /> Destination
+                          <MapPin size={14} /> Delivery Address
                         </label>
                         <Input
                           ref={areaInputRef}
@@ -679,7 +679,7 @@ ${items
                     }`}
                   >
                     <Banknote size={24} className={formData.paymentMethod === "cash" ? "text-[#C46A47]" : "opacity-40"} />
-                    <span className="text-xs font-black uppercase tracking-widest">Physical Cash</span>
+                    <span className="text-xs font-black uppercase tracking-widest">Cash on Delivery</span>
                   </button>
 
                   <button
@@ -697,7 +697,7 @@ ${items
                          <CreditCard size={24} className="opacity-40" />
                          <span className="text-[10px] bg-[#C46A47] text-white px-2 py-0.5 rounded-full font-bold">SOON</span>
                     </div>
-                    <span className="text-xs font-black uppercase tracking-widest">Digital Transfer</span>
+                    <span className="text-xs font-black uppercase tracking-widest">Online Payment</span>
                   </button>
                 </div>
 
@@ -712,7 +712,7 @@ ${items
                         >
                             <div className="p-8 rounded-3xl bg-[#6B3F2A]/5 border border-[#6B3F2A]/10">
                                 <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-[#C46A47] mb-6 flex items-center gap-2">
-                                    <Calculator size={14} /> Settlement Preferences
+                                    <Calculator size={14} /> Change Required?
                                 </h4>
                                 
                                 <div className="flex flex-wrap gap-4 mb-8">
@@ -737,7 +737,7 @@ ${items
                                 </div>
 
                                 <div className="space-y-3">
-                                    <label htmlFor="tip" className="text-[10px] font-black uppercase tracking-[0.2em] text-[#6B3F2A] ml-1">Appreciation (Tip)</label>
+                                    <label htmlFor="tip" className="text-[10px] font-black uppercase tracking-[0.2em] text-[#6B3F2A] ml-1">Add a Tip</label>
                                     <Input
                                         id="tip"
                                         type="number"
@@ -746,7 +746,7 @@ ${items
                                         placeholder="Enter amount"
                                         className="h-14 bg-white border-transparent focus:border-[#C46A47] rounded-xl px-6 text-[#6B3F2A] font-bold"
                                     />
-                                    <p className="text-[10px] text-[#2E1C14] font-medium ml-1 italic">Tokens of appreciation for our artisans are always welcome.</p>
+                                    <p className="text-[10px] text-[#2E1C14] font-medium ml-1 italic">Tipping is optional but appreciated.</p>
                                 </div>
                             </div>
                         </motion.div>
@@ -765,7 +765,7 @@ ${items
                   <div className="flex items-center justify-between mb-10 pb-6 border-b border-[#FAF3E6]/10">
                     <div>
                       <h2 className="text-2xl font-black tracking-tight text-white">Order Summary.</h2>
-                      <p className="text-[#FAF3E6] text-[10px] uppercase font-black tracking-[0.2em] mt-1">Gourmet Selection</p>
+                      <p className="text-[#FAF3E6] text-[10px] uppercase font-black tracking-[0.2em] mt-1">Your Items</p>
                     </div>
                     <div className="w-12 h-12 bg-[#FAF3E6]/10 rounded-2xl flex items-center justify-center">
                       <ShoppingBag size={20} className="text-[#C46A47]" />
@@ -795,7 +795,7 @@ ${items
                           </div>
                           <div className="flex-1 min-w-0 py-1">
                             <div className="flex justify-between items-start gap-2">
-                              <h3 className="font-bold text-sm truncate pr-4">{item.title}</h3>
+                              <h3 className="font-bold text-sm truncate pr-4 text-white">{item.title}</h3>
                               <span className="font-black text-[#C46A47] text-sm whitespace-nowrap">Rs. {item.price}</span>
                             </div>
                             
@@ -837,13 +837,13 @@ ${items
                   {/* Pricing Breakdown */}
                   <div className="mt-10 pt-8 border-t border-[#FAF3E6]/10 space-y-4">
                     <div className="flex justify-between items-center group">
-                      <span className="text-[#FAF3E6]/40 text-[11px] font-black uppercase tracking-widest">Aesthetic Base</span>
+                      <span className="text-[#FAF3E6]/40 text-[11px] font-black uppercase tracking-widest">Subtotal</span>
                       <span className="font-bold">Rs. {totalAmount.toFixed(2)}</span>
                     </div>
                     
                     {formData.ordertype === "delivery" && (
                       <div className="flex justify-between items-center">
-                        <span className="text-[#FAF3E6]/40 text-[11px] font-black uppercase tracking-widest">Logistics Fee</span>
+                        <span className="text-sm font-medium text-[#6F5A4A]/60 uppercase tracking-widest">Delivery Charge</span>
                         <div className="flex items-center gap-2">
                              <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></div>
                              <span className="font-bold">Rs. {deliveryCharge.toFixed(2)}</span>
@@ -853,7 +853,7 @@ ${items
 
                     {Number(tipAmount) > 0 && (
                       <div className="flex justify-between items-center text-[#C46A47]">
-                        <span className="text-[11px] font-black uppercase tracking-widest">Artisan Appreciation</span>
+                        <span className="text-[11px] font-black uppercase tracking-widest">Tip</span>
                         <span className="font-bold">+ Rs. {Number(tipAmount).toFixed(2)}</span>
                       </div>
                     )}
@@ -861,7 +861,7 @@ ${items
                     <div className="pt-6 mt-2 border-t border-dashed border-[#FAF3E6]/20">
                       <div className="flex justify-between items-end">
                         <div className="space-y-1">
-                             <p className="text-[#FAF3E6]/40 text-[10px] font-black uppercase tracking-widest">Final Commitment</p>
+                             <p className="text-[#FAF3E6]/40 text-[10px] font-black uppercase tracking-widest">Total</p>
                              <p className="text-3xl font-black text-white tracking-tight">Total.<span className="text-[#C46A47]">_</span></p>
                         </div>
                         <div className="text-right">
@@ -887,7 +887,7 @@ ${items
                       Commit Order
                     </button>
                     <p className="text-center text-[10px] text-[#FAF3E6]/30 font-black uppercase tracking-widest mt-6 flex items-center justify-center gap-2">
-                        <ShieldCheck size={12} className="text-[#C46A47]" /> Secure Architectural Gateway
+                        <ShieldCheck size={12} className="text-[#C46A47]" /> Secure Checkout
                     </p>
                   </motion.div>
                 </div>
@@ -971,12 +971,12 @@ ${items
                       </div>
 
                       <div className="mt-12 pt-8 border-t border-[#FAF3E6]/10 space-y-4">
-                        <div className="flex justify-between text-xs font-black text-[#FAF3E6]">
+                        <div className="flex justify-between text-xs font-black text-[#fff]">
                             <span>Subtotal</span>
                             <span>Rs. {totalAmount.toFixed(0)}</span>
                         </div>
                         {formData.ordertype === "delivery" && (
-                             <div className="flex justify-between text-xs font-black text-[#FAF3E6]">
+                             <div className="flex justify-between text-xs font-black text-[#fff]">
                                 <span>Logistics</span>
                                 <span>Rs. {deliveryCharge}</span>
                              </div>

@@ -148,7 +148,7 @@ const checkoutUrl =
             <div className="relative px-8 pt-12 pb-8 flex items-center justify-between">
               <div>
                 <span className="text-[10px] uppercase font-black tracking-[0.4em] text-[#C46A47] mb-2 block">
-                  Your Architectural Bag
+                  Your Order
                 </span>
                 <h3 className="text-4xl font-black text-[#6B3F2A] tracking-tighter leading-none">
                   Cart
@@ -172,7 +172,7 @@ const checkoutUrl =
                     <div className="w-32 h-32 rounded-full bg-[#E3D6C6]/20 flex items-center justify-center mb-8">
                        <ShoppingBag size={48} className="text-[#C46A47] opacity-20" />
                     </div>
-                    <h4 className="text-2xl font-black text-[#6B3F2A] mb-4">Bag is Empty</h4>
+                    <h4 className="text-2xl font-black text-[#6B3F2A] mb-4">Cart is Empty</h4>
                     <p className="text-[#6F5A4A] font-light max-w-[240px] leading-relaxed">
                         Start your journey by exploring our menu and adding your favorites.
                     </p>
@@ -263,11 +263,11 @@ const checkoutUrl =
                         <span className="text-sm font-bold text-[#6B3F2A]">Rs. {totalAmount.toFixed(0)}</span>
                     </div>
                     <div className="flex justify-between items-center pb-4 border-b border-dashed border-[#E3D6C6]">
-                        <span className="text-sm font-medium text-[#6F5A4A]/60 uppercase tracking-widest">Architectural Tax</span>
+                        <span className="text-sm font-medium text-[#6F5A4A]/60 uppercase tracking-widest">Tax / VAT</span>
                         <span className="text-sm font-bold text-[#6B3F2A]">Included</span>
                     </div>
                     <div className="flex justify-between items-center pt-2">
-                        <span className="text-lg font-black text-[#6B3F2A]">Total Estimate</span>
+                        <span className="text-lg font-black text-[#6B3F2A]">Total Amount</span>
                         <span className="text-3xl font-black text-[#C46A47] tracking-tighter">Rs. {totalAmount.toFixed(0)}</span>
                     </div>
                 </div>
@@ -283,10 +283,10 @@ const checkoutUrl =
                     </motion.button>
                     <Link
                         href={checkoutUrl}
-                        className={`flex-1 h-16 inline-flex items-center justify-center rounded-2xl bg-[#C46A47] text-white font-black text-xl shadow-[0_20px_40px_-10px_rgba(196,106,71,0.4)] hover:bg-[#A65638] hover:scale-[1.02] active:scale-95 transition-all disabled:opacity-50 ${cartItems.length === 0 ? 'pointer-events-none opacity-50' : ''}`}
+                        className={`flex-1 h-16 inline-flex items-center justify-center rounded-2xl bg-[#C46A47] text-white font-black text-xl shadow-[0_20px_40px_-10px_rgba(196,106,71,0.4)] hover:bg-[#fff] hover:scale-[1.02] active:scale-95 transition-all disabled:opacity-50 ${cartItems.length === 0 ? 'pointer-events-none opacity-50' : ''}`}
                         onClick={handleClose}
                     >
-                        Secure Checkout
+                        Checkout
                     </Link>
                 </div>
             </div>

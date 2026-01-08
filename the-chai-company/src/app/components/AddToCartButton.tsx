@@ -55,7 +55,7 @@ const AddToCartButton: FC<AddToCartButtonProps> = ({
       )}
       
       <div className="relative flex items-center justify-center gap-3">
-        <span>{disabled ? "Sold Out" : "Add to Bag"}</span>
+        <span>{disabled ? "Sold Out" : "Add to Cart"}</span>
       </div>
     </button>
   );

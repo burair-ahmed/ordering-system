@@ -214,7 +214,7 @@ export const PlatterItemModal: FC<PlatterItemModalProps> = ({ platter, isOpen, o
                           <div className="w-8 h-8 rounded-full bg-[#C46A47] text-white flex items-center justify-center shadow-lg">
                             <Check size={18} />
                           </div>
-                          <span className="text-sm md:text-base">Added to Bag</span>
+                          <span className="text-sm md:text-base">Added to Cart</span>
                         </motion.div>
                       )}
                     </AnimatePresence>

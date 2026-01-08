@@ -40,7 +40,7 @@ export default function Hero({ onOrder }: { onOrder?: () => void }) {
             <span className="text-[#C46A47]">Heritage</span>
           </h1>
           <p className="mt-8 text-white/80 text-lg md:text-xl max-w-2xl mx-auto font-light leading-relaxed">
-            Experience the finest tea architecture where every cup tells a story of tradition, warmth, and perfection.
+            Experience the finest tea craftsmanship where every cup tells a story of tradition, warmth, and perfection.
           </p>
           
           <motion.div 

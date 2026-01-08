@@ -257,13 +257,13 @@ const ThankYouPage: FC = () => {
             <p className="text-xs font-black text-[#2E1C14]/60 uppercase tracking-widest">Linked Phone: {phone}</p>
           )}
           <p className="text-[10px] font-black text-[#C46A47] uppercase tracking-[0.2em]">
-            Preserve this signature for verification.
+            Please save this for your records.
           </p>
         </div>
 
         {pollError && (
           <p className="text-xs font-black text-rose-600 bg-rose-50 p-3 rounded-xl inline-block mt-4">
-            {pollError} — <button onClick={() => fetchOrderDetails({ showLoader: true })} className="underline font-black">Retry Protocol</button>
+            {pollError} — <button onClick={() => fetchOrderDetails({ showLoader: true })} className="underline font-black">Retry</button>
           </p>
         )}
       </div>
@@ -279,25 +279,25 @@ const ThankYouPage: FC = () => {
         return (
           <>
             <p className="text-[#FAF3E6] font-black text-lg tracking-tight mb-1">
-              {orderType === 'dinein' ? 'Reservation Authenticated' :
-               orderType === 'pickup' ? 'Collection Request Received' :
-               'Delivery Dispatch Initialized'}
+              {orderType === 'dinein' ? 'Order Received' :
+               orderType === 'pickup' ? 'Order Received' :
+               'Order Received'}
             </p>
-            <p className="text-[#FAF3E6]/60 text-xs font-black uppercase tracking-widest">System is processing your request.</p>
+            <p className="text-[#FAF3E6]/60 text-xs font-black uppercase tracking-widest">We are processing your order.</p>
           </>
         );
       case 'Preparing':
         return (
           <>
             <p className="text-[#FAF3E6] font-black text-lg tracking-tight mb-1">
-              {orderType === 'dinein' ? 'Culinary Assembly in Progress' :
-               orderType === 'pickup' ? 'Order Preparation active' :
-               'Global Logistics Assembly active'}
+              {orderType === 'dinein' ? 'Preparing your food' :
+               orderType === 'pickup' ? 'Preparing your order' :
+               'Preparing your order'}
             </p>
             <p className="text-[#FAF3E6]/60 text-xs font-black uppercase tracking-widest">
-              {orderType === 'dinein' ? 'T-Minus: 20–30 minutes' :
-               orderType === 'pickup' ? 'Prepare for collection soon' :
-               'T-Minus: 30–45 minutes'}
+              {orderType === 'dinein' ? 'Estimated time: 20–30 minutes' :
+               orderType === 'pickup' ? 'Ready for collection soon' :
+               'Estimated time: 30–45 minutes'}
             </p>
           </>
         );
@@ -306,13 +306,13 @@ const ThankYouPage: FC = () => {
           <>
             <p className="text-[#FAF3E6] font-black text-lg tracking-tight mb-1">
               {orderType === 'dinein' ? 'Service Protocol: Ready' :
-               orderType === 'pickup' ? 'Collection Protocol: Ready' :
-               'Transfer Sequence: Initialized'}
+               orderType === 'pickup' ? 'Ready for Pickup' :
+               'Out for Delivery'}
             </p>
             <p className="text-[#FAF3E6]/60 text-xs font-black uppercase tracking-widest">
               {orderType === 'dinein' ? 'Please remain at your coordinates' :
-               orderType === 'pickup' ? 'Identity verification at counter required' :
-               'Handover to courier partner complete'}
+               orderType === 'pickup' ? 'Please collect from the counter' :
+               'Rider is on the way'}
             </p>
           </>
         );
@@ -320,9 +320,9 @@ const ThankYouPage: FC = () => {
         return (
           <>
             <p className="text-[#FAF3E6] font-black text-lg tracking-tight mb-1">
-              Autonomous Delivery active.
+              Out for Delivery.
             </p>
-            <p className="text-[#FAF3E6]/60 text-xs font-black uppercase tracking-widest">Orbital arrival: 15–30 minutes</p>
+            <p className="text-[#FAF3E6]/60 text-xs font-black uppercase tracking-widest">Estimated arrival: 15–30 minutes</p>
           </>
         );
       case 'Completed':
@@ -330,28 +330,28 @@ const ThankYouPage: FC = () => {
           <>
             <p className="text-[#FAF3E6] font-black text-lg tracking-tight mb-1">
               {orderType === 'dinein' ? 'Culinary Experience Complete' :
-               orderType === 'pickup' ? 'Transaction Finalized' :
-               'Secure Delivery Confirmed'}
+               orderType === 'pickup' ? 'Order Completed' :
+               'Delivered'}
             </p>
-            <p className="text-[#FAF3E6]/60 text-xs font-black uppercase tracking-widest">We hope you appreciate the craft.</p>
+            <p className="text-[#FAF3E6]/60 text-xs font-black uppercase tracking-widest">Thank you for ordering!</p>
           </>
         );
       case 'Cancelled':
         return (
           <>
             <p className="text-rose-500 font-black text-lg tracking-tight mb-1">
-              Protocol Aborted.
+              Order Cancelled.
             </p>
-            <p className="text-rose-500/60 text-xs font-black uppercase tracking-widest">Please initiate support sequence.</p>
+            <p className="text-rose-500/60 text-xs font-black uppercase tracking-widest">Please contact support.</p>
           </>
         );
       default:
         return (
           <>
             <p className="text-[#FAF3E6] font-black text-lg tracking-tight mb-1">
-              Syncing with Central Vault...
+              Loading status...
             </p>
-            <p className="text-[#FAF3E6]/60 text-xs font-black uppercase tracking-widest">Telemetry data incoming.</p>
+            <p className="text-[#FAF3E6]/60 text-xs font-black uppercase tracking-widest">Please wait...</p>
           </>
         );
     }
@@ -404,7 +404,7 @@ const ThankYouPage: FC = () => {
         {isPolling && (
           <div className="mt-12 flex items-center justify-center gap-2">
             <div className="w-1.5 h-1.5 bg-[#C46A47] rounded-full animate-ping" />
-            <p className="text-[10px] font-black text-[#C46A47] uppercase tracking-[0.3em]">Vault Link Active</p>
+            <p className="text-[10px] font-black text-[#C46A47] uppercase tracking-[0.3em]">Live Status</p>
           </div>
         )}
       </div>
@@ -663,7 +663,7 @@ const ThankYouPage: FC = () => {
           >
             <div className="inline-flex flex-col items-center">
               <span className="text-[#C46A47] text-xs md:text-sm font-black uppercase tracking-[0.4em] mb-4">
-                Transaction Verified
+                Order Confirmed
               </span>
               <h1 className="text-5xl md:text-7xl lg:text-8xl font-black text-[#2E1C14] tracking-tighter leading-none mb-8">
                 Thank You<span className="text-[#C46A47]">.</span>
@@ -681,8 +681,8 @@ const ThankYouPage: FC = () => {
                         className="w-20 h-20 md:w-28 md:h-28 relative z-10"
                     />
                   </div>
-                  <h2 className="text-2xl md:text-3xl font-black text-[#2E1C14] tracking-tight mb-2">Signature Confirmed</h2>
-                  <p className="text-[#6F5A4A] text-lg font-medium opacity-80">Your gourmet selection has been successfully archived.</p>
+                  <h2 className="text-2xl md:text-3xl font-black text-[#2E1C14] tracking-tight mb-2">Success!</h2>
+                  <p className="text-[#6F5A4A] text-lg font-medium opacity-80">Your order has been placed successfully.</p>
                 </div>
               </div>
             </div>
@@ -700,7 +700,7 @@ const ThankYouPage: FC = () => {
               <div className="bg-white/40 backdrop-blur-md rounded-[40px] p-8 md:p-12 border border-white/20 shadow-[0_32px_64px_-16px_rgba(107,63,42,0.05)]">
                 <div className="flex items-center justify-between mb-12">
                   <div>
-                    <span className="text-[#C46A47] text-[10px] font-black uppercase tracking-[0.3em] mb-2 block text-left">Live Monitoring</span>
+                    <span className="text-[#C46A47] text-[10px] font-black uppercase tracking-[0.3em] mb-2 block text-left">Order Status</span>
                     <h3 className="text-3xl font-black text-[#2E1C14] tracking-tight text-left">Order Progress</h3>
                   </div>
                   <div className="w-12 h-12 bg-[#2E1C14] rounded-2xl flex items-center justify-center shadow-lg text-[#C46A47]">
@@ -742,7 +742,7 @@ const ThankYouPage: FC = () => {
                             {orderType === 'delivery' && <Truck size={24} />}
                         </div>
                         <div className="text-left">
-                            <p className="text-[#C46A47] text-[10px] font-black uppercase tracking-widest mb-1">Service Protocol</p>
+                            <p className="text-[#C46A47] text-[10px] font-black uppercase tracking-widest mb-1">Order Type</p>
                             <p className="text-lg font-black tracking-tight capitalize">{orderType}</p>
                         </div>
                     </div>
@@ -753,7 +753,7 @@ const ThankYouPage: FC = () => {
                                 <MapPin size={24} />
                             </div>
                             <div className="text-left">
-                                <p className="text-[#C46A47] text-[10px] font-black uppercase tracking-widest mb-1">Coordinates</p>
+                                <p className="text-[#C46A47] text-[10px] font-black uppercase tracking-widest mb-1">Table Number</p>
                                 <p className="text-lg font-black text-[#2E1C14] tracking-tight">Table {tableId}</p>
                             </div>
                         </div>
@@ -765,7 +765,7 @@ const ThankYouPage: FC = () => {
                                 <Phone size={24} />
                             </div>
                             <div className="text-left">
-                                <p className="text-[#C46A47] text-[10px] font-black uppercase tracking-widest mb-1">Subscriber Identity</p>
+                                <p className="text-[#C46A47] text-[10px] font-black uppercase tracking-widest mb-1">Contact Number</p>
                                 <p className="text-lg font-black text-[#2E1C14] tracking-tight">{phone}</p>
                             </div>
                         </div>
@@ -783,7 +783,7 @@ const ThankYouPage: FC = () => {
                 
                 <div className="relative z-10 flex-1 flex flex-col">
                   <div className="flex items-center justify-between mb-10">
-                    <h3 className="text-xl font-black text-white tracking-tight">Vault Summary.</h3>
+                    <h3 className="text-xl font-black text-white tracking-tight">Receipt</h3>
                     <ShoppingBag size={20} className="text-[#C46A47]" />
                   </div>
 

@@ -129,7 +129,7 @@ export default function Header() {
                   </motion.span>
                 )}
               </div>
-              <span className="hidden md:inline text-sm">Bag &bull; Rs. {totalAmount.toFixed(0)}</span>
+              <span className="hidden md:inline text-sm">Cart &bull; Rs. {totalAmount.toFixed(0)}</span>
               <span className="md:hidden text-xs">Rs. {totalAmount.toFixed(0)}</span>
             </button>
           </div>
