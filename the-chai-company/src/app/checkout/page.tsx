@@ -942,7 +942,7 @@ ${items
                         <div className="w-16 h-16 bg-[#FAF3E6]/10 rounded-3xl flex items-center justify-center mb-6 border border-[#FAF3E6]/10">
                             <ShoppingBag className="text-[#C46A47]" size={32} />
                         </div>
-                        <h2 className="text-4xl font-black tracking-tight leading-none text-white">Order<br/>Review.</h2>
+                        <h2 className="text-4xl font-black tracking-tight leading-none text-white">Order<br/>Summary.</h2>
                         <div className="w-12 h-1.5 bg-[#C46A47] mt-6 rounded-full"></div>
                       </div>
 
@@ -983,7 +983,7 @@ ${items
                         )}
                          {Number(tipAmount) > 0 && (
                              <div className="flex justify-between text-xs font-black text-[#fff]">
-                                <span>Artisan Tip</span>
+                                <span>Tip</span>
                                 <span>Rs. {tipAmount}</span>
                              </div>
                         )}
@@ -1006,33 +1006,33 @@ ${items
 
                     <div className="flex-1 max-w-xl mx-auto w-full flex flex-col justify-center">
                         <div className="mb-12">
-                            <span className="text-[#C46A47] text-[10px] font-black uppercase tracking-[0.3em] mb-4 block">Final Validation</span>
-                            <h3 className="text-4xl font-black text-[#2E1C14] tracking-tighter leading-none">Signature<br/>Confirmation<span className="text-[#C46A47]">.</span></h3>
+                             <span className="text-[#C46A47] text-[10px] font-black uppercase tracking-[0.3em] mb-4 block">Confirmation</span>
+                             <h3 className="text-4xl font-black text-[#2E1C14] tracking-tighter leading-none">Confirm<br/>Order<span className="text-[#C46A47]">.</span></h3>
                         </div>
 
                         <div className="space-y-10">
                             {/* Validation Grid */}
                             <div className="grid grid-cols-2 gap-10">
                                 <div className="space-y-1">
-                                    <p className="text-[#C46A47] text-[10px] font-black uppercase tracking-widest">Patron Name</p>
+                                     <p className="text-[#C46A47] text-[10px] font-black uppercase tracking-widest">Name</p>
                                     <p className="text-[#2E1C14] font-black text-xl tracking-tight">{formData.name}</p>
                                 </div>
                                 <div className="space-y-1 text-right">
-                                    <p className="text-[#C46A47] text-[10px] font-black uppercase tracking-widest">Protocol</p>
+                                     <p className="text-[#C46A47] text-[10px] font-black uppercase tracking-widest">Order Type</p>
                                     <p className="text-[#2E1C14] font-black text-xl tracking-tight capitalize">{formData.ordertype}</p>
                                 </div>
                                 <div className="space-y-1">
-                                    <p className="text-[#C46A47] text-[10px] font-black uppercase tracking-widest">Financial Interface</p>
+                                     <p className="text-[#C46A47] text-[10px] font-black uppercase tracking-widest">Payment Method</p>
                                     <p className="text-[#2E1C14] font-black text-xl tracking-tight capitalize">{formData.paymentMethod}</p>
                                 </div>
                                 <div className="space-y-1 text-right">
-                                    <p className="text-[#C46A47] text-[10px] font-black uppercase tracking-widest">Contact Identity</p>
+                                     <p className="text-[#C46A47] text-[10px] font-black uppercase tracking-widest">Phone Number</p>
                                     <p className="text-[#2E1C14] font-black text-xl tracking-tight">{formData.phone || "---"}</p>
                                 </div>
                             </div>
 
                             <div className="space-y-1 pt-8 border-t border-[#6B3F2A]/10">
-                                <p className="text-[#C46A47] text-[10px] font-black uppercase tracking-widest mb-2">Delivery Coordinates / Location</p>
+                                 <p className="text-[#C46A47] text-[10px] font-black uppercase tracking-widest mb-2">Delivery Details</p>
                                 <p className="text-[#2E1C14] font-bold text-lg leading-relaxed">
                                     {formData.ordertype === 'dinein' ? `Table ${formData.tableNumber}` : formData.area}
                                 </p>
@@ -1053,7 +1053,7 @@ ${items
                                             Verification
                                         </h4>
                                         <p className={`text-[10px] font-medium leading-relaxed ${confirmChecked ? 'text-[#FAF3E6]/60' : 'text-[#6F5A4A]/60'}`}>
-                                            I confirm that the gourmet selection and<br/>coordinates listed above are precise.
+                                             I confirm that my order and<br/>delivery details are correct.
                                         </p>
                                     </div>
                                     <div className={`w-8 h-8 rounded-full border-2 flex items-center justify-center transition-all ${
@@ -1085,13 +1085,13 @@ ${items
                                     ) : (
                                         <>
                                             <div className="w-1.5 h-1.5 rounded-full bg-white/40 animate-ping"></div>
-                                            Execute Order
+                                             Place Order
                                             <div className="w-1.5 h-1.5 rounded-full bg-white/40 animate-ping delay-300"></div>
                                         </>
                                     )}
                                 </button>
                                 <p className="text-center text-[9px] text-[#6F5A4A]/30 font-black uppercase tracking-[0.4em] mt-8">
-                                    Chai Company Private Concierge • MMXXIV
+                                     Thank you for ordering with us!
                                 </p>
                             </div>
                         </div>
