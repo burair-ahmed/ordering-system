@@ -24,6 +24,9 @@ import {
   Box,
   Eye,
   EyeOff,
+  CheckSquare,
+  Square,
+  Trash2,
 } from 'lucide-react';
 import { useTheme } from 'next-themes';
 
@@ -59,6 +62,7 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
+  DropdownMenuCheckboxItem,
 } from '@/components/ui/dropdown-menu';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -163,6 +167,17 @@ const AdminDashboard: FC = () => {
   const [authError, setAuthError] = useState<string>('');
   const [checkboxChecked, setCheckboxChecked] = useState<boolean>(false);
   const [audioInitialized, setAudioInitialized] = useState<boolean>(false);
+  
+  // Bulk Selection State for Platters
+  const [selectedPlatterIds, setSelectedPlatterIds] = useState<Set<string>>(new Set());
+  const [isBulkUpdating, setIsBulkUpdating] = useState(false);
+
+  // Bulk Selection State for Menu Items
+  const [selectedMenuItemIds, setSelectedMenuItemIds] = useState<Set<string>>(new Set());
+  const [isBulkUpdatingMenu, setIsBulkUpdatingMenu] = useState(false);
+
+  // Category Exclusion Filter
+  const [excludedCategories, setExcludedCategories] = useState<Set<string>>(new Set());
 
   const correctPassword = '123-$CLK-Admin-$Panel-786';
 
@@ -289,6 +304,74 @@ const AdminDashboard: FC = () => {
     }
   };
 
+  const handleBulkMenuVisibilityUpdate = async (isVisible: boolean) => {
+    if (selectedMenuItemIds.size === 0) return;
+    
+    try {
+      setIsBulkUpdatingMenu(true);
+      const res = await fetch('/api/bulkUpdateMenuItems', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          ids: Array.from(selectedMenuItemIds), 
+          isVisible 
+        }),
+      });
+
+      if (res.ok) {
+        toast({ 
+          title: 'Bulk Update Successful', 
+          description: `Updated ${selectedMenuItemIds.size} menu items to ${isVisible ? 'visible' : 'hidden'}.` 
+        });
+        setSelectedMenuItemIds(new Set());
+        fetchMenuItems();
+      } else {
+        const errorData = await res.json();
+        throw new Error(errorData.message || 'Failed to bulk update');
+      }
+    } catch (error: any) {
+      toast({ 
+        title: 'Bulk Update Failed', 
+        description: error.message || 'Something went wrong', 
+        variant: 'destructive' 
+      });
+    } finally {
+      setIsBulkUpdatingMenu(false);
+    }
+  };
+
+  const toggleMenuItemSelection = (id: string) => {
+    setSelectedMenuItemIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) {
+        next.delete(id);
+      } else {
+        next.add(id);
+      }
+      return next;
+    });
+  };
+
+  const toggleCategoryExclusion = (category: string) => {
+    setExcludedCategories((prev) => {
+      const next = new Set(prev);
+      if (next.has(category)) {
+        next.delete(category);
+      } else {
+        next.add(category);
+      }
+      return next;
+    });
+  };
+
+  const toggleAllMenuItemsSelection = () => {
+    if (selectedMenuItemIds.size === filteredMenu.length) {
+      setSelectedMenuItemIds(new Set());
+    } else {
+      setSelectedMenuItemIds(new Set(filteredMenu.map(m => m._id)));
+    }
+  };
+
   const togglePlatterItemVisibility = async (item: PlatterItem) => {
     try {
       const res = await fetch('/api/updatePlatter', {
@@ -307,18 +390,82 @@ const AdminDashboard: FC = () => {
     }
   };
 
+  const handleBulkVisibilityUpdate = async (isVisible: boolean) => {
+    if (selectedPlatterIds.size === 0) return;
+    
+    try {
+      setIsBulkUpdating(true);
+      const res = await fetch('/api/bulkUpdatePlatters', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          ids: Array.from(selectedPlatterIds), 
+          isVisible 
+        }),
+      });
+
+      if (res.ok) {
+        toast({ 
+          title: 'Bulk Update Successful', 
+          description: `Updated ${selectedPlatterIds.size} items to ${isVisible ? 'visible' : 'hidden'}.` 
+        });
+        setSelectedPlatterIds(new Set());
+        fetchPlatterItems();
+      } else {
+        const errorData = await res.json();
+        throw new Error(errorData.message || 'Failed to bulk update');
+      }
+    } catch (error: any) {
+      toast({ 
+        title: 'Bulk Update Failed', 
+        description: error.message || 'Something went wrong', 
+        variant: 'destructive' 
+      });
+    } finally {
+      setIsBulkUpdating(false);
+    }
+  };
+
+  const togglePlatterSelection = (id: string) => {
+    setSelectedPlatterIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) {
+        next.delete(id);
+      } else {
+        next.add(id);
+      }
+      return next;
+    });
+  };
+
+  const toggleAllPlattersSelection = () => {
+    if (selectedPlatterIds.size === filteredPlatters.length) {
+      setSelectedPlatterIds(new Set());
+    } else {
+      setSelectedPlatterIds(new Set(filteredPlatters.map(p => p._id)));
+    }
+  };
+
   useEffect(() => {
     if (activeTab === 'menu') fetchMenuItems();
     if (activeTab === 'platter') fetchPlatterItems();
   }, [activeTab]);
 
+  const uniqueCategories = useMemo(() => {
+    const cats = new Set(menuItems.map(m => m.category).filter(Boolean));
+    return Array.from(cats).sort();
+  }, [menuItems]);
+
   const filteredMenu = useMemo(() => {
     const q = menuQuery.toLowerCase();
     return menuItems.filter(
-      (m) =>
-        m.title.toLowerCase().includes(q) || m.category?.toLowerCase().includes(q)
+      (m) => {
+        const matchesQuery = m.title.toLowerCase().includes(q) || m.category?.toLowerCase().includes(q);
+        const isNotExcluded = excludedCategories.size === 0 || !m.category || !excludedCategories.has(m.category);
+        return matchesQuery && isNotExcluded;
+      }
     );
-  }, [menuQuery, menuItems]);
+  }, [menuQuery, menuItems, excludedCategories]);
 
   const filteredPlatters = useMemo(() => {
     const q = platterQuery.toLowerCase();
@@ -591,7 +738,48 @@ const AdminDashboard: FC = () => {
                     <h2 className="text-xl font-semibold">Menu Management</h2>
                     <p className="text-sm text-neutral-500">Edit, filter, and preview menu items.</p>
                   </div>
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-3">
+                    {/* Multi-Category Exclusion Filter */}
+                    <div className="flex items-center gap-2">
+                       <span className="text-xs text-neutral-500 font-medium whitespace-nowrap">Exclude:</span>
+                       <DropdownMenu>
+                         <DropdownMenuTrigger asChild>
+                           <Button variant="outline" size="sm" className="h-10 px-3 flex gap-2 rounded-lg border-dashed">
+                             <Archive className="h-4 w-4" />
+                             {excludedCategories.size > 0 ? `${excludedCategories.size} Categories` : 'None'}
+                           </Button>
+                         </DropdownMenuTrigger>
+                         <DropdownMenuContent align="start" className="w-56 mt-2 max-h-80 overflow-y-auto">
+                           <DropdownMenuLabel>Exclude Categories</DropdownMenuLabel>
+                           <DropdownMenuSeparator />
+                           {uniqueCategories.length > 0 ? (
+                             uniqueCategories.map((cat) => (
+                               <DropdownMenuCheckboxItem
+                                 key={cat}
+                                 checked={excludedCategories.has(cat)}
+                                 onCheckedChange={() => toggleCategoryExclusion(cat)}
+                                 onSelect={(e) => e.preventDefault()} // Prevent closing on selection
+                               >
+                                 {cat}
+                               </DropdownMenuCheckboxItem>
+                             ))
+                           ) : (
+                             <div className="px-2 py-1.5 text-xs text-neutral-500">No categories found</div>
+                           )}
+                           {excludedCategories.size > 0 && (
+                             <>
+                               <DropdownMenuSeparator />
+                               <DropdownMenuItem 
+                                 className="text-fuchsia-600 focus:text-fuchsia-600 cursor-pointer justify-center text-xs font-semibold"
+                                 onSelect={() => setExcludedCategories(new Set())}
+                               >
+                                 Clear All Filters
+                               </DropdownMenuItem>
+                             </>
+                           )}
+                         </DropdownMenuContent>
+                       </DropdownMenu>
+                    </div>
                     <div className="relative">
                       <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400" />
                       <Input
@@ -606,6 +794,64 @@ const AdminDashboard: FC = () => {
                     </Button>
                   </div>
                 </div>
+
+                {/* Bulk Actions Bar for Menu Items */}
+                {selectedMenuItemIds.size > 0 && (
+                  <motion.div 
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="sticky top-[80px] z-20 flex items-center justify-between bg-fuchsia-600 text-white p-3 rounded-xl shadow-lg mb-4"
+                  >
+                    <div className="flex items-center gap-4">
+                      <span className="text-sm font-medium">{selectedMenuItemIds.size} Selected</span>
+                      <Button 
+                        variant="ghost" 
+                        size="sm" 
+                        onClick={() => setSelectedMenuItemIds(new Set())}
+                        className="text-white hover:bg-white/20 h-8"
+                      >
+                        Cancel
+                      </Button>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Button 
+                        size="sm" 
+                        variant="secondary"
+                        disabled={isBulkUpdatingMenu}
+                        onClick={() => handleBulkMenuVisibilityUpdate(true)}
+                        className="h-8 gap-1"
+                      >
+                        <Eye className="h-4 w-4" /> Make Visible
+                      </Button>
+                      <Button 
+                        size="sm" 
+                        variant="secondary"
+                        disabled={isBulkUpdatingMenu}
+                        onClick={() => handleBulkMenuVisibilityUpdate(false)}
+                        className="h-8 gap-1"
+                      >
+                        <EyeOff className="h-4 w-4" /> Make Invisible
+                      </Button>
+                    </div>
+                  </motion.div>
+                )}
+
+                <div className="flex items-center gap-2 px-1 mb-2">
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    onClick={toggleAllMenuItemsSelection}
+                    className="text-xs text-neutral-500 flex items-center gap-2"
+                  >
+                    {selectedMenuItemIds.size === filteredMenu.length && filteredMenu.length > 0 ? (
+                      <CheckSquare className="h-4 w-4" />
+                    ) : (
+                      <Square className="h-4 w-4" />
+                    )}
+                    {selectedMenuItemIds.size === filteredMenu.length && filteredMenu.length > 0 ? 'Deselect All' : 'Select All'}
+                  </Button>
+                </div>
+
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
                   {loadingMenu ? (
                     Array.from({ length: 6 }).map((_, i) => (
@@ -619,63 +865,82 @@ const AdminDashboard: FC = () => {
                       </Card>
                     ))
                   ) : filteredMenu.length > 0 ? (
-                    filteredMenu.map((item) => (
-                      <Card key={item._id} className="overflow-hidden relative group">
-                        <div className="flex h-40 items-center justify-center bg-neutral-100 dark:bg-neutral-900 relative">
-                           {/* Discount Badge */}
-                           {item.discountValue !== undefined && item.discountValue > 0 && (
-                            <div className="absolute top-2 left-2 bg-[#741052] text-white text-xs font-bold px-2 py-1 rounded-full z-10">
-                              {item.discountType === 'percentage' ? `-${item.discountValue}%` : `-Rs ${item.discountValue}`}
-                            </div>
-                           )}
-                           {/* Visibility Overlay if hidden */}
-                           {!item.isVisible && (
-                             <div className="absolute inset-0 bg-black/40 flex items-center justify-center z-20">
-                               <span className="text-white font-bold bg-black/50 px-3 py-1 rounded-full backdrop-blur-sm flex items-center gap-2">
-                                 <EyeOff className="h-4 w-4"/> Hidden
-                               </span>
-                             </div>
-                           )}
-                          <Image
-                            src={item.image}
-                            alt={item.title}
-                            width={140}
-                            height={140}
-                            className={`h-28 w-28 rounded-lg object-cover transition-opacity ${!item.isVisible ? 'opacity-50' : ''}`}
-                          />
-                        </div>
-                        <CardContent className="space-y-3 p-4">
-                          <div>
-                            <div className="flex items-center justify-between">
-                              <h3 className="text-base font-semibold">{item.title}</h3>
-                              <Badge variant={item.status === 'in stock' ? 'default' : 'destructive'}>
-                                {item.status}
-                              </Badge>
-                            </div>
-                            <p className="mt-1 line-clamp-2 text-sm text-neutral-600 dark:text-neutral-400">
-                              {item.description}
-                            </p>
+                    filteredMenu.map((item) => {
+                      const isSelected = selectedMenuItemIds.has(item._id);
+                      return (
+                        <Card 
+                          key={item._id} 
+                          className={`overflow-hidden relative group transition-all duration-200 ${isSelected ? 'ring-2 ring-fuchsia-600 shadow-md' : ''}`}
+                        >
+                          {/* Selection Checkbox Overlay */}
+                          <div 
+                            className={`absolute top-2 right-2 z-30 h-6 w-6 rounded-md flex items-center justify-center cursor-pointer transition-colors ${
+                              isSelected ? 'bg-fuchsia-600 text-white' : 'bg-black/20 text-white/50 hover:bg-black/30 opacity-0 group-hover:opacity-100'
+                            }`}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              toggleMenuItemSelection(item._id);
+                            }}
+                          >
+                            {isSelected ? <CheckSquare className="h-4 w-4" /> : <Square className="h-4 w-4" />}
                           </div>
-                          <div className="flex items-center justify-between mt-4">
-                            <span className="text-sm text-neutral-500 font-medium">Rs {item.price}</span>
-                            <div className="flex gap-2">
-                              <Button
-                                size="icon"
-                                variant="ghost"
-                                onClick={() => toggleMenuItemVisibility(item)}
-                                className="text-neutral-500 hover:text-[#741052]"
-                                title={item.isVisible ? "Hide from Menu" : "Show on Menu"}
-                              >
-                                {item.isVisible ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
-                              </Button>
-                              <Button size="sm" onClick={() => handleEditMenuItem(item)}>
-                                Edit
-                              </Button>
-                            </div>
+
+                          <div className="flex h-40 items-center justify-center bg-neutral-100 dark:bg-neutral-900 relative">
+                             {/* Discount Badge */}
+                             {item.discountValue !== undefined && item.discountValue > 0 && (
+                              <div className="absolute top-2 left-2 bg-[#741052] text-white text-xs font-bold px-2 py-1 rounded-full z-10">
+                                {item.discountType === 'percentage' ? `-${item.discountValue}%` : `-Rs ${item.discountValue}`}
+                              </div>
+                             )}
+                             {/* Visibility Overlay if hidden */}
+                             {!item.isVisible && (
+                               <div className="absolute inset-0 bg-black/40 flex items-center justify-center z-20">
+                                 <span className="text-white font-bold bg-black/50 px-3 py-1 rounded-full backdrop-blur-sm flex items-center gap-2">
+                                   <EyeOff className="h-4 w-4"/> Hidden
+                                 </span>
+                               </div>
+                             )}
+                            <Image
+                              src={item.image}
+                              alt={item.title}
+                              width={140}
+                              height={140}
+                              className={`h-28 w-28 rounded-lg object-cover transition-opacity ${!item.isVisible ? 'opacity-50' : ''}`}
+                            />
                           </div>
-                        </CardContent>
-                      </Card>
-                    ))
+                          <CardContent className="space-y-3 p-4">
+                            <div>
+                              <div className="flex items-center justify-between">
+                                <h3 className="text-base font-semibold">{item.title}</h3>
+                                <Badge variant={item.status === 'in stock' ? 'default' : 'destructive'}>
+                                  {item.status}
+                                </Badge>
+                              </div>
+                              <p className="mt-1 line-clamp-2 text-sm text-neutral-600 dark:text-neutral-400">
+                                {item.description}
+                              </p>
+                            </div>
+                            <div className="flex items-center justify-between mt-4">
+                              <span className="text-sm text-neutral-500 font-medium">Rs {item.price}</span>
+                              <div className="flex gap-2">
+                                <Button
+                                  size="icon"
+                                  variant="ghost"
+                                  onClick={() => toggleMenuItemVisibility(item)}
+                                  className="text-neutral-500 hover:text-[#741052]"
+                                  title={item.isVisible ? "Hide from Menu" : "Show on Menu"}
+                                >
+                                  {item.isVisible ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
+                                </Button>
+                                <Button size="sm" onClick={() => handleEditMenuItem(item)}>
+                                  Edit
+                                </Button>
+                              </div>
+                            </div>
+                          </CardContent>
+                        </Card>
+                      );
+                    })
                   ) : (
                     <Card>
                       <CardContent className="p-6 text-sm text-neutral-500">
@@ -709,6 +974,64 @@ const AdminDashboard: FC = () => {
                     </Button>
                   </div>
                 </div>
+
+                {/* Bulk Actions Bar */}
+                {selectedPlatterIds.size > 0 && (
+                  <motion.div 
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="sticky top-0 z-20 flex items-center justify-between bg-[#741052] text-white p-3 rounded-xl shadow-lg"
+                  >
+                    <div className="flex items-center gap-4">
+                      <span className="text-sm font-medium">{selectedPlatterIds.size} Selected</span>
+                      <Button 
+                        variant="ghost" 
+                        size="sm" 
+                        onClick={() => setSelectedPlatterIds(new Set())}
+                        className="text-white hover:bg-white/20 h-8"
+                      >
+                        Cancel
+                      </Button>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Button 
+                        size="sm" 
+                        variant="secondary"
+                        disabled={isBulkUpdating}
+                        onClick={() => handleBulkVisibilityUpdate(true)}
+                        className="h-8 gap-1"
+                      >
+                        <Eye className="h-4 w-4" /> Make Visible
+                      </Button>
+                      <Button 
+                        size="sm" 
+                        variant="secondary"
+                        disabled={isBulkUpdating}
+                        onClick={() => handleBulkVisibilityUpdate(false)}
+                        className="h-8 gap-1"
+                      >
+                        <EyeOff className="h-4 w-4" /> Make Invisible
+                      </Button>
+                    </div>
+                  </motion.div>
+                )}
+
+                <div className="flex items-center gap-2 px-1">
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    onClick={toggleAllPlattersSelection}
+                    className="text-xs text-neutral-500 flex items-center gap-2"
+                  >
+                    {selectedPlatterIds.size === filteredPlatters.length && filteredPlatters.length > 0 ? (
+                      <CheckSquare className="h-4 w-4" />
+                    ) : (
+                      <Square className="h-4 w-4" />
+                    )}
+                    {selectedPlatterIds.size === filteredPlatters.length && filteredPlatters.length > 0 ? 'Deselect All' : 'Select All'}
+                  </Button>
+                </div>
+
                 <div className="max-h-[600px] overflow-y-auto pr-2">
                   <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
                     {loadingPlatter ? (
@@ -723,63 +1046,82 @@ const AdminDashboard: FC = () => {
                         </Card>
                       ))
                     ) : filteredPlatters.length > 0 ? (
-                      filteredPlatters.map((item) => (
-                        <Card key={item._id} className="overflow-hidden relative group">
-                          <div className="flex h-40 items-center justify-center bg-neutral-100 dark:bg-neutral-900 relative">
-                             {/* Discount Badge */}
-                             {item.discountValue !== undefined && item.discountValue > 0 && (
-                              <div className="absolute top-2 left-2 bg-[#741052] text-white text-xs font-bold px-2 py-1 rounded-full z-10">
-                                {item.discountType === 'percentage' ? `-${item.discountValue}%` : `-Rs ${item.discountValue}`}
-                              </div>
-                             )}
-                             {/* Visibility Overlay */}
-                             {!item.isVisible && (
-                               <div className="absolute inset-0 bg-black/40 flex items-center justify-center z-20">
-                                 <span className="text-white font-bold bg-black/50 px-3 py-1 rounded-full backdrop-blur-sm flex items-center gap-2">
-                                   <EyeOff className="h-4 w-4"/> Hidden
-                                 </span>
-                               </div>
-                             )}
-                            <Image
-                              src={item.image}
-                              alt={item.title}
-                              width={140}
-                              height={140}
-                              className={`h-28 w-28 rounded-lg object-cover transition-opacity ${!item.isVisible ? 'opacity-50' : ''}`}
-                            />
-                          </div>
-                          <CardContent className="space-y-3 p-4">
-                            <div>
-                              <div className="flex items-center justify-between">
-                                <h3 className="text-base font-semibold">{item.title}</h3>
-                                <Badge variant={item.status === "in stock" ? "default" : "destructive"}>
-                                  {item.status}
-                                </Badge>
-                              </div>
-                              <p className="mt-1 line-clamp-2 text-sm text-neutral-600 dark:text-neutral-400">
-                                {item.description}
-                              </p>
+                      filteredPlatters.map((item) => {
+                        const isSelected = selectedPlatterIds.has(item._id);
+                        return (
+                          <Card 
+                            key={item._id} 
+                            className={`overflow-hidden relative group transition-all duration-200 ${isSelected ? 'ring-2 ring-fuchsia-600 shadow-md' : ''}`}
+                          >
+                            {/* Selection Checkbox Overlay */}
+                            <div 
+                              className={`absolute top-2 right-2 z-30 h-6 w-6 rounded-md flex items-center justify-center cursor-pointer transition-colors ${
+                                isSelected ? 'bg-fuchsia-600 text-white' : 'bg-black/20 text-white/50 hover:bg-black/30 opacity-0 group-hover:opacity-100'
+                              }`}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                togglePlatterSelection(item._id);
+                              }}
+                            >
+                              {isSelected ? <CheckSquare className="h-4 w-4" /> : <Square className="h-4 w-4" />}
                             </div>
-                            <div className="flex items-center justify-between mt-4">
-                              <span className="text-sm text-neutral-500 font-medium">{item.platterCategory}</span>
-                              <div className="flex gap-2">
-                                <Button
-                                  size="icon"
-                                  variant="ghost"
-                                  onClick={() => togglePlatterItemVisibility(item)}
-                                  className="text-neutral-500 hover:text-[#741052]"
-                                  title={item.isVisible ? "Hide from Menu" : "Show on Menu"}
-                                >
-                                  {item.isVisible ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
-                                </Button>
-                                <Button size="sm" onClick={() => handleEditPlatterItem(item)}>
-                                  Edit
-                                </Button>
-                              </div>
+
+                            <div className="flex h-40 items-center justify-center bg-neutral-100 dark:bg-neutral-900 relative">
+                               {/* Discount Badge */}
+                               {item.discountValue !== undefined && item.discountValue > 0 && (
+                                <div className="absolute top-2 left-2 bg-[#741052] text-white text-xs font-bold px-2 py-1 rounded-full z-10">
+                                  {item.discountType === 'percentage' ? `-${item.discountValue}%` : `-Rs ${item.discountValue}`}
+                                </div>
+                               )}
+                               {/* Visibility Overlay */}
+                               {!item.isVisible && (
+                                 <div className="absolute inset-0 bg-black/40 flex items-center justify-center z-20">
+                                   <span className="text-white font-bold bg-black/50 px-3 py-1 rounded-full backdrop-blur-sm flex items-center gap-2">
+                                     <EyeOff className="h-4 w-4"/> Hidden
+                                   </span>
+                                 </div>
+                               )}
+                              <Image
+                                src={item.image}
+                                alt={item.title}
+                                width={140}
+                                height={140}
+                                className={`h-28 w-28 rounded-lg object-cover transition-opacity ${!item.isVisible ? 'opacity-50' : ''}`}
+                              />
                             </div>
-                          </CardContent>
-                        </Card>
-                      ))
+                            <CardContent className="space-y-3 p-4">
+                              <div>
+                                <div className="flex items-center justify-between">
+                                  <h3 className="text-base font-semibold">{item.title}</h3>
+                                  <Badge variant={item.status === "in stock" ? "default" : "destructive"}>
+                                    {item.status}
+                                  </Badge>
+                                </div>
+                                <p className="mt-1 line-clamp-2 text-sm text-neutral-600 dark:text-neutral-400">
+                                  {item.description}
+                                </p>
+                              </div>
+                              <div className="flex items-center justify-between mt-4">
+                                <span className="text-sm text-neutral-500 font-medium">{item.platterCategory}</span>
+                                <div className="flex gap-2">
+                                  <Button
+                                    size="icon"
+                                    variant="ghost"
+                                    onClick={() => togglePlatterItemVisibility(item)}
+                                    className="text-neutral-500 hover:text-[#741052]"
+                                    title={item.isVisible ? "Hide from Menu" : "Show on Menu"}
+                                  >
+                                    {item.isVisible ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
+                                  </Button>
+                                  <Button size="sm" onClick={() => handleEditPlatterItem(item)}>
+                                    Edit
+                                  </Button>
+                                </div>
+                              </div>
+                            </CardContent>
+                          </Card>
+                        );
+                      })
                     ) : (
                       <Card>
                         <CardContent className="p-6 text-sm text-neutral-500">

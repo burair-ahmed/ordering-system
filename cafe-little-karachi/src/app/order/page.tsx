@@ -61,12 +61,12 @@ interface AdditionalChoice {
 }
 
 const defaultPlatterCategoryOrder = [
-  "CLK Deals","Meal Boxes","Sharing Platters","BBQ Deals","Fast Food Deals",
+  "Sharing Platters", "Meal Boxes"
 ];
 
 
 const defaultMenuCategoryOrder = [
-  "Chinese","Beast BBQ","Rolls Royce","Flavoured Feast","Burger-E-Karachi", "Chicken Karahis","Mutton Karahis","Handi and Qeema","Marvellous Matka Biryani Chicken/Beef","Charming Chai","Paratha Performance","Very Fast Food","Shawarmania","French Boys Fries","Rice","Beverages","Juicy Lucy","Roti Shoti","Very Extra"
+  "Beast BBQ", "Pizza Parlour", "Hotpot and Chinese", "Rolls Royce", "The Chai Company", "Very Fast Food", "Very Extra"
 ];
 
 export default function MenuPage() {
@@ -99,15 +99,29 @@ export default function MenuPage() {
 
     const timeoutId = setTimeout(() => {
       if (isPlatter) {
-        setLoadedPlatters(prev => ({
-          ...prev,
-          [category]: [...(prev[category] || []), item as Platter]
-        }));
+        setLoadedPlatters(prev => {
+          const currentCategoryItems = prev[category] || [];
+          // Deduplicate: Check if item already exists
+          if (currentCategoryItems.some(existing => existing.id === item.id)) {
+            return prev;
+          }
+          return {
+            ...prev,
+            [category]: [...currentCategoryItems, item as Platter]
+          };
+        });
       } else {
-        setLoadedItems(prev => ({
-          ...prev,
-          [category]: [...(prev[category] || []), item as MenuItemData]
-        }));
+        setLoadedItems(prev => {
+          const currentCategoryItems = prev[category] || [];
+          // Deduplicate: Check if item already exists
+          if (currentCategoryItems.some(existing => existing.id === item.id)) {
+            return prev;
+          }
+          return {
+            ...prev,
+            [category]: [...currentCategoryItems, item as MenuItemData]
+          };
+        });
       }
 
       setAnimatingItems(prev => {
@@ -128,57 +142,79 @@ export default function MenuPage() {
     });
   };
 
-useEffect(() => {
-  const fetchPlatters = async () => {
-    setPlatterLoading(true);
-    try {
-      const res = await fetch("/api/platter");
-      const data: Platter[] = await res.json();
+  useEffect(() => {
+    const controller = new AbortController();
+    const { signal } = controller;
 
-      // Group platters by category
-      const grouped: { [key: string]: Platter[] } = {};
-      data.forEach((p) => {
-        if (!grouped[p.platterCategory]) grouped[p.platterCategory] = [];
-        grouped[p.platterCategory].push(p);
+    const fetchPlatters = async () => {
+      setPlatterLoading(true);
+      try {
+        const res = await fetch("/api/platter", { signal });
+        const data: Platter[] = await res.json();
+        
+        if (signal.aborted) return;
+
+        // Group platters by category
+        const grouped: { [key: string]: Platter[] } = {};
+        data.forEach((p) => {
+          if (!grouped[p.platterCategory]) grouped[p.platterCategory] = [];
+          grouped[p.platterCategory].push(p);
+        });
+
+        if (!signal.aborted) {
+          setPlatters(grouped);
+          // Load platters progressively with animation
+          Object.entries(grouped).forEach(([category, categoryPlatters]) => {
+            loadItemsProgressively(categoryPlatters, category, true);
+          });
+        }
+      } catch (err: any) {
+        if (err.name !== 'AbortError') {
+          console.error("Failed to fetch platters:", err);
+        }
+      } finally {
+        if (!signal.aborted) {
+          setPlatterLoading(false);
+        }
+      }
+    };
+
+    const fetchMenuCategory = async (category: string) => {
+      setMenuLoading((prev) => ({ ...prev, [category]: true }));
+      try {
+        const res = await fetch(`/api/getitems?page=1&limit=10&category=${category}`, { signal });
+        const data = await res.json();
+        
+        if (signal.aborted) return;
+
+        setMenu((prev) => ({ ...prev, [category]: data }));
+        setPage((prev) => ({ ...prev, [category]: 2 }));
+        setHasMore((prev) => ({ ...prev, [category]: data.length === 10 }));
+
+        // Load menu items progressively with animation
+        loadItemsProgressively(data, category, false);
+      } catch (err: any) {
+        if (err.name !== 'AbortError') {
+          console.error(`Failed to fetch menu category ${category}:`, err);
+        }
+      } finally {
+        if (!signal.aborted) {
+          setMenuLoading((prev) => ({ ...prev, [category]: false }));
+        }
+      }
+    };
+
+    fetchPlatters();
+    menuCategoryOrder.forEach(fetchMenuCategory);
+
+    // Cleanup timeouts on unmount and abort fetches
+    return () => {
+      controller.abort();
+      Object.values(loadingTimeouts.current).forEach(timeoutId => {
+        clearTimeout(timeoutId);
       });
-
-      setPlatters(grouped);
-
-      // Load platters progressively with animation
-      Object.entries(grouped).forEach(([category, categoryPlatters]) => {
-        loadItemsProgressively(categoryPlatters, category, true);
-      });
-    } finally {
-      setPlatterLoading(false);
-    }
-  };
-
-  const fetchMenuCategory = async (category: string) => {
-    setMenuLoading((prev) => ({ ...prev, [category]: true }));
-    try {
-      const res = await fetch(`/api/getitems?page=1&limit=10&category=${category}`);
-      const data = await res.json();
-      setMenu((prev) => ({ ...prev, [category]: data }));
-      setPage((prev) => ({ ...prev, [category]: 2 }));
-      setHasMore((prev) => ({ ...prev, [category]: data.length === 10 }));
-
-      // Load menu items progressively with animation
-      loadItemsProgressively(data, category, false);
-    } finally {
-      setMenuLoading((prev) => ({ ...prev, [category]: false }));
-    }
-  };
-
-  fetchPlatters();
-  menuCategoryOrder.forEach(fetchMenuCategory);
-
-  // Cleanup timeouts on unmount
-  return () => {
-    Object.values(loadingTimeouts.current).forEach(timeoutId => {
-      clearTimeout(timeoutId);
-    });
-  };
-}, []);
+    };
+  }, []);
 
   
 
