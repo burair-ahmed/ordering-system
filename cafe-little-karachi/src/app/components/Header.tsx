@@ -99,7 +99,7 @@ export default function Header() {
                   transition={{ type: "spring", stiffness: 300, damping: 15 }}
                 >
                   <Image 
-                    src="/logo.webp" 
+                    src="/butter-paper1.webp" 
                     alt="Logo" 
                     width={60} 
                     height={60} 

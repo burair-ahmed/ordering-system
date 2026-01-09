@@ -14,7 +14,7 @@ export default function Hero() {
   <div className="absolute inset-0 bg-cover bg-center bg-[url('/bg-hero.webp')] opacity-40"></div>
   
   {/* Content */}
-  <h1 className="text-5xl font-bold text-center text-white relative z-10">Cafe Little Karachi</h1>
+  <h1 className="text-5xl font-bold text-center text-white relative z-10">Little Karachi Express</h1>
 </div>
 
       </div>

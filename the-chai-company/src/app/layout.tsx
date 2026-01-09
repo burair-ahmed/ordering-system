@@ -10,6 +10,7 @@ import Footer from "./components/Footer";
 import { ThemeProvider } from "next-themes";
 import { Toaster } from "@/components/ui/sonner";
 import RestaurantStatusPopup from "./components/RestaurantStatusPopup";
+import { GoogleAnalytics } from '@next/third-parties/google';
 
 const poppins = localFont({
   src: [
@@ -61,6 +62,9 @@ export default function RootLayout({
         </CartProvider>
       </TableProvider>
       <Toaster richColors/>
+      {process.env.NEXT_PUBLIC_GA_ID && (
+        <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GA_ID} />
+      )}
     </ThemeProvider>
   </body>
 </html>

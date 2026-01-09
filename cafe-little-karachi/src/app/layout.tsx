@@ -40,7 +40,7 @@ const poppins = localFont({
 
 export const metadata: Metadata = {
   title: "CLK Ordering System",
-  description: "Cafe Little Karachi Ordering System",
+  description: "Little Karachi Express Ordering System",
 };
 
 export default function RootLayout({

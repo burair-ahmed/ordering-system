@@ -52,7 +52,7 @@ const Footer: FC = () => {
           >
             <Link href={tableId ? `/order?tableId=${tableId}` : "/"}>
               <Image
-                src="/logo.webp"
+                src="/butter-paper1.webp"
                 alt="Logo"
                 width={140}
                 height={140}
@@ -60,7 +60,7 @@ const Footer: FC = () => {
               />
             </Link>
             <p className="mt-4 text-sm text-neutral-200 text-center sm:text-left max-w-xs">
-              Experience authentic flavors at Cafe Little Karachi. Dine in, order
+              Experience authentic flavors at Little Karachi Express. Dine in, order
               online, and enjoy the taste of tradition.
             </p>
           </motion.div>
@@ -140,7 +140,7 @@ const Footer: FC = () => {
         {/* Divider */}
         <div className="border-t border-white/20 mt-10 pt-6 text-center text-sm text-neutral-200">
           <p>
-            &copy; {new Date().getFullYear()} Cafe Little Karachi. All rights
+            &copy; {new Date().getFullYear()} Little Karachi Express. All rights
             reserved.
           </p>
         </div>
