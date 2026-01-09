@@ -114,11 +114,16 @@ const Footer: FC = () => {
             </h3>
             <div className="space-y-4 text-center md:text-left">
               <p className="text-sm text-[#E3D6C6]/80 font-light leading-relaxed">
-                Shop No. 5, Premium Heights,<br />
-                Karachi, Pakistan
+                Shop No. A/1 Abdullah Apartments,<br />
+                Block 16 Gulistan E Johar, Karachi
               </p>
               <p className="text-sm text-[#E3D6C6]/80 font-light underline decoration-[#C46A47]/30 underline-offset-4">
                 Open Daily: 4PM - 2AM
+              </p>
+              <p className="text-sm text-[#E3D6C6]/80 font-light pt-2">
+                <a href="tel:+923331702706" className="hover:text-[#C46A47] transition-colors">
+                  +92 333 1702706
+                </a>
               </p>
             </div>
           </motion.div>

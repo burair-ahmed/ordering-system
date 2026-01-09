@@ -67,7 +67,7 @@ export default function Header() {
           
           {/* Left: Quick Actions (Desktop) */}
           <div className="hidden lg:flex items-center gap-6">
-            <Link href="tel:+923331702704" className="group flex items-center gap-2 text-[#6B3F2A] font-medium transition-colors hover:text-[#C46A47]">
+            <Link href="tel:+923331702706" className="group flex items-center gap-2 text-[#6B3F2A] font-medium transition-colors hover:text-[#C46A47]">
               <div className="p-2 rounded-full bg-[#FAF3E6] group-hover:bg-[#C46A47]/10 border border-[#E3D6C6] transition-all">
                 <Phone size={16} className="text-[#C46A47]" />
               </div>
@@ -112,13 +112,13 @@ export default function Header() {
           {/* Right: Functional Icons */}
           <div className="flex items-center gap-2 lg:gap-4">
             {/* Search (Modern Touch) */}
-            <button className="hidden sm:flex p-2.5 rounded-full hover:bg-black/5 text-[#6B3F2A] transition-colors">
+            {/* <button className="hidden sm:flex p-2.5 rounded-full hover:bg-black/5 text-[#6B3F2A] transition-colors">
               <Search size={20} />
             </button>
             
             <button className="hidden sm:flex p-2.5 rounded-full hover:bg-black/5 text-[#6B3F2A] transition-colors">
               <User size={20} />
-            </button>
+            </button> */}
 
             {/* Premium Cart Button */}
             <button
@@ -182,11 +182,11 @@ export default function Header() {
               <div className="mt-auto pt-8 border-t border-[#E3D6C6] space-y-4">
                 <div className="flex items-center gap-4 text-[#6B3F2A]">
                   <Phone size={20} className="text-[#C46A47]" />
-                  <span className="font-medium">+92 333 1702704</span>
+                  <span className="font-medium">+92 333 1702706</span>
                 </div>
                 <div className="flex items-center gap-4 text-[#6B3F2A]">
                   <MapPin size={20} className="text-[#C46A47]" />
-                  <span className="font-medium">The Chai Company, Karachi</span>
+                  <span className="font-medium">Shop No. A/1 Abdullah Apartments Block 16 Gulistan E Johar</span>
                 </div>
               </div>
             </motion.div>

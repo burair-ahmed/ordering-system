@@ -12,6 +12,7 @@ import { Toaster } from "@/components/ui/sonner";
 import RestaurantStatusPopup from "./components/RestaurantStatusPopup";
 import { GoogleAnalytics } from '@next/third-parties/google';
 import { CSPostHogProvider } from './providers/PostHogProvider';
+import WhatsAppFloatingIcon from "./components/WhatsAppFloatingIcon";
 
 const poppins = localFont({
   src: [
@@ -61,6 +62,7 @@ export default function RootLayout({
           <OrderProvider>
             <RestaurantStatusPopup/>
             <Header />
+            <WhatsAppFloatingIcon />
             {children}
             <Footer />
           </OrderProvider>
