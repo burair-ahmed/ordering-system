@@ -7,6 +7,7 @@ import Lottie from 'lottie-react';
 import successAnimation from '../../../public/lotties/success.json';
 import { TypeAnimation } from 'react-type-animation';
 import { toast } from 'sonner';
+import posthog from 'posthog-js';
 import { useCart } from '../context/CartContext';
 import {
   CheckCircle,
@@ -99,6 +100,21 @@ const ThankYouPage: FC = () => {
   const tableId = searchParams?.get('tableId');
   const orderParam = searchParams?.get('order');
   const phone = searchParams?.get('phone');
+
+  useEffect(() => {
+    posthog.capture('tcc_thank_you_viewed', {
+      order_number: orderParam,
+      order_type: orderType,
+      table_id: tableId
+    });
+
+    // Reset session after order is successfully placed and viewed
+    // This ensures next interaction is a fresh session
+    return () => {
+      console.log('[PostHog] Resetting session on Thank You page exit');
+      posthog.reset();
+    };
+  }, [orderParam, orderType, tableId]);
 
   const fetchOrderDetails = useCallback(async (opts?: { showLoader?: boolean }) => {
     if (!orderType || (!orderNumber && !tableId)) return;
@@ -516,6 +532,13 @@ const ThankYouPage: FC = () => {
         }),
       });
       if (!res.ok) throw new Error();
+      
+      posthog.capture('tcc_feedback_submitted', {
+        order_number: orderNumber,
+        rating: rating,
+        order_type: orderType
+      });
+
       setFeedbackStatus('success');
       toast.success('Thanks for your feedback!');
     } catch {

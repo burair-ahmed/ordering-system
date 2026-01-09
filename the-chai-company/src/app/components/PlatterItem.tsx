@@ -7,6 +7,7 @@ import Image from "next/image";
 import { motion } from "framer-motion";
 import { PlatterItemModal } from "./PlatterItemModal";
 import { X, Check } from "lucide-react";
+import posthog from 'posthog-js';
 
 interface CategoryOption {
   uuid: string;
@@ -50,7 +51,14 @@ const PlatterItem: FC<PlatterItemProps> = ({ platter }) => {
       <motion.div
         whileHover={{ scale: 1.02, translateY: -8 }}
         whileTap={{ scale: 0.98 }}
-        onClick={() => setShowModal(true)}
+        onClick={() => {
+          posthog.capture('tcc_journey_view_item_details', {
+            item_name: platter.title,
+            price: platter.basePrice || (platter as any).price || 0,
+            is_platter: true
+          });
+          setShowModal(true);
+        }}
         className="relative flex flex-col p-4 rounded-[24px] cursor-pointer 
         bg-white border border-[#E3D6C6]/60 shadow-[0_10px_30px_-10px_rgba(107,63,42,0.05)]
         hover:shadow-[0_40px_80px_-20px_rgba(196,106,71,0.15)] hover:border-[#C46A47]/40 transition-all duration-500 group overflow-hidden h-full"

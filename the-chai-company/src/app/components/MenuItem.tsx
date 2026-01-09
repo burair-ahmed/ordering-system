@@ -5,6 +5,7 @@ import Image from "next/image";
 import { motion } from "framer-motion";
 import { MenuItemModal } from "./MenuItemModal";
 import { X, Check } from "lucide-react";
+import posthog from 'posthog-js';
 
 interface Variation {
   name: string;
@@ -39,7 +40,13 @@ const MenuItem: FC<MenuItemProps> = ({ item }) => {
       <motion.div
         whileHover={{ scale: 1.02, translateY: -8 }}
         whileTap={{ scale: 0.98 }}
-        onClick={() => setShowModal(true)}
+        onClick={() => {
+          posthog.capture('tcc_journey_view_item_details', {
+            item_name: item.title,
+            price: basePrice
+          });
+          setShowModal(true);
+        }}
         className="relative flex flex-col p-4 rounded-[24px] cursor-pointer 
         bg-white border border-[#E3D6C6]/60 shadow-[0_10px_30px_-10px_rgba(107,63,42,0.05)]
         hover:shadow-[0_40px_80px_-20px_rgba(196,106,71,0.15)] hover:border-[#C46A47]/40 transition-all duration-500 group overflow-hidden h-full"
@@ -47,7 +54,6 @@ const MenuItem: FC<MenuItemProps> = ({ item }) => {
         {/* Decorative background element */}
         <div className="absolute top-0 right-0 w-32 h-32 bg-[#C46A47]/5 rounded-full blur-3xl -translate-y-12 translate-x-12 group-hover:bg-[#C46A47]/10 transition-colors" />
 
-        {/* ... (existing out of stock logic) */}
         {item.status === "out of stock" && (
           <div className="absolute top-4 left-4 z-10 bg-black/80 backdrop-blur-md text-white text-[10px] uppercase font-bold px-4 py-1.5 rounded-full shadow-lg border border-white/10">
             Sold Out

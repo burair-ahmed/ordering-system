@@ -8,6 +8,7 @@ import { VariationSelector } from "../../components/variations/VariationSelector
 import { useVariationSelector } from "../../hooks/useVariationSelector";
 import { VariationConfig } from "../../types/variations";
 import { X, Check } from "lucide-react";
+import posthog from 'posthog-js';
 
 interface CategoryOption {
   uuid: string;
@@ -115,6 +116,12 @@ export const PlatterItemModal: FC<PlatterItemModalProps> = ({ platter, isOpen, o
   }, [isOpen, fetchCategoryItems, platter.categories]);
 
   const handleItemAdded = () => {
+    posthog.capture('tcc_journey_add_item', {
+      item_id: platter.id,
+      item_name: platter.title,
+      price: totalPrice,
+      is_platter: true
+    });
     setShowAddedMessage(true);
     setTimeout(() => setShowAddedMessage(false), 1500);
   };

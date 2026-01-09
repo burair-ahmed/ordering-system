@@ -8,6 +8,7 @@ import Link from 'next/link';
 import { motion, AnimatePresence, useScroll, useTransform } from 'framer-motion';
 import { ShoppingBag, Phone, MapPin, Menu as MenuIcon, X, Search, User } from 'lucide-react';
 import CartSidebar from './CartSidebar';
+import posthog from 'posthog-js';
 import { useCart } from '../context/CartContext';
 import { useOrder } from '../context/OrderContext';
 
@@ -37,7 +38,14 @@ export default function Header() {
 
   const toggleCartSidebar = () => {
     if (orderType === 'dinein' || orderType === 'delivery' || orderType === 'pickup') {
-      setIsCartOpen((prev) => !prev);
+      const newState = !isCartOpen;
+      if (newState) {
+        posthog.capture('tcc_cart_viewed', {
+          item_count: cartItems.length,
+          total_amount: totalAmount
+        });
+      }
+      setIsCartOpen(newState);
     }
   };
 

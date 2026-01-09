@@ -11,6 +11,7 @@ import { ThemeProvider } from "next-themes";
 import { Toaster } from "@/components/ui/sonner";
 import RestaurantStatusPopup from "./components/RestaurantStatusPopup";
 import { GoogleAnalytics } from '@next/third-parties/google';
+import { CSPostHogProvider } from './providers/PostHogProvider';
 
 const poppins = localFont({
   src: [
@@ -50,22 +51,24 @@ export default function RootLayout({
   return (
    <html lang="en" suppressHydrationWarning>
   <body className={`${poppins.variable} antialiased`}>
-    <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-      <TableProvider>
-        <CartProvider>
-        <OrderProvider>
-          <RestaurantStatusPopup/>
-          <Header />
-          {children}
-          <Footer />
-        </OrderProvider>
-        </CartProvider>
-      </TableProvider>
-      <Toaster richColors/>
-      {process.env.NEXT_PUBLIC_GA_ID && (
-        <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GA_ID} />
-      )}
-    </ThemeProvider>
+    <CSPostHogProvider>
+      <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+        <TableProvider>
+          <CartProvider>
+          <OrderProvider>
+            <RestaurantStatusPopup/>
+            <Header />
+            {children}
+            <Footer />
+          </OrderProvider>
+          </CartProvider>
+        </TableProvider>
+        <Toaster richColors/>
+        {process.env.NEXT_PUBLIC_GA_ID && (
+          <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GA_ID} />
+        )}
+      </ThemeProvider>
+    </CSPostHogProvider>
   </body>
 </html>
 

@@ -8,6 +8,7 @@ import { VariationSelector } from "../../components/variations/VariationSelector
 import { useVariationSelector } from "../../hooks/useVariationSelector";
 import { VariationConfig } from "../../types/variations";
 import { X, Check } from "lucide-react";
+import posthog from 'posthog-js';
 
 interface Variation {
   name: string;
@@ -56,6 +57,12 @@ export const MenuItemModal: FC<MenuItemModalProps> = ({ item, isOpen, onClose })
   } = useVariationSelector(variationConfig, basePrice);
 
   const handleItemAdded = () => {
+    posthog.capture('tcc_journey_add_item', {
+      item_id: itemId,
+      item_name: item.title,
+      price: totalPrice,
+      has_variations: selections.simple !== null
+    });
     setShowAddedMessage(true);
     setTimeout(() => setShowAddedMessage(false), 1500);
   };

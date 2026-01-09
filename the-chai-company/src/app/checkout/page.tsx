@@ -43,6 +43,7 @@ import {
   Heart,
   Check,
 } from "lucide-react";
+import posthog from 'posthog-js';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -184,6 +185,10 @@ const CheckoutPageContent: FC = () => {
   // preserve tableId from query or local storage
   useEffect(() => {
     setMounted(true);
+    posthog.capture('tcc_checkout_viewed', {
+      total_amount: totalAmount,
+      item_count: cartItems.length
+    });
     if (!searchParams) return;
     const typeParam = searchParams.get("type");
     if (typeParam) {
@@ -331,6 +336,12 @@ const CheckoutPageContent: FC = () => {
       return;
     }
 
+    posthog.capture('tcc_order_initiated', {
+      total_amount: finalAmount,
+      order_type: formData.ordertype,
+      payment_method: formData.paymentMethod
+    });
+
     setIsModalOpen(true);
     toast.success("All details verified!", {
       description: "Please confirm your order in the next step.",
@@ -384,6 +395,13 @@ const CheckoutPageContent: FC = () => {
         const json = await res.json();
         const orderNumber = json.orderNumber || json.id || "N/A";
         const orderType = json.ordertype;
+
+        posthog.capture('tcc_order_placed', {
+          order_number: orderNumber,
+          total_amount: finalAmount,
+          item_count: cartItems.length,
+          order_type: orderType
+        });
 
         // send WhatsApp notification
         await sendWhatsAppNotification({ ...newOrder, orderNumber });
