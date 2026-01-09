@@ -41,6 +41,9 @@ const poppins = localFont({
 export const metadata: Metadata = {
   title: "The Chai Company Ordering System",
   description: "Authentic Chai and Snacks by The Chai Company",
+  icons: {
+    icon: "/favicon.ico",
+  },
 };
 
 export default function RootLayout({
