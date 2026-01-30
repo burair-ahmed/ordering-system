@@ -350,7 +350,7 @@ const AdminDashboard: FC = () => {
               className={`h-10 w-full justify-start gap-3 rounded-xl px-3 text-sm transition-all ${
                 active
                   ? 'bg-[#C46A47]/10 text-[#C46A47] dark:bg-[#C46A47]/20 dark:text-orange-300 font-bold shadow-sm'
-                  : 'text-neutral-600 hover:bg-neutral-100 dark:text-neutral-300 dark:hover:bg-neutral-800'
+                  : 'text-neutral-600 hover:bg-neutral-100 hover:text-black dark:text-neutral-300 dark:hover:bg-neutral-800'
               }`}
             >
               <Icon className="h-4 w-4" />
