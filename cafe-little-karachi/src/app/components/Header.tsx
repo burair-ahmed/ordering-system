@@ -16,7 +16,7 @@ export default function Header() {
   const [isClient, setIsClient] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { cartItems, totalAmount } = useCart();
-  const { orderType, tableId } = useOrder();
+  const { orderType, tableId, isCheckoutModalOpen } = useOrder();
   
   const { scrollY } = useScroll();
   
@@ -199,7 +199,7 @@ export default function Header() {
 
       {/* MOBILE BOTTOM CHECKOUT BAR (Refined) */}
       <AnimatePresence>
-        {cartItems.length > 0 && (
+        {cartItems.length > 0 && !isCheckoutModalOpen && (
           <motion.div 
             initial={{ y: 100 }}
             animate={{ y: 0 }}

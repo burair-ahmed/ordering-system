@@ -161,7 +161,7 @@ const CheckoutPageContent: FC = () => {
   const cartRef = useRef<HTMLDivElement | null>(null);
   const modalRef = useRef<HTMLDivElement | null>(null);
   const areaInputRef = useRef<HTMLInputElement | null>(null);
-  const { orderType, area, tableId } = useOrder();
+  const { orderType, area, tableId, setCheckoutModalOpen } = useOrder();
   const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     let value = e.target.value.replace(/\D/g, ""); // remove non-digits
 
@@ -267,6 +267,12 @@ const CheckoutPageContent: FC = () => {
     if (isModalOpen) document.addEventListener("keydown", onKey);
     return () => document.removeEventListener("keydown", onKey);
   }, [isModalOpen]);
+
+  // Sync global modal state
+  useEffect(() => {
+    setCheckoutModalOpen(isModalOpen);
+    return () => setCheckoutModalOpen(false); // cleanup on unmount or when modal closes
+  }, [isModalOpen, setCheckoutModalOpen]);
 
   // helper: update form fields
   const handleInputChange = (

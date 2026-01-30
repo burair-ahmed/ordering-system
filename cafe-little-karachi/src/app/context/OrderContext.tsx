@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useState, useEffect, ReactNode } from "react";
+import { createContext, useContext, useState, useEffect, ReactNode, useCallback, useMemo } from "react";
 
 type OrderType = "delivery" | "pickup" | "dinein" | "";
 
@@ -8,11 +8,13 @@ interface OrderState {
   orderType: OrderType;
   area?: string;
   tableId?: string;
+  isCheckoutModalOpen?: boolean;
 }
 
 interface OrderContextValue extends OrderState {
   setOrder: (order: OrderState) => void;
   clearOrder: () => void;
+  setCheckoutModalOpen: (isOpen: boolean) => void;
 }
 
 const OrderContext = createContext<OrderContextValue | undefined>(undefined);
@@ -35,22 +37,42 @@ export function OrderProvider({ children }: { children: ReactNode }) {
   // 🔹 Save order to localStorage whenever it changes
   useEffect(() => {
     if (order.orderType) {
-      localStorage.setItem("order-context", JSON.stringify(order));
+      // Don't persist isCheckoutModalOpen to localStorage as it's a transient UI state
+      const { isCheckoutModalOpen, ...persistentState } = order;
+      localStorage.setItem("order-context", JSON.stringify(persistentState));
     }
   }, [order]);
 
-  const setOrder = (newOrder: OrderState) => {
-    setOrderState(newOrder);
-    localStorage.setItem("order-context", JSON.stringify(newOrder)); // immediate persist
-  };
+  const setOrder = useCallback((newOrder: OrderState) => {
+    setOrderState(prev => ({ ...prev, ...newOrder }));
+    
+    // Don't persist isCheckoutModalOpen to localStorage
+    const { isCheckoutModalOpen, ...persistentState } = newOrder;
+    localStorage.setItem("order-context", JSON.stringify(persistentState)); 
+  }, []);
 
-  const clearOrder = () => {
+  const setCheckoutModalOpen = useCallback((isOpen: boolean) => {
+    setOrderState((prev) => {
+      // Only update if value actually changes to avoid unnecessary re-renders
+      if (prev.isCheckoutModalOpen === isOpen) return prev;
+      return { ...prev, isCheckoutModalOpen: isOpen };
+    });
+  }, []);
+
+  const clearOrder = useCallback(() => {
     setOrderState({ orderType: "" });
     localStorage.removeItem("order-context");
-  };
+  }, []);
+
+  const contextValue = useMemo(() => ({
+    ...order,
+    setOrder,
+    clearOrder,
+    setCheckoutModalOpen
+  }), [order, setOrder, clearOrder, setCheckoutModalOpen]);
 
   return (
-    <OrderContext.Provider value={{ ...order, setOrder, clearOrder }}>
+    <OrderContext.Provider value={contextValue}>
       {children}
     </OrderContext.Provider>
   );
