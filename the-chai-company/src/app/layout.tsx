@@ -13,6 +13,9 @@ import RestaurantStatusPopup from "./components/RestaurantStatusPopup";
 import { GoogleAnalytics } from '@next/third-parties/google';
 import { CSPostHogProvider } from './providers/PostHogProvider';
 import WhatsAppFloatingIcon from "./components/WhatsAppFloatingIcon";
+import MaintenanceScreen from "./components/MaintenanceScreen";
+
+const IS_MAINTENANCE_MODE = true;
 
 const poppins = localFont({
   src: [
@@ -53,29 +56,36 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-   <html lang="en" suppressHydrationWarning>
-  <body className={`${poppins.variable} antialiased`}>
-    <CSPostHogProvider>
-      <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-        <TableProvider>
-          <CartProvider>
-          <OrderProvider>
-            <RestaurantStatusPopup/>
-            <Header />
-            <WhatsAppFloatingIcon />
-            {children}
-            <Footer />
-          </OrderProvider>
-          </CartProvider>
-        </TableProvider>
-        <Toaster richColors/>
-        {process.env.NEXT_PUBLIC_GA_ID && (
-          <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GA_ID} />
+    <html lang="en" suppressHydrationWarning>
+      <body className={`${poppins.variable} antialiased`}>
+        {IS_MAINTENANCE_MODE ? (
+          <MaintenanceScreen />
+        ) : (
+          <div className="flex flex-col min-h-screen">
+            <CSPostHogProvider>
+              <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+                <TableProvider>
+                  <CartProvider>
+                    <OrderProvider>
+                      <RestaurantStatusPopup />
+                      <Header />
+                      <WhatsAppFloatingIcon />
+                      <main className="flex-grow">
+                        {children}
+                      </main>
+                      <Footer />
+                    </OrderProvider>
+                  </CartProvider>
+                </TableProvider>
+                <Toaster richColors />
+                {process.env.NEXT_PUBLIC_GA_ID && (
+                  <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GA_ID} />
+                )}
+              </ThemeProvider>
+            </CSPostHogProvider>
+          </div>
         )}
-      </ThemeProvider>
-    </CSPostHogProvider>
-  </body>
-</html>
-
+      </body>
+    </html>
   );
 }

@@ -13,6 +13,11 @@ import { CSPostHogProvider } from './providers/PostHogProvider';
 import { GoogleAnalytics } from "@next/third-parties/google";
 import RestaurantStatusPopup from "./components/RestaurantStatusPopup";
 
+
+import MaintenanceScreen from "./components/MaintenanceScreen";
+
+const IS_MAINTENANCE_MODE = true;
+
 const poppins = localFont({
   src: [
     { path: "./fonts/Poppins-Black.ttf", weight: "900", style: "normal" },
@@ -49,27 +54,33 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-   <html lang="en" suppressHydrationWarning>
-  <body className={`${poppins.variable} antialiased`} suppressHydrationWarning>
-    <CSPostHogProvider>
-      <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-        <TableProvider>
-          <CartProvider>
-          <OrderProvider>
-            <RestaurantStatusPopup/>
-            <Header />
-            {children}
-            <Footer />
-          </OrderProvider>
-          </CartProvider>
-        </TableProvider>
-        <Toaster richColors/>
-      </ThemeProvider>
-
-    </CSPostHogProvider>
-    <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GOOGLE_ANALYTICS_ID || ""} />
-  </body>
-</html>
-
+    <html lang="en" suppressHydrationWarning>
+      <body className={`${poppins.variable} antialiased`} suppressHydrationWarning>
+        {IS_MAINTENANCE_MODE ? (
+           <MaintenanceScreen />
+        ) : (
+          <div className="flex flex-col min-h-screen">
+          <CSPostHogProvider>
+            <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+              <TableProvider>
+                <CartProvider>
+                  <OrderProvider>
+                    <RestaurantStatusPopup />
+                    <Header />
+                    <main className="flex-grow">
+                      {children}
+                    </main>
+                    <Footer />
+                  </OrderProvider>
+                </CartProvider>
+              </TableProvider>
+              <Toaster richColors />
+            </ThemeProvider>
+          </CSPostHogProvider>
+          <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GOOGLE_ANALYTICS_ID || ""} />
+          </div>
+        )}
+      </body>
+    </html>
   );
 }
