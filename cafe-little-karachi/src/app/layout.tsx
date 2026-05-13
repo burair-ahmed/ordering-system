@@ -16,7 +16,7 @@ import RestaurantStatusPopup from "./components/RestaurantStatusPopup";
 
 import MaintenanceScreen from "./components/MaintenanceScreen";
 
-const IS_MAINTENANCE_MODE = true;
+const IS_MAINTENANCE_MODE = false;
 
 const poppins = localFont({
   src: [
