@@ -61,12 +61,12 @@ interface AdditionalChoice {
 }
 
 const defaultPlatterCategoryOrder = [
-  "Sharing Platters", "Meal Boxes"
+  "Sharing Platters", "Meal Boxes", "Fast Food Deals"
 ];
 
 
 const defaultMenuCategoryOrder = [
-  "Beast BBQ", "Pizza Parlour", "Hotpot and Chinese", "Rolls Royce", "The Chai Company", "Very Fast Food", "Very Extra"
+  "Very Fast Food","Beast BBQ", "Pizza Parlour", "Hotpot and Chinese", "Rolls Royce", "The Chai Company", "Very Extra"
 ];
 
 export default function MenuPage() {
