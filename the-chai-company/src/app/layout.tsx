@@ -15,7 +15,7 @@ import { CSPostHogProvider } from './providers/PostHogProvider';
 import WhatsAppFloatingIcon from "./components/WhatsAppFloatingIcon";
 import MaintenanceScreen from "./components/MaintenanceScreen";
 
-const IS_MAINTENANCE_MODE = true;
+const IS_MAINTENANCE_MODE = false;
 
 const poppins = localFont({
   src: [

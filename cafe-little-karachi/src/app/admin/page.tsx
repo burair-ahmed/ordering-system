@@ -1220,30 +1220,22 @@ const AdminDashboard: FC = () => {
                         </Card>
                       )}
           
-                      {/* ===== Edit Modals (Dialog with smooth animation) ===== */}
-                      <Dialog open={showEditMenuItemModal} onOpenChange={setShowEditMenuItemModal}>
-                        <DialogContent className="sm:max-w-2xl">
-                          <DialogHeader>
-                            <DialogTitle>Edit Menu Item</DialogTitle>
-                            <DialogDescription>Update details and save changes.</DialogDescription>
-                          </DialogHeader>
-                          {selectedMenuItem && (
-                            <EditMenuItemForm item={selectedMenuItem} onClose={closeMenuEdit} onUpdate={refreshMenuItems} />
-                          )}
-                        </DialogContent>
-                      </Dialog>
+                      {/* ===== Edit Modals (Using standalone modal components) ===== */}
+                      {showEditMenuItemModal && selectedMenuItem && (
+                        <EditMenuItemForm 
+                          item={selectedMenuItem} 
+                          onClose={closeMenuEdit} 
+                          onUpdate={refreshMenuItems} 
+                        />
+                      )}
           
-                      <Dialog open={showEditPlatterItemModal} onOpenChange={setShowEditPlatterItemModal}>
-                        <DialogContent className="sm:max-w-2xl">
-                          <DialogHeader>
-                            <DialogTitle>Edit Platter</DialogTitle>
-                            <DialogDescription>Update details and save changes.</DialogDescription>
-                          </DialogHeader>
-                          {selectedPlatterItem && (
-                            <EditPlatterForm item={selectedPlatterItem} onClose={closePlatterEdit} onUpdate={refreshPlatterItems} />
-                          )}
-                        </DialogContent>
-                      </Dialog>
+                      {showEditPlatterItemModal && selectedPlatterItem && (
+                        <EditPlatterForm 
+                          item={selectedPlatterItem} 
+                          onClose={closePlatterEdit} 
+                          onUpdate={refreshPlatterItems} 
+                        />
+                      )}
           </main>
           </section>
         )}
