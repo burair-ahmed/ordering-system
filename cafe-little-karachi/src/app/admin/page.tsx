@@ -27,6 +27,7 @@ import {
   CheckSquare,
   Square,
   Trash2,
+  Tag,
 } from 'lucide-react';
 import { useTheme } from 'next-themes';
 
@@ -38,6 +39,7 @@ import AnalyticsPage from '../components/Analytics';
 import CompletedOrders from '../components/CompletedOrders';
 import AddPlatterForm from '../components/AddPlatterForm';
 import EditPlatterForm from '../components/EditPlatterForm';
+import BulkDiscountManagement from '../components/BulkDiscountManagement';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -119,6 +121,7 @@ type TabKey =
   | 'platter'
   | 'addmenu'
   | 'addplatter'
+  | 'bulkDiscounts'
   | 'tables'
   | 'completedOrders'
   | 'analytics'
@@ -130,6 +133,7 @@ const TABS: { key: TabKey; label: string; icon: any }[] = [
   { key: 'platter', label: 'Platter Items', icon: ListChecks },
   { key: 'addmenu', label: 'Add Menu', icon: Plus },
   { key: 'addplatter', label: 'Add Platter', icon: Plus },
+  { key: 'bulkDiscounts', label: 'Bulk Discounts', icon: Tag },
   { key: 'tables', label: 'Tables', icon: Table2 },
   { key: 'completedOrders', label: 'Completed', icon: Archive },
   { key: 'analytics', label: 'Analytics', icon: BarChart3 },
@@ -447,8 +451,8 @@ const AdminDashboard: FC = () => {
   };
 
   useEffect(() => {
-    if (activeTab === 'menu') fetchMenuItems();
-    if (activeTab === 'platter') fetchPlatterItems();
+    if (activeTab === 'menu' || activeTab === 'bulkDiscounts') fetchMenuItems();
+    if (activeTab === 'platter' || activeTab === 'bulkDiscounts') fetchPlatterItems();
   }, [activeTab]);
 
   const uniqueCategories = useMemo(() => {
@@ -1141,6 +1145,18 @@ const AdminDashboard: FC = () => {
           
                       {activeTab === 'addplatter' && (<Card><CardHeader><CardTitle className="text-xl">Add Platter</CardTitle><CardDescription>Create a new platter combination.</CardDescription></CardHeader><CardContent><AddPlatterForm /></CardContent></Card>)}
           
+                      {activeTab === 'bulkDiscounts' && (
+                        <BulkDiscountManagement 
+                          menuItems={menuItems}
+                          platterItems={platterItems}
+                          isLoading={loadingMenu || loadingPlatter}
+                          refreshData={async () => {
+                            await fetchMenuItems();
+                            await fetchPlatterItems();
+                          }}
+                        />
+                      )}
+
                       {activeTab === 'tables' && (
                         <Card>
                           <CardHeader>
