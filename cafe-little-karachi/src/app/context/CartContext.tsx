@@ -2,6 +2,7 @@
 
 import { createContext, useContext, useEffect, useMemo, useState, ReactNode, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
+import Preloader from "../components/Preloader";
 
 interface CartItem {
   id: string;
@@ -179,7 +180,7 @@ function CartProviderInner({ children }: CartProviderProps) {
 }
 
 export const CartProvider = ({ children }: CartProviderProps) => (
-  <Suspense fallback={<div>Loading cart...</div>}>
+  <Suspense fallback={<Preloader />}>
     <CartProviderInner>{children}</CartProviderInner>
   </Suspense>
 );

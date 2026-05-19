@@ -96,7 +96,10 @@ export default function Header() {
                 
                 <motion.div
                   whileHover={{ scale: 1.1, rotate: [0, -5, 5, 0] }}
-                  transition={{ type: "spring", stiffness: 300, damping: 15 }}
+                  transition={{ 
+                    scale: { type: "spring", stiffness: 300, damping: 15 },
+                    rotate: { duration: 0.4, ease: "easeInOut" }
+                  }}
                 >
                   <Image 
                     src="/butter-paper1.webp" 

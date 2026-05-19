@@ -97,6 +97,10 @@ export default function Header() {
           <Link href={tableId ? `/order?tableId=${tableId}` : '/'} className="absolute left-1/2 -translate-x-1/2">
             <motion.div 
               whileHover={{ scale: 1.05, rotate: [0, -2, 2, 0] }}
+              transition={{
+                scale: { type: "spring", stiffness: 300, damping: 15 },
+                rotate: { duration: 0.4, ease: "easeInOut" }
+              }}
               className="relative w-20 h-20 lg:w-28 lg:h-28 flex items-center justify-center pt-2"
             >
               <Image 
