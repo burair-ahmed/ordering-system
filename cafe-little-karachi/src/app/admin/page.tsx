@@ -28,6 +28,7 @@ import {
   Square,
   Trash2,
   Tag,
+  Truck,
 } from 'lucide-react';
 import { useTheme } from 'next-themes';
 
@@ -40,6 +41,7 @@ import CompletedOrders from '../components/CompletedOrders';
 import AddPlatterForm from '../components/AddPlatterForm';
 import EditPlatterForm from '../components/EditPlatterForm';
 import BulkDiscountManagement from '../components/BulkDiscountManagement';
+import DeliveryChargesManagement from '../components/DeliveryChargesManagement';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -122,6 +124,7 @@ type TabKey =
   | 'addmenu'
   | 'addplatter'
   | 'bulkDiscounts'
+  | 'deliveryCharges'
   | 'tables'
   | 'completedOrders'
   | 'analytics'
@@ -134,6 +137,7 @@ const TABS: { key: TabKey; label: string; icon: any }[] = [
   { key: 'addmenu', label: 'Add Menu', icon: Plus },
   { key: 'addplatter', label: 'Add Platter', icon: Plus },
   { key: 'bulkDiscounts', label: 'Bulk Discounts', icon: Tag },
+  { key: 'deliveryCharges', label: 'Delivery Charges', icon: Truck },
   { key: 'tables', label: 'Tables', icon: Table2 },
   { key: 'completedOrders', label: 'Completed', icon: Archive },
   { key: 'analytics', label: 'Analytics', icon: BarChart3 },
@@ -1155,6 +1159,10 @@ const AdminDashboard: FC = () => {
                             await fetchPlatterItems();
                           }}
                         />
+                      )}
+
+                      {activeTab === 'deliveryCharges' && (
+                        <DeliveryChargesManagement />
                       )}
 
                       {activeTab === 'tables' && (

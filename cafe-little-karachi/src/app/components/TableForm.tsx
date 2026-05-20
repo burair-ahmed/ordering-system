@@ -10,49 +10,26 @@ export default function OrderTypeModal() {
   const [orderType, setOrderType] = useState<"delivery" | "pickup" | "dinein" | "">("");
   const [selectedArea, setSelectedArea] = useState("");
   const [tableNumber, setTableNumber] = useState("");
+  const [deliveryAreas, setDeliveryAreas] = useState<any[]>([]);
+  const [loadingAreas, setLoadingAreas] = useState(false);
   const router = useRouter();
   const { setOrder } = useOrder();
 
-  const deliveryAreas = [
-    "Gulistan-e-Johar-All Blocks",
-    "Johor Block 7",
-    "Johor Block 8",
-    "Johor Block 9",
-    "Johor Block 10",
-    "Dalmia Road",
-    "Askari 4",
-    "NHS Phase 1",
-    "NHS Phase 2",
-    "NHS Phase 3",
-    "NHS Phase 4",
-    "Scheme 33",
-    "Saadi Town-All Areas",
-    "Malir Checkpost 5",
-    "Malir Checkpost 6",
-    "Malir-All Areas",
-    "Gulshan-e-Iqbal Block 1",
-    "Gulshan-e-Iqbal Block 2",
-    "Gulshan-e-Iqbal Block 3",
-    "Gulshan-e-Iqbal Block 4",
-    "Gulshan-e-Iqbal Block 5",
-    "Gulshan-e-Iqbal Block 6",
-    "Gulshan-e-Iqbal Block 7",
-    "Gulshan-e-Iqbal Block 8",
-    "Gulshan-e-Iqbal Block 9",
-    "Gulshan-e-Iqbal Block 10",
-    "Gulshan-e-Iqbal Block 11",
-    "Gulshan-e-Iqbal Block 13",
-    "Gulshan-e-Iqbal Block 14",
-    "Gulshan-e-Iqbal Block 15",
-    "Gulshan-e-Iqbal Block 16",
-    "Gulshan-e-Iqbal Block 17",
-    "Gulshan-e-Iqbal Block 18",
-    "Gulshan-e-Iqbal Block 19",
-    "FB Area-All Blocks",
-    "Shah Faisal Colony",
-    "Bahadurabad-All Areas",
-    "Shahrah-e-Faisal-On Demand",
-  ];
+  useEffect(() => {
+    if (orderType === "delivery") {
+      setLoadingAreas(true);
+      fetch('/api/delivery-areas')
+        .then((res) => res.json())
+        .then((data) => {
+          setDeliveryAreas(data);
+          setLoadingAreas(false);
+        })
+        .catch((err) => {
+          console.error("Failed to load delivery areas:", err);
+          setLoadingAreas(false);
+        });
+    }
+  }, [orderType]);
 
   const generateTableOptions = () => {
     const tables: string[] = [];
@@ -129,11 +106,13 @@ export default function OrderTypeModal() {
               value={selectedArea}
               onChange={(e) => setSelectedArea(e.target.value)}
               required
-              className="border border-gray-300 bg-white text-black capitalize rounded-lg p-2 w-full"
+              className="border border-gray-300 bg-white text-black rounded-lg p-2 w-full text-sm"
             >
-              <option value="" disabled>Select your area</option>
+              <option value="" disabled>{loadingAreas ? "Loading areas..." : "Select your area"}</option>
               {deliveryAreas.map((area, idx) => (
-                <option key={idx} value={area}>{area}</option>
+                <option key={area._id || idx} value={area.name} disabled={!area.isAvailable}>
+                  {area.name} {area.isAvailable ? `(Rs. ${area.charge})` : "(Delivery Not Possible)"} {area.note ? ` - ${area.note}` : ""}
+                </option>
               ))}
             </select>
           )}

@@ -51,53 +51,7 @@ const BRAND_TO = "#d0269b";
 const BRAND_TO1 = "#ff03afff";
 const BRAND_GRADIENT_CSS = `linear-gradient(105deg, ${BRAND_FROM}, ${BRAND_TO}, ${BRAND_TO1}, ${BRAND_TO}, ${BRAND_FROM})`;
 
-// Centralized delivery charge calculation
-const DELIVERY_CHARGES: Record<string, number> = {
-  "Gulistan-e-Johar (All Blocks)": 150,
-  "Johor Block 7": 200,
-  "Johor Block 8": 200,
-  "Johor Block 9": 200,
-  "Johor Block 10": 200,
-  "Dalmia Road": 200,
-  "Askari 4": 200,
-  "NHS Phase 1": 250,
-  "NHS Phase 2": 250,
-  "NHS Phase 3": 350,
-  "NHS Phase 4": 350,
-  "Scheme 33": 280,
-  "Saadi Town (All Areas)": 350,
-  "Malir Checkpost 5": 350,
-  "Malir Checkpost 6": 350,
-  "Malir (All Areas)": 450,
-  "Gulshan-e-Iqbal Block 1": 200,
-  "Gulshan-e-Iqbal Block 2": 200,
-  "Gulshan-e-Iqbal Block 3": 200,
-  "Gulshan-e-Iqbal Block 4": 200,
-  "Gulshan-e-Iqbal Block 5": 200,
-  "Gulshan-e-Iqbal Block 6": 200,
-  "Gulshan-e-Iqbal Block 7": 200,
-  "Gulshan-e-Iqbal Block 10": 200,
-  "Gulshan-e-Iqbal Block 11": 200,
-  "Gulshan-e-Iqbal Block 8": 250,
-  "Gulshan-e-Iqbal Block 9": 250,
-  "Gulshan-e-Iqbal Block 13": 250,
-  "Gulshan-e-Iqbal Block 14": 250,
-  "Gulshan-e-Iqbal Block 15": 250,
-  "Gulshan-e-Iqbal Block 16": 250,
-  "Gulshan-e-Iqbal Block 17": 250,
-  "Gulshan-e-Iqbal Block 18": 250,
-  "Gulshan-e-Iqbal Block 19": 250,
-  "FB Area (All Blocks)": 350,
-  "Shah Faisal Colony": 450,
-  "Bahadurabad (All Areas)": 450,
-  "Shahrah-e-Faisal (On Demand)": 0,
-};
-
-// Helper function to calculate delivery charge
-const calculateDeliveryCharge = (area: string, orderType: string): number => {
-  if (orderType !== "delivery") return 0;
-  return DELIVERY_CHARGES[area] || 0;
-};
+// Delivery charges are loaded dynamically from the database using /api/delivery-areas.
 
 // Helper function to truncate text
 const truncateText = (text: string, maxLength: number = 25): string => {
@@ -155,6 +109,37 @@ const CheckoutPageContent: FC = () => {
   const [cashPreference, setCashPreference] = useState<
     "none" | "exact" | "need-change"
   >("none");
+  const [deliveryAreas, setDeliveryAreas] = useState<any[]>([]);
+
+  useEffect(() => {
+    const fetchDeliveryAreas = async () => {
+      try {
+        const res = await fetch("/api/delivery-areas");
+        if (res.ok) {
+          const data = await res.json();
+          setDeliveryAreas(data);
+        }
+      } catch (err) {
+        console.error("Error loading delivery areas:", err);
+      }
+    };
+    fetchDeliveryAreas();
+  }, []);
+
+  const areaNote = useMemo(() => {
+    if (formData.ordertype !== "delivery") return "";
+    const match = deliveryAreas.find((a) => a.name === detectedArea);
+    return match ? match.note : "";
+  }, [detectedArea, formData.ordertype, deliveryAreas]);
+
+  useEffect(() => {
+    if (areaNote && mounted) {
+      toast(`Delivery Notice: ${detectedArea}`, {
+        description: areaNote,
+        duration: 10000,
+      });
+    }
+  }, [areaNote, detectedArea, mounted]);
 
   // refs for GSAP timeline (optional)
   const formRef = useRef<HTMLDivElement | null>(null);
@@ -337,11 +322,12 @@ const CheckoutPageContent: FC = () => {
       description: "Please confirm your order in the next step.",
     });
   };
-  // Calculate delivery charge using centralized function
-  const deliveryCharge = useMemo(() =>
-    calculateDeliveryCharge(detectedArea, formData.ordertype),
-    [detectedArea, formData.ordertype]
-  );
+  // Calculate delivery charge dynamically
+  const deliveryCharge = useMemo(() => {
+    if (formData.ordertype !== "delivery") return 0;
+    const match = deliveryAreas.find((a) => a.name === detectedArea);
+    return match ? match.charge : 0;
+  }, [detectedArea, formData.ordertype, deliveryAreas]);
 
   const discountAmount = useMemo(() => {
     return totalAmount * 0.10;
@@ -682,6 +668,19 @@ ${items
                             required
                           />
                         </div>
+                        {areaNote && (
+                          <motion.div
+                            initial={{ opacity: 0, y: -10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            className="col-span-full p-4 bg-amber-50 border border-amber-200 rounded-xl text-amber-900 flex items-start gap-3 mt-2"
+                          >
+                            <span className="text-lg">⚠️</span>
+                            <div>
+                              <h5 className="font-semibold text-sm">Notice for {detectedArea}</h5>
+                              <p className="text-xs text-amber-700 mt-0.5">{areaNote}</p>
+                            </div>
+                          </motion.div>
+                        )}
                       </motion.div>
                     )}
                   </AnimatePresence>
