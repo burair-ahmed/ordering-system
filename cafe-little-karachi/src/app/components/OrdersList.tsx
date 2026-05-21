@@ -328,7 +328,7 @@ const toggleExpand = (orderNumber: string) => {
         <div className="space-y-1">
           <p className="text-xs text-neutral-500">Status</p>
           <Select value={statusFilter} onValueChange={setStatusFilter}>
-            <SelectTrigger className="h-10 bg-white/70 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#741052]" aria-label="Filter by status">
+            <SelectTrigger className="h-10 bg-white/70 dark:bg-neutral-800/70 border-neutral-200 dark:border-neutral-700/60 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#741052]" aria-label="Filter by status">
               <SelectValue placeholder="All" />
             </SelectTrigger>
             <SelectContent>
@@ -345,7 +345,7 @@ const toggleExpand = (orderNumber: string) => {
         <div className="space-y-1">
           <p className="text-xs text-neutral-500">Order type</p>
           <Select value={typeFilter} onValueChange={(v) => setTypeFilter(v as OrderType | "all")}>
-            <SelectTrigger className="h-10 bg-white/70 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#741052]" aria-label="Filter by order type">
+            <SelectTrigger className="h-10 bg-white/70 dark:bg-neutral-800/70 border-neutral-200 dark:border-neutral-700/60 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#741052]" aria-label="Filter by order type">
               <SelectValue placeholder="All" />
             </SelectTrigger>
             <SelectContent>
@@ -359,7 +359,7 @@ const toggleExpand = (orderNumber: string) => {
         <div className="space-y-1">
           <p className="text-xs text-neutral-500">Payment</p>
           <Select value={paymentFilter} onValueChange={setPaymentFilter}>
-            <SelectTrigger className="h-10 bg-white/70 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#741052]" aria-label="Filter by payment method">
+            <SelectTrigger className="h-10 bg-white/70 dark:bg-neutral-800/70 border-neutral-200 dark:border-neutral-700/60 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#741052]" aria-label="Filter by payment method">
               <SelectValue placeholder="All" />
             </SelectTrigger>
             <SelectContent>
@@ -552,7 +552,7 @@ const toggleExpand = (orderNumber: string) => {
                       defaultValue={order.status}
                     onValueChange={(val) => safeUpdateStatus(order, val)}
                     >
-                    <SelectTrigger className="w-[200px] bg-white/70 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#741052]">
+                    <SelectTrigger className="w-[200px] bg-white/70 dark:bg-neutral-800/70 border-neutral-200 dark:border-neutral-700/60 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#741052]">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
@@ -583,31 +583,31 @@ const toggleExpand = (orderNumber: string) => {
       <AnimatePresence>
         {detailOpen && selectedOrder && (
           <motion.div
-            className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-md p-4"
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 backdrop-blur-md p-4"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
           >
             <motion.div
-              className="relative w-full max-w-5xl max-h-[90vh] overflow-y-auto bg-white rounded-3xl shadow-2xl"
+              className="relative w-full max-w-5xl max-h-[90vh] overflow-y-auto bg-white dark:bg-neutral-900 rounded-3xl shadow-2xl border border-neutral-200/50 dark:border-neutral-800/80"
               initial={{ scale: 0.9, opacity: 0, y: 20 }}
               animate={{ scale: 1, opacity: 1, y: 0 }}
               exit={{ scale: 0.9, opacity: 0, y: 20 }}
               transition={{ type: "spring", stiffness: 300, damping: 30 }}
             >
               {/* Header */}
-              <div className="sticky top-0 z-10 bg-gradient-to-r from-[#741052] to-[#d0269b] rounded-t-3xl p-6 text-white">
+              <div className="sticky top-0 z-10 bg-gradient-to-r from-[#741052] to-[#d0269b] rounded-t-3xl p-6 text-white shadow-md">
                 <div className="flex items-start justify-between">
                   <div className="flex-1">
-                    <p className="text-sm opacity-90 mb-1">Order Details</p>
-                    <h2 className="text-2xl font-bold mb-1">
+                    <p className="text-xs uppercase tracking-wider font-extrabold opacity-95 mb-1">Order Details</p>
+                    <h2 className="text-2xl font-black mb-1">
                       #{selectedOrder.orderNumber}
                     </h2>
-                    <p className="text-sm opacity-80">{timeAgo(selectedOrder.createdAt)}</p>
+                    <p className="text-xs opacity-90 font-medium">{timeAgo(selectedOrder.createdAt)}</p>
                   </div>
                   <div className="flex items-center gap-3">
                     <Badge
-                      className={`${statusColors[selectedOrder.status] || "bg-white/20 text-white"} rounded-full px-4 py-2 text-sm font-medium border-0`}
+                      className={`${statusColors[selectedOrder.status] || "bg-white/20 text-white"} rounded-full px-4 py-2 text-xs font-bold border-0`}
                     >
                       {selectedOrder.status}
                     </Badge>
@@ -627,29 +627,29 @@ const toggleExpand = (orderNumber: string) => {
                 {/* Customer & Order Info Grid */}
                 <div className="grid md:grid-cols-2 gap-6">
                   {/* Customer Information */}
-                  <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-2xl p-5 border border-gray-200">
-                    <h3 className="text-xl font-semibold text-[#741052] mb-4 flex items-center gap-2">
+                  <div className="bg-gradient-to-br from-neutral-50 to-neutral-100/50 dark:from-neutral-800/40 dark:to-neutral-900/60 rounded-2xl p-5 border border-neutral-200 dark:border-neutral-800/80">
+                    <h3 className="text-lg font-bold text-[#741052] dark:text-fuchsia-400 mb-4 flex items-center gap-2">
                       <User className="h-5 w-5" />
                       Customer Information
                     </h3>
                     <div className="space-y-3">
                       <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-full bg-gradient-to-r from-[#741052] to-[#d0269b] flex items-center justify-center">
+                        <div className="w-8 h-8 rounded-full bg-gradient-to-r from-[#741052] to-[#d0269b] flex items-center justify-center shrink-0">
                           <User className="h-4 w-4 text-white" />
                         </div>
                         <div>
-                          <p className="font-semibold text-gray-900">{selectedOrder.customerName}</p>
-                          <p className="text-sm text-gray-600">{selectedOrder.email || "No email provided"}</p>
+                          <p className="font-bold text-neutral-900 dark:text-neutral-100">{selectedOrder.customerName}</p>
+                          <p className="text-xs text-neutral-500 dark:text-neutral-400">{selectedOrder.email || "No email provided"}</p>
                         </div>
                       </div>
                       {selectedOrder.phone && (
                         <div className="flex items-center gap-3">
-                          <div className="w-8 h-8 rounded-full bg-gradient-to-r from-[#741052] to-[#d0269b] flex items-center justify-center">
+                          <div className="w-8 h-8 rounded-full bg-gradient-to-r from-[#741052] to-[#d0269b] flex items-center justify-center shrink-0">
                             <Phone className="h-4 w-4 text-white" />
                           </div>
                           <div>
-                            <p className="font-medium text-gray-900">{selectedOrder.phone}</p>
-                            <p className="text-sm text-gray-600">Phone number</p>
+                            <p className="font-semibold text-neutral-900 dark:text-neutral-100">{selectedOrder.phone}</p>
+                            <p className="text-xs text-neutral-500 dark:text-neutral-400">Phone number</p>
                           </div>
                         </div>
                       )}
@@ -657,40 +657,40 @@ const toggleExpand = (orderNumber: string) => {
                   </div>
 
                   {/* Order Information */}
-                  <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-2xl p-5 border border-gray-200">
-                    <h3 className="text-xl font-semibold text-[#741052] mb-4 flex items-center gap-2">
+                  <div className="bg-gradient-to-br from-neutral-50 to-neutral-100/50 dark:from-neutral-800/40 dark:to-neutral-900/60 rounded-2xl p-5 border border-neutral-200 dark:border-neutral-800/80">
+                    <h3 className="text-lg font-bold text-[#741052] dark:text-fuchsia-400 mb-4 flex items-center gap-2">
                       <Tag className="h-5 w-5" />
                       Order Information
                     </h3>
                     <div className="space-y-3">
                       <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-full bg-gradient-to-r from-[#741052] to-[#d0269b] flex items-center justify-center">
+                        <div className="w-8 h-8 rounded-full bg-gradient-to-r from-[#741052] to-[#d0269b] flex items-center justify-center shrink-0">
                           <Utensils className="h-4 w-4 text-white" />
                         </div>
                         <div>
-                          <p className="font-medium text-gray-900 capitalize">{selectedOrder.ordertype}</p>
-                          <p className="text-sm text-gray-600">Order type</p>
+                          <p className="font-semibold text-neutral-900 dark:text-neutral-100 capitalize">{selectedOrder.ordertype}</p>
+                          <p className="text-xs text-neutral-500 dark:text-neutral-400">Order type</p>
                         </div>
                       </div>
                       {selectedOrder.tableNumber && (
                         <div className="flex items-center gap-3">
-                          <div className="w-8 h-8 rounded-full bg-gradient-to-r from-[#741052] to-[#d0269b] flex items-center justify-center">
+                          <div className="w-8 h-8 rounded-full bg-gradient-to-r from-[#741052] to-[#d0269b] flex items-center justify-center shrink-0">
                             <Utensils className="h-4 w-4 text-white" />
                           </div>
                           <div>
-                            <p className="font-medium text-gray-900">Table {selectedOrder.tableNumber}</p>
-                            <p className="text-sm text-gray-600">Table number</p>
+                            <p className="font-semibold text-neutral-900 dark:text-neutral-100">Table {selectedOrder.tableNumber}</p>
+                            <p className="text-xs text-neutral-500 dark:text-neutral-400">Table number</p>
                           </div>
                         </div>
                       )}
                       {selectedOrder.area && (
                         <div className="flex items-center gap-3">
-                          <div className="w-8 h-8 rounded-full bg-gradient-to-r from-[#741052] to-[#d0269b] flex items-center justify-center">
+                          <div className="w-8 h-8 rounded-full bg-gradient-to-r from-[#741052] to-[#d0269b] flex items-center justify-center shrink-0">
                             <MapPin className="h-4 w-4 text-white" />
                           </div>
                           <div>
-                            <p className="font-medium text-gray-900">{selectedOrder.area}</p>
-                            <p className="text-sm text-gray-600">Delivery area</p>
+                            <p className="font-semibold text-neutral-900 dark:text-neutral-100">{selectedOrder.area}</p>
+                            <p className="text-xs text-neutral-500 dark:text-neutral-400">Delivery area</p>
                           </div>
                         </div>
                       )}
@@ -701,13 +701,13 @@ const toggleExpand = (orderNumber: string) => {
                 {/* Quick Actions & Status Update */}
                 <div className="grid md:grid-cols-2 gap-6">
                   {/* Quick Actions */}
-                  <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-2xl p-5 border border-blue-200">
-                    <h3 className="text-xl font-semibold text-[#741052] mb-4">Quick Actions</h3>
+                  <div className="bg-gradient-to-br from-blue-50 to-blue-100/30 dark:from-blue-950/20 dark:to-blue-900/10 rounded-2xl p-5 border border-blue-200 dark:border-blue-900/40">
+                    <h3 className="text-lg font-bold text-[#741052] dark:text-fuchsia-400 mb-4">Quick Actions</h3>
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                       {selectedOrder.phone && (
                         <Button
                           onClick={() => window.open(`tel:${selectedOrder.phone}`, "_blank")}
-                          className="bg-gradient-to-r from-[#741052] to-[#d0269b] text-white font-semibold px-4 py-3 rounded-xl shadow-lg hover:opacity-90 transition-all duration-200 flex items-center gap-2 h-auto"
+                          className="bg-gradient-to-r from-[#741052] to-[#d0269b] text-white font-bold px-4 py-3 rounded-xl shadow-md hover:opacity-90 transition-all duration-200 flex items-center gap-2 h-auto"
                         >
                           <Phone className="h-4 w-4" />
                           Call
@@ -721,7 +721,7 @@ const toggleExpand = (orderNumber: string) => {
                               "_blank"
                             )
                           }
-                          className="bg-gradient-to-r from-[#741052] to-[#d0269b] text-white font-semibold px-4 py-3 rounded-xl shadow-lg hover:opacity-90 transition-all duration-200 flex items-center gap-2 h-auto"
+                          className="bg-gradient-to-r from-[#741052] to-[#d0269b] text-white font-bold px-4 py-3 rounded-xl shadow-md hover:opacity-90 transition-all duration-200 flex items-center gap-2 h-auto"
                         >
                           <MessageCircle className="h-4 w-4" />
                           WhatsApp
@@ -729,7 +729,7 @@ const toggleExpand = (orderNumber: string) => {
                       )}
                       <Button
                         onClick={() => downloadReceipt(selectedOrder)}
-                        className="bg-white border-2 border-[#741052] text-[#741052] font-semibold px-4 py-3 rounded-xl hover:bg-[#741052] hover:text-white transition-all duration-200 flex items-center gap-2 h-auto"
+                        className="bg-white dark:bg-neutral-800 border-2 border-[#741052] text-[#741052] dark:text-fuchsia-300 font-bold px-4 py-3 rounded-xl hover:bg-[#741052] hover:text-white dark:hover:bg-[#741052] transition-all duration-200 flex items-center gap-2 h-auto"
                       >
                         <Download className="h-4 w-4" />
                         Receipt
@@ -738,18 +738,18 @@ const toggleExpand = (orderNumber: string) => {
                   </div>
 
                   {/* Status Update */}
-                  <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-2xl p-5 border border-green-200">
-                    <h3 className="text-xl font-semibold text-[#741052] mb-4">Update Status</h3>
+                  <div className="bg-gradient-to-br from-green-50 to-green-100/30 dark:from-green-950/20 dark:to-green-900/10 rounded-2xl p-5 border border-green-200 dark:border-green-900/40">
+                    <h3 className="text-lg font-bold text-[#741052] dark:text-fuchsia-400 mb-4">Update Status</h3>
                     <div className="space-y-3">
-                      <p className="text-sm text-gray-600">Change order status (allowed transitions only)</p>
+                      <p className="text-xs text-neutral-500 dark:text-neutral-400">Change order status (allowed transitions only)</p>
                       <Select
                         defaultValue={selectedOrder.status}
                         onValueChange={(val) => safeUpdateStatus(selectedOrder, val)}
                       >
-                        <SelectTrigger className="w-full h-12 bg-white border-2 border-gray-200 rounded-xl focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#741052]">
+                        <SelectTrigger className="w-full h-12 bg-white dark:bg-neutral-800 border-2 border-neutral-200 dark:border-neutral-700 rounded-xl focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#741052] text-neutral-900 dark:text-neutral-100">
                           <SelectValue />
                         </SelectTrigger>
-                        <SelectContent>
+                        <SelectContent className="bg-white dark:bg-neutral-800 border dark:border-neutral-700 text-neutral-900 dark:text-neutral-100">
                           <SelectItem value="Received">Received</SelectItem>
                           <SelectItem value="Preparing">Preparing</SelectItem>
                           <SelectItem value="Ready">Ready</SelectItem>
@@ -763,27 +763,27 @@ const toggleExpand = (orderNumber: string) => {
                 </div>
 
                 {/* Order Items */}
-                <div className="bg-gradient-to-br from-purple-50 to-purple-100 rounded-2xl p-5 border border-purple-200">
-                  <h3 className="text-xl font-semibold text-[#741052] mb-4 flex items-center gap-2">
+                <div className="bg-gradient-to-br from-purple-50 to-purple-100/30 dark:from-purple-950/20 dark:to-purple-900/10 rounded-2xl p-5 border border-purple-200 dark:border-purple-900/40">
+                  <h3 className="text-lg font-bold text-[#741052] dark:text-fuchsia-400 mb-4 flex items-center gap-2">
                     <Box className="h-5 w-5" />
                     Order Items ({selectedOrder.items.length})
                   </h3>
-                  <div className="space-y-3 max-h-64 overflow-y-auto">
+                  <div className="space-y-3 max-h-64 overflow-y-auto pr-1">
                     {selectedOrder.items.map((item, idx) => (
                       <div
                         key={`${item.id}-${idx}`}
-                        className="bg-white rounded-xl p-4 border border-gray-200 hover:shadow-md transition-shadow"
+                        className="bg-white dark:bg-neutral-800/80 rounded-xl p-4 border border-neutral-200 dark:border-neutral-700/60 hover:shadow-md transition-shadow"
                       >
                         <div className="flex justify-between items-start">
                           <div className="flex-1">
-                            <h4 className="font-semibold text-gray-900 mb-1">{item.title}</h4>
-                            <p className="text-sm text-gray-600 mb-2">Quantity: {item.quantity}</p>
+                            <h4 className="font-bold text-neutral-900 dark:text-neutral-100 mb-1">{item.title}</h4>
+                            <p className="text-xs text-neutral-500 dark:text-neutral-400 mb-2">Quantity: {item.quantity}</p>
                             {item.variations && item.variations.length > 0 && (
                               <div className="flex flex-wrap gap-2">
                                 {item.variations.map((v, idx) => (
                                   <span
                                     key={idx}
-                                    className="px-3 py-1 bg-gradient-to-r from-[#741052]/10 to-[#d0269b]/10 text-[#741052] text-xs font-medium rounded-full border border-[#741052]/20"
+                                    className="px-3 py-1 bg-gradient-to-r from-[#741052]/10 to-[#d0269b]/10 dark:from-[#741052]/20 dark:to-[#d0269b]/20 text-[#741052] dark:text-fuchsia-300 text-xs font-bold rounded-full border border-[#741052]/20 dark:border-[#741052]/40"
                                   >
                                     {typeof v === "string" ? v : `${v.name}: ${v.value}`}
                                   </span>
@@ -792,10 +792,10 @@ const toggleExpand = (orderNumber: string) => {
                             )}
                           </div>
                           <div className="text-right">
-                            <p className="text-lg font-bold text-[#741052]">
+                            <p className="text-base font-black text-[#741052] dark:text-fuchsia-400">
                               Rs. {(item.price * item.quantity).toFixed(2)}
                             </p>
-                            <p className="text-sm text-gray-500">
+                            <p className="text-xs text-neutral-400 dark:text-neutral-500">
                               Rs. {item.price.toFixed(2)} each
                             </p>
                           </div>
@@ -803,16 +803,16 @@ const toggleExpand = (orderNumber: string) => {
                       </div>
                     ))}
                   </div>
-                  <div className="mt-4 pt-4 border-t border-purple-200">
+                  <div className="mt-4 pt-4 border-t border-purple-200 dark:border-purple-900/40">
                     <div className="flex justify-between items-center">
-                      <span className="text-lg font-semibold text-gray-900">Total Amount:</span>
-                      <span className="text-2xl font-bold bg-gradient-to-r from-[#741052] to-[#d0269b] bg-clip-text text-transparent">
+                      <span className="text-base font-bold text-neutral-800 dark:text-neutral-200">Total Amount:</span>
+                      <span className="text-2xl font-black bg-gradient-to-r from-[#741052] to-[#d0269b] bg-clip-text text-transparent">
                         Rs. {selectedOrder.totalAmount.toFixed(2)}
                       </span>
                     </div>
                     <div className="flex justify-between items-center mt-2">
-                      <span className="text-sm text-gray-600">Payment Method:</span>
-                      <span className="text-sm font-medium text-gray-900 capitalize">{selectedOrder.paymentMethod}</span>
+                      <span className="text-xs text-neutral-500 dark:text-neutral-400">Payment Method:</span>
+                      <span className="text-xs font-bold text-neutral-700 dark:text-neutral-300 capitalize">{selectedOrder.paymentMethod}</span>
                     </div>
                   </div>
                 </div>
@@ -820,39 +820,39 @@ const toggleExpand = (orderNumber: string) => {
                 {/* Feedback & Notifications */}
                 <div className="grid md:grid-cols-2 gap-6">
                   {/* Feedback */}
-                  <div className="bg-gradient-to-br from-amber-50 to-amber-100 rounded-2xl p-5 border border-amber-200">
-                    <h3 className="text-xl font-semibold text-[#741052] mb-4">Customer Feedback</h3>
+                  <div className="bg-gradient-to-br from-amber-50 to-amber-100/30 dark:from-amber-950/20 dark:to-amber-900/10 rounded-2xl p-5 border border-amber-200 dark:border-amber-900/40">
+                    <h3 className="text-lg font-bold text-[#741052] dark:text-fuchsia-400 mb-4">Customer Feedback</h3>
                     {loadingDetail ? (
                       <div className="flex items-center justify-center py-8">
                         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#741052]"></div>
                       </div>
                     ) : feedbackList.length === 0 ? (
                       <div className="text-center py-8">
-                        <p className="text-gray-500">No feedback submitted yet.</p>
+                        <p className="text-xs text-neutral-500 dark:text-neutral-400">No feedback submitted yet.</p>
                       </div>
                     ) : (
                       <div className="space-y-3">
                         {feedbackList.map((feedback, idx) => (
-                          <div key={idx} className="bg-white rounded-xl p-4 border border-gray-200">
+                          <div key={idx} className="bg-white dark:bg-neutral-800/80 rounded-xl p-4 border border-neutral-200 dark:border-neutral-700/60">
                             <div className="flex items-center gap-2 mb-2">
                               <div className="flex">
                                 {[1, 2, 3, 4, 5].map((star) => (
                                   <span
                                     key={star}
-                                    className={`text-lg ${star <= feedback.rating ? 'text-yellow-400' : 'text-gray-300'}`}
+                                    className={`text-lg ${star <= feedback.rating ? 'text-yellow-400' : 'text-neutral-300 dark:text-neutral-600'}`}
                                   >
                                     ★
                                   </span>
                                 ))}
                               </div>
-                              <span className="text-sm font-medium text-gray-600">
+                              <span className="text-xs font-bold text-neutral-500 dark:text-neutral-400">
                                 {feedback.rating}/5
                               </span>
                             </div>
                             {feedback.comment && (
-                              <p className="text-sm text-gray-700 mb-2">"{feedback.comment}"</p>
+                              <p className="text-xs text-neutral-800 dark:text-neutral-200 italic">"{feedback.comment}"</p>
                             )}
-                            <p className="text-xs text-gray-500">{timeAgo(feedback.createdAt)}</p>
+                            <p className="text-[10px] text-neutral-400 dark:text-neutral-500 mt-2">{timeAgo(feedback.createdAt)}</p>
                           </div>
                         ))}
                       </div>
@@ -860,30 +860,30 @@ const toggleExpand = (orderNumber: string) => {
                   </div>
 
                   {/* Notification Consent */}
-                  <div className="bg-gradient-to-br from-emerald-50 to-emerald-100 rounded-2xl p-5 border border-emerald-200">
-                    <h3 className="text-xl font-semibold text-[#741052] mb-4">Notification Preferences</h3>
+                  <div className="bg-gradient-to-br from-emerald-50 to-emerald-100/30 dark:from-emerald-950/20 dark:to-emerald-900/10 rounded-2xl p-5 border border-emerald-200 dark:border-emerald-900/40">
+                    <h3 className="text-lg font-bold text-[#741052] dark:text-fuchsia-400 mb-4">Notification Preferences</h3>
                     {loadingDetail ? (
                       <div className="flex items-center justify-center py-8">
                         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#741052]"></div>
                       </div>
                     ) : consents.length === 0 ? (
                       <div className="text-center py-8">
-                        <p className="text-gray-500">No notification preferences recorded.</p>
+                        <p className="text-xs text-neutral-500 dark:text-neutral-400">No notification preferences recorded.</p>
                       </div>
                     ) : (
                       <div className="space-y-3">
                         {consents.slice(0, showAllConsents ? consents.length : 2).map((consent, idx) => (
-                          <div key={idx} className="bg-white rounded-xl p-4 border border-gray-200">
+                          <div key={idx} className="bg-white dark:bg-neutral-800/80 rounded-xl p-4 border border-neutral-200 dark:border-neutral-700/60">
                             <div className="flex items-center justify-between">
                               <div className="flex items-center gap-3">
                                 <div className={`w-3 h-3 rounded-full ${consent.consent ? 'bg-green-500' : 'bg-red-500'}`}></div>
-                                <span className="font-medium text-gray-900 capitalize">{consent.channel}</span>
+                                <span className="text-xs font-bold text-neutral-800 dark:text-neutral-200 capitalize">{consent.channel}</span>
                               </div>
-                              <span className={`text-sm px-2 py-1 rounded-full ${consent.consent ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
+                              <span className={`text-[10px] px-2 py-0.5 font-extrabold rounded-full ${consent.consent ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300' : 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300'}`}>
                                 {consent.consent ? 'Opted In' : 'Opted Out'}
                               </span>
                             </div>
-                            <p className="text-xs text-gray-500 mt-2">{timeAgo(consent.createdAt)}</p>
+                            <p className="text-[10px] text-neutral-400 dark:text-neutral-500 mt-2">{timeAgo(consent.createdAt)}</p>
                           </div>
                         ))}
 
@@ -891,7 +891,7 @@ const toggleExpand = (orderNumber: string) => {
                           <div className="text-center pt-2">
                             <button
                               onClick={() => setShowAllConsents(!showAllConsents)}
-                              className="inline-flex items-center gap-2 text-[#741052] hover:text-[#d0269b] font-medium text-sm transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#741052] rounded-lg px-3 py-2 hover:bg-[#741052]/5"
+                              className="inline-flex items-center gap-2 text-[#741052] hover:text-[#d0269b] font-bold text-xs transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#741052] rounded-lg px-3 py-2 hover:bg-[#741052]/5"
                             >
                               {showAllConsents ? (
                                 <>
@@ -914,11 +914,11 @@ const toggleExpand = (orderNumber: string) => {
               </div>
 
               {/* Footer */}
-              <div className="sticky bottom-0 bg-gray-50 rounded-b-3xl p-6 border-t border-gray-200">
+              <div className="sticky bottom-0 bg-neutral-50 dark:bg-neutral-900 rounded-b-3xl p-6 border-t border-neutral-200 dark:border-neutral-800/80">
                 <div className="flex justify-end">
                   <Button
                     onClick={closeDetail}
-                    className="bg-white border-2 border-[#741052] text-[#741052] font-semibold px-8 py-3 rounded-xl hover:bg-[#741052] hover:text-white transition-all duration-200"
+                    className="bg-white dark:bg-neutral-800 border-2 border-[#741052] text-[#741052] dark:text-fuchsia-300 font-bold px-8 py-3 rounded-xl hover:bg-[#741052] hover:text-white dark:hover:bg-[#741052] transition-all duration-200 h-auto"
                   >
                     Close Details
                   </Button>

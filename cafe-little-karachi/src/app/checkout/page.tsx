@@ -38,6 +38,7 @@ import {
   Mail,
 } from "lucide-react";
 import posthog from 'posthog-js';
+import { trackEvent } from "../lib/analytics";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -184,7 +185,14 @@ const CheckoutPageContent: FC = () => {
         if (t) setFormData((s) => ({ ...s, tableNumber: t }));
       } catch {}
     }
-  }, [searchParams]);
+
+    // Track entering checkout
+    trackEvent('journey_start_checkout', {
+      item_count: cartItems.length,
+      total_amount: totalAmount,
+      order_type: typeParam || formData.ordertype || 'dinein'
+    });
+  }, [searchParams, cartItems.length, totalAmount]);
   useEffect(() => {
     if (!searchParams) return;
 
@@ -267,8 +275,13 @@ const CheckoutPageContent: FC = () => {
     setFormData((s) => ({ ...s, [name]: value }));
   };
 
+  const handleFieldFocus = (fieldName: string) => {
+    trackEvent('journey_field_focus', { field: fieldName });
+  };
+
   const handlePaymentChange = (method: "cash" | "online") => {
     setFormData((s) => ({ ...s, paymentMethod: method }));
+    trackEvent('journey_payment_toggle', { method });
   };
 
   const focusAreaInput = () => {
@@ -283,6 +296,7 @@ const CheckoutPageContent: FC = () => {
     try {
       await navigator.clipboard.writeText(text);
       toast.success(`${label} copied`, { description: text });
+      trackEvent('journey_copy_payment_details', { label, text });
     } catch (e) {
       toast.error("Copy failed", { description: "Please copy manually." });
     }
@@ -294,6 +308,7 @@ const CheckoutPageContent: FC = () => {
       toast.error("Please enter your name.", {
         description: "Full name is required to proceed.",
       });
+      trackEvent('journey_checkout_validation_error', { field: 'name', reason: 'missing' });
       return;
     }
 
@@ -301,6 +316,7 @@ const CheckoutPageContent: FC = () => {
       toast.error("Table number missing.", {
         description: "Please enter your table number to continue.",
       });
+      trackEvent('journey_checkout_validation_error', { field: 'tableNumber', reason: 'missing' });
       return;
     }
 
@@ -308,12 +324,14 @@ const CheckoutPageContent: FC = () => {
       toast.error("Delivery address missing.", {
         description: "Please provide your delivery address or area.",
       });
+      trackEvent('journey_checkout_validation_error', { field: 'area', reason: 'missing' });
       return;
     }
     if (formData.ordertype === "delivery" && !formData.phone) {
       toast.error("Phone Number missing.", {
         description: "Please provide your Contact Number.",
       });
+      trackEvent('journey_checkout_validation_error', { field: 'phone', reason: 'missing' });
       return;
     }
 
@@ -392,6 +410,15 @@ const CheckoutPageContent: FC = () => {
         const json = await res.json();
         const orderNumber = json.orderNumber || json.id || "N/A";
         const orderType = json.ordertype;
+
+        // Track successful order completion in database
+        trackEvent('journey_order_success', {
+          order_number: orderNumber,
+          order_type: orderType,
+          payment_method: formData.paymentMethod,
+          total_amount: finalAmount,
+          item_count: cartItems.length
+        });
 
         // send WhatsApp notification
         await sendWhatsAppNotification({ ...newOrder, orderNumber });
@@ -579,6 +606,7 @@ ${items
                         type="text"
                         value={formData.name}
                         onChange={handleInputChange}
+                        onFocus={() => handleFieldFocus('name')}
                         placeholder="e.g. John Doe"
                         className="h-12 border-2 focus:border-[#741052] transition-colors"
                         required
@@ -596,6 +624,7 @@ ${items
                         type="email"
                         value={formData.email}
                         onChange={handleInputChange}
+                        onFocus={() => handleFieldFocus('email')}
                         placeholder="you@domain.com"
                         className="h-12 border-2 focus:border-[#741052] transition-colors"
                       />
@@ -619,6 +648,7 @@ ${items
                           name="tableNumber"
                           value={formData.tableNumber}
                           onChange={handleInputChange}
+                          onFocus={() => handleFieldFocus('tableNumber')}
                           placeholder="Your table number"
                           className="h-12 border-2 focus:border-[#741052] transition-colors bg-gray-50"
                           disabled
@@ -646,6 +676,7 @@ ${items
                             type="text"
                             value={formData.area}
                             onChange={handleInputChange}
+                            onFocus={() => handleFieldFocus('area')}
                             placeholder={`Enter delivery address`}
                             className="h-12 border-2 focus:border-[#741052] transition-colors"
                             required
@@ -663,6 +694,7 @@ ${items
                             type="tel"
                             value={formData.phone}
                             onChange={handlePhoneChange}
+                            onFocus={() => handleFieldFocus('phone')}
                             placeholder="03XXXXXXXXX"
                             className="h-12 border-2 focus:border-[#741052] transition-colors"
                             required

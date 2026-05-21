@@ -8,6 +8,7 @@ import successAnimation from '../../../public/lotties/success-check.json';
 import { TypeAnimation } from 'react-type-animation';
 import { toast } from 'sonner';
 import posthog from 'posthog-js';
+import { trackEvent } from '../lib/analytics';
 import { useCart } from '../context/CartContext';
 import {
   CheckCircle,
@@ -214,6 +215,12 @@ const ThankYouPage: FC = () => {
     // Track Order Success Journey Event
     posthog.capture('journey_order_success', {
       order_id: orderNumber,
+      order_type: orderType,
+      table_id: tableId || 'N/A'
+    });
+
+    trackEvent('journey_order_success', {
+      order_number: orderNumber,
       order_type: orderType,
       table_id: tableId || 'N/A'
     });

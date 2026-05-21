@@ -3,6 +3,7 @@
 import { createContext, useContext, useEffect, useMemo, useState, ReactNode, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import Preloader from "../components/Preloader";
+import { trackEvent } from "../lib/analytics";
 
 interface CartItem {
   id: string;
@@ -130,6 +131,21 @@ function CartProviderInner({ children }: CartProviderProps) {
   };
 
   const removeFromCart = (id: string, variations?: string[]) => {
+    const itemToRemove = cartItems.find(
+      (item) =>
+        item.id === id &&
+        JSON.stringify(item.variations || []) === JSON.stringify(variations || [])
+    );
+    if (itemToRemove) {
+      trackEvent('journey_cart_remove', {
+        item_id: id,
+        item_name: itemToRemove.title,
+        price: itemToRemove.price,
+        quantity: itemToRemove.quantity,
+        variations: itemToRemove.variations || []
+      });
+    }
+
     setCartItems((prevItems) =>
       prevItems.filter(
         (item) =>
@@ -140,6 +156,24 @@ function CartProviderInner({ children }: CartProviderProps) {
   };
 
   const updateQuantity = (id: string, quantity: number, variations?: string[]) => {
+    const itemToUpdate = cartItems.find(
+      (item) =>
+        item.id === id &&
+        (!variations ||
+          JSON.stringify(item.variations || []) === JSON.stringify(variations || []))
+    );
+    if (itemToUpdate) {
+      const isIncrement = quantity > itemToUpdate.quantity;
+      trackEvent(isIncrement ? 'journey_cart_increment' : 'journey_cart_decrement', {
+        item_id: id,
+        item_name: itemToUpdate.title,
+        price: itemToUpdate.price,
+        old_quantity: itemToUpdate.quantity,
+        new_quantity: quantity,
+        variations: itemToUpdate.variations || []
+      });
+    }
+
     setCartItems((prevItems) =>
       prevItems.map((item) =>
         item.id === id &&
@@ -151,7 +185,13 @@ function CartProviderInner({ children }: CartProviderProps) {
     );
   };
 
-  const clearCart = () => setCartItems([]);
+  const clearCart = () => {
+    trackEvent('journey_cart_clear', {
+      item_count: cartItems.length,
+      total_amount: totalAmount
+    });
+    setCartItems([]);
+  };
 
   const setOrderContext = (type: OrderType, identifier?: string) => {
     setOrderType(type);

@@ -15,12 +15,27 @@ async function connectToDatabase() {
 
 const fetchOrdersHandler = async (req: NextApiRequest, res: NextApiResponse) => {
   if (req.method === "GET") {
-    const { page = "1", limit = "20", status = "active" } = req.query;
+    const { page = "1", limit = "20", status = "active", searchTerm = "", ordertype = "" } = req.query;
     const pageNum = Math.max(parseInt(page as string, 10) || 1, 1);
     const pageSize = Math.min(Math.max(parseInt(limit as string, 10) || 20, 1), 200);
 
     const isCompleted = status === "completed";
-    const match = isCompleted ? { status: "Completed" } : { status: { $ne: "Completed" } };
+    const match: any = isCompleted ? { status: "Completed" } : { status: { $ne: "Completed" } };
+
+    // Support server-side searching
+    if (searchTerm) {
+      const searchRegex = new RegExp(searchTerm as string, "i");
+      match.$or = [
+        { orderNumber: searchRegex },
+        { customerName: searchRegex },
+        { phone: searchRegex }
+      ];
+    }
+
+    // Support server-side order type filtering
+    if (ordertype && ordertype !== "all") {
+      match.ordertype = ordertype;
+    }
 
     try {
       await connectToDatabase();

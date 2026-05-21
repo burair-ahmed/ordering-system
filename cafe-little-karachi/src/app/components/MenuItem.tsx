@@ -6,9 +6,10 @@ import { motion, AnimatePresence } from "framer-motion";
 import AddToCartButton from "./AddToCartButton";
 import { VariationSelector } from "../../components/variations/VariationSelector";
 import { useVariationSelector } from "../../hooks/useVariationSelector";
-import { VariationConfig } from "../../types/variations";
+import { VariationConfig, SelectedVariation } from "../../types/variations";
 import { X, Check } from "lucide-react";
 import posthog from 'posthog-js';
+import { trackEvent } from '../lib/analytics';
 
 interface Variation {
   name: string;
@@ -77,11 +78,29 @@ const MenuItem: FC<MenuItemProps> = ({ item }) => {
       item_id: itemId,
       item_name: item.title,
       price: totalPrice,
-      has_variations: selections.simple !== null
+      has_variations: selections.simple.length > 0
+    });
+
+    trackEvent('journey_add_item', {
+      item_id: itemId,
+      item_name: item.title,
+      price: totalPrice,
+      has_variations: selections.simple.length > 0,
+      variation: selections.simple.length > 0 ? selections.simple.map(s => s.optionName).join(', ') : null
     });
 
     setShowAddedMessage(true);
     setTimeout(() => setShowAddedMessage(false), 1500);
+  };
+
+  const handleSimpleSelect = (variationId: string, option: SelectedVariation) => {
+    selectSimpleVariation(variationId, option);
+    trackEvent('journey_variation_select', {
+      item_id: itemId,
+      item_name: item.title,
+      variation_name: option.optionName,
+      price: option.price
+    });
   };
 
   return (
@@ -92,6 +111,12 @@ const MenuItem: FC<MenuItemProps> = ({ item }) => {
         whileTap={{ scale: 0.98 }}
         onClick={() => {
           posthog.capture('journey_view_item_details', {
+            item_name: item.title,
+            price: basePrice,
+            category: item.category
+          });
+          trackEvent('journey_view_item_details', {
+            item_id: itemId,
             item_name: item.title,
             price: basePrice,
             category: item.category
@@ -167,6 +192,12 @@ const MenuItem: FC<MenuItemProps> = ({ item }) => {
             
             // Let's implement the `onClick` to be EXPLICIT about firing the event, just in case bubbling behaves weirdly with some elements.
             posthog.capture('journey_view_item_details', {
+              item_name: item.title,
+              price: basePrice,
+              category: item.category
+            });
+            trackEvent('journey_view_item_details', {
+              item_id: itemId,
               item_name: item.title,
               price: basePrice,
               category: item.category
@@ -256,7 +287,7 @@ const MenuItem: FC<MenuItemProps> = ({ item }) => {
                     <VariationSelector
                       config={variationConfig}
                       selections={selections}
-                      onSimpleSelect={selectSimpleVariation}
+                      onSimpleSelect={handleSimpleSelect}
                       onCategorySelect={() => {}} // Not used for simple variations
                       errors={validation.errors}
                       warnings={validation.warnings}

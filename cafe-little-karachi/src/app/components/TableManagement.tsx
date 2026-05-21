@@ -42,19 +42,19 @@ const STATUS_META: Record<
 > = {
   empty: {
     label: 'Empty',
-    colorClass: 'bg-green-50 text-green-700 border-green-200',
+    colorClass: 'bg-green-50 dark:bg-green-950/40 text-green-700 dark:text-green-300 border border-green-200 dark:border-green-900/60',
     icon: <Check className="h-4 w-4" aria-hidden />,
     tone: 'green',
   },
   reserved: {
     label: 'Reserved',
-    colorClass: 'bg-yellow-50 text-yellow-800 border-yellow-200',
+    colorClass: 'bg-yellow-50 dark:bg-yellow-950/40 text-yellow-800 dark:text-yellow-300 border border-yellow-200 dark:border-yellow-900/60',
     icon: <Clock className="h-4 w-4" aria-hidden />,
     tone: 'yellow',
   },
   occupied: {
     label: 'Occupied',
-    colorClass: 'bg-red-50 text-red-700 border-red-200',
+    colorClass: 'bg-red-50 dark:bg-red-950/40 text-red-700 dark:text-red-300 border border-red-200 dark:border-red-900/60',
     icon: <Utensils className="h-4 w-4" aria-hidden />,
     tone: 'red',
   },
@@ -338,25 +338,25 @@ export default function TableManagement() {
 
       {/* Summary + controls */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-        <Card className="flex-1">
+        <Card className="flex-1 bg-white/70 dark:bg-neutral-900/70 border border-neutral-200/50 dark:border-neutral-800/80 rounded-3xl shadow-sm">
           <CardHeader>
             <CardTitle>
               <div className="flex items-center justify-between">
                 <div>
-                  <h3 className="text-lg font-semibold" style={{ color: brandPrimary }}>
+                  <h3 className="text-lg font-semibold text-[#741052] dark:text-fuchsia-300">
                     Table Summary
                   </h3>
-                  <p className="text-sm text-muted-foreground">Quick overview of table statuses</p>
+                  <p className="text-sm text-neutral-500 dark:text-neutral-400">Quick overview of table statuses</p>
                 </div>
 
                 <div className="flex items-center gap-3">
                   <div className="hidden sm:flex items-center gap-6">
-                    <div className="text-sm text-gray-500">
-                      <div>Total: <span className="font-semibold" style={{ color: brandPrimary }}>{analytics.total}</span></div>
+                    <div className="text-sm text-neutral-500 dark:text-neutral-400">
+                      <div>Total: <span className="font-semibold text-[#741052] dark:text-fuchsia-300">{analytics.total}</span></div>
                       <div className="flex gap-2 mt-1">
-                        <span className="inline-flex items-center gap-1 text-xs px-2 py-1 rounded-full bg-green-50 text-green-700">Empty {analytics.empty}</span>
-                        <span className="inline-flex items-center gap-1 text-xs px-2 py-1 rounded-full bg-yellow-50 text-yellow-800">Reserved {analytics.reserved}</span>
-                        <span className="inline-flex items-center gap-1 text-xs px-2 py-1 rounded-full bg-red-50 text-red-700">Occupied {analytics.occupied}</span>
+                        <span className="inline-flex items-center gap-1 text-xs px-2 py-1 rounded-full bg-green-50 dark:bg-green-950/40 text-green-700 dark:text-green-300 border border-green-200/50 dark:border-green-900/40">Empty {analytics.empty}</span>
+                        <span className="inline-flex items-center gap-1 text-xs px-2 py-1 rounded-full bg-yellow-50 dark:bg-yellow-950/40 text-yellow-800 dark:text-yellow-300 border border-yellow-200/50 dark:border-yellow-900/40">Reserved {analytics.reserved}</span>
+                        <span className="inline-flex items-center gap-1 text-xs px-2 py-1 rounded-full bg-red-50 dark:bg-red-950/40 text-red-700 dark:text-red-300 border border-red-200/50 dark:border-red-900/40">Occupied {analytics.occupied}</span>
                       </div>
                     </div>
                   </div>
@@ -365,7 +365,7 @@ export default function TableManagement() {
                     <button
                       onClick={onRefresh}
                       aria-label="Refresh tables"
-                      className="inline-flex items-center gap-2 rounded-full px-3 py-2 bg-white/80 hover:bg-white transition-shadow shadow"
+                      className="inline-flex items-center gap-2 rounded-full px-3 py-2 bg-white/80 dark:bg-neutral-800/80 hover:bg-white dark:hover:bg-neutral-700 transition-shadow shadow border border-neutral-200/60 dark:border-neutral-800 text-neutral-800 dark:text-neutral-200"
                     >
                       <RefreshCw className={`h-4 w-4 ${refreshing ? 'animate-spin' : ''}`} />
                       <span className="text-sm font-medium hidden sm:inline">Refresh</span>
@@ -387,26 +387,26 @@ export default function TableManagement() {
               <div className="flex gap-2 flex-wrap">
                 <button
                   onClick={() => setStatusFilter('all')}
-                  className={`px-3 py-2 rounded-full text-sm font-medium ${statusFilter === 'all' ? 'bg-gradient-to-r from-[#741052] to-[#d0269b] text-white' : 'bg-white/60'}`}
+                  className={`px-3 py-2 rounded-full text-sm font-medium transition-colors ${statusFilter === 'all' ? 'bg-gradient-to-r from-[#741052] to-[#d0269b] text-white' : 'bg-white/60 dark:bg-neutral-800/60 text-neutral-800 dark:text-neutral-200 hover:bg-white/80 dark:hover:bg-neutral-700 border border-neutral-200/60 dark:border-neutral-800'}`}
                   aria-pressed={statusFilter === 'all'}
                 >
                   All
                 </button>
                 <button
                   onClick={() => setStatusFilter('empty')}
-                  className={`px-3 py-2 rounded-full text-sm font-medium ${statusFilter === 'empty' ? 'bg-green-600 text-white' : 'bg-white/60'}`}
+                  className={`px-3 py-2 rounded-full text-sm font-medium transition-colors ${statusFilter === 'empty' ? 'bg-green-600 text-white' : 'bg-white/60 dark:bg-neutral-800/60 text-neutral-800 dark:text-neutral-200 hover:bg-white/80 dark:hover:bg-neutral-700 border border-neutral-200/60 dark:border-neutral-800'}`}
                 >
                   Empty
                 </button>
                 <button
                   onClick={() => setStatusFilter('reserved')}
-                  className={`px-3 py-2 rounded-full text-sm font-medium ${statusFilter === 'reserved' ? 'bg-yellow-600 text-white' : 'bg-white/60'}`}
+                  className={`px-3 py-2 rounded-full text-sm font-medium transition-colors ${statusFilter === 'reserved' ? 'bg-yellow-600 text-white' : 'bg-white/60 dark:bg-neutral-800/60 text-neutral-800 dark:text-neutral-200 hover:bg-white/80 dark:hover:bg-neutral-700 border border-neutral-200/60 dark:border-neutral-800'}`}
                 >
                   Reserved
                 </button>
                 <button
                   onClick={() => setStatusFilter('occupied')}
-                  className={`px-3 py-2 rounded-full text-sm font-medium ${statusFilter === 'occupied' ? 'bg-red-600 text-white' : 'bg-white/60'}`}
+                  className={`px-3 py-2 rounded-full text-sm font-medium transition-colors ${statusFilter === 'occupied' ? 'bg-red-600 text-white' : 'bg-white/60 dark:bg-neutral-800/60 text-neutral-800 dark:text-neutral-200 hover:bg-white/80 dark:hover:bg-neutral-700 border border-neutral-200/60 dark:border-neutral-800'}`}
                 >
                   Occupied
                 </button>
@@ -452,7 +452,7 @@ export default function TableManagement() {
               : filtered.length === 0
                 ? (
                   <div className="p-6 col-span-full bg-white/50 dark:bg-neutral-900/50 rounded-xl border border-dashed text-center">
-                    <p className="text-sm text-gray-600">No tables match your filter.</p>
+                    <p className="text-sm text-neutral-600 dark:text-neutral-400">No tables match your filter.</p>
                   </div>
                 )
                 : filtered.map((table, idx) => (
@@ -474,7 +474,7 @@ export default function TableManagement() {
                         <div className="flex items-start justify-between gap-4">
                           <div className="min-w-0">
                             <div className="flex items-center gap-3">
-                              <h4 id={`table-${table.id}-title`} className="text-lg font-semibold truncate" style={{ color: brandPrimary }}>
+                              <h4 id={`table-${table.id}-title`} className="text-lg font-semibold truncate text-[#741052] dark:text-fuchsia-300">
                                 Table {table.tableNumber}
                               </h4>
 
@@ -492,18 +492,18 @@ export default function TableManagement() {
                             <p className="text-sm text-muted-foreground mt-2 max-w-xs truncate">{table.notes || 'No notes'}</p>
 
                             <div className="mt-3 grid grid-cols-2 gap-2 text-sm">
-                              <div className="flex items-center gap-2 text-gray-600">
+                              <div className="flex items-center gap-2 text-neutral-600 dark:text-neutral-400">
                                 <User className="h-4 w-4" />
                                 <div>
-                                  <div className="text-xs text-gray-500">Capacity</div>
-                                  <div className="font-medium text-gray-800">{table.capacity ?? '—'}</div>
+                                  <div className="text-xs text-neutral-500 dark:text-neutral-400">Capacity</div>
+                                  <div className="font-medium text-neutral-800 dark:text-neutral-200">{table.capacity ?? '—'}</div>
                                 </div>
                               </div>
-                              <div className="flex items-center gap-2 text-gray-600">
+                              <div className="flex items-center gap-2 text-neutral-600 dark:text-neutral-400">
                                 <Table className="h-4 w-4" />
                                 <div>
-                                  <div className="text-xs text-gray-500">Updated</div>
-                                  <div className="font-medium text-gray-800">{fmt(table.lastUpdated)}</div>
+                                  <div className="text-xs text-neutral-500 dark:text-neutral-400">Updated</div>
+                                  <div className="font-medium text-neutral-800 dark:text-neutral-200">{fmt(table.lastUpdated)}</div>
                                 </div>
                               </div>
                             </div>
@@ -548,7 +548,7 @@ export default function TableManagement() {
                               />
                             </div>
                           </div>
-                          <div className="mt-2 text-xs text-gray-500">Table ID: <span className="font-mono text-[11px]">{table.id}</span></div>
+                          <div className="mt-2 text-xs text-neutral-500 dark:text-neutral-400">Table ID: <span className="font-mono text-[11px] text-neutral-600 dark:text-neutral-300">{table.id}</span></div>
                         </div>
                       </CardContent>
                     </Card>
@@ -564,7 +564,7 @@ export default function TableManagement() {
         <DialogContent className="sm:max-w-lg">
           <DialogHeader>
             <DialogTitle>Confirm status change</DialogTitle>
-            <p className="text-sm text-gray-600 mt-1">
+            <p className="text-sm text-neutral-600 dark:text-neutral-400 mt-1">
               {targetChange ? `Mark table ${tables.find(t => t.id === targetChange.id)?.tableNumber} as ${targetChange.newStatus}?` : ''}
             </p>
           </DialogHeader>
@@ -632,8 +632,8 @@ function ActionButton({
       className={`
         relative overflow-hidden flex-1 sm:flex-initial w-full sm:w-auto
         px-4 py-2 rounded-lg text-sm font-medium transition transform
-        ${primary ? 'text-white' : 'text-gray-800'}
-        ${primary ? '' : tone === 'green' ? 'bg-green-50 hover:bg-green-100' : tone === 'yellow' ? 'bg-yellow-50 hover:bg-yellow-100' : 'bg-red-50 hover:bg-red-100'}
+        ${primary ? 'text-white' : 'text-neutral-800 dark:text-neutral-200'}
+        ${primary ? '' : tone === 'green' ? 'bg-green-50 dark:bg-green-950/40 hover:bg-green-100 dark:hover:bg-green-900/40' : tone === 'yellow' ? 'bg-yellow-50 dark:bg-yellow-950/40 hover:bg-yellow-100 dark:hover:bg-yellow-900/40' : 'bg-red-50 dark:bg-red-950/40 hover:bg-red-100 dark:hover:bg-red-900/40'}
         ${primary ? 'bg-gradient-to-r from-[#741052] to-[#d0269b]' : ''}
         shadow-sm
       `}

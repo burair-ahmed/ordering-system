@@ -11,6 +11,7 @@ import { useVariationSelector } from "../../hooks/useVariationSelector";
 import { VariationConfig } from "../../types/variations";
 import { X, Check } from "lucide-react";
 import posthog from 'posthog-js';
+import { trackEvent } from '../lib/analytics';
 
 interface CategoryOption {
   uuid: string;
@@ -173,8 +174,27 @@ const PlatterItem: FC<PlatterItemProps> = ({ platter }) => {
       is_platter: true
     });
 
+    trackEvent('journey_add_item', {
+      item_id: platter.id,
+      item_name: platter.title,
+      price: totalPrice,
+      has_variations: true,
+      is_platter: true
+    });
+
     setShowAddedMessage(true);
     setTimeout(() => setShowAddedMessage(false), 1500);
+  };
+
+  const handleCategorySelect = (categoryId: string, option: any) => {
+    selectCategoryVariation(categoryId, option);
+    trackEvent('journey_variation_select', {
+      item_id: platter.id,
+      item_name: platter.title,
+      category_id: categoryId,
+      variation_name: option.name,
+      price: option.price
+    });
   };
 
   return (
@@ -188,6 +208,13 @@ const PlatterItem: FC<PlatterItemProps> = ({ platter }) => {
             item_name: platter.title,
             price: basePrice,
             category: 'Platter', // Explicitly marking as Platter
+            is_platter: true
+          });
+          trackEvent('journey_view_item_details', {
+            item_id: platter.id,
+            item_name: platter.title,
+            price: basePrice,
+            category: 'Platter',
             is_platter: true
           });
           setShowModal(true);
@@ -248,6 +275,13 @@ const PlatterItem: FC<PlatterItemProps> = ({ platter }) => {
           onClick={(e) => {
             e.stopPropagation();
             posthog.capture('journey_view_item_details', {
+              item_name: platter.title,
+              price: basePrice,
+              category: 'Platter',
+              is_platter: true
+            });
+            trackEvent('journey_view_item_details', {
+              item_id: platter.id,
               item_name: platter.title,
               price: basePrice,
               category: 'Platter',
@@ -337,7 +371,7 @@ rounded-2xl p-4 sm:p-6 max-w-4xl w-full max-h-[90vh] overflow-y-auto flex flex-c
                     config={variationConfig}
                     selections={selections}
                     onSimpleSelect={() => {}} // Not used for platters
-                    onCategorySelect={selectCategoryVariation}
+                    onCategorySelect={handleCategorySelect}
                     errors={validation.errors}
                     warnings={validation.warnings}
                   />
