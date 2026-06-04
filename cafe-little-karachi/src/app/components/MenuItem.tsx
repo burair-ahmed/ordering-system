@@ -31,9 +31,10 @@ interface MenuItemData {
 
 interface MenuItemProps {
   item: MenuItemData;
+  cardStyle?: 'minimal' | 'compact' | 'gourmet' | 'list';
 }
 
-const MenuItem: FC<MenuItemProps> = ({ item }) => {
+const MenuItem: FC<MenuItemProps> = ({ item, cardStyle = 'gourmet' }) => {
   const [showModal, setShowModal] = useState(false);
   const [showAddedMessage, setShowAddedMessage] = useState(false);
 
@@ -107,7 +108,7 @@ const MenuItem: FC<MenuItemProps> = ({ item }) => {
     <>
       {/* Card */}
       <motion.div
-        whileHover={{ scale: 1.03, y: -4 }}
+        whileHover={{ scale: 1.02, y: -2 }}
         whileTap={{ scale: 0.98 }}
         onClick={() => {
           posthog.capture('journey_view_item_details', {
@@ -123,96 +124,166 @@ const MenuItem: FC<MenuItemProps> = ({ item }) => {
           });
           setShowModal(true);
         }}
-        className="relative flex flex-col p-4 rounded-2xl cursor-pointer 
-        bg-white/70 backdrop-blur-lg shadow-lg 
-        border border-transparent hover:border-[#741052] transition-all duration-300"
-        style={{ height: "28rem" }}
+        className={
+          cardStyle === 'list'
+            ? "relative flex flex-row items-center gap-4 p-3 md:p-4 rounded-2xl cursor-pointer bg-white/70 backdrop-blur-lg shadow-md border border-transparent hover:border-[#741052] transition-all duration-300 w-full"
+            : cardStyle === 'minimal'
+            ? "relative flex flex-col p-3 rounded-xl cursor-pointer bg-transparent border border-neutral-200/60 dark:border-neutral-800 hover:border-[#741052] transition-all duration-300"
+            : cardStyle === 'compact'
+            ? "relative flex flex-col p-3 rounded-xl cursor-pointer bg-white/70 backdrop-blur-lg shadow-md border border-transparent hover:border-[#741052] transition-all duration-300"
+            : "relative flex flex-col p-4 rounded-2xl cursor-pointer bg-white/70 backdrop-blur-lg shadow-lg border border-transparent hover:border-[#741052] transition-all duration-300" // gourmet
+        }
+        style={
+          cardStyle === 'list'
+            ? { minHeight: "8.5rem" }
+            : cardStyle === 'minimal'
+            ? { height: "18rem" }
+            : cardStyle === 'compact'
+            ? { height: "21rem" }
+            : { height: "28rem" } // gourmet
+        }
       >
-        {/* Out of stock badge */}
-        {item.status === "out of stock" && (
-          <span className="absolute top-2 left-2 bg-red-500 text-white text-xs px-3 py-1 rounded-full shadow-md animate-pulse">
-            Out of Stock
-          </span>
+        {cardStyle === 'list' ? (
+          <>
+            {/* Out of stock badge */}
+            {item.status === "out of stock" && (
+              <span className="absolute top-2 left-2 z-10 bg-red-500 text-white text-[10px] px-2 py-0.5 rounded-full shadow-md animate-pulse">
+                Out of Stock
+              </span>
+            )}
+
+            {/* Left Side: Image */}
+            <div className="relative w-24 h-24 sm:w-28 sm:h-28 md:w-32 md:h-32 shrink-0">
+              <Image
+                src={item.image || "/fallback-image.jpg"}
+                alt={item.title}
+                className="rounded-xl object-cover w-full h-full"
+                width={150}
+                height={150}
+                unoptimized={true}
+              />
+            </div>
+
+            {/* Right/Center Side: Info */}
+            <div className="flex-1 min-w-0 flex flex-col h-full justify-between py-1">
+              <div>
+                <h2 className="text-base sm:text-lg font-semibold text-[#741052] truncate">
+                  {item.title}
+                </h2>
+                <p className="text-xs sm:text-sm text-gray-500 line-clamp-2 mt-1">
+                  {item.description}
+                </p>
+              </div>
+
+              <div className="flex items-center justify-between mt-2">
+                <div className="flex items-center gap-1.5">
+                  <p className="font-bold text-sm sm:text-base bg-gradient-to-r from-[#741052] to-[#d0269b] text-transparent bg-clip-text">
+                    Rs.{basePrice.toFixed(2)}
+                  </p>
+                  {item.discountValue !== undefined && item.discountValue > 0 && (
+                    <p className="text-[10px] sm:text-xs text-gray-400 line-through">
+                      Rs.{originalPrice.toFixed(2)}
+                    </p>
+                  )}
+                </div>
+
+                <motion.button
+                  whileHover={item.status === "in stock" ? { scale: 1.05 } : {}}
+                  whileTap={item.status === "in stock" ? { scale: 0.97 } : {}}
+                  disabled={item.status === "out of stock"}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setShowModal(true);
+                  }}
+                  className={`py-1.5 px-4 text-xs rounded-full font-medium text-white transition-all duration-300
+                    ${
+                      item.status === "out of stock"
+                        ? "bg-gray-400 grayscale cursor-not-allowed"
+                        : "bg-gradient-to-r from-[#741052] to-[#d0269b] shadow-md hover:shadow-pink-500/30"
+                    }`}
+                >
+                  {item.status === "out of stock" ? "Unavailable" : "Add"}
+                </motion.button>
+              </div>
+            </div>
+          </>
+        ) : (
+          <>
+            {/* Out of stock badge */}
+            {item.status === "out of stock" && (
+              <span className="absolute top-2 left-2 bg-red-500 text-white text-xs px-3 py-1 rounded-full shadow-md animate-pulse z-10">
+                Out of Stock
+              </span>
+            )}
+
+            <div className="w-full">
+              <Image
+                src={item.image || "/fallback-image.jpg"}
+                alt={item.title}
+                className={`rounded-xl object-cover w-full mb-3 ${
+                  cardStyle === 'minimal' ? 'h-24' : cardStyle === 'compact' ? 'h-28' : 'h-40'
+                }`}
+                width={450}
+                height={160}
+                unoptimized={true}
+              />
+            </div>
+
+            <h2 className={`font-semibold text-[#741052] ${
+              cardStyle === 'minimal' ? 'text-sm mb-1 truncate' : cardStyle === 'compact' ? 'text-base mb-1 truncate' : 'text-xl mb-3'
+            }`}>
+              {item.title}
+            </h2>
+
+            {/* Truncated description */}
+            <div className="relative flex-1 mb-3 overflow-hidden">
+              <p className={`text-gray-500 ${
+                cardStyle === 'minimal' ? 'text-[11px] line-clamp-1' : cardStyle === 'compact' ? 'text-xs line-clamp-2' : 'text-sm line-clamp-2'
+              }`}>{item.description}</p>
+              {cardStyle === 'gourmet' && (
+                <div className="absolute bottom-0 left-0 w-full h-4 bg-gradient-to-t from-white to-transparent"></div>
+              )}
+            </div>
+
+            {/* Price */}
+            <div className="flex items-center gap-1.5 mt-auto">
+              <p className={`font-bold bg-gradient-to-r from-[#741052] to-[#d0269b] text-transparent bg-clip-text ${
+                cardStyle === 'minimal' ? 'text-sm' : cardStyle === 'compact' ? 'text-base' : 'text-lg'
+              }`}>
+                Rs.{basePrice.toFixed(2)}
+              </p>
+              {item.discountValue !== undefined && item.discountValue > 0 && (
+                <p className="text-[10px] sm:text-xs text-gray-400 line-through">
+                  Rs.{originalPrice.toFixed(2)}
+                </p>
+              )}
+            </div>
+
+            {/* Add to cart button */}
+            <motion.button
+              whileHover={item.status === "in stock" ? { scale: 1.05 } : {}}
+              whileTap={item.status === "in stock" ? { scale: 0.97 } : {}}
+              disabled={item.status === "out of stock"}
+              onClick={(e) => {
+                e.stopPropagation();
+                setShowModal(true);
+              }}
+              className={`w-full text-center rounded-full font-medium text-white transition-all duration-300 ${
+                cardStyle === 'minimal'
+                  ? 'mt-2 py-1 px-3 text-xs border border-[#741052] text-[#741052] bg-transparent hover:bg-[#741052] hover:text-white'
+                  : cardStyle === 'compact'
+                  ? 'mt-2 py-1.5 px-4 text-xs bg-gradient-to-r from-[#741052] to-[#d0269b] shadow-md'
+                  : 'mt-3 py-2 px-6 text-sm bg-gradient-to-r from-[#741052] to-[#d0269b] shadow-lg hover:shadow-pink-500/40'
+              } ${
+                item.status === "out of stock"
+                  ? "bg-gray-200 text-gray-450 border-gray-300 grayscale animate-pulse cursor-not-allowed hover:bg-transparent hover:text-gray-450"
+                  : ""
+              }`}
+            >
+              {item.status === "out of stock" ? "Unavailable" : "Add to Cart"}
+            </motion.button>
+          </>
         )}
-
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4 }}
-        >
-          <Image
-            src={item.image || "/fallback-image.jpg"}
-            alt={item.title}
-            className="rounded-xl object-cover w-full h-40 mb-4"
-            width={450}
-            height={160}
-            unoptimized={true}
-          />
-        </motion.div>
-
-        <h2 className="text-xl font-semibold text-[#741052] mb-4">
-          {item.title}
-        </h2>
-
-        {/* Truncated description with fade-out */}
-        <div className="relative flex-1 mb-4">
-          <p className="text-sm text-gray-600 line-clamp-1">{item.description}</p>
-          <div className="absolute bottom-0 left-0 w-full h-6 bg-gradient-to-t from-white to-transparent"></div>
-        </div>
-
-        {/* Price */}
-        <div className="flex items-center gap-2 mt-auto">
-          <p className="font-bold text-lg bg-gradient-to-r from-[#741052] to-[#d0269b] text-transparent bg-clip-text">
-            Rs.{basePrice.toFixed(2)}
-          </p>
-          {item.discountValue !== undefined && item.discountValue > 0 && (
-            <p className="text-sm text-gray-400 line-through">
-              Rs.{originalPrice.toFixed(2)}
-            </p>
-          )}
-        </div>
-
-        {/* Add to cart button */}
-        <motion.button
-          whileHover={item.status === "in stock" ? { scale: 1.05 } : {}}
-          whileTap={item.status === "in stock" ? { scale: 0.97 } : {}}
-          disabled={item.status === "out of stock"}
-          onClick={(e) => {
-            e.stopPropagation(); // Prevent opening modal if we want direct add, OR...
-            // Wait, if this button is "Add to Cart", does it add to cart?
-            // Currently it has NO onClick, so it bubbles to card click -> opens modal.
-            // If we want "Quick Add" (One click add), we need to implement it here.
-            
-            // BUT, if the intention is JUST to ensure the event fires, bubbling is fine.
-            // UNLESS the user mistakenly thinks the button adds to cart.
-            
-            // Let's assume the current behavior (open modal) is CORRECT for the "View" step.
-            // So my previous explanation about "Quick Add Trap" might have been based on a misunderstanding of the code 
-            // OR I missed where the logic updates.
-            
-            // Let's implement the `onClick` to be EXPLICIT about firing the event, just in case bubbling behaves weirdly with some elements.
-            posthog.capture('journey_view_item_details', {
-              item_name: item.title,
-              price: basePrice,
-              category: item.category
-            });
-            trackEvent('journey_view_item_details', {
-              item_id: itemId,
-              item_name: item.title,
-              price: basePrice,
-              category: item.category
-            });
-            setShowModal(true);
-          }}
-          className={`mt-3 py-2 px-6 rounded-full font-medium text-white transition-all duration-300
-            ${
-              item.status === "out of stock"
-                ? "bg-gray-400 grayscale animate-pulse cursor-not-allowed"
-                : "bg-gradient-to-r from-[#741052] to-[#d0269b] shadow-lg hover:shadow-pink-500/40"
-            }`}
-        >
-          {item.status === "out of stock" ? "Unavailable" : "Add to Cart"}
-        </motion.button>
       </motion.div>
 
       {/* Modal */}

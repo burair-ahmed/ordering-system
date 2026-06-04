@@ -42,6 +42,7 @@ import AdminAuthDialog from '../components/AdminAuthDialog';
 import MenuManagement from '../components/MenuManagement';
 import PlatterManagement from '../components/PlatterManagement';
 import BehavioralAnalytics from '../components/BehavioralAnalytics';
+import AdminPageBuilder from '../components/AdminPageBuilder';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -110,6 +111,7 @@ type TabKey =
   | 'completedOrders'
   | 'analytics'
   | 'behavioral'
+  | 'layoutBuilder'
   | 'settings';
 
 const TABS: { key: TabKey; label: string; icon: any }[] = [
@@ -124,6 +126,7 @@ const TABS: { key: TabKey; label: string; icon: any }[] = [
   { key: 'completedOrders', label: 'Completed Orders', icon: Archive },
   { key: 'analytics', label: 'Analytics Panel', icon: BarChart3 },
   { key: 'behavioral', label: 'Behavioral Insights', icon: Activity },
+  { key: 'layoutBuilder', label: 'Order Page CMS', icon: LayoutDashboard },
   { key: 'settings', label: 'Preferences', icon: Settings },
 ];
 
@@ -547,6 +550,19 @@ const AdminDashboard: FC = () => {
                 </CardHeader>
                 <CardContent>
                   <BehavioralAnalytics />
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Order page CMS page builder tab */}
+            {activeTab === 'layoutBuilder' && (
+              <Card className="border border-neutral-200/50 shadow-sm rounded-3xl">
+                <CardHeader>
+                  <CardTitle className="text-xl font-bold tracking-tight">Order Page CMS</CardTitle>
+                  <CardDescription>Design and customize sections, banners, grids, and card styles for the customer ordering page.</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <AdminPageBuilder />
                 </CardContent>
               </Card>
             )}
