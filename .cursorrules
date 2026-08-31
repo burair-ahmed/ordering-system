@@ -1,0 +1,160 @@
+# Advanced Ordering Ecosystem — AI & LLM Governance Rules (.cursorrules)
+
+## Core Mission & Context
+You are working on the **Advanced Ordering Ecosystem**, a monorepo-style workspace housing two production-grade restaurant ordering platforms:
+- **Cafe Little Karachi (CLK)** — `./cafe-little-karachi/` — Premium dine-in & takeaway platform with a granular variation engine.
+- **The Chai Company (TCC)** — `./the-chai-company/` — High-speed quick-service cafe ordering platform.
+
+Both projects share a common architecture pattern but are independently deployable applications.
+
+All technical specifications, design tokens, architecture blueprints, roadmaps, and memory logs are centralized in the [`/documentation`](file:///d:/ordering-system/documentation/README.md) directory at the root of this workspace.
+
+---
+
+## 1. Primary Mandates & Workflow Discipline
+
+1. **Pre-flight Check Required**: BEFORE starting any task or generating code, ALWAYS inspect:
+   - [`documentation/NEXT_STEPS.md`](file:///d:/ordering-system/documentation/NEXT_STEPS.md) (current checkpoint, active step, & next AI prompts)
+   - [`documentation/status.md`](file:///d:/ordering-system/documentation/status.md) (current feature completion & active checklist)
+   - [`documentation/memory.md`](file:///d:/ordering-system/documentation/memory.md) (current project state & session history)
+   - [`documentation/phases.md`](file:///d:/ordering-system/documentation/phases.md) (current active phase scope & acceptance criteria)
+   - [`documentation/architecture.md`](file:///d:/ordering-system/documentation/architecture.md) (schema definitions & system contracts)
+2. **Project Awareness**: Always identify which sub-project (CLK or TCC) you are working in before writing code. Never mix imports, schemas, or configs across projects unless explicitly building a shared utility.
+3. **No Blind Code Changes**: Always justify edits with errors, requirements, or architecture references.
+4. **Continuous Memory & Status Updates**: After completing or updating any task, update [`documentation/status.md`](file:///d:/ordering-system/documentation/status.md) and [`documentation/memory.md`](file:///d:/ordering-system/documentation/memory.md) immediately.
+5. **Autonomous Documentation Update Mandate**: The AI MUST automatically update [`documentation/NEXT_STEPS.md`](file:///d:/ordering-system/documentation/NEXT_STEPS.md), [`documentation/status.md`](file:///d:/ordering-system/documentation/status.md), and [`documentation/memory.md`](file:///d:/ordering-system/documentation/memory.md) at the end of every turn/task. The user will NOT edit these files manually.
+
+---
+
+## 2. Tech Stack Standards
+
+| Domain | Technology / Library | Guidelines & Constraints |
+|---|---|---|
+| Framework | Next.js 15 (Hybrid: App Router + Pages Router) | App Router for UI & layouts; Pages Router (`src/pages/api/`) for all API endpoints |
+| Database | MongoDB + Mongoose ODM | All schemas in `src/models/`; use camelCase field names; always add indexes for queried fields |
+| Real-Time | Socket.IO | Emit events from API routes after DB mutations; always acknowledge errors on socket events |
+| State Management | React Context API | CartContext, OrderContext, TableContext — no external state libraries |
+| Styling | Tailwind CSS | Use design token classes; dark mode via `dark:` prefix; no inline styles |
+| Animations | Framer Motion + GSAP | Framer Motion for component transitions; GSAP for scroll/complex sequences |
+| Notifications | Twilio (WhatsApp API) | Fire-and-forget after order confirmation; wrap in try/catch to never block order flow |
+| Analytics | PostHog + Google Analytics | Track conversion funnels, cart abandonment, and order completion events |
+| Validation | Zod + TypeScript | Zod schemas for all API request bodies; TypeScript interfaces for all state and models |
+| Media | Cloudinary | Menu item images and restaurant assets via Cloudinary upload API |
+| Data Fetching | SWR | Use `useSWR` for admin dashboard polling; standard `fetch` for mutations |
+
+---
+
+## 3. Design System — CLK (Cafe Little Karachi)
+
+**Primary Theme: Pink/Magenta Gradient**
+
+```css
+/* CLK Design Tokens */
+--clk-primary: #741052;         /* Deep Pink */
+--clk-secondary: #d0269b;       /* Bright Magenta */
+--clk-accent: #5c0d40;          /* Darker Pink */
+--clk-success: #10b981;         /* Emerald */
+--clk-warning: #f59e0b;         /* Amber */
+--clk-error: #ef4444;           /* Red */
+```
+
+**Primary Button:**
+```jsx
+className="bg-gradient-to-r from-[#741052] to-[#d0269b] text-white font-semibold px-6 py-3 rounded-xl shadow-lg hover:opacity-90 transition-all duration-200"
+```
+
+**Main Heading (H1):**
+```jsx
+className="text-4xl font-bold bg-gradient-to-r from-[#741052] to-[#d0269b] bg-clip-text text-transparent mb-6"
+```
+
+---
+
+## 4. Admin-Customer Correspondence Rule
+
+When implementing any feature that touches the admin panel, ALWAYS reason through BOTH sides:
+
+```
+Scenario: [Feature Name]
+Admin Side: [What the admin creates / manages]
+Customer Side: [What the customer experiences]
+Data Flow: [How data moves between admin → API → customer]
+Edge Cases: [Potential issues]
+```
+
+**Established Admin-Customer Pairs:**
+- `MenuItemForm` ↔ `MenuItem` — Admin creates menu items; customers browse and order
+- `PlatterForm` ↔ `PlatterItem` — Admin configures platters; customers customize
+- `OrdersList` ↔ `OrderTracking` — Admin manages and updates orders; customers track live status
+- `TableManagement` ↔ `TableSelection` — Admin assigns tables; customers select on arrival
+
+---
+
+## 5. Order Lifecycle & Real-Time Rules
+
+```
+Customer Places Order
+       ↓
+POST /api/orders → Save to MongoDB (status: "pending")
+       ↓
+Socket.IO emits "new_order" → Admin Dashboard updates live
+       ↓
+Admin accepts → PATCH /api/updateorderstatus
+       ↓
+Socket.IO emits "order_updated" → Customer progress bar updates
+       ↓
+Twilio WhatsApp confirmation sent to customer
+```
+
+- **Never** block order creation on Twilio failures — wrap all Twilio calls in `try/catch`.
+- **Always** emit Socket.IO events AFTER successful DB writes, not before.
+- **Always** validate order payload with a Zod schema before touching MongoDB.
+
+---
+
+## 6. Variation System Standards (CLK)
+
+The variation engine is CLK's core differentiator. Treat it with care:
+
+```typescript
+// Mongoose Schema Shape
+interface VariationGroup {
+  title: string;
+  isRequired: boolean;
+  options: Array<{ name: string; additionalPrice: number }>;
+}
+
+interface MenuItem {
+  name: string;
+  basePrice: number;
+  variations: VariationGroup[];
+}
+```
+
+- Never flatten variation options — always preserve the nested `VariationGroup[]` structure.
+- `additionalPrice` is always additive on top of `basePrice`.
+- Validate that required variation groups have at least one option selected before allowing add-to-cart.
+
+---
+
+## 7. Code Style & Quality Rules
+
+- **TypeScript strict mode** — no `any` types unless absolutely unavoidable (and documented why).
+- **Component structure**: Functional components only; use custom hooks (`useVariationSelector`, `useCart`) for complex logic.
+- **Naming conventions**:
+  - Components: `PascalCase` (e.g., `MenuItemCard.tsx`)
+  - Hooks: `camelCase` with `use` prefix (e.g., `useOrderTracking.ts`)
+  - API routes (Pages Router): `kebab-case` (e.g., `update-order-status.ts`)
+  - Mongoose models: `PascalCase` (e.g., `Order.ts`)
+- **No `console.log`** in production code. Use proper error boundaries and structured error returns.
+- **ESLint must pass** before any commit.
+
+---
+
+## 8. How to Document Progress
+
+Whenever you write or modify code:
+1. Log the update details in [`documentation/status.md`](file:///d:/ordering-system/documentation/status.md) and [`documentation/memory.md`](file:///d:/ordering-system/documentation/memory.md).
+2. Ensure architectural decisions comply with [`documentation/architecture.md`](file:///d:/ordering-system/documentation/architecture.md).
+3. Record changes adhering to guidelines in [`documentation/documentation.md`](file:///d:/ordering-system/documentation/documentation.md).
+4. For project-specific feature details, update the relevant docs inside the sub-project's own `docs/` folder.

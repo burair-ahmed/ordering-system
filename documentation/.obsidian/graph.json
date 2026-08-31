@@ -1,0 +1,57 @@
+{
+  "collapse-filter": false,
+  "search": "",
+  "showTags": true,
+  "showAttachments": true,
+  "hideUnresolved": false,
+  "showOrphans": true,
+  "collapse-color-groups": false,
+  "colorGroups": [
+    {
+      "query": "tag:#type/prd",
+      "color": {
+        "a": 1,
+        "rgb": 14726438
+      }
+    },
+    {
+      "query": "tag:#type/architecture",
+      "color": {
+        "a": 1,
+        "rgb": 3900150
+      }
+    },
+    {
+      "query": "tag:#type/design",
+      "color": {
+        "a": 1,
+        "rgb": 16098059
+      }
+    },
+    {
+      "query": "tag:#type/security",
+      "color": {
+        "a": 1,
+        "rgb": 15680068
+      }
+    },
+    {
+      "query": "tag:#status/active",
+      "color": {
+        "a": 1,
+        "rgb": 2278750
+      }
+    }
+  ],
+  "collapse-display": false,
+  "showArrow": true,
+  "textScale": 1,
+  "showLabels": true,
+  "nodeSizeMultiplier": 1.2,
+  "lineSizeMultiplier": 1,
+  "centerStrength": 0.5,
+  "repulsionStrength": 10,
+  "linkDistance": 250,
+  "linkStrength": 1,
+  "scale": 1
+}
