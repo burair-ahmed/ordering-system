@@ -138,3 +138,10 @@ last_updated: 2026-08-28
     - [`scripts/test-menu-variations.mjs`](file:///d:/ordering-system/.agents/skills/clk-order-ux-tester/scripts/test-menu-variations.mjs) (Variation pricing & modifier validation).
     - [`scripts/audit-report-generator.mjs`](file:///d:/ordering-system/.agents/skills/clk-order-ux-tester/scripts/audit-report-generator.mjs) (Markdown report compiler).
 - **Execution Verification**: Executed `node .agents/skills/clk-order-ux-tester/scripts/run-all-personas.mjs` — successfully passed static analysis, endpoint simulation, and generated [`documentation/audits/clk-ux-audit-latest.md`](file:///d:/ordering-system/documentation/audits/clk-ux-audit-latest.md).
+
+### Session 2026-09-01 (Google Analytics & Microsoft Clarity Complete Setup)
+- Updated Google Analytics measurement ID (`G-PPJHLLX7BS`) across `.env` and `.env.production`.
+- Created [`ClarityProvider.tsx`](file:///d:/ordering-system/cafe-little-karachi/src/app/providers/ClarityProvider.tsx) with project ID `ybjh2k8z4c` using Next.js `<Script strategy="afterInteractive">`.
+- Updated [`analytics.ts`](file:///d:/ordering-system/cafe-little-karachi/src/app/lib/analytics.ts) to bridge all internal analytics events to Microsoft Clarity custom events.
+- Mapped all 10 ordering funnel stages (`CLK_FUNNEL_LANDING` through `CLK_FUNNEL_TRACKING_VIEWED`) across key components: [`TableForm.tsx`](file:///d:/ordering-system/cafe-little-karachi/src/app/components/TableForm.tsx), [`order/page.tsx`](file:///d:/ordering-system/cafe-little-karachi/src/app/order/page.tsx), [`MenuItem.tsx`](file:///d:/ordering-system/cafe-little-karachi/src/app/components/MenuItem.tsx), [`checkout/page.tsx`](file:///d:/ordering-system/cafe-little-karachi/src/app/checkout/page.tsx), and [`thank-you/page.tsx`](file:///d:/ordering-system/cafe-little-karachi/src/app/thank-you/page.tsx).
+

@@ -39,6 +39,7 @@ import {
 } from "lucide-react";
 import posthog from 'posthog-js';
 import { trackEvent } from "../lib/analytics";
+import { clarityUpgrade } from "../providers/ClarityProvider";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -186,12 +187,14 @@ const CheckoutPageContent: FC = () => {
       } catch {}
     }
 
-    // Track entering checkout
+    // Track entering checkout (Stage 7 — Checkout Started)
     trackEvent('journey_start_checkout', {
       item_count: cartItems.length,
       total_amount: totalAmount,
       order_type: typeParam || formData.ordertype || 'dinein'
     });
+    // Force Clarity to record this high-value session
+    clarityUpgrade('checkout_started');
   }, [searchParams, cartItems.length, totalAmount]);
   useEffect(() => {
     if (!searchParams) return;
@@ -390,7 +393,7 @@ const CheckoutPageContent: FC = () => {
       phone: formData.phone
     });
 
-    // Track Order Submission Journey Event
+    // Track Order Submission (Stage 8 — Order Placed)
     posthog.capture('journey_submit_order', {
       order_type: formData.ordertype,
       payment_method: formData.paymentMethod,
@@ -398,6 +401,16 @@ const CheckoutPageContent: FC = () => {
       total_amount: finalAmount,
       delivery_charge: deliveryCharge
     });
+
+    trackEvent('journey_order_placed', {
+      order_type: formData.ordertype,
+      payment_method: formData.paymentMethod,
+      item_count: cartItems.length,
+      total_amount: finalAmount,
+      delivery_charge: deliveryCharge
+    });
+    // Force Clarity to record this critical session
+    clarityUpgrade('order_placed');
 
     try {
       const res = await fetch("/api/orders", {

@@ -11,6 +11,7 @@ import { ThemeProvider } from "next-themes";
 import { Toaster } from "sonner";
 import { CSPostHogProvider } from './providers/PostHogProvider';
 import { GoogleAnalytics } from "@next/third-parties/google";
+import { ClarityProvider } from "./providers/ClarityProvider";
 import RestaurantStatusPopup from "./components/RestaurantStatusPopup";
 
 
@@ -78,6 +79,7 @@ export default function RootLayout({
             </ThemeProvider>
           </CSPostHogProvider>
           <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GOOGLE_ANALYTICS_ID || ""} />
+          <ClarityProvider />
           </div>
         )}
       </body>

@@ -11,6 +11,7 @@ import SkeletonLoader from "../components/SkeletonLoader";
 import { Star, Clock, ArrowRight, ChevronLeft, ChevronRight } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
+import { trackEvent, trackClarityFunnelStep, CLK_FUNNEL_MENU_VIEWED } from "../lib/analytics";
 
 // --- Types ---
 interface MenuItemData {
@@ -379,6 +380,10 @@ export default function MenuPage() {
 
   // Load layout configuration and platter items on mount
   useEffect(() => {
+    // Stage 4: Menu Viewed
+    trackClarityFunnelStep(CLK_FUNNEL_MENU_VIEWED);
+    trackEvent('journey_menu_viewed');
+
     const loadPageData = async () => {
       setPageLoading(true);
       try {

@@ -4,6 +4,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useOrder } from "../context/OrderContext";
+import { trackEvent, CLK_FUNNEL_LANDING, CLK_FUNNEL_MODE_SELECTED, CLK_FUNNEL_TABLE_SELECTED, trackClarityFunnelStep } from "../lib/analytics";
 
 export default function OrderTypeModal() {
   const [isOpen, setIsOpen] = useState(true);
@@ -14,6 +15,12 @@ export default function OrderTypeModal() {
   const [loadingAreas, setLoadingAreas] = useState(false);
   const router = useRouter();
   const { setOrder } = useOrder();
+
+  // Stage 1: Customer landed on home page
+  useEffect(() => {
+    trackClarityFunnelStep(CLK_FUNNEL_LANDING);
+    trackEvent('journey_landing', {});
+  }, []);
 
   useEffect(() => {
     if (orderType === "delivery") {
@@ -42,6 +49,9 @@ export default function OrderTypeModal() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+
+    // Stage 3: Mode confirmed + table/area selected
+    trackEvent('journey_table_selected', { order_type: orderType, table: tableNumber, area: selectedArea });
 
     if (orderType === "delivery" && selectedArea) {
       setOrder({ orderType: "delivery", area: selectedArea });
@@ -75,7 +85,7 @@ export default function OrderTypeModal() {
 
         <div className="flex justify-center gap-4 mb-6">
           <button
-            onClick={() => setOrderType("delivery")}
+            onClick={() => { setOrderType("delivery"); trackEvent('journey_mode_selected', { mode: 'delivery' }); }}
             className={`px-4 py-2 rounded-lg font-semibold ${
               orderType === "delivery" ? "bg-purple-700 text-white" : "bg-gray-200 text-purple-700"
             }`}
@@ -83,7 +93,7 @@ export default function OrderTypeModal() {
             Delivery
           </button>
           <button
-            onClick={() => setOrderType("pickup")}
+            onClick={() => { setOrderType("pickup"); trackEvent('journey_mode_selected', { mode: 'pickup' }); }}
             className={`px-4 py-2 rounded-lg font-semibold ${
               orderType === "pickup" ? "bg-purple-700 text-white" : "bg-gray-200 text-purple-700"
             }`}
@@ -91,7 +101,7 @@ export default function OrderTypeModal() {
             Pickup
           </button>
           <button
-            onClick={() => setOrderType("dinein")}
+            onClick={() => { setOrderType("dinein"); trackEvent('journey_mode_selected', { mode: 'dinein' }); }}
             className={`px-4 py-2 rounded-lg font-semibold ${
               orderType === "dinein" ? "bg-purple-700 text-white" : "bg-gray-200 text-purple-700"
             }`}

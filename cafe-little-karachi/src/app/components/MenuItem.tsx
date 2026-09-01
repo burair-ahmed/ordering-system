@@ -74,15 +74,15 @@ const MenuItem: FC<MenuItemProps> = ({ item, cardStyle = 'gourmet' }) => {
   } = useVariationSelector(variationConfig, basePrice);
 
   const handleItemAdded = () => {
-    // Track Add to Cart Journey Event
-    posthog.capture('journey_add_item', {
+    // Track Add to Cart Journey Event (Stage 6)
+    posthog.capture('journey_add_to_cart', {
       item_id: itemId,
       item_name: item.title,
       price: totalPrice,
       has_variations: selections.simple.length > 0
     });
 
-    trackEvent('journey_add_item', {
+    trackEvent('journey_add_to_cart', {
       item_id: itemId,
       item_name: item.title,
       price: totalPrice,
@@ -111,7 +111,19 @@ const MenuItem: FC<MenuItemProps> = ({ item, cardStyle = 'gourmet' }) => {
         whileHover={{ scale: 1.02, y: -2 }}
         whileTap={{ scale: 0.98 }}
         onClick={() => {
+          // Stage 5: Item customisation opened
+          posthog.capture('journey_variation_opened', {
+            item_name: item.title,
+            price: basePrice,
+            category: item.category
+          });
           posthog.capture('journey_view_item_details', {
+            item_name: item.title,
+            price: basePrice,
+            category: item.category
+          });
+          trackEvent('journey_variation_opened', {
+            item_id: itemId,
             item_name: item.title,
             price: basePrice,
             category: item.category
