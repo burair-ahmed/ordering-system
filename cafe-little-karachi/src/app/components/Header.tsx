@@ -69,13 +69,13 @@ export default function Header() {
             
             {/* Left: Contact Info (Desktop) */}
             <div className="hidden lg:flex items-center gap-6">
-              <Link href="tel:+923331702704" className="group flex items-center gap-3">
+              <Link href="tel:+923331702706" className="group flex items-center gap-3">
                 <div className="w-9 h-9 rounded-full bg-white/5 border border-white/10 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
                   <Phone size={14} className="text-[#ff9824]" />
                 </div>
                 <div className="flex flex-col">
                   <span className="text-[10px] text-white/40 uppercase tracking-widest font-bold">Call Us</span>
-                  <span className="text-xs font-semibold text-white">+92 333 1702704</span>
+                  <span className="text-xs font-semibold text-white">+92 333 1702706</span>
                 </div>
               </Link>
             </div>
@@ -92,13 +92,13 @@ export default function Header() {
               </motion.button>
               <motion.a
                 whileTap={{ scale: 0.9 }}
-                href={`https://wa.me/${process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || '923331702704'}?text=${encodeURIComponent('Hello Cafe Little Karachi! I have an inquiry.')}`}
+                href={`https://wa.me/${process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || '923331702706'}?text=${encodeURIComponent('Hello Cafe Little Karachi! I have an inquiry.')}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-10 h-10 rounded-full bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center text-[#25D366] hover:bg-emerald-500/30 transition-colors"
+                className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-[#ff9824]"
                 aria-label="Chat on WhatsApp"
               >
-                <FaWhatsapp size={20} />
+                <FaWhatsapp size={18} />
               </motion.a>
             </div>
 
@@ -133,8 +133,8 @@ export default function Header() {
                 whileTap={{ scale: 0.9 }}
                 target="_blank" 
                 rel="noopener noreferrer"
-                href="https://www.google.com/maps/place/Cafe+Little+Karachi"
-                className="flex w-10 h-10 rounded-full bg-white/5 border border-white/10 items-center justify-center group hover:bg-white/10 transition-colors"
+                href="https://maps.app.goo.gl/VT5tV6Lm51pxRH7D8?g_st=aw"
+                className="flex w-10 h-10 rounded-full bg-white/5 border border-white/10 items-center justify-center text-[#ff9824]"
                 title="Find Us"
                 aria-label="View location on Google Maps"
               >
@@ -172,7 +172,7 @@ export default function Header() {
             className="fixed inset-0 z-[100] bg-[#5c0d40] p-6 flex flex-col"
           >
             <div className="flex justify-between items-center mb-12">
-              <Image src="/logo.webp" alt="Logo" width={80} height={80} />
+              <Image src="/butter-paper1.webp" alt="Logo" width={80} height={80} className="drop-shadow-[0_0_15px_rgba(0,0,0,0.5)]" />
               <button 
                 onClick={() => setMobileMenuOpen(false)}
                 className="w-12 h-12 rounded-full bg-white/10 flex items-center justify-center text-white"
@@ -184,8 +184,8 @@ export default function Header() {
             <nav className="flex flex-col gap-8">
               {[
                 { label: 'Menu Selection', href: tableId ? `/order?tableId=${tableId}` : '/order' },
-                { label: 'Our Location', href: 'https://www.google.com/maps/place/Cafe+Little+Karachi', external: true },
-                { label: 'Direct Call', href: 'tel:+923331702704' },
+                { label: 'Our Location', href: 'https://maps.app.goo.gl/VT5tV6Lm51pxRH7D8?g_st=aw', external: true },
+                { label: 'Direct Call', href: 'tel:+923331702706' },
               ].map((link, i) => (
                 <motion.div
                   key={link.label}

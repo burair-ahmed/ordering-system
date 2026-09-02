@@ -158,5 +158,14 @@ last_updated: 2026-08-28
 - Added Location pin icon button (`MapPin`) next to the cart icon on the mobile responsive header, linking directly to CLK's Google Maps location.
 - Verified TypeScript build check passed with 0 errors.
 
+### Session 2026-09-02 (CLK Header Icons Styling, Location & Phone Number Updates)
+- Updated contact phone number across header, WhatsApp links, and side menu to `+923331702706` (`wa.me/923331702706`).
+- Updated Google Maps location link across header and side menu to `https://maps.app.goo.gl/VT5tV6Lm51pxRH7D8?g_st=aw`.
+- Hidden bottom-left floating WhatsApp button ([`WhatsAppButton.tsx`](file:///d:/ordering-system/cafe-little-karachi/src/app/components/WhatsAppButton.tsx)) on mobile screens (`hidden md:flex`).
+- Standardized header WhatsApp icon styling to match Call & Location icons (`text-[#ff9824]`, `bg-white/5 border border-white/10`) with zero hover color shift for consistent aesthetic.
+- Replaced outdated mobile side panel logo image (`/logo.webp`) with official brand logo (`/butter-paper1.webp`) in [`Header.tsx`](file:///d:/ordering-system/cafe-little-karachi/src/app/components/Header.tsx).
+- Verified TypeScript build check passed cleanly with 0 errors.
+
+
 
 

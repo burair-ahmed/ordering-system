@@ -7,12 +7,12 @@ import { X } from 'lucide-react';
 
 export default function WhatsAppButton() {
   const [showTooltip, setShowTooltip] = useState(true);
-  const whatsappNumber = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || '923331702704';
+  const whatsappNumber = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || '923331702706';
   const defaultMessage = encodeURIComponent('Hello Cafe Little Karachi! I have an inquiry about the menu/order.');
   const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${defaultMessage}`;
 
   return (
-    <div className="fixed bottom-6 left-6 z-50 flex items-center gap-3">
+    <div className="hidden md:flex fixed bottom-6 left-6 z-50 items-center gap-3">
       {/* WhatsApp Action Button */}
       <motion.a
         href={whatsappUrl}
