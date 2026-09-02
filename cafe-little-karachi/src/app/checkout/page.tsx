@@ -38,7 +38,7 @@ import {
   Mail,
 } from "lucide-react";
 import posthog from 'posthog-js';
-import { trackEvent } from "../lib/analytics";
+import { trackEvent, trackClarityFunnelStep, CLK_FUNNEL_CHECKOUT_STARTED } from "../lib/analytics";
 import { clarityUpgrade } from "../providers/ClarityProvider";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -188,6 +188,7 @@ const CheckoutPageContent: FC = () => {
     }
 
     // Track entering checkout (Stage 7 — Checkout Started)
+    trackClarityFunnelStep(CLK_FUNNEL_CHECKOUT_STARTED);
     trackEvent('journey_start_checkout', {
       item_count: cartItems.length,
       total_amount: totalAmount,

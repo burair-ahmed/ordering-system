@@ -100,6 +100,8 @@ function claritySetInternal(key: string, value: string | string[]): void {
 // addition to the internal event, so no changes are needed in call sites.
 
 const CLARITY_EVENT_MAP: Record<string, string> = {
+  // Stage 1 — Landing
+  journey_landing: CLK_FUNNEL_LANDING,
   // Stage 2 — Dining Mode
   journey_mode_selected: CLK_FUNNEL_MODE_SELECTED,
   // Stage 3 — Table Selection
@@ -111,10 +113,13 @@ const CLARITY_EVENT_MAP: Record<string, string> = {
   journey_variation_confirmed: CLK_FUNNEL_ITEM_CUSTOMISED,
   // Stage 6 — Add to cart
   journey_add_to_cart: CLK_FUNNEL_ADD_TO_CART,
-  // Stage 7 — Checkout started
+  journey_add_item: CLK_FUNNEL_ADD_TO_CART,
+  // Stage 7 — Checkout started (supports both naming variants)
   journey_checkout_started: CLK_FUNNEL_CHECKOUT_STARTED,
+  journey_start_checkout: CLK_FUNNEL_CHECKOUT_STARTED,
   // Stage 8 — Order placed
   journey_order_placed: CLK_FUNNEL_ORDER_PLACED,
+  journey_submit_order: CLK_FUNNEL_ORDER_PLACED,
   // Stage 9 — Order confirmed (thank-you page)
   journey_order_success: CLK_FUNNEL_ORDER_CONFIRMED,
   // Stage 10 — Tracking page visited
