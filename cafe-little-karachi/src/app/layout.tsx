@@ -13,6 +13,7 @@ import { CSPostHogProvider } from './providers/PostHogProvider';
 import { GoogleAnalytics } from "@next/third-parties/google";
 import { ClarityProvider } from "./providers/ClarityProvider";
 import RestaurantStatusPopup from "./components/RestaurantStatusPopup";
+import WhatsAppButton from "./components/WhatsAppButton";
 
 
 import MaintenanceScreen from "./components/MaintenanceScreen";
@@ -72,6 +73,7 @@ export default function RootLayout({
                       {children}
                     </main>
                     <Footer />
+                    <WhatsAppButton />
                   </OrderProvider>
                 </CartProvider>
               </TableProvider>

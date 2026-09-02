@@ -145,3 +145,18 @@ last_updated: 2026-08-28
 - Updated [`analytics.ts`](file:///d:/ordering-system/cafe-little-karachi/src/app/lib/analytics.ts) to bridge all internal analytics events to Microsoft Clarity custom events.
 - Mapped all 10 ordering funnel stages (`CLK_FUNNEL_LANDING` through `CLK_FUNNEL_TRACKING_VIEWED`) across key components: [`TableForm.tsx`](file:///d:/ordering-system/cafe-little-karachi/src/app/components/TableForm.tsx), [`order/page.tsx`](file:///d:/ordering-system/cafe-little-karachi/src/app/order/page.tsx), [`MenuItem.tsx`](file:///d:/ordering-system/cafe-little-karachi/src/app/components/MenuItem.tsx), [`checkout/page.tsx`](file:///d:/ordering-system/cafe-little-karachi/src/app/checkout/page.tsx), and [`thank-you/page.tsx`](file:///d:/ordering-system/cafe-little-karachi/src/app/thank-you/page.tsx).
 
+### Session 2026-09-02 (CLK WhatsApp Floating Button Addition)
+- Created [`WhatsAppButton.tsx`](file:///d:/ordering-system/cafe-little-karachi/src/app/components/WhatsAppButton.tsx) floating component positioned at bottom left (`fixed bottom-6 left-6 z-50`).
+- Implemented smooth Framer Motion entrance, pulsing ring micro-animation, online status indicator, interactive tooltip pill ("Chat with us on WhatsApp! 👋"), and dismiss capability.
+- Linked directly to official CLK WhatsApp contact line (`wa.me/923331702704`) with pre-filled inquiry text, supporting `NEXT_PUBLIC_WHATSAPP_NUMBER` fallback.
+- Mounted [`WhatsAppButton`](file:///d:/ordering-system/cafe-little-karachi/src/app/components/WhatsAppButton.tsx) into [`layout.tsx`](file:///d:/ordering-system/cafe-little-karachi/src/app/layout.tsx) root layout.
+- Verified TypeScript build check passed with 0 errors.
+
+### Session 2026-09-02 (CLK Mobile Header & Side Panel Customizations)
+- Removed "Developed by AA TECH SOLUTIONS" card block from the mobile fullscreen side panel in [`Header.tsx`](file:///d:/ordering-system/cafe-little-karachi/src/app/components/Header.tsx).
+- Added WhatsApp icon button (`FaWhatsapp`) next to the hamburger menu icon on the mobile responsive header.
+- Added Location pin icon button (`MapPin`) next to the cart icon on the mobile responsive header, linking directly to CLK's Google Maps location.
+- Verified TypeScript build check passed with 0 errors.
+
+
+

@@ -10,6 +10,7 @@ import CartSidebar from './CartSidebar';
 import { useCart } from '../context/CartContext';
 import { useOrder } from '../context/OrderContext';
 import { ShoppingBag, Phone, MapPin, Menu, X, ArrowRight } from 'lucide-react';
+import { FaWhatsapp } from 'react-icons/fa';
 
 export default function Header() {
   const [isCartOpen, setIsCartOpen] = useState(false);
@@ -79,14 +80,27 @@ export default function Header() {
               </Link>
             </div>
 
-            {/* Mobile Menu Trigger */}
-            <motion.button 
-              whileTap={{ scale: 0.9 }}
-              onClick={() => setMobileMenuOpen(true)}
-              className="lg:hidden w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white"
-            >
-              <Menu size={20} />
-            </motion.button>
+            {/* Mobile Actions: Hamburger Menu + WhatsApp */}
+            <div className="flex lg:hidden items-center gap-2">
+              <motion.button 
+                whileTap={{ scale: 0.9 }}
+                onClick={() => setMobileMenuOpen(true)}
+                className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white"
+                aria-label="Open mobile menu"
+              >
+                <Menu size={20} />
+              </motion.button>
+              <motion.a
+                whileTap={{ scale: 0.9 }}
+                href={`https://wa.me/${process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || '923331702704'}?text=${encodeURIComponent('Hello Cafe Little Karachi! I have an inquiry.')}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-10 h-10 rounded-full bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center text-[#25D366] hover:bg-emerald-500/30 transition-colors"
+                aria-label="Chat on WhatsApp"
+              >
+                <FaWhatsapp size={20} />
+              </motion.a>
+            </div>
 
             {/* Center: Brand Identity */}
             <div className="absolute left-1/2 -translate-x-1/2">
@@ -114,15 +128,18 @@ export default function Header() {
 
             {/* Right: Cart and Actions */}
             <div className="flex items-center gap-2 md:gap-4">
-               {/* Location Icon (Desktop) */}
-               <Link 
+               {/* Location Icon (Mobile & Desktop) */}
+               <motion.a 
+                whileTap={{ scale: 0.9 }}
                 target="_blank" 
+                rel="noopener noreferrer"
                 href="https://www.google.com/maps/place/Cafe+Little+Karachi"
-                className="hidden md:flex w-10 h-10 rounded-full bg-white/5 border border-white/10 items-center justify-center group hover:bg-white/10 transition-colors"
+                className="flex w-10 h-10 rounded-full bg-white/5 border border-white/10 items-center justify-center group hover:bg-white/10 transition-colors"
                 title="Find Us"
+                aria-label="View location on Google Maps"
               >
-                <MapPin size={16} className="text-[#ff9824]" />
-              </Link>
+                <MapPin size={18} className="text-[#ff9824]" />
+              </motion.a>
 
               {/* Premium Cart Button */}
               <motion.button
@@ -188,11 +205,6 @@ export default function Header() {
                 </motion.div>
               ))}
             </nav>
-
-            <div className="mt-auto p-8 rounded-[2rem] bg-white/5 border border-white/10 text-center">
-              <p className="text-white/40 text-xs uppercase tracking-widest font-bold mb-2">Developed By</p>
-              <p className="text-white font-black">AA TECH SOLUTIONS</p>
-            </div>
           </motion.div>
         )}
       </AnimatePresence>
