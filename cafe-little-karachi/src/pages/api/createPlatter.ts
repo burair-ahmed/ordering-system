@@ -1,6 +1,7 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import testMongoConnection from "../../lib/testConnection"; // MongoDB connection utility
 import Platter from "../../models/Platter"; // Platter model
+import { ensureCloudinaryUrl } from "@/lib/cloudinary";
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method === "POST") {
@@ -20,11 +21,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         isVisible
       } = req.body;
 
-      // Validate image format (base64 check)
-      const validBase64Regex = /^data:image\/(png|jpg|jpeg|gif);base64,/;
-      if (!validBase64Regex.test(image)) {
-        return res.status(400).json({ message: "Invalid image format" });
+      // Validate image presence
+      if (!image) {
+        return res.status(400).json({ message: "Image is required" });
       }
+
+      // Ensure image is saved as Cloudinary URL
+      const imageUrl = await ensureCloudinaryUrl(image, "cafe-little-karachi/platters");
 
       // Validate additional choices (optional, but ensure proper structure)
       if (additionalChoices && !Array.isArray(additionalChoices)) {
@@ -36,7 +39,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         title,
         description,
         basePrice,
-        image,
+        image: imageUrl,
         categories,
         platterCategory,
         additionalChoices, // Include additionalChoices

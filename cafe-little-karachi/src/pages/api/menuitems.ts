@@ -2,6 +2,7 @@ import { NextApiRequest, NextApiResponse } from "next";
 import { v4 as uuidv4 } from "uuid";  // Import UUID
 import testMongoConnection from "../../lib/testConnection";
 import MenuItem from "../../models/MenuItem";
+import { ensureCloudinaryUrl } from "@/lib/cloudinary";
 
 // Define an interface for the variation
 interface Variation {
@@ -22,8 +23,11 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
     }
 
     try {
+      // Ensure image is uploaded to Cloudinary
+      const imageUrl = await ensureCloudinaryUrl(image, "cafe-little-karachi/menu_items");
+
       // Generate UUIDs for variations
-      const variationsWithUUID = variations.map((variation: Variation) => ({
+      const variationsWithUUID = (variations || []).map((variation: Variation) => ({
         ...variation,  // Keep existing properties
         id: uuidv4(),  // Add UUID for each variation
       }));
@@ -32,7 +36,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
         title,
         price,
         description,
-        image,
+        image: imageUrl,
         variations: variationsWithUUID, // Use the updated variations
         category,
         discountType,

@@ -64,6 +64,7 @@ const EditMenuItemForm: React.FC<EditMenuItemFormProps> = ({
   });
 
   const [loading, setLoading] = useState(false);
+  const [imageUploading, setImageUploading] = useState(false);
   const [availableCategories, setAvailableCategories] = useState<{ _id: string, name: string }[]>([]);
   const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
 
@@ -91,15 +92,33 @@ const EditMenuItemForm: React.FC<EditMenuItemFormProps> = ({
     setFormData({ ...formData, [name]: value });
   };
 
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0] || null;
+    if (!file) return;
 
-    if (file) {
+    setImageUploading(true);
+    try {
       const reader = new FileReader();
-      reader.onloadend = () => {
-        setFormData({ ...formData, image: reader.result as string });
-      };
-      reader.readAsDataURL(file);
+      const base64 = await new Promise<string>((resolve) => {
+        reader.onloadend = () => resolve(reader.result as string);
+        reader.readAsDataURL(file);
+      });
+
+      const res = await fetch('/api/upload', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ image: base64, folder: 'cafe-little-karachi/menu_items' }),
+      });
+
+      if (!res.ok) throw new Error('Upload failed');
+      const data = await res.json();
+      setFormData({ ...formData, image: data.url });
+      toast.success('Image uploaded to Cloudinary!');
+    } catch (err) {
+      console.error('Image upload error:', err);
+      toast.error('Failed to upload image. Please try again.');
+    } finally {
+      setImageUploading(false);
     }
   };
 
@@ -403,11 +422,19 @@ const EditMenuItemForm: React.FC<EditMenuItemFormProps> = ({
                           type="file"
                           accept="image/*"
                           onChange={handleImageUpload}
+                          disabled={imageUploading}
                           className="file:bg-gradient-to-r file:from-[#741052] file:to-[#d0269b] file:text-white file:border-0 file:rounded-lg file:px-4 file:py-2 file:mr-4 file:font-semibold hover:file:opacity-90"
                         />
-                        <p className="text-xs text-gray-500 mt-1">
-                          Upload a high-quality image for better presentation
-                        </p>
+                        {imageUploading ? (
+                          <p className="text-xs text-[#741052] mt-1 flex items-center gap-1">
+                            <span className="animate-spin inline-block w-3 h-3 border-2 border-t-transparent border-[#741052] rounded-full" />
+                            Uploading to Cloudinary...
+                          </p>
+                        ) : (
+                          <p className="text-xs text-gray-500 mt-1">
+                            Upload a high-quality image for better presentation
+                          </p>
+                        )}
                       </div>
                     </div>
 

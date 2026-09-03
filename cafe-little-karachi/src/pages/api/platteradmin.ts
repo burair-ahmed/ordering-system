@@ -1,18 +1,21 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import testMongoConnection from '../../lib/testConnection'; // Import the testMongoConnection function
 import Platter from '../../models/Platter'; // Assuming you have a Platter model in the models folder
+import { ensureCloudinaryUrl } from '@/lib/cloudinary';
 
 const handler = async (req: NextApiRequest, res: NextApiResponse) => {
   try {
-    // Establish the MongoDB connection but don't store it if not needed
-    await testMongoConnection(); // Only call the function if you need to test the connection
+    await testMongoConnection();
 
-    // Perform different actions based on the HTTP method
     if (req.method === 'GET') {
       const platters = await Platter.find();
       res.status(200).json(platters);
     } else if (req.method === 'POST') {
-      const newPlatter = new Platter(req.body);
+      const body = req.body;
+      if (body.image) {
+        body.image = await ensureCloudinaryUrl(body.image, "cafe-little-karachi/platters");
+      }
+      const newPlatter = new Platter(body);
       await newPlatter.save();
       res.status(201).json(newPlatter);
     } else {

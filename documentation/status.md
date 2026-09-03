@@ -6,7 +6,7 @@ tags:
   - #project/ordering-ecosystem
 created: 2026-08-28
 last_updated: 2026-09-03
-overall_completion: "Phases 1–3 Complete; Phase 4 In Progress; CLK Optimization Complete (0 Anti-Patterns)"
+overall_completion: "Phases 1–3 Complete; Phase 4 In Progress (Cloudinary migration done); CLK Table Management next"
 active_phase: "Phase 4: Advanced Features — Platters, Dine-In & Table Management"
 ---
 
@@ -61,6 +61,15 @@ active_phase: "Phase 4: Advanced Features — Platters, Dine-In & Table Manageme
 - [x] `Platter` Mongoose schema with base price + configurable slots.
 - [x] Admin `PlatterForm` — define slots, allowed items, upgrade pricing.
 - [x] Customer `PlatterCustomizer` — fill slots from allowed item lists.
+
+#### Cloudinary Image Migration (CLK) ✅ COMPLETED
+- [x] Audited DB — found 5 base64 images (1 MenuItem, 4 Platters).
+- [x] Migrated all 5 records to Cloudinary URLs via migration script.
+- [x] Verified 0 base64 images remain in `MenuItem` and `Platter` collections.
+- [x] `ensureCloudinaryUrl` helper added to `src/lib/cloudinary.ts`.
+- [x] `/api/upload` updated to accept dynamic `folder` parameter.
+- [x] All write APIs patched: `menuitems`, `updateItem`, `createPlatter`, `updatePlatter`, `platteradmin`, `platter`.
+- [x] All admin UI forms patched: `MenuItemForm`, `EditMenuItemForm`, `AddPlatterForm`, `EditPlatterForm` — images go to Cloudinary on file select, never base64 to DB.
 
 #### Table Management (CLK) 🔄 IN PROGRESS
 - [x] `Table` Mongoose schema defined (`number`, `capacity`, `status`).

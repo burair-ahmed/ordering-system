@@ -151,6 +151,7 @@ const EditPlatterForm: React.FC<EditPlatterFormProps> = ({ item, onClose, onUpda
   });
 
   const [loading, setLoading] = useState(false);
+  const [imageUploading, setImageUploading] = useState(false);
 
   // Computed properties for backward compatibility with existing UI
   const categories = useMemo(() =>
@@ -213,14 +214,33 @@ const EditPlatterForm: React.FC<EditPlatterFormProps> = ({ item, onClose, onUpda
     setFormData({ ...formData, [name]: value });
   };
 
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0] || null;
-    if (file) {
+    if (!file) return;
+
+    setImageUploading(true);
+    try {
       const reader = new FileReader();
-      reader.onloadend = () => {
-        setFormData({ ...formData, image: reader.result as string });
-      };
-      reader.readAsDataURL(file);
+      const base64 = await new Promise<string>((resolve) => {
+        reader.onloadend = () => resolve(reader.result as string);
+        reader.readAsDataURL(file);
+      });
+
+      const res = await fetch('/api/upload', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ image: base64, folder: 'cafe-little-karachi/platters' }),
+      });
+
+      if (!res.ok) throw new Error('Upload failed');
+      const data = await res.json();
+      setFormData({ ...formData, image: data.url });
+      toast.success('Image uploaded to Cloudinary!');
+    } catch (err) {
+      console.error('Image upload error:', err);
+      toast.error('Failed to upload image. Please try again.');
+    } finally {
+      setImageUploading(false);
     }
   };
 
@@ -548,8 +568,15 @@ const EditPlatterForm: React.FC<EditPlatterFormProps> = ({ item, onClose, onUpda
                 type="file"
                 accept="image/*"
                 onChange={handleImageUpload}
+                disabled={imageUploading}
                 className="w-full border border-gray-300 dark:border-gray-700 rounded-lg px-4 py-2 focus:ring-2 focus:ring-[#741052] focus:outline-none"
               />
+              {imageUploading && (
+                <p className="text-xs text-[#741052] mt-1 flex items-center gap-1">
+                  <span className="animate-spin inline-block w-3 h-3 border-2 border-t-transparent border-[#741052] rounded-full" />
+                  Uploading to Cloudinary...
+                </p>
+              )}
             </div>
 
             <div>

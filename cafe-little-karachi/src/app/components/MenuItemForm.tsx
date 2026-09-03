@@ -47,6 +47,8 @@ const AddMenuItemForm = () => {
     isVisible: true,
   });
 
+  const [imageUploading, setImageUploading] = useState(false);
+
   // Computed properties for backward compatibility
   const enableVariations = variationConfig.simpleVariations && variationConfig.simpleVariations.length > 0;
   const variations = variationConfig.simpleVariations || [];
@@ -76,17 +78,33 @@ const AddMenuItemForm = () => {
     }));
   };
 
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0] || null;
-    if (file) {
+    if (!file) return;
+
+    setImageUploading(true);
+    try {
       const reader = new FileReader();
-      reader.onloadend = () => {
-        setFormData((prev) => ({
-          ...prev,
-          image: reader.result as string,
-        }));
-      };
-      reader.readAsDataURL(file);
+      const base64 = await new Promise<string>((resolve) => {
+        reader.onloadend = () => resolve(reader.result as string);
+        reader.readAsDataURL(file);
+      });
+
+      const res = await fetch('/api/upload', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ image: base64, folder: 'cafe-little-karachi/menu_items' }),
+      });
+
+      if (!res.ok) throw new Error('Upload failed');
+      const data = await res.json();
+      setFormData((prev) => ({ ...prev, image: data.url }));
+      toast.success('Image uploaded to Cloudinary!');
+    } catch (err) {
+      console.error('Image upload error:', err);
+      toast.error('Failed to upload image. Please try again.');
+    } finally {
+      setImageUploading(false);
     }
   };
 
@@ -370,10 +388,14 @@ const AddMenuItemForm = () => {
                     type="button"
                     variant="outline"
                     onClick={() => document.getElementById('image')?.click()}
+                    disabled={imageUploading}
                     className="w-full h-12 border-2 border-dashed border-gray-300 hover:border-[#741052] transition-colors flex items-center gap-2"
                   >
-                    <Upload className="h-4 w-4" />
-                    {formData.image ? 'Change Image' : 'Upload Image'}
+                    {imageUploading ? (
+                      <><div className="animate-spin rounded-full h-4 w-4 border-2 border-t-transparent border-[#741052]" /> Uploading...</>
+                    ) : (
+                      <><Upload className="h-4 w-4" />{formData.image ? 'Change Image' : 'Upload Image'}</>
+                    )}
                   </Button>
                 </div>
               </div>

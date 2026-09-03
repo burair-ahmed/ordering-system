@@ -1,10 +1,10 @@
 import { NextApiRequest, NextApiResponse } from "next";
-import cloudinary from "@/lib/cloudinary";
+import { getCloudinary } from "@/lib/cloudinary";
 
 export const config = {
   api: {
     bodyParser: {
-      sizeLimit: "50mb", // Allow up to 50MB images
+      sizeLimit: "50mb",
     },
   },
 };
@@ -16,14 +16,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
 
   try {
-    const { image } = req.body;
+    const { image, folder } = req.body;
     if (!image) {
       return res.status(400).json({ error: "Image data is required" });
     }
 
-    // Upload to Cloudinary under the banners folder
+    const cloudinary = getCloudinary();
     const result = await cloudinary.uploader.upload(image, {
-      folder: "cafe-little-karachi/banners",
+      folder: folder || "cafe-little-karachi/banners",
     });
 
     return res.status(200).json({ url: result.secure_url });
@@ -35,3 +35,4 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     });
   }
 }
+

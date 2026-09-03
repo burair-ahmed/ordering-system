@@ -1,6 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import Platter from '../../models/Platter';
 import testMongoConnection from '../../lib/testConnection';
+import { ensureCloudinaryUrl } from '@/lib/cloudinary';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method === 'PUT') {
@@ -26,9 +27,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
       await testMongoConnection();
 
+      const imageUrl = await ensureCloudinaryUrl(image, "cafe-little-karachi/platters");
+
       const platter = await Platter.findOneAndUpdate(
         { _id: id }, // Use _id if your schema uses MongoDB's default ObjectId
-        { title, description, basePrice, platterCategory, image, categories, additionalChoices, status, discountType, discountValue, isVisible },
+        { title, description, basePrice, platterCategory, image: imageUrl, categories, additionalChoices, status, discountType, discountValue, isVisible },
         { new: true }
       );
 

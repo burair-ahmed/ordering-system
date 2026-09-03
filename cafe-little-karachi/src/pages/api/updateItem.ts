@@ -1,6 +1,7 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import testMongoConnection from '../../lib/testConnection'; // Import your database connection helper
 import MenuItem from '../../models/MenuItem'; // Replace with your menu item model
+import { ensureCloudinaryUrl } from '@/lib/cloudinary';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   await testMongoConnection(); // Ensure the database is connected
@@ -13,9 +14,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     }
 
     try {
+      const imageUrl = await ensureCloudinaryUrl(image, "cafe-little-karachi/menu_items");
+
       const updatedItem = await MenuItem.findByIdAndUpdate(
         id,
-        { title, description, price, category, variations, image, status, discountType, discountValue, isVisible },
+        { title, description, price, category, variations, image: imageUrl, status, discountType, discountValue, isVisible },
         { new: true } // Return the updated document
       );
 

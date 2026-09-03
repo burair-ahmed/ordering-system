@@ -5,7 +5,7 @@ tags:
   - #status/active
   - #project/ordering-ecosystem
 created: 2026-08-28
-last_updated: 2026-08-28
+last_updated: 2026-09-03
 ---
 
 # Living Project Memory & Task Tracker — Advanced Ordering Ecosystem
@@ -48,6 +48,7 @@ last_updated: 2026-08-28
 - [x] Analytics dashboard: orders per day chart, top items by revenue, avg order value.
 - [x] PostHog cart funnel integration.
 - [x] Twilio WhatsApp notification on order acceptance (fire-and-forget).
+- [x] **Cloudinary Image Migration (CLK)**: Audited DB, migrated 5 base64 images to Cloudinary, patched all write APIs (`menuitems`, `updateItem`, `createPlatter`, `updatePlatter`, `platteradmin`, `platter`) and all admin UI forms (`MenuItemForm`, `EditMenuItemForm`, `AddPlatterForm`, `EditPlatterForm`) to upload directly to Cloudinary via `/api/upload`. Zero base64 images remain in DB.
 - [x] Platter schema + admin `PlatterForm` + customer `PlatterCustomizer` (TCC).
 - [x] `Table` Mongoose schema (`number`, `capacity`, `status`).
 

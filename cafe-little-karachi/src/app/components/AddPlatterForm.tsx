@@ -81,6 +81,7 @@ const AddPlatterForm = () => {
   const [description, setDescription] = useState("");
   const [basePrice, setBasePrice] = useState<number>(0);
   const [image, setImage] = useState<string | null>(null);
+  const [imageUploading, setImageUploading] = useState(false);
   const [platterCategory, setPlatterCategory] = useState("");
   const [discountType, setDiscountType] = useState<'percentage' | 'fixed'>('percentage');
   const [discountValue, setDiscountValue] = useState<number | ''>('');
@@ -203,14 +204,33 @@ const AddPlatterForm = () => {
     }));
   };
 
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0] || null;
-    if (file) {
+    if (!file) return;
+
+    setImageUploading(true);
+    try {
       const reader = new FileReader();
-      reader.onloadend = () => {
-        setImage(reader.result as string);
-      };
-      reader.readAsDataURL(file);
+      const base64 = await new Promise<string>((resolve) => {
+        reader.onloadend = () => resolve(reader.result as string);
+        reader.readAsDataURL(file);
+      });
+
+      const res = await fetch('/api/upload', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ image: base64, folder: 'cafe-little-karachi/platters' }),
+      });
+
+      if (!res.ok) throw new Error('Upload failed');
+      const data = await res.json();
+      setImage(data.url);
+      toast.success('Image uploaded to Cloudinary!');
+    } catch (err) {
+      console.error('Image upload error:', err);
+      toast.error('Failed to upload image. Please try again.');
+    } finally {
+      setImageUploading(false);
     }
   };
 
@@ -547,10 +567,14 @@ const AddPlatterForm = () => {
                     type="button"
                     variant="outline"
                     onClick={() => document.getElementById('image')?.click()}
+                    disabled={imageUploading}
                     className="w-full h-12 border-2 border-dashed border-gray-300 hover:border-[#741052] transition-colors flex items-center gap-2"
                   >
-                    <Upload className="h-4 w-4" />
-                    {image ? 'Change Image' : 'Upload Image'}
+                    {imageUploading ? (
+                      <><div className="animate-spin rounded-full h-4 w-4 border-2 border-t-transparent border-[#741052]" /> Uploading...</>
+                    ) : (
+                      <><Upload className="h-4 w-4" />{image ? 'Change Image' : 'Upload Image'}</>
+                    )}
                   </Button>
                 </div>
               </div>
