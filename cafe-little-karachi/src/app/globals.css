@@ -102,7 +102,7 @@ blockquote {
   font-style: italic;
   margin: 1.5rem 0;
   padding-left: 20px;
-  border-left: 4px solid #741052;
+  border-left: 1px solid rgba(116, 16, 82, 0.3);
 }
 
 /* Code blocks and inline code */
@@ -299,17 +299,14 @@ div, span, section, article {
 }
 
 .sidebar {
-  transition: width 0.3s ease;
+  transition: transform 0.3s ease;
 }
 .sidebar-collapsed .nav-label {
   display: none;
 }
 
 
-
-
 body {
-  font-family: Arial, Helvetica, sans-serif;
   /* margin-bottom: 5em; */
 }
 

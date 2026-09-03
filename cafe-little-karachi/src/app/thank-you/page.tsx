@@ -261,7 +261,7 @@ const ThankYouPage: FC = () => {
             : 'Your Table Order Number:'}
         </p>
 
-        <p className="text-2xl font-bold bg-gradient-to-r from-[#741052] to-[#d0269b] bg-clip-text text-transparent">
+        <p className="text-2xl font-bold text-[#741052]">
           <TypeAnimation sequence={[orderNumber]} speed={50} wrapper="span" repeat={0} />
         </p>
 
@@ -670,7 +670,7 @@ const ThankYouPage: FC = () => {
                 <div className="w-24 h-24 mx-auto mb-4">
                   <Lottie animationData={successAnimation} loop={!prefersReducedMotion} />
                 </div>
-                <h1 className="text-4xl font-bold bg-gradient-to-r from-[#741052] to-[#d0269b] bg-clip-text text-transparent mb-2">
+                <h1 className="text-4xl font-bold text-[#741052] mb-2">
                   Order Confirmed!
                 </h1>
                 <p className="text-gray-600 text-lg">Your delicious order has been received successfully</p>

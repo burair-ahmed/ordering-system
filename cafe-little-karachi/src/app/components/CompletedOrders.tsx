@@ -751,7 +751,10 @@ const CompletedOrders: FC = () => {
                         size="icon"
                         variant="ghost"
                         onClick={() => handleDeleteOrder(order.orderNumber)}
-                        className="text-neutral-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/20 h-9 w-9 rounded-xl shrink-0"
+                        className={
+                          "text-neutral-600 dark:text-neutral-300 h-9 w-9 rounded-xl shrink-0 " +
+                          "hover:text-rose-600 hover:bg-rose-500/10"
+                        }
                         title="Delete permanently"
                       >
                         <Trash2 size={15} />

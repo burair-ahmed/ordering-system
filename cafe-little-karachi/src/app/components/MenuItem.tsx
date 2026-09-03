@@ -189,7 +189,7 @@ const MenuItem: FC<MenuItemProps> = ({ item, cardStyle = 'gourmet' }) => {
 
               <div className="flex items-center justify-between mt-2">
                 <div className="flex items-center gap-1.5">
-                  <p className="font-bold text-sm sm:text-base bg-gradient-to-r from-[#741052] to-[#d0269b] text-transparent bg-clip-text">
+                  <p className="font-bold text-sm sm:text-base text-[#741052]">
                     Rs.{basePrice.toFixed(2)}
                   </p>
                   {item.discountValue !== undefined && item.discountValue > 0 && (
@@ -237,7 +237,7 @@ const MenuItem: FC<MenuItemProps> = ({ item, cardStyle = 'gourmet' }) => {
                 }`}
                 width={450}
                 height={160}
-                unoptimized={true}
+                sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
               />
             </div>
 
@@ -259,7 +259,7 @@ const MenuItem: FC<MenuItemProps> = ({ item, cardStyle = 'gourmet' }) => {
 
             {/* Price */}
             <div className="flex items-center gap-1.5 mt-auto">
-              <p className={`font-bold bg-gradient-to-r from-[#741052] to-[#d0269b] text-transparent bg-clip-text ${
+              <p className={`font-bold text-[#741052] ${
                 cardStyle === 'minimal' ? 'text-sm' : cardStyle === 'compact' ? 'text-base' : 'text-lg'
               }`}>
                 Rs.{basePrice.toFixed(2)}
@@ -337,7 +337,7 @@ const MenuItem: FC<MenuItemProps> = ({ item, cardStyle = 'gourmet' }) => {
                   className="rounded-xl object-cover w-full h-[350px]"
                   width={356}
                   height={350}
-                  unoptimized={true}
+                  sizes="(max-width: 768px) 100vw, 50vw"
                 />
               </motion.div>
 
@@ -354,7 +354,7 @@ const MenuItem: FC<MenuItemProps> = ({ item, cardStyle = 'gourmet' }) => {
                 <p className="text-gray-600 mt-3">{item.description}</p>
 
                 <div className="flex items-center gap-3 mt-4">
-                  <p className="text-xl font-bold bg-gradient-to-r from-[#741052] to-[#d0269b] text-transparent bg-clip-text">
+                  <p className="text-xl font-bold text-[#741052]">
                     Rs.{totalPrice.toFixed(2)}
                   </p>
                   {item.discountValue !== undefined && item.discountValue > 0 && selections.simple === null && (

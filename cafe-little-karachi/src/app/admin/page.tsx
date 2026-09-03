@@ -344,7 +344,10 @@ const AdminDashboard: FC = () => {
             <Button 
               variant="ghost" 
               onClick={handleLogout}
-              className="w-full justify-start gap-3 rounded-xl hover:bg-rose-50 hover:text-rose-600 dark:hover:bg-rose-950/20 text-neutral-500 px-3 h-11"
+              className={
+                "w-full justify-start gap-3 rounded-xl text-neutral-600 dark:text-neutral-300 px-3 h-11 " +
+                "hover:text-rose-600 hover:bg-rose-500/10"
+              }
             >
               <LogOut className="h-4.5 w-4.5 text-neutral-400 shrink-0 group-hover:text-rose-500" />
               {!isSidebarCollapsed && <span className="text-xs font-bold uppercase tracking-wider">Lock Workspace</span>}

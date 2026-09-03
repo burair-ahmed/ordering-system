@@ -245,14 +245,14 @@ const SelectInput = ({ value, onChange, children, className = "" }: {
 
 const getSectionTheme = (type: string) => {
   switch (type) {
-    case 'hero': return { border: 'border-l-4 border-pink-500', bg: 'bg-pink-500/10 text-pink-600 dark:bg-pink-500/20 dark:text-pink-400', label: 'Hero Banner' };
-    case 'banner': return { border: 'border-l-4 border-fuchsia-500', bg: 'bg-fuchsia-500/10 text-fuchsia-600 dark:bg-fuchsia-500/20 dark:text-fuchsia-400', label: 'Promo Banner' };
-    case 'rich-content': return { border: 'border-l-4 border-indigo-500', bg: 'bg-indigo-500/10 text-indigo-600 dark:bg-indigo-500/20 dark:text-indigo-400', label: 'Story Row' };
-    case 'testimonials': return { border: 'border-l-4 border-amber-500', bg: 'bg-amber-500/10 text-amber-600 dark:bg-amber-500/20 dark:text-amber-400', label: 'Reviews' };
-    case 'divider': return { border: 'border-l-4 border-slate-400', bg: 'bg-slate-500/10 text-slate-600 dark:bg-slate-500/20 dark:text-slate-400', label: 'Spacer Divider' };
-    case 'slider': return { border: 'border-l-4 border-violet-500', bg: 'bg-violet-500/10 text-violet-600 dark:bg-violet-500/20 dark:text-violet-400', label: 'Category Slider' };
-    case 'grid': return { border: 'border-l-4 border-purple-500', bg: 'bg-purple-500/10 text-purple-600 dark:bg-purple-500/20 dark:text-purple-400', label: 'Product Grid' };
-    default: return { border: 'border-l-4 border-neutral-400', bg: 'bg-neutral-500/10 text-neutral-600 dark:bg-neutral-500/20 dark:text-neutral-400', label: 'Section' };
+    case 'hero': return { border: 'border border-pink-500/30', bg: 'bg-pink-500/10 text-pink-600 dark:bg-pink-500/20 dark:text-pink-400', label: 'Hero Banner' };
+    case 'banner': return { border: 'border border-fuchsia-500/30', bg: 'bg-fuchsia-500/10 text-fuchsia-600 dark:bg-fuchsia-500/20 dark:text-fuchsia-400', label: 'Promo Banner' };
+    case 'rich-content': return { border: 'border border-indigo-500/30', bg: 'bg-indigo-500/10 text-indigo-600 dark:bg-indigo-500/20 dark:text-indigo-400', label: 'Story Row' };
+    case 'testimonials': return { border: 'border border-amber-500/30', bg: 'bg-amber-500/10 text-amber-600 dark:bg-amber-500/20 dark:text-amber-400', label: 'Reviews' };
+    case 'divider': return { border: 'border border-slate-400/30', bg: 'bg-slate-500/10 text-slate-600 dark:bg-slate-500/20 dark:text-slate-400', label: 'Spacer Divider' };
+    case 'slider': return { border: 'border border-violet-500/30', bg: 'bg-violet-500/10 text-violet-600 dark:bg-violet-500/20 dark:text-violet-400', label: 'Category Slider' };
+    case 'grid': return { border: 'border border-purple-500/30', bg: 'bg-purple-500/10 text-purple-600 dark:bg-purple-500/20 dark:text-purple-400', label: 'Product Grid' };
+    default: return { border: 'border border-neutral-400/30', bg: 'bg-neutral-500/10 text-neutral-600 dark:bg-neutral-500/20 dark:text-neutral-400', label: 'Section' };
   }
 };
 

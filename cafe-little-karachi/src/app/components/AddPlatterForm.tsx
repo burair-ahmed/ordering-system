@@ -428,7 +428,7 @@ const AddPlatterForm = () => {
           <div className="w-16 h-16 bg-gradient-to-r from-[#741052] to-[#d0269b] rounded-2xl flex items-center justify-center mx-auto mb-4">
             <Plus className="h-8 w-8 text-white" />
           </div>
-          <h1 className="text-3xl font-bold bg-gradient-to-r from-[#741052] to-[#d0269b] bg-clip-text text-transparent mb-2">
+          <h1 className="text-3xl font-bold text-[#741052] mb-2">
             Add New Platter
           </h1>
           <p className="text-gray-600">Create a beautiful platter combination for your customers</p>

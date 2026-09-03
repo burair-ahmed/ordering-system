@@ -129,7 +129,7 @@ const BehavioralAnalytics: FC = () => {
       {/* HEADER SECTION */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-neutral-200/55 dark:border-neutral-800/60 pb-6">
         <div>
-          <h2 className="text-2xl font-bold bg-gradient-to-r from-[#741052] to-[#d0269b] bg-clip-text text-transparent flex items-center gap-2">
+          <h2 className="text-2xl font-bold text-[#741052] dark:text-fuchsia-400 flex items-center gap-2">
             <Sparkles className="h-6 w-6 text-[#741052]" />
             Customer Journey & Behavioral Insights
           </h2>
@@ -202,7 +202,7 @@ const BehavioralAnalytics: FC = () => {
         {/* Card 2: Total Events */}
         <motion.div whileHover={{ y: -4 }} transition={{ duration: 0.2 }}>
           <Card className="relative overflow-hidden border border-neutral-200/50 dark:border-neutral-800/80 bg-white/70 dark:bg-neutral-900/60 backdrop-blur-xl shadow-md rounded-3xl group">
-            <div className="absolute top-0 right-0 -mr-4 -mt-4 w-24 h-24 bg-gradient-to-br from-indigo-500/10 to-cyan-500/10 rounded-full blur-2xl group-hover:scale-125 transition-all"></div>
+            <div className="absolute top-0 right-0 -mr-4 -mt-4 w-24 h-24 bg-gradient-to-br from-[#741052]/10 to-[#d0269b]/10 rounded-full blur-2xl group-hover:scale-125 transition-all"></div>
             <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
               <CardTitle className="text-xs font-bold uppercase tracking-wider text-neutral-400 dark:text-neutral-500">
                 Logged Interactions

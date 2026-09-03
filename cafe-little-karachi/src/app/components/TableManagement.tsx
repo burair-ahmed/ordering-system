@@ -394,19 +394,31 @@ export default function TableManagement() {
                 </button>
                 <button
                   onClick={() => setStatusFilter('empty')}
-                  className={`px-3 py-2 rounded-full text-sm font-medium transition-colors ${statusFilter === 'empty' ? 'bg-green-600 text-white' : 'bg-white/60 dark:bg-neutral-800/60 text-neutral-800 dark:text-neutral-200 hover:bg-white/80 dark:hover:bg-neutral-700 border border-neutral-200/60 dark:border-neutral-800'}`}
+                  className={
+                    statusFilter === 'empty'
+                      ? 'px-3 py-2 rounded-full text-sm font-medium transition-colors bg-emerald-600 text-white'
+                      : 'px-3 py-2 rounded-full text-sm font-medium transition-colors bg-neutral-100 dark:bg-neutral-800 text-slate-700 dark:text-slate-200'
+                  }
                 >
                   Empty
                 </button>
                 <button
                   onClick={() => setStatusFilter('reserved')}
-                  className={`px-3 py-2 rounded-full text-sm font-medium transition-colors ${statusFilter === 'reserved' ? 'bg-yellow-600 text-white' : 'bg-white/60 dark:bg-neutral-800/60 text-neutral-800 dark:text-neutral-200 hover:bg-white/80 dark:hover:bg-neutral-700 border border-neutral-200/60 dark:border-neutral-800'}`}
+                  className={
+                    statusFilter === 'reserved'
+                      ? 'px-3 py-2 rounded-full text-sm font-medium transition-colors bg-amber-600 text-white'
+                      : 'px-3 py-2 rounded-full text-sm font-medium transition-colors bg-neutral-100 dark:bg-neutral-800 text-slate-700 dark:text-slate-200'
+                  }
                 >
                   Reserved
                 </button>
                 <button
                   onClick={() => setStatusFilter('occupied')}
-                  className={`px-3 py-2 rounded-full text-sm font-medium transition-colors ${statusFilter === 'occupied' ? 'bg-red-600 text-white' : 'bg-white/60 dark:bg-neutral-800/60 text-neutral-800 dark:text-neutral-200 hover:bg-white/80 dark:hover:bg-neutral-700 border border-neutral-200/60 dark:border-neutral-800'}`}
+                  className={
+                    statusFilter === 'occupied'
+                      ? 'px-3 py-2 rounded-full text-sm font-medium transition-colors bg-rose-600 text-white'
+                      : 'px-3 py-2 rounded-full text-sm font-medium transition-colors bg-neutral-100 dark:bg-neutral-800 text-slate-700 dark:text-slate-200'
+                  }
                 >
                   Occupied
                 </button>

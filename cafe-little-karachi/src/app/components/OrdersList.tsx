@@ -534,7 +534,7 @@ const toggleExpand = (orderNumber: string) => {
                   {/* Footer */}
                   <div className="mt-4 flex justify-between items-center border-t border-white/10 pt-3 gap-2">
                     <p
-                      className="text-lg font-bold bg-clip-text text-transparent bg-gradient-to-r from-[#741052] to-pink-600"
+                      className="text-lg font-bold text-[#741052] dark:text-fuchsia-400"
                     >
                       Rs. {order.totalAmount}
                     </p>
@@ -763,7 +763,7 @@ const toggleExpand = (orderNumber: string) => {
                 </div>
 
                 {/* Order Items */}
-                <div className="bg-gradient-to-br from-purple-50 to-purple-100/30 dark:from-purple-950/20 dark:to-purple-900/10 rounded-2xl p-5 border border-purple-200 dark:border-purple-900/40">
+                <div className="bg-neutral-50 dark:bg-neutral-900/40 rounded-2xl p-5 border border-neutral-200 dark:border-neutral-800">
                   <h3 className="text-lg font-bold text-[#741052] dark:text-fuchsia-400 mb-4 flex items-center gap-2">
                     <Box className="h-5 w-5" />
                     Order Items ({selectedOrder.items.length})
@@ -806,7 +806,7 @@ const toggleExpand = (orderNumber: string) => {
                   <div className="mt-4 pt-4 border-t border-purple-200 dark:border-purple-900/40">
                     <div className="flex justify-between items-center">
                       <span className="text-base font-bold text-neutral-800 dark:text-neutral-200">Total Amount:</span>
-                      <span className="text-2xl font-black bg-gradient-to-r from-[#741052] to-[#d0269b] bg-clip-text text-transparent">
+                      <span className="text-2xl font-black text-[#741052] dark:text-fuchsia-400">
                         Rs. {selectedOrder.totalAmount.toFixed(2)}
                       </span>
                     </div>
@@ -824,7 +824,7 @@ const toggleExpand = (orderNumber: string) => {
                     <h3 className="text-lg font-bold text-[#741052] dark:text-fuchsia-400 mb-4">Customer Feedback</h3>
                     {loadingDetail ? (
                       <div className="flex items-center justify-center py-8">
-                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#741052]"></div>
+                        <div className="animate-spin rounded-full h-8 w-8 border-2 border-t-transparent border-[#741052]"></div>
                       </div>
                     ) : feedbackList.length === 0 ? (
                       <div className="text-center py-8">
@@ -864,7 +864,7 @@ const toggleExpand = (orderNumber: string) => {
                     <h3 className="text-lg font-bold text-[#741052] dark:text-fuchsia-400 mb-4">Notification Preferences</h3>
                     {loadingDetail ? (
                       <div className="flex items-center justify-center py-8">
-                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#741052]"></div>
+                        <div className="animate-spin rounded-full h-8 w-8 border-2 border-t-transparent border-[#741052]"></div>
                       </div>
                     ) : consents.length === 0 ? (
                       <div className="text-center py-8">

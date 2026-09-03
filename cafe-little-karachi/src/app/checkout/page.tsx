@@ -602,7 +602,7 @@ ${items
                 <div className="w-16 h-16 bg-gradient-to-r from-[#741052] to-[#d0269b] rounded-2xl flex items-center justify-center mx-auto mb-4">
                   <ShoppingCart className="h-8 w-8 text-white" />
                 </div>
-                <h1 className="text-4xl font-bold bg-gradient-to-r from-[#741052] to-[#d0269b] bg-clip-text text-transparent mb-2">
+                <h1 className="text-4xl font-bold text-[#741052] mb-2">
                   Secure Checkout
                 </h1>
                 <p className="text-gray-600 text-lg">Complete your order with confidence</p>
@@ -1029,7 +1029,7 @@ ${items
                     <div className="border-t border-gray-300 pt-3">
                       <div className="flex justify-between text-lg font-bold">
                         <span className="text-gray-900">Total Amount</span>
-                        <span className="bg-gradient-to-r from-[#741052] to-[#d0269b] bg-clip-text text-transparent">
+                        <span className="text-[#741052]">
                           Rs. {finalAmount.toFixed(2)}
                         </span>
                       </div>
@@ -1228,7 +1228,7 @@ ${items
                             <div className="border-t border-gray-200 pt-4">
                               <div className="flex justify-between text-xl font-bold">
                                 <span>Total Amount:</span>
-                                <span className="bg-gradient-to-r from-[#741052] to-[#d0269b] bg-clip-text text-transparent">
+                                <span className="text-[#741052]">
                                   Rs. {finalAmount.toFixed(2)}
                                 </span>
                               </div>
@@ -1275,7 +1275,7 @@ ${items
                         >
                           {isProcessing ? (
                             <>
-                              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                              <div className="animate-spin rounded-full h-4 w-4 border-2 border-t-transparent border-white mr-2"></div>
                               Placing Order...
                             </>
                           ) : (

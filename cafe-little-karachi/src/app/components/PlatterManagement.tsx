@@ -378,7 +378,10 @@ export default function PlatterManagement({ platterItems, loading, refreshData, 
                           variant="ghost"
                           disabled={togglingId === item._id}
                           onClick={() => toggleVisibility(item)}
-                          className="text-neutral-400 hover:text-fuchsia-600 hover:bg-fuchsia-50 dark:hover:bg-neutral-800 h-8 w-8 rounded-lg shrink-0"
+                          className={
+                            "text-neutral-600 dark:text-neutral-300 h-8 w-8 rounded-lg shrink-0 " +
+                            "hover:text-fuchsia-600 hover:bg-fuchsia-500/10"
+                          }
                           title={item.isVisible !== false ? 'Hide from Menu' : 'Show on Menu'}
                         >
                           {togglingId === item._id ? (
