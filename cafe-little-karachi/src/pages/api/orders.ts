@@ -3,6 +3,7 @@ import mongoose from "mongoose";
 import Order from "../../models/Order";
 import { Server as HTTPServer } from "http";
 import { Server as SocketIOServer } from "socket.io";
+import { isOpenAt } from "../../app/lib/restaurantStatus";
 
 const MONGODB_URI =
   process.env.MONGODB_URI ||
@@ -48,6 +49,13 @@ const generateOrderNumber = async () => {
 
 const ordersHandler = async (req: NextApiRequest, res: NextApiResponse) => {
   if (req.method === "POST") {
+    if (!isOpenAt()) {
+      return res.status(400).json({
+        success: false,
+        message: "Cafe Little Karachi is currently closed. Ordering opens at 6:30 PM.",
+      });
+    }
+
     const {
       customerName,
       email,

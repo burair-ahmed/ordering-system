@@ -1,5 +1,7 @@
 import { FC } from "react";
 import { useCart } from "../context/CartContext"; 
+import { isOpenAt } from "../lib/restaurantStatus";
+import { toast } from "sonner";
 
 interface AddToCartButtonProps {
   id: string;
@@ -7,9 +9,9 @@ interface AddToCartButtonProps {
   price: number;
   image: string;
   selectedVariations: string[] | undefined;
-  onClick: () => void; // Function to trigger the action when clicked
-  className: string; // Accept the class to show/hide text in parent component
-  disabled: boolean; // Add the disabled prop to handle disabled state
+  onClick: () => void;
+  className: string;
+  disabled: boolean;
 }
 
 const AddToCartButton: FC<AddToCartButtonProps> = ({
@@ -18,13 +20,19 @@ const AddToCartButton: FC<AddToCartButtonProps> = ({
   price,
   image,
   selectedVariations = [],
-  onClick, // Handle button click
-  className, // Add class for triggering
-  disabled, // Accept disabled prop
+  onClick,
+  className,
+  disabled,
 }) => {
   const { addToCart } = useCart(); 
+  const isRestaurantOpen = isOpenAt();
 
   const handleAddToCart = () => {
+    if (!isRestaurantOpen) {
+      toast.error("Cafe Little Karachi is currently closed. Ordering opens at 6:30 PM!");
+      return;
+    }
+
     if (!disabled) {
       addToCart({
         id,
@@ -34,21 +42,26 @@ const AddToCartButton: FC<AddToCartButtonProps> = ({
         image, 
         variations: selectedVariations,
       });    
-      onClick(); // Trigger parent action on click
+      onClick();
     }
   };
+
+  const isBtnDisabled = disabled || !isRestaurantOpen;
 
   return (
     <button
       onClick={handleAddToCart}
-        className={`relative overflow-hidden rounded-full px-6 py-2 mt-4 transition-all duration-300 ease-in-out 
-    ${disabled ? "bg-gray-400 cursor-not-allowed" : "bg-gradient-to-r from-[#5c0d40] to-[#8a1c5a] hover:scale-105 hover:shadow-lg"} 
-    ${className}`}
- // Apply disabled styles
-      disabled={disabled} // Disable the button if `disabled` is true
+      className={`relative overflow-hidden rounded-full px-6 py-2 mt-4 transition-all duration-300 ease-in-out ${
+        isBtnDisabled
+          ? "bg-slate-600 cursor-not-allowed opacity-75 text-gray-200"
+          : "bg-gradient-to-r from-[#5c0d40] to-[#8a1c5a] hover:scale-105 hover:shadow-lg text-white"
+      } ${className}`}
+      disabled={disabled}
     >
       <div className="flex items-center gap-2 mx-auto">
-        <h1 className="text-[18px] font-bold text-white">Add to Cart</h1>
+        <h1 className="text-[16px] font-bold">
+          {!isRestaurantOpen ? "Closed (Opens 6:30 PM)" : "Add to Cart"}
+        </h1>
       </div>
     </button>
   );

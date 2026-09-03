@@ -11,6 +11,8 @@ import { useCart } from "../context/CartContext"; // keep your existing context
 import { X } from "lucide-react";
 import { useOrder } from "../context/OrderContext";
 import posthog from 'posthog-js';
+import { isOpenAt } from "../lib/restaurantStatus";
+import { toast } from "sonner";
 
 const BRAND_FROM = "#741052";
 const BRAND_TO = "#d0269b";
@@ -417,23 +419,32 @@ const checkoutUrl =
                       className="relative"
                       key={lastTotal} // pulses when total changes
                     >
-                      <Link
-                        href={checkoutUrl}
-                        className={`inline-flex items-center gap-3 px-4 py-2 rounded-full text-white font-semibold shadow ${BRAND_GRADIENT}`}
-                        onClick={() => {
-                          posthog.capture('journey_start_checkout', {
-                            cart_value: totalAmount,
-                            item_count: itemCount,
-                            order_type: orderType
-                          });
-                          handleClose();
-                        }}
-                      >
-                        <span>Checkout</span>
-                        <span className="text-xs bg-white/20 px-2 py-1 rounded-full hover:text-black">
-                          {itemCount}
-                        </span>
-                      </Link>
+                      {isOpenAt() ? (
+                        <Link
+                          href={checkoutUrl}
+                          className={`inline-flex items-center gap-3 px-4 py-2 rounded-full text-white font-semibold shadow ${BRAND_GRADIENT}`}
+                          onClick={() => {
+                            posthog.capture('journey_start_checkout', {
+                              cart_value: totalAmount,
+                              item_count: itemCount,
+                              order_type: orderType
+                            });
+                            handleClose();
+                          }}
+                        >
+                          <span>Checkout</span>
+                          <span className="text-xs bg-white/20 px-2 py-1 rounded-full hover:text-black">
+                            {itemCount}
+                          </span>
+                        </Link>
+                      ) : (
+                        <button
+                          onClick={() => toast.error("Cafe Little Karachi is currently closed. Ordering opens at 6:30 PM!")}
+                          className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-slate-600 text-gray-200 font-semibold shadow cursor-not-allowed opacity-80 text-xs sm:text-sm"
+                        >
+                          <span>Closed (Opens 6:30 PM)</span>
+                        </button>
+                      )}
                     </motion.div>
                   </motion.div>
                 </div>

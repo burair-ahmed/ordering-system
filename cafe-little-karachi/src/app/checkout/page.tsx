@@ -36,10 +36,12 @@ import {
   DollarSign,
   Calculator,
   Mail,
+  Lock,
 } from "lucide-react";
 import posthog from 'posthog-js';
 import { trackEvent, trackClarityFunnelStep, CLK_FUNNEL_CHECKOUT_STARTED } from "../lib/analytics";
 import { clarityUpgrade } from "../providers/ClarityProvider";
+import { isOpenAt } from "../lib/restaurantStatus";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -162,6 +164,21 @@ const CheckoutPageContent: FC = () => {
 
     setFormData((prev) => ({ ...prev, phone: value }));
   };
+
+  // ── Restaurant-closed guard ──────────────────────────────────────────────
+  // Prevent direct-URL access to /checkout when the restaurant is closed.
+  // The API already blocks order submissions server-side; this closes the
+  // client-side loophole so the page never renders for closed-hour visitors.
+  useEffect(() => {
+    if (!isOpenAt()) {
+      toast.error("We're currently closed", {
+        description: "Ordering opens at 6:30 PM. You can still browse our menu!",
+        duration: 5000,
+      });
+      router.replace("/");
+    }
+  }, [router]);
+  // ────────────────────────────────────────────────────────────────────────
 
   // preserve tableId from query or local storage
   useEffect(() => {

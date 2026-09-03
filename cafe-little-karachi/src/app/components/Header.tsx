@@ -11,6 +11,7 @@ import { useCart } from '../context/CartContext';
 import { useOrder } from '../context/OrderContext';
 import { ShoppingBag, Phone, MapPin, Menu, X, ArrowRight } from 'lucide-react';
 import { FaWhatsapp } from 'react-icons/fa';
+import { isOpenAt } from '../lib/restaurantStatus';
 
 export default function Header() {
   const [isCartOpen, setIsCartOpen] = useState(false);
@@ -229,9 +230,9 @@ export default function Header() {
               <motion.button
                 whileTap={{ scale: 0.95 }}
                 onClick={toggleCartSidebar}
-                className="bg-[#ff9824] hover:bg-[#ff7b00] text-white rounded-xl px-8 py-3 font-black text-sm uppercase flex items-center gap-2"
+                className={`${isOpenAt() ? 'bg-[#ff9824] hover:bg-[#ff7b00]' : 'bg-slate-700'} text-white rounded-xl px-6 py-3 font-black text-xs sm:text-sm uppercase flex items-center gap-2`}
               >
-                <span>Checkout</span>
+                <span>{isOpenAt() ? 'Checkout' : 'Closed (Opens 6:30 PM)'}</span>
                 <ArrowRight size={16} />
               </motion.button>
             </div>

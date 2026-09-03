@@ -166,6 +166,21 @@ last_updated: 2026-08-28
 - Replaced outdated mobile side panel logo image (`/logo.webp`) with official brand logo (`/butter-paper1.webp`) in [`Header.tsx`](file:///d:/ordering-system/cafe-little-karachi/src/app/components/Header.tsx).
 - Verified TypeScript build check passed cleanly with 0 errors.
 
+### Session 2026-09-02 (CLK Pre-6:30 PM "View Menu Only" Mode Implementation)
+- Created [`restaurantStatus.ts`](file:///d:/ordering-system/cafe-little-karachi/src/app/lib/restaurantStatus.ts) utility to standardize Karachi timezone operating hours (opens 6:30 PM).
+- Updated [`RestaurantStatusPopup.tsx`](file:///d:/ordering-system/cafe-little-karachi/src/app/components/RestaurantStatusPopup.tsx) with **"View Menu (Browse Only)"** action button that allows users to dismiss the closed modal and explore items freely.
+- Added top view-only notification banner when closed (`Closed Until 6:30 PM • View Only Menu Mode`) with a quick button to reopen the opening timer modal.
+- Updated [`AddToCartButton.tsx`](file:///d:/ordering-system/cafe-little-karachi/src/app/components/AddToCartButton.tsx), [`CartSidebar.tsx`](file:///d:/ordering-system/cafe-little-karachi/src/app/components/CartSidebar.tsx), and mobile bottom checkout bar in [`Header.tsx`](file:///d:/ordering-system/cafe-little-karachi/src/app/components/Header.tsx) to disable ordering when closed, displaying `"Closed (Opens 6:30 PM)"` and showing informative toast messages.
+- Verified TypeScript build check passed cleanly with 0 errors.
+
+### Session 2026-09-03 (CLK UI & Performance Optimization Audit)
+- Executed `$impeccable optimize` skill workflow across Cafe Little Karachi (`cafe-little-karachi`).
+- Analyzed Core Web Vitals (LCP, INP, CLS), font sub-setting overhead, image optimization bypassing (`unoptimized={true}`), and CSS reflow triggers (`transition: width`).
+- Ran `node .agents/skills/impeccable/scripts/detect.mjs cafe-little-karachi` identifying 39 anti-pattern violations.
+- Compiled and saved official audit report artifact at [`clk-optimization-report.md`](file:///d:/ordering-system/documentation/audits/clk-optimization-report.md) with prioritized remediation roadmap.
+
+
+
 
 
 
