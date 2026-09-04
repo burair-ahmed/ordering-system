@@ -1,9 +1,9 @@
 'use client';
 
 import { createContext, useContext, useEffect, useMemo, useState, ReactNode, Suspense } from "react";
-import { useSearchParams } from "next/navigation";
 import Preloader from "../components/Preloader";
 import { trackEvent } from "../lib/analytics";
+import { useOrder } from "./OrderContext";
 
 interface CartItem {
   id: string;
@@ -41,10 +41,16 @@ interface CartProviderProps {
 }
 
 function CartProviderInner({ children }: CartProviderProps) {
-  const searchParams = useSearchParams(); // ✅ Safe inside Suspense boundary
+  // ✅ Derive order context from OrderContext (single source of truth — no URL params needed)
+  const { orderType: ctxOrderType, area: ctxArea, tableId: ctxTableId } = useOrder();
 
-  const [orderType, setOrderType] = useState<OrderType>("dinein");
-  const [orderIdentifier, setOrderIdentifier] = useState<string>("default");
+  const orderType: OrderType = (ctxOrderType as OrderType) || "pickup";
+  const orderIdentifier = useMemo(() => {
+    if (orderType === "dinein") return ctxTableId ?? "default";
+    if (orderType === "delivery") return ctxArea ?? "default";
+    return "default";
+  }, [orderType, ctxTableId, ctxArea]);
+
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [totalAmount, setTotalAmount] = useState<number>(0);
 
@@ -52,28 +58,6 @@ function CartProviderInner({ children }: CartProviderProps) {
     const safeId = orderIdentifier ? orderIdentifier.replace(/\s+/g, "_") : "default";
     return `cart-${orderType}-${safeId}`;
   }, [orderType, orderIdentifier]);
-
-  useEffect(() => {
-    const typeParam = searchParams?.get("type");
-    const tableParam = searchParams?.get("tableId") ?? searchParams?.get("tableid");
-    const areaParam = searchParams?.get("area");
-
-    const inferType = (): OrderType => {
-      if (typeParam === "delivery") return "delivery";
-      if (typeParam === "pickup") return "pickup";
-      if (typeParam === "dinein") return "dinein";
-      if (tableParam) return "dinein";
-      if (areaParam) return "delivery";
-      return "pickup";
-    };
-
-    const resolvedType = inferType();
-    setOrderType(resolvedType);
-
-    if (resolvedType === "dinein") setOrderIdentifier(tableParam ?? "default");
-    else if (resolvedType === "delivery") setOrderIdentifier(areaParam ?? "default");
-    else setOrderIdentifier("default");
-  }, [searchParams]);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -193,11 +177,9 @@ function CartProviderInner({ children }: CartProviderProps) {
     setCartItems([]);
   };
 
-  const setOrderContext = (type: OrderType, identifier?: string) => {
-    setOrderType(type);
-    if (type === "dinein") setOrderIdentifier(identifier ?? "default");
-    else if (type === "delivery") setOrderIdentifier(identifier ?? "default");
-    else setOrderIdentifier("default");
+  // setOrderContext is now a no-op shim kept for compatibility — location is managed by OrderContext
+  const setOrderContext = (_type: OrderType, _identifier?: string) => {
+    // Location state is managed exclusively by OrderContext now
   };
 
   return (
@@ -224,3 +206,4 @@ export const CartProvider = ({ children }: CartProviderProps) => (
     <CartProviderInner>{children}</CartProviderInner>
   </Suspense>
 );
+

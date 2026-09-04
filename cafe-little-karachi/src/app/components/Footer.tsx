@@ -50,7 +50,7 @@ const Footer: FC = () => {
             viewport={{ once: true }}
             className="flex flex-col items-center sm:items-start"
           >
-            <Link href={tableId ? `/order?tableId=${tableId}` : "/"}>
+            <Link href="/">
               <Image
                 src="/butter-paper1.webp"
                 alt="Logo"

@@ -44,24 +44,51 @@ graph TD
 
 ---
 
-## 2. Hybrid Routing Architecture
+## 2. Hybrid Routing & Clean URL Architecture
 
-The ecosystem uses Next.js's **hybrid routing** approach:
+The ecosystem uses Next.js's **hybrid routing** approach with a **Site-Wide Clean URL Architecture**:
 
-| Router | Path | Responsibility |
+| Router / Layer | Path | Responsibility |
 |---|---|---|
-| **App Router** | `src/app/` | All UI pages, layouts, and client components |
-| **Pages Router** | `src/pages/api/` | All API endpoints (REST + Socket.IO handler) |
-
-### Why Hybrid?
-- App Router provides modern RSC architecture for fast UI rendering.
-- Pages Router's API routes have more mature support for Socket.IO server integration and complex middleware patterns.
+| **App Router Root** | `src/app/page.tsx` | Main ordering catalog, hero, categories, and active order interface directly on `/` |
+| **Dynamic Item Entrypoint** | `src/app/item/[slug]/page.tsx` | Ad campaign entrypoint for single items; renders menu with item customization modal auto-opened |
+| **Dynamic Platter Entrypoint** | `src/app/platter/[slug]/page.tsx` | Ad campaign entrypoint for platters; renders menu with platter customization modal auto-opened |
+| **Dine-In QR Entrypoint** | `src/app/table/[tableId]/page.tsx` | QR code entrypoint; saves table to persistent context and silently normalizes URL to `/` |
+| **Delivery Area Entrypoint** | `src/app/delivery/[area]/page.tsx` | Marketing share link; saves area to persistent context and silently normalizes URL to `/` |
+| **Checkout & Tracking** | `src/app/checkout/`, `src/app/thank-you/` | Clean checkout without query params; resilient multi-source order tracking |
+| **Pages Router API** | `src/pages/api/` | All API endpoints (REST + Socket.IO handler + Webhooks) |
 
 ---
 
-## 3. MongoDB Schema Specifications
+## 3. Dual-Layer Persistence Engine (`OrderContext.tsx`)
 
-### 3.1 MenuItem Schema
+To eliminate messy URL query strings (`?type=...&area=...&tableId=...`) across the customer journey, order context is maintained via a **dual-layer persistence architecture**:
+
+```mermaid
+graph TD
+    UserAction["User Selects Mode / Table / Area"] --> OrderContext["OrderContext (In-Memory React State)"]
+    OrderContext --> LocalStorage["localStorage ('order-context')"]
+    OrderContext --> Cookies["1st-Party Cookies (CLK_ORDER_TYPE, CLK_AREA, CLK_TABLE)"]
+    
+    QRScan["QR Scan: /table/14"] --> TableRoute["Table Route Handler"]
+    TableRoute -->|"setOrderContext('dinein', '14')"| OrderContext
+    TableRoute -->|"history.replaceState"| RootURL["Clean Address Bar: /"]
+    
+    AdClick["Ad Click: /item/special-karahi"] --> ItemRoute["Item Route Handler"]
+    ItemRoute -->|"openItemModal(item)"| ModalEngine["Customization Modal"]
+    ItemRoute -->|"history.pushState"| ItemURL["URL: /item/special-karahi"]
+    ModalEngine -->|"onClose / Back"| RootURL
+```
+
+- **Browser Storage**: `localStorage` maintains `order-context`, `latest_order_number`, `latest_order_type`, and `latest_order_phone`.
+- **First-Party Cookies**: `CLK_ORDER_TYPE`, `CLK_AREA`, `CLK_TABLE` allow server components and edge middleware to read session context synchronously without client hydration delays.
+- **Legacy URL Migration**: Legacy query string URLs (e.g. `/order?type=delivery&area=Gulshan`) are automatically intercepted, state is absorbed into `OrderContext`, and the browser URL is silently replaced with `/`.
+
+---
+
+## 4. MongoDB Schema Specifications
+
+### 4.1 MenuItem Schema
 
 ```typescript
 // src/models/MenuItem.ts
@@ -105,118 +132,105 @@ const MenuItemSchema = new Schema<IMenuItem>({
 }, { timestamps: true });
 ```
 
-### 3.2 Order Schema
+### 4.2 Order Schema
 
 ```typescript
 // src/models/Order.ts
-export type OrderStatus = 'pending' | 'accepted' | 'preparing' | 'ready' | 'completed' | 'cancelled';
+export type OrderStatus = 'Received' | 'Preparing' | 'Ready' | 'Out for delivery' | 'Completed' | 'Cancelled';
 
 export interface IOrderItem {
-  menuItemId: mongoose.Types.ObjectId;
-  name: string;
-  basePrice: number;
-  selectedVariations: Record<string, string>; // groupTitle → optionName
-  additionalPrice: number;
+  id: string;
+  title: string;
+  price: number;
   quantity: number;
-  totalPrice: number;
+  variations?: string[];
 }
 
 export interface IOrder extends Document {
-  items: IOrderItem[];
-  tableNumber?: string;       // undefined for takeaway
-  customerPhone?: string;     // for Twilio WhatsApp
+  orderNumber: string;
+  customerName: string;
+  phone?: string;
+  email?: string;
+  ordertype: 'dinein' | 'pickup' | 'delivery';
+  tableNumber?: string;
+  area?: string;
+  paymentMethod: string;
   status: OrderStatus;
+  items: IOrderItem[];
   totalAmount: number;
-  notes?: string;
+  deliveryCharge?: number;
   createdAt: Date;
   updatedAt: Date;
 }
 
 const OrderSchema = new Schema<IOrder>({
-  items: [{ /* IOrderItem fields */ }],
+  orderNumber: { type: String, required: true, unique: true, index: true },
+  customerName: { type: String, required: true },
+  phone: { type: String },
+  email: { type: String },
+  ordertype: { type: String, enum: ['dinein', 'pickup', 'delivery'], required: true, index: true },
   tableNumber: { type: String, index: true },
-  customerPhone: { type: String },
-  status: { type: String, enum: ['pending','accepted','preparing','ready','completed','cancelled'], default: 'pending', index: true },
+  area: { type: String },
+  paymentMethod: { type: String, default: 'cash' },
+  status: { 
+    type: String, 
+    enum: ['Received', 'Preparing', 'Ready', 'Out for delivery', 'Completed', 'Cancelled'], 
+    default: 'Received', 
+    index: true 
+  },
+  items: [{
+    id: String,
+    title: String,
+    price: Number,
+    quantity: Number,
+    variations: [String]
+  }],
   totalAmount: { type: Number, required: true },
-  notes: { type: String }
+  deliveryCharge: { type: Number, default: 0 }
 }, { timestamps: true });
-```
-
-### 3.3 Category Schema
-
-```typescript
-// src/models/Category.ts
-export interface ICategory extends Document {
-  name: string;
-  slug: string;
-  displayOrder: number;
-  isActive: boolean;
-}
 ```
 
 ---
 
-## 4. API Route Contracts (Pages Router)
+## 5. API Route Contracts (Pages Router)
 
 | Method | Route | Description |
 |---|---|---|
-| `GET` | `/api/menu` | Fetch all available menu items grouped by category |
-| `POST` | `/api/menu` | Create a new menu item (admin only) |
-| `PATCH` | `/api/menu/[id]` | Update menu item (price, availability, variations) |
-| `DELETE` | `/api/menu/[id]` | Soft-delete a menu item |
-| `GET` | `/api/orders` | Fetch all active orders (admin dashboard) |
-| `POST` | `/api/orders` | Place a new customer order |
-| `PATCH` | `/api/updateorderstatus` | Update order status (admin action) |
-| `GET` | `/api/categories` | Fetch all categories |
-| `POST` | `/api/categories` | Create a new category |
+| `GET` | `/api/menuitems` | Fetch all menu items |
+| `GET` | `/api/orders` | Fetch orders for admin dashboard (returns array or object) |
+| `POST` | `/api/orders` | Place a new customer order & broadcast via Socket.IO |
+| `GET` | `/api/order-status` | Fetch real-time status by `orderNumber` or `tableId` |
+| `PUT` | `/api/updateorderstatus` | Transition order lifecycle status |
+| `GET` | `/api/getOrderByTableId` | Lookup active order number by table ID |
+| `GET` | `/api/categories` | Fetch item categories |
+| `GET` | `/api/delivery-areas` | Fetch delivery zones and delivery charges |
 | `GET` | `/api/socket` | Socket.IO handshake endpoint |
 
 ---
 
-## 5. Real-Time Event System (Socket.IO)
+## 6. Real-Time & Polling Architecture
 
-### Event Map
-
-| Event | Direction | Payload | Trigger |
-|---|---|---|---|
-| `new_order` | Server → Admin | `{ orderId, tableNumber, items[], totalAmount }` | After `POST /api/orders` saves to DB |
-| `order_updated` | Server → Customer & Admin | `{ orderId, status }` | After `PATCH /api/updateorderstatus` saves to DB |
-| `table_status_update` | Server → All | `{ tableNumber, status }` | After table status changes |
-
-### Socket.IO Server Setup Pattern
-
-```typescript
-// src/pages/api/socket.ts
-import { Server as SocketIOServer } from 'socket.io';
-import type { NextApiRequest, NextApiResponse } from 'next';
-
-export default function handler(req: NextApiRequest, res: NextApiResponse & { socket: any }) {
-  if (!res.socket.server.io) {
-    const io = new SocketIOServer(res.socket.server, {
-      path: '/api/socket',
-      cors: { origin: '*' }
-    });
-    res.socket.server.io = io;
-  }
-  res.end();
-}
-```
+1. **Customer Order Status Tracking (`/thank-you`)**:
+   - Multi-source parameter resolution: `order`, `orderNumber`, `id`, `tableId`, or `localStorage` fallback.
+   - Polls `/api/order-status` at 10-second intervals for real-time customer status updates.
+2. **Admin Order Queue (`OrdersList.tsx`)**:
+   - Universal response parsing: handles bare array, `{ orders: [] }`, or `{ data: [] }`.
+   - Automated background polling every **2 minutes (120,000ms)** to minimize unnecessary server load.
+   - Dedicated **"Refresh Orders" manual button** with live spinning state for instant on-demand fetching.
+   - Real-time Web Audio API sound alert on incoming orders.
 
 ---
 
-## 6. State Management Architecture (React Context)
+## 7. State Management Architecture (React Context)
 
 | Context | File | Responsibility |
 |---|---|---|
-| `CartContext` | `src/contexts/CartContext.tsx` | Cart items, quantities, add/remove/update operations |
-| `OrderContext` | `src/contexts/OrderContext.tsx` | Active order ID, current status, Socket.IO subscription |
-| `TableContext` | `src/contexts/TableContext.tsx` | Selected table number for the current dine-in session |
-
-All contexts wrap at the root layout (`src/app/layout.tsx`) to ensure global availability.
+| `CartContext` | `src/app/context/CartContext.tsx` | In-memory shopping cart, items, quantities, add/remove/update |
+| `OrderContext` | `src/app/context/OrderContext.tsx` | Dual-persistence location, order mode, table ID, location modal visibility |
 
 ---
 
-## 7. Key Architectural Decisions (ADR Log)
+## 8. Architectural Decision Records (ADR Log)
 
 | # | Decision | Rationale | Date |
 |---|---|---|---|
@@ -224,4 +238,7 @@ All contexts wrap at the root layout (`src/app/layout.tsx`) to ensure global ava
 | ADR-002 | Hybrid Next.js Routing | Pages Router API routes have first-class Socket.IO support; App Router handles modern UI | 2026-08-28 |
 | ADR-003 | React Context over Redux | Cart/Order state is simple enough; avoids external library overhead for this scale | 2026-08-28 |
 | ADR-004 | Fire-and-forget Twilio calls | Twilio failures must NEVER block order persistence or customer confirmation | 2026-08-28 |
-| ADR-005 | Cloudinary for media | Automatic image optimization, CDN delivery, and Next.js `<Image>` loader compatibility | 2026-08-28 |
+| ADR-005 | Monorepo Structure | Unified governance docs, shared architecture DNA, independent deployment targets | 2026-08-28 |
+| ADR-006 | Site-Wide Clean URL Architecture | Eliminates query strings from user flow, moves main menu to root `/`, and enables ad deep-linking | 2026-09-04 |
+| ADR-007 | Dual-Layer State Persistence | Combines `localStorage` with first-party Cookies for resilient client + SSR location context | 2026-09-04 |
+| ADR-008 | Admin 2-Minute Polling + Manual Refresh | Reduces database overhead while giving admin immediate manual sync capability | 2026-09-04 |

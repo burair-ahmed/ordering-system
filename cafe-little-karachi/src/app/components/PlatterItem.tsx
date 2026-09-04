@@ -8,10 +8,11 @@ import { motion, AnimatePresence } from "framer-motion";
 import AddToCartButtonForPlatters from "./AddToCartButtonForPlatters";
 import { VariationSelector } from "../../components/variations/VariationSelector";
 import { useVariationSelector } from "../../hooks/useVariationSelector";
-import { VariationConfig } from "../../types/variations";
+import { VariationConfig, SelectedVariation } from "../../types/variations";
 import { X, Check } from "lucide-react";
 import posthog from 'posthog-js';
 import { trackEvent } from '../lib/analytics';
+import { slugify } from '../lib/slugify';
 
 interface CategoryOption {
   uuid: string;
@@ -46,33 +47,85 @@ interface PlatterItemProps {
     discountValue?: number;
   };
   cardStyle?: 'minimal' | 'compact' | 'gourmet' | 'list';
+  initialOpen?: boolean;
 }
 
-const PlatterItem: FC<PlatterItemProps> = ({ platter, cardStyle = 'gourmet' }) => {
-  const [showModal, setShowModal] = useState(false);
+// Memory cache for category items to eliminate network latency on subsequent modal opens
+const platterCategoryCache = new Map<string, any[]>();
+
+const PlatterItem: FC<PlatterItemProps> = ({ platter, cardStyle = 'gourmet', initialOpen = false }) => {
+  const [showModal, setShowModal] = useState(initialOpen);
   const [showAddedMessage, setShowAddedMessage] = useState(false);
   const [categoryItems, setCategoryItems] = useState<{
     [key: string]: any[];
   }>({});
 
+  const platterSlug = useMemo(() => slugify(platter.title), [platter.title]);
+
+  // Non-blocking smooth modal open with clean URL sync
+  const openModal = useCallback(() => {
+    setShowModal(true);
+    if (typeof window !== 'undefined') {
+      requestAnimationFrame(() => {
+        const targetPath = `/platter/${platterSlug}`;
+        if (window.location.pathname !== targetPath) {
+          window.history.replaceState(null, '', targetPath);
+        }
+      });
+    }
+  }, [platterSlug]);
+
+  // Non-blocking smooth modal close with clean URL revert
+  const closeModal = useCallback(() => {
+    setShowModal(false);
+    if (typeof window !== 'undefined') {
+      requestAnimationFrame(() => {
+        if (window.location.pathname.startsWith('/platter/')) {
+          window.history.replaceState(null, '', '/');
+        }
+      });
+    }
+  }, []);
+
+  // Sync with browser back/forward buttons
+  useEffect(() => {
+    const handlePopState = () => {
+      if (typeof window !== 'undefined') {
+        const path = window.location.pathname;
+        if (path === `/platter/${platterSlug}`) {
+          setShowModal(true);
+        } else if (!path.startsWith('/platter/')) {
+          setShowModal(false);
+        }
+      }
+    };
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, [platterSlug]);
+
+  // Handle initialOpen property if landing directly on /platter/[slug]
+  useEffect(() => {
+    if (initialOpen) {
+      setShowModal(true);
+    }
+  }, [initialOpen]);
+
   // Convert platter structure to unified variation config
   const variationConfig: VariationConfig = useMemo(() => ({
     categories: [
-      // Main categories (dynamic from API)
       ...platter.categories.map((category, index) => {
         const categoryKey = category.categoryName || `Selection-${index}`;
         return {
           id: `category-${index}`,
           name: category.categoryName || "Select Options",
           type: 'single' as const,
-          required: true, // Platter categories are typically required
+          required: true,
           options: (categoryItems[categoryKey] || []).map(opt => ({
             ...opt,
-            price: 0 // Main platter category options are included in base price
+            price: 0
           }))
         };
       }),
-      // Additional choices as optional categories
       ...platter.additionalChoices.map((choice, index) => ({
         id: `additional-${index}`,
         name: choice.heading,
@@ -86,7 +139,7 @@ const PlatterItem: FC<PlatterItemProps> = ({ platter, cardStyle = 'gourmet' }) =
         }))
       }))
     ],
-    allowMultipleCategories: true, // Platters can have multiple category types
+    allowMultipleCategories: true,
   }), [platter.categories, platter.additionalChoices, categoryItems]);
 
   const originalBasePrice = platter.basePrice || 0;
@@ -112,17 +165,22 @@ const PlatterItem: FC<PlatterItemProps> = ({ platter, cardStyle = 'gourmet' }) =
     isValid
   } = useVariationSelector(variationConfig, basePrice);
 
-  // Fetch category items when modal opens
+  // Fetch category items with memory caching
   const fetchCategoryItems = useCallback(async (categoryName: string) => {
+    if (platterCategoryCache.has(`cat_${categoryName}`)) {
+      return platterCategoryCache.get(`cat_${categoryName}`)!;
+    }
     try {
-      const response = await fetch(`/api/getitems?category=${categoryName}`);
+      const response = await fetch(`/api/getitems?category=${encodeURIComponent(categoryName)}`);
       const data = await response.json();
-      return data.map((item: any) => ({
+      const mapped = data.map((item: any) => ({
         id: item.id?.toString() || item._id,
         name: item.title,
         price: item.price || 0,
         available: item.status === 'in stock'
       }));
+      platterCategoryCache.set(`cat_${categoryName}`, mapped);
+      return mapped;
     } catch (error) {
       console.error("Error fetching menu items:", error);
       return [];
@@ -130,70 +188,84 @@ const PlatterItem: FC<PlatterItemProps> = ({ platter, cardStyle = 'gourmet' }) =
   }, []);
 
   const fetchItemsByIds = useCallback(async (ids: string[]) => {
+    const key = `ids_${ids.join(',')}`;
+    if (platterCategoryCache.has(key)) {
+      return platterCategoryCache.get(key)!;
+    }
     try {
       const response = await fetch(`/api/getitems?ids=${ids.join(',')}`);
       const data = await response.json();
-      return data.map((item: any) => ({
+      const mapped = data.map((item: any) => ({
         id: item.id?.toString() || item._id,
         name: item.title,
         price: item.price || 0,
         available: item.status === 'in stock'
       }));
+      platterCategoryCache.set(key, mapped);
+      return mapped;
     } catch (error) {
-      console.error("Error fetching specific items:", error);
+      console.error("Error fetching menu items by IDs:", error);
       return [];
     }
   }, []);
 
+  // Load items when modal opens
   useEffect(() => {
-    if (showModal) {
-      const fetchItemsForCategories = async () => {
-        const itemsForCategories: { [key: string]: any[] } = {};
-        for (const category of platter.categories) {
-          let items = [];
-          if (category.selectionType === 'items' && category.itemIds && category.itemIds.length > 0) {
-            items = await fetchItemsByIds(category.itemIds);
-          } else if (category.categoryName) {
-            items = await fetchCategoryItems(category.categoryName);
-          }
-          const categoryKey = category.categoryName || `Selection-${platter.categories.indexOf(category)}`;
-          itemsForCategories[categoryKey] = items;
+    if (!showModal) return;
+
+    let isMounted = true;
+    const loadCategoryItems = async () => {
+      const itemsMap: { [key: string]: any[] } = {};
+
+      for (let i = 0; i < platter.categories.length; i++) {
+        const category = platter.categories[i];
+        const categoryKey = category.categoryName || `Selection-${i}`;
+
+        if (category.selectionType === 'items' && category.itemIds && category.itemIds.length > 0) {
+          itemsMap[categoryKey] = await fetchItemsByIds(category.itemIds);
+        } else if (category.categoryName) {
+          itemsMap[categoryKey] = await fetchCategoryItems(category.categoryName);
         }
-        setCategoryItems(itemsForCategories);
-      };
-      fetchItemsForCategories();
-    }
-  }, [showModal, fetchCategoryItems, platter.categories]);
+      }
+
+      if (isMounted) {
+        setCategoryItems(itemsMap);
+      }
+    };
+
+    loadCategoryItems();
+    return () => {
+      isMounted = false;
+    };
+  }, [showModal, platter.categories, fetchCategoryItems, fetchItemsByIds]);
 
   const handleItemAdded = () => {
-    // Track Add Platter to Cart Journey Event
-    posthog.capture('journey_add_item', {
-      item_id: platter.id,
-      item_name: platter.title,
+    posthog.capture('journey_add_platter_to_cart', {
+      platter_id: platter.id,
+      platter_name: platter.title,
       price: totalPrice,
-      has_variations: true, // Platters always have variations/choices
-      is_platter: true
+      has_variations: Object.keys(selections.categories).length > 0
     });
 
-    trackEvent('journey_add_item', {
-      item_id: platter.id,
-      item_name: platter.title,
+    trackEvent('journey_add_platter_to_cart', {
+      platter_id: platter.id,
+      platter_name: platter.title,
       price: totalPrice,
-      has_variations: true,
-      is_platter: true
+      has_variations: Object.keys(selections.categories).length > 0,
     });
 
     setShowAddedMessage(true);
     setTimeout(() => setShowAddedMessage(false), 1500);
   };
 
-  const handleCategorySelect = (categoryId: string, option: any) => {
+  const handleCategorySelect = (categoryId: string, option: SelectedVariation) => {
     selectCategoryVariation(categoryId, option);
-    trackEvent('journey_variation_select', {
-      item_id: platter.id,
-      item_name: platter.title,
-      category_id: categoryId,
-      variation_name: option.name,
+    const category = variationConfig.categories?.find(c => c.id === categoryId);
+    trackEvent('journey_platter_option_select', {
+      platter_id: platter.id,
+      platter_name: platter.title,
+      category_name: category?.name,
+      option_name: option.optionName,
       price: option.price
     });
   };
@@ -205,29 +277,26 @@ const PlatterItem: FC<PlatterItemProps> = ({ platter, cardStyle = 'gourmet' }) =
         whileHover={{ scale: 1.02, y: -2 }}
         whileTap={{ scale: 0.98 }}
         onClick={() => {
-          posthog.capture('journey_view_item_details', {
-            item_name: platter.title,
-            price: basePrice,
-            category: 'Platter', // Explicitly marking as Platter
-            is_platter: true
+          posthog.capture('journey_view_platter_details', {
+            platter_id: platter.id,
+            platter_name: platter.title,
+            price: basePrice
           });
-          trackEvent('journey_view_item_details', {
-            item_id: platter.id,
-            item_name: platter.title,
-            price: basePrice,
-            category: 'Platter',
-            is_platter: true
+          trackEvent('journey_view_platter_details', {
+            platter_id: platter.id,
+            platter_name: platter.title,
+            price: basePrice
           });
-          setShowModal(true);
+          openModal();
         }}
         className={
           cardStyle === 'list'
-            ? "relative flex flex-row items-center gap-4 p-3 md:p-4 rounded-2xl cursor-pointer bg-white/70 backdrop-blur-lg shadow-md border border-transparent hover:border-[#741052] transition-all duration-300 w-full"
+            ? "relative flex flex-row items-center gap-4 p-3 md:p-4 rounded-2xl cursor-pointer bg-white/70 backdrop-blur-md shadow-md border border-transparent hover:border-[#741052] transition-all duration-300 w-full"
             : cardStyle === 'minimal'
             ? "relative flex flex-col p-3 rounded-xl cursor-pointer bg-transparent border border-neutral-200/60 dark:border-neutral-800 hover:border-[#741052] transition-all duration-300"
             : cardStyle === 'compact'
-            ? "relative flex flex-col p-3 rounded-xl cursor-pointer bg-white/70 backdrop-blur-lg shadow-md border border-transparent hover:border-[#741052] transition-all duration-300"
-            : "relative flex flex-col p-4 rounded-2xl cursor-pointer bg-white/70 backdrop-blur-lg shadow-lg border border-transparent hover:border-[#741052] transition-all duration-300" // gourmet
+            ? "relative flex flex-col p-3 rounded-xl cursor-pointer bg-white/70 backdrop-blur-md shadow-md border border-transparent hover:border-[#741052] transition-all duration-300"
+            : "relative flex flex-col p-4 rounded-2xl cursor-pointer bg-white/70 backdrop-blur-md shadow-lg border border-transparent hover:border-[#741052] transition-all duration-300"
         }
         style={
           cardStyle === 'list'
@@ -236,19 +305,17 @@ const PlatterItem: FC<PlatterItemProps> = ({ platter, cardStyle = 'gourmet' }) =
             ? { height: "18rem" }
             : cardStyle === 'compact'
             ? { height: "21rem" }
-            : { height: "29rem" } // gourmet
+            : { height: "28rem" }
         }
       >
         {cardStyle === 'list' ? (
           <>
-            {/* Out of stock badge */}
             {platter.status === "out of stock" && (
               <span className="absolute top-2 left-2 z-10 bg-red-500 text-white text-[10px] px-2 py-0.5 rounded-full shadow-md animate-pulse">
                 Out of Stock
               </span>
             )}
 
-            {/* Left Side: Image */}
             <div className="relative w-24 h-24 sm:w-28 sm:h-28 md:w-32 md:h-32 shrink-0">
               <Image
                 src={platter.image || "/fallback-image.jpg"}
@@ -260,7 +327,6 @@ const PlatterItem: FC<PlatterItemProps> = ({ platter, cardStyle = 'gourmet' }) =
               />
             </div>
 
-            {/* Right/Center Side: Info */}
             <div className="flex-1 min-w-0 flex flex-col h-full justify-between py-1">
               <div>
                 <h2 className="text-base sm:text-lg font-semibold text-[#741052] truncate">
@@ -289,7 +355,7 @@ const PlatterItem: FC<PlatterItemProps> = ({ platter, cardStyle = 'gourmet' }) =
                   disabled={platter.status === "out of stock"}
                   onClick={(e) => {
                     e.stopPropagation();
-                    setShowModal(true);
+                    openModal();
                   }}
                   className={`py-1.5 px-4 text-xs rounded-full font-medium text-white transition-all duration-300
                     ${
@@ -305,7 +371,6 @@ const PlatterItem: FC<PlatterItemProps> = ({ platter, cardStyle = 'gourmet' }) =
           </>
         ) : (
           <>
-            {/* Out of stock badge */}
             {platter.status === "out of stock" && (
               <span className="absolute top-2 left-2 bg-red-500 text-white text-xs px-3 py-1 rounded-full shadow-md animate-pulse z-10">
                 Out of Stock
@@ -331,7 +396,6 @@ const PlatterItem: FC<PlatterItemProps> = ({ platter, cardStyle = 'gourmet' }) =
               {platter.title}
             </h2>
 
-            {/* Truncated description */}
             <div className="relative flex-1 mb-3 overflow-hidden">
               <p className={`text-gray-500 ${
                 cardStyle === 'minimal' ? 'text-[11px] line-clamp-1' : cardStyle === 'compact' ? 'text-xs line-clamp-2' : 'text-sm line-clamp-2'
@@ -341,7 +405,6 @@ const PlatterItem: FC<PlatterItemProps> = ({ platter, cardStyle = 'gourmet' }) =
               )}
             </div>
 
-            {/* Price */}
             <div className="flex items-center gap-1.5 mt-auto">
               <p className={`font-bold text-[#741052] ${
                 cardStyle === 'minimal' ? 'text-sm' : cardStyle === 'compact' ? 'text-base' : 'text-lg'
@@ -355,14 +418,13 @@ const PlatterItem: FC<PlatterItemProps> = ({ platter, cardStyle = 'gourmet' }) =
               )}
             </div>
 
-            {/* Add to cart button */}
             <motion.button
               whileHover={platter.status === "in stock" ? { scale: 1.05 } : {}}
               whileTap={platter.status === "in stock" ? { scale: 0.97 } : {}}
               disabled={platter.status === "out of stock"}
               onClick={(e) => {
                 e.stopPropagation();
-                setShowModal(true);
+                openModal();
               }}
               className={`w-full text-center rounded-full font-medium text-white transition-all duration-300 ${
                 cardStyle === 'minimal'
@@ -382,85 +444,82 @@ const PlatterItem: FC<PlatterItemProps> = ({ platter, cardStyle = 'gourmet' }) =
         )}
       </motion.div>
 
-      {/* Modal */}
+      {/* Optimized High-Performance Modal */}
       <AnimatePresence>
         {showModal && (
-<motion.div
-  className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4 sm:p-6 overflow-hidden"
+          <motion.div
+            className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4 overflow-hidden"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
+            transition={{ duration: 0.15 }}
+            onClick={closeModal}
           >
             <motion.div
-              initial={{ scale: 0.9, opacity: 0 }}
+              initial={{ scale: 0.96, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.9, opacity: 0 }}
-              transition={{ type: "spring", stiffness: 200, damping: 20 }}
-className="relative bg-white/90 backdrop-blur-xl 
-rounded-2xl p-4 sm:p-6 max-w-4xl w-full max-h-[90vh] overflow-y-auto flex flex-col lg:flex-row shadow-2xl"
+              exit={{ scale: 0.96, opacity: 0 }}
+              transition={{ duration: 0.18, ease: "easeOut" }}
+              onClick={(e) => e.stopPropagation()}
+              className="relative bg-white rounded-2xl p-5 sm:p-6 max-w-4xl w-full max-h-[90vh] overflow-y-auto flex flex-col lg:flex-row shadow-2xl border border-gray-100"
+              style={{ willChange: "transform, opacity" }}
             >
               {/* Close Button */}
               <button
                 className="absolute top-3 right-3 w-8 h-8 flex items-center justify-center rounded-full 
-                border border-gray-300 hover:bg-gradient-to-r from-[#741052] to-[#d0269b] hover:text-white transition"
-                onClick={() => setShowModal(false)}
+                border border-gray-200 bg-gray-50 hover:bg-gray-200 text-gray-700 transition z-20"
+                onClick={closeModal}
+                aria-label="Close platter modal"
               >
                 <X size={18} />
               </button>
 
               {/* Left Column */}
-              <motion.div
-                initial={{ x: -100, opacity: 0 }}
-                animate={{ x: 0, opacity: 1 }}
-                transition={{ delay: 0.1 }}
-                className="lg:w-1/2 flex justify-center items-center mb-6 lg:mb-0"
-              >
+              <div className="lg:w-1/2 flex justify-center items-center mb-5 lg:mb-0">
                 <Image
                   src={platter.image || "/fallback-image.jpg"}
                   alt={platter.title}
-                  className="rounded-xl object-cover w-full h-[350px]"
+                  className="rounded-xl object-cover w-full h-[240px] sm:h-[320px]"
                   width={356}
-                  height={350}
+                  height={320}
                   sizes="(max-width: 768px) 100vw, 50vw"
+                  priority
                 />
-              </motion.div>
+              </div>
 
               {/* Right Column */}
-              <motion.div
-                initial={{ x: 100, opacity: 0 }}
-                animate={{ x: 0, opacity: 1 }}
-                transition={{ delay: 0.2 }}
-                className="lg:w-1/2 px-4"
-              >
-                <h2 className="text-2xl font-semibold text-[#741052]">
-                  {platter.title}
-                </h2>
-                <p className="text-gray-600 mt-3">{platter.description}</p>
-                <div className="flex items-center gap-3 mt-4">
-                  <p className="text-xl font-bold text-[#741052]">
-                    Rs.{totalPrice.toFixed(2)}
-                  </p>
-                  {platter.discountValue !== undefined && platter.discountValue > 0 && (
-                    <p className="text-sm text-gray-400 line-through">
-                      Rs.{(totalPrice + (originalBasePrice - basePrice)).toFixed(2)}
+              <div className="lg:w-1/2 px-1 sm:px-4 flex flex-col justify-between">
+                <div>
+                  <h2 className="text-2xl font-bold text-[#741052]">
+                    {platter.title}
+                  </h2>
+                  <p className="text-gray-600 mt-2 text-sm sm:text-base leading-relaxed">{platter.description}</p>
+                  <div className="flex items-center gap-3 mt-3">
+                    <p className="text-xl font-extrabold text-[#741052]">
+                      Rs.{totalPrice.toFixed(2)}
                     </p>
-                  )}
-                </div>
+                    {platter.discountValue !== undefined && platter.discountValue > 0 && (
+                      <p className="text-sm text-gray-400 line-through">
+                        Rs.{(totalPrice + (originalBasePrice - basePrice)).toFixed(2)}
+                      </p>
+                    )}
+                  </div>
 
-                {/* Variations */}
-                <div className="mt-6">
-                  <VariationSelector
-                    config={variationConfig}
-                    selections={selections}
-                    onSimpleSelect={() => {}} // Not used for platters
-                    onCategorySelect={handleCategorySelect}
-                    errors={validation.errors}
-                    warnings={validation.warnings}
-                  />
+                  {/* Variations */}
+                  <div className="mt-4">
+                    <VariationSelector
+                      config={variationConfig}
+                      selections={selections}
+                      onSimpleSelect={() => {}}
+                      onCategorySelect={handleCategorySelect}
+                      errors={validation.errors}
+                      warnings={validation.warnings}
+                    />
+                  </div>
                 </div>
 
                 {/* Add to Cart */}
-                <div className="mt-6 flex items-center gap-4">
+                <div className="mt-5 pt-3 border-t border-gray-100 flex items-center gap-4">
                   <AddToCartButtonForPlatters
                     platter={platter}
                     selectedVariations={getFlattenedVariations()}
@@ -470,16 +529,16 @@ rounded-2xl p-4 sm:p-6 max-w-4xl w-full max-h-[90vh] overflow-y-auto flex flex-c
                   />
                   {showAddedMessage && (
                     <motion.div
-                      initial={{ opacity: 0, y: 20 }}
+                      initial={{ opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: 20 }}
-                      className="flex items-center gap-1 text-green-600 text-sm"
+                      exit={{ opacity: 0, y: 10 }}
+                      className="flex items-center gap-1 text-green-600 text-sm font-semibold"
                     >
                       <Check size={16} /> Added to cart
                     </motion.div>
                   )}
                 </div>
-              </motion.div>
+              </div>
             </motion.div>
           </motion.div>
         )}

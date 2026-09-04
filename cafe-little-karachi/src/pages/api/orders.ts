@@ -49,7 +49,8 @@ const generateOrderNumber = async () => {
 
 const ordersHandler = async (req: NextApiRequest, res: NextApiResponse) => {
   if (req.method === "POST") {
-    if (!isOpenAt()) {
+    // Check operating hours in production (allow daytime testing in development)
+    if (process.env.NODE_ENV === "production" && !isOpenAt()) {
       return res.status(400).json({
         success: false,
         message: "Cafe Little Karachi is currently closed. Ordering opens at 6:30 PM.",
@@ -70,14 +71,32 @@ const ordersHandler = async (req: NextApiRequest, res: NextApiResponse) => {
       phone,
     } = req.body;
 
-    if (!customerName || !items || !totalAmount || !status || !ordertype) {
-      return res.status(400).json({ message: "Missing required fields" });
+    const missingFields: string[] = [];
+    if (!customerName) missingFields.push("Customer Name");
+    if (!items || !items.length) missingFields.push("Cart Items");
+    if (totalAmount === undefined || totalAmount === null) missingFields.push("Total Amount");
+    if (!status) missingFields.push("Status");
+    if (!ordertype) missingFields.push("Order Type");
+
+    if (missingFields.length > 0) {
+      return res.status(400).json({
+        success: false,
+        message: `Missing required fields: ${missingFields.join(", ")}`,
+      });
     }
 
     if (ordertype === "delivery" && (!area || !phone)) {
-      return res
-        .status(400)
-        .json({ message: "Delivery requires both address and phone number." });
+      return res.status(400).json({
+        success: false,
+        message: "Delivery orders require both a delivery area and contact phone number.",
+      });
+    }
+
+    if (ordertype === "dinein" && !tableNumber) {
+      return res.status(400).json({
+        success: false,
+        message: "Dine-in orders require a table number.",
+      });
     }
 
     try {
@@ -88,55 +107,67 @@ const ordersHandler = async (req: NextApiRequest, res: NextApiResponse) => {
       const newOrder = new Order({
         orderNumber,
         customerName,
-        email,
+        email: email || "",
         ordertype,
         tableNumber: ordertype === "dinein" ? tableNumber : null,
         area: ordertype === "delivery" ? area : null,
-        phone: ordertype === "delivery" ? phone : null,
-        paymentMethod,
-        deliveryCharge: ordertype === "delivery" ? deliveryCharge : 0,
+        phone: phone || null,
+        paymentMethod: paymentMethod || "cash",
+        deliveryCharge: ordertype === "delivery" ? deliveryCharge || 0 : 0,
         items: items.map((item: OrderItem) => ({
-          id: item.id,
+          id: String(item.id),
           title: item.title,
           price: item.price,
           quantity: item.quantity,
-          variations: item.variations || [],
+          image: item.image || "",
+          variations: Array.isArray(item.variations)
+            ? item.variations.map((v: any) =>
+                typeof v === "string" ? v : v.name || v.optionName || JSON.stringify(v)
+              )
+            : [],
         })),
         totalAmount,
-        status,
+        status: status || "Received",
+        createdAt: new Date(),
       });
 
       await newOrder.save();
 
-      const io = (res.socket as unknown as CustomSocket).server?.io;
-      if (io) io.emit("newOrder", newOrder);
+      // Emit real-time WebSocket event to kitchen/admin dashboard
+      try {
+        const socket = (res.socket as unknown as CustomSocket)?.server?.io;
+        if (socket) {
+          socket.emit("new-order", newOrder);
+        }
+      } catch (wsErr) {
+        console.warn("WebSocket notification error:", wsErr);
+      }
 
-      return res.status(200).json({
-        message: "Order received successfully",
-        orderNumber,
-        ordertype,
-        tableNumber: newOrder.tableNumber,
+      return res.status(201).json(newOrder);
+    } catch (error: any) {
+      console.error("Error creating order:", error);
+      return res.status(500).json({
+        success: false,
+        message: "Failed to create order. Please try again.",
+        error: error.message,
       });
-    } catch (error) {
-      console.error("Error saving order:", error);
-      return res.status(500).json({ message: "Failed to save order to database" });
     }
   } else if (req.method === "GET") {
     try {
       await connectToDatabase();
-      const orders = await Order.find({ status: { $ne: "Completed" } }).sort({
-        createdAt: -1,
-      });
-      if (!orders || orders.length === 0) {
-        return res.status(404).json({ message: "No orders found" });
-      }
-      return res.status(200).json({ orders });
-    } catch (error) {
+      const orders = await Order.find().sort({ createdAt: -1 });
+      return res.status(200).json(orders);
+    } catch (error: any) {
       console.error("Error fetching orders:", error);
-      return res.status(500).json({ message: "Failed to fetch orders" });
+      return res.status(500).json({
+        success: false,
+        message: "Failed to fetch orders.",
+        error: error.message,
+      });
     }
   } else {
-    return res.status(405).json({ message: "Method Not Allowed" });
+    res.setHeader("Allow", ["POST", "GET"]);
+    return res.status(405).end(`Method ${req.method} Not Allowed`);
   }
 };
 

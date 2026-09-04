@@ -23,6 +23,7 @@ All technical specifications, design tokens, architecture blueprints, roadmaps, 
 3. **No Blind Code Changes**: Always justify edits with errors, requirements, or architecture references.
 4. **Continuous Memory & Status Updates**: After completing or updating any task, update [`documentation/status.md`](file:///d:/ordering-system/documentation/status.md) and [`documentation/memory.md`](file:///d:/ordering-system/documentation/memory.md) immediately.
 5. **Autonomous Documentation Update Mandate**: The AI MUST automatically update [`documentation/NEXT_STEPS.md`](file:///d:/ordering-system/documentation/NEXT_STEPS.md), [`documentation/status.md`](file:///d:/ordering-system/documentation/status.md), and [`documentation/memory.md`](file:///d:/ordering-system/documentation/memory.md) at the end of every turn/task. The user will NOT edit these files manually.
+6. **Strict Micro-Change Documentation Rule (MANDATORY)**: Even the smallest micro-changes (e.g., polling interval adjustments, button additions, fallback parameters, error handling tweaks, or style updates) MUST be strictly and immediately documented in [`documentation/memory.md`](file:///d:/ordering-system/documentation/memory.md), [`documentation/status.md`](file:///d:/ordering-system/documentation/status.md), and the relevant documentation notes with exact file paths and rationale. Undocumented changes are strictly prohibited.
 
 ---
 

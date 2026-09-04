@@ -1,6 +1,6 @@
 "use client";
 
-import { FC, useState, useMemo } from "react";
+import { FC, useState, useMemo, useEffect, useCallback } from "react";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import AddToCartButton from "./AddToCartButton";
@@ -10,6 +10,7 @@ import { VariationConfig, SelectedVariation } from "../../types/variations";
 import { X, Check } from "lucide-react";
 import posthog from 'posthog-js';
 import { trackEvent } from '../lib/analytics';
+import { slugify } from '../lib/slugify';
 
 interface Variation {
   name: string;
@@ -32,14 +33,64 @@ interface MenuItemData {
 interface MenuItemProps {
   item: MenuItemData;
   cardStyle?: 'minimal' | 'compact' | 'gourmet' | 'list';
+  initialOpen?: boolean;
 }
 
-const MenuItem: FC<MenuItemProps> = ({ item, cardStyle = 'gourmet' }) => {
-  const [showModal, setShowModal] = useState(false);
+const MenuItem: FC<MenuItemProps> = ({ item, cardStyle = 'gourmet', initialOpen = false }) => {
+  const [showModal, setShowModal] = useState(initialOpen);
   const [showAddedMessage, setShowAddedMessage] = useState(false);
 
   const itemId = item.id ? item.id.toString() : "0";
   const originalPrice = typeof item.price === "number" ? item.price : 0;
+  const itemSlug = useMemo(() => slugify(item.title), [item.title]);
+
+  // Non-blocking smooth modal open with clean URL sync
+  const openModal = useCallback(() => {
+    setShowModal(true);
+    if (typeof window !== 'undefined') {
+      requestAnimationFrame(() => {
+        const targetPath = `/item/${itemSlug}`;
+        if (window.location.pathname !== targetPath) {
+          window.history.replaceState(null, '', targetPath);
+        }
+      });
+    }
+  }, [itemSlug]);
+
+  // Non-blocking smooth modal close with clean URL revert
+  const closeModal = useCallback(() => {
+    setShowModal(false);
+    if (typeof window !== 'undefined') {
+      requestAnimationFrame(() => {
+        if (window.location.pathname.startsWith('/item/')) {
+          window.history.replaceState(null, '', '/');
+        }
+      });
+    }
+  }, []);
+
+  // Sync with browser back/forward buttons
+  useEffect(() => {
+    const handlePopState = () => {
+      if (typeof window !== 'undefined') {
+        const path = window.location.pathname;
+        if (path === `/item/${itemSlug}`) {
+          setShowModal(true);
+        } else if (!path.startsWith('/item/')) {
+          setShowModal(false);
+        }
+      }
+    };
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, [itemSlug]);
+
+  // Handle initialOpen property if landing directly on /item/[slug]
+  useEffect(() => {
+    if (initialOpen) {
+      setShowModal(true);
+    }
+  }, [initialOpen]);
 
   // Calculate discounted base price
   const basePrice = useMemo(() => {
@@ -59,8 +110,8 @@ const MenuItem: FC<MenuItemProps> = ({ item, cardStyle = 'gourmet' }) => {
       name: v.name,
       price: parseFloat(v.price) || 0
     })),
-    simpleSelection: 'single', // Menu items typically allow single variation selection
-    allowMultipleCategories: false, // Not applicable for simple variations
+    simpleSelection: 'single',
+    allowMultipleCategories: false,
   }), [item.variations]);
 
   // Use the new variation selector hook
@@ -74,7 +125,6 @@ const MenuItem: FC<MenuItemProps> = ({ item, cardStyle = 'gourmet' }) => {
   } = useVariationSelector(variationConfig, basePrice);
 
   const handleItemAdded = () => {
-    // Track Add to Cart Journey Event (Stage 6)
     posthog.capture('journey_add_to_cart', {
       item_id: itemId,
       item_name: item.title,
@@ -111,7 +161,6 @@ const MenuItem: FC<MenuItemProps> = ({ item, cardStyle = 'gourmet' }) => {
         whileHover={{ scale: 1.02, y: -2 }}
         whileTap={{ scale: 0.98 }}
         onClick={() => {
-          // Stage 5: Item customisation opened
           posthog.capture('journey_variation_opened', {
             item_name: item.title,
             price: basePrice,
@@ -134,16 +183,16 @@ const MenuItem: FC<MenuItemProps> = ({ item, cardStyle = 'gourmet' }) => {
             price: basePrice,
             category: item.category
           });
-          setShowModal(true);
+          openModal();
         }}
         className={
           cardStyle === 'list'
-            ? "relative flex flex-row items-center gap-4 p-3 md:p-4 rounded-2xl cursor-pointer bg-white/70 backdrop-blur-lg shadow-md border border-transparent hover:border-[#741052] transition-all duration-300 w-full"
+            ? "relative flex flex-row items-center gap-4 p-3 md:p-4 rounded-2xl cursor-pointer bg-white/70 backdrop-blur-md shadow-md border border-transparent hover:border-[#741052] transition-all duration-300 w-full"
             : cardStyle === 'minimal'
             ? "relative flex flex-col p-3 rounded-xl cursor-pointer bg-transparent border border-neutral-200/60 dark:border-neutral-800 hover:border-[#741052] transition-all duration-300"
             : cardStyle === 'compact'
-            ? "relative flex flex-col p-3 rounded-xl cursor-pointer bg-white/70 backdrop-blur-lg shadow-md border border-transparent hover:border-[#741052] transition-all duration-300"
-            : "relative flex flex-col p-4 rounded-2xl cursor-pointer bg-white/70 backdrop-blur-lg shadow-lg border border-transparent hover:border-[#741052] transition-all duration-300" // gourmet
+            ? "relative flex flex-col p-3 rounded-xl cursor-pointer bg-white/70 backdrop-blur-md shadow-md border border-transparent hover:border-[#741052] transition-all duration-300"
+            : "relative flex flex-col p-4 rounded-2xl cursor-pointer bg-white/70 backdrop-blur-md shadow-lg border border-transparent hover:border-[#741052] transition-all duration-300"
         }
         style={
           cardStyle === 'list'
@@ -152,19 +201,17 @@ const MenuItem: FC<MenuItemProps> = ({ item, cardStyle = 'gourmet' }) => {
             ? { height: "18rem" }
             : cardStyle === 'compact'
             ? { height: "21rem" }
-            : { height: "28rem" } // gourmet
+            : { height: "28rem" }
         }
       >
         {cardStyle === 'list' ? (
           <>
-            {/* Out of stock badge */}
             {item.status === "out of stock" && (
               <span className="absolute top-2 left-2 z-10 bg-red-500 text-white text-[10px] px-2 py-0.5 rounded-full shadow-md animate-pulse">
                 Out of Stock
               </span>
             )}
 
-            {/* Left Side: Image */}
             <div className="relative w-24 h-24 sm:w-28 sm:h-28 md:w-32 md:h-32 shrink-0">
               <Image
                 src={item.image || "/fallback-image.jpg"}
@@ -176,7 +223,6 @@ const MenuItem: FC<MenuItemProps> = ({ item, cardStyle = 'gourmet' }) => {
               />
             </div>
 
-            {/* Right/Center Side: Info */}
             <div className="flex-1 min-w-0 flex flex-col h-full justify-between py-1">
               <div>
                 <h2 className="text-base sm:text-lg font-semibold text-[#741052] truncate">
@@ -205,7 +251,7 @@ const MenuItem: FC<MenuItemProps> = ({ item, cardStyle = 'gourmet' }) => {
                   disabled={item.status === "out of stock"}
                   onClick={(e) => {
                     e.stopPropagation();
-                    setShowModal(true);
+                    openModal();
                   }}
                   className={`py-1.5 px-4 text-xs rounded-full font-medium text-white transition-all duration-300
                     ${
@@ -221,7 +267,6 @@ const MenuItem: FC<MenuItemProps> = ({ item, cardStyle = 'gourmet' }) => {
           </>
         ) : (
           <>
-            {/* Out of stock badge */}
             {item.status === "out of stock" && (
               <span className="absolute top-2 left-2 bg-red-500 text-white text-xs px-3 py-1 rounded-full shadow-md animate-pulse z-10">
                 Out of Stock
@@ -247,7 +292,6 @@ const MenuItem: FC<MenuItemProps> = ({ item, cardStyle = 'gourmet' }) => {
               {item.title}
             </h2>
 
-            {/* Truncated description */}
             <div className="relative flex-1 mb-3 overflow-hidden">
               <p className={`text-gray-500 ${
                 cardStyle === 'minimal' ? 'text-[11px] line-clamp-1' : cardStyle === 'compact' ? 'text-xs line-clamp-2' : 'text-sm line-clamp-2'
@@ -257,7 +301,6 @@ const MenuItem: FC<MenuItemProps> = ({ item, cardStyle = 'gourmet' }) => {
               )}
             </div>
 
-            {/* Price */}
             <div className="flex items-center gap-1.5 mt-auto">
               <p className={`font-bold text-[#741052] ${
                 cardStyle === 'minimal' ? 'text-sm' : cardStyle === 'compact' ? 'text-base' : 'text-lg'
@@ -271,14 +314,13 @@ const MenuItem: FC<MenuItemProps> = ({ item, cardStyle = 'gourmet' }) => {
               )}
             </div>
 
-            {/* Add to cart button */}
             <motion.button
               whileHover={item.status === "in stock" ? { scale: 1.05 } : {}}
               whileTap={item.status === "in stock" ? { scale: 0.97 } : {}}
               disabled={item.status === "out of stock"}
               onClick={(e) => {
                 e.stopPropagation();
-                setShowModal(true);
+                openModal();
               }}
               className={`w-full text-center rounded-full font-medium text-white transition-all duration-300 ${
                 cardStyle === 'minimal'
@@ -298,88 +340,85 @@ const MenuItem: FC<MenuItemProps> = ({ item, cardStyle = 'gourmet' }) => {
         )}
       </motion.div>
 
-      {/* Modal */}
+      {/* Optimized High-Performance Modal */}
       <AnimatePresence>
         {showModal && (
           <motion.div
-            className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50"
+            className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
+            transition={{ duration: 0.15 }}
+            onClick={closeModal}
           >
             <motion.div
-              initial={{ scale: 0.9, opacity: 0 }}
+              initial={{ scale: 0.96, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.9, opacity: 0 }}
-              transition={{ type: "spring", stiffness: 200, damping: 20 }}
-              className="relative bg-white/90 backdrop-blur-xl 
-              rounded-2xl p-6 max-w-4xl w-full flex flex-col lg:flex-row shadow-2xl"
+              exit={{ scale: 0.96, opacity: 0 }}
+              transition={{ duration: 0.18, ease: "easeOut" }}
+              onClick={(e) => e.stopPropagation()}
+              className="relative bg-white rounded-2xl p-5 sm:p-6 max-w-4xl w-full flex flex-col lg:flex-row shadow-2xl max-h-[90vh] overflow-y-auto border border-gray-100"
+              style={{ willChange: "transform, opacity" }}
             >
               {/* Close Button */}
               <button
                 className="absolute top-3 right-3 w-8 h-8 flex items-center justify-center rounded-full 
-                border border-gray-300 hover:bg-gradient-to-r from-[#741052] to-[#d0269b] hover:text-white transition"
-                onClick={() => setShowModal(false)}
+                border border-gray-200 bg-gray-50 hover:bg-gray-200 text-gray-700 transition z-20"
+                onClick={closeModal}
+                aria-label="Close modal"
               >
                 <X size={18} />
               </button>
 
               {/* Left Column - Image */}
-              <motion.div
-                initial={{ x: -100, opacity: 0 }}
-                animate={{ x: 0, opacity: 1 }}
-                transition={{ delay: 0.1 }}
-                className="lg:w-1/2 flex justify-center items-center mb-6 lg:mb-0"
-              >
+              <div className="lg:w-1/2 flex justify-center items-center mb-5 lg:mb-0">
                 <Image
                   src={item.image || "/fallback-image.jpg"}
                   alt={item.title}
-                  className="rounded-xl object-cover w-full h-[350px]"
+                  className="rounded-xl object-cover w-full h-[240px] sm:h-[320px]"
                   width={356}
-                  height={350}
+                  height={320}
                   sizes="(max-width: 768px) 100vw, 50vw"
+                  priority
                 />
-              </motion.div>
+              </div>
 
               {/* Right Column - Details */}
-              <motion.div
-                initial={{ x: 100, opacity: 0 }}
-                animate={{ x: 0, opacity: 1 }}
-                transition={{ delay: 0.2 }}
-                className="lg:w-1/2 px-4"
-              >
-                <h2 className="text-2xl font-semibold text-[#741052]">
-                  {item.title}
-                </h2>
-                <p className="text-gray-600 mt-3">{item.description}</p>
+              <div className="lg:w-1/2 px-1 sm:px-4 flex flex-col justify-between">
+                <div>
+                  <h2 className="text-2xl font-bold text-[#741052]">
+                    {item.title}
+                  </h2>
+                  <p className="text-gray-600 mt-2 text-sm sm:text-base leading-relaxed">{item.description}</p>
 
-                <div className="flex items-center gap-3 mt-4">
-                  <p className="text-xl font-bold text-[#741052]">
-                    Rs.{totalPrice.toFixed(2)}
-                  </p>
-                  {item.discountValue !== undefined && item.discountValue > 0 && selections.simple === null && (
-                    <p className="text-sm text-gray-400 line-through">
-                      Rs.{originalPrice.toFixed(2)}
+                  <div className="flex items-center gap-3 mt-3">
+                    <p className="text-xl font-extrabold text-[#741052]">
+                      Rs.{totalPrice.toFixed(2)}
                     </p>
+                    {item.discountValue !== undefined && item.discountValue > 0 && selections.simple.length === 0 && (
+                      <p className="text-sm text-gray-400 line-through">
+                        Rs.{originalPrice.toFixed(2)}
+                      </p>
+                    )}
+                  </div>
+
+                  {/* Variations */}
+                  {variationConfig.simpleVariations && variationConfig.simpleVariations.length > 0 && (
+                    <div className="mt-4">
+                      <VariationSelector
+                        config={variationConfig}
+                        selections={selections}
+                        onSimpleSelect={handleSimpleSelect}
+                        onCategorySelect={() => {}}
+                        errors={validation.errors}
+                        warnings={validation.warnings}
+                      />
+                    </div>
                   )}
                 </div>
 
-                {/* Variations */}
-                {variationConfig.simpleVariations && variationConfig.simpleVariations.length > 0 && (
-                  <div className="mt-6">
-                    <VariationSelector
-                      config={variationConfig}
-                      selections={selections}
-                      onSimpleSelect={handleSimpleSelect}
-                      onCategorySelect={() => {}} // Not used for simple variations
-                      errors={validation.errors}
-                      warnings={validation.warnings}
-                    />
-                  </div>
-                )}
-
                 {/* Add to Cart */}
-                <div className="mt-6 flex items-center gap-4">
+                <div className="mt-5 pt-3 border-t border-gray-100 flex items-center gap-4">
                   <AddToCartButton
                     id={itemId}
                     title={item.title}
@@ -392,16 +431,16 @@ const MenuItem: FC<MenuItemProps> = ({ item, cardStyle = 'gourmet' }) => {
                   />
                   {showAddedMessage && (
                     <motion.div
-                      initial={{ opacity: 0, y: 20 }}
+                      initial={{ opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: 20 }}
-                      className="flex items-center gap-1 text-green-600 text-sm"
+                      exit={{ opacity: 0, y: 10 }}
+                      className="flex items-center gap-1 text-green-600 text-sm font-semibold"
                     >
                       <Check size={16} /> Added to cart
                     </motion.div>
                   )}
                 </div>
-              </motion.div>
+              </div>
             </motion.div>
           </motion.div>
         )}

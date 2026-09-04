@@ -10,6 +10,7 @@ import Hero from "../components/Hero";
 import SkeletonLoader from "../components/SkeletonLoader";
 import { Star, Clock, ArrowRight, ChevronLeft, ChevronRight } from "lucide-react";
 import Link from "next/link";
+import { useRouter, usePathname } from "next/navigation";
 import Image from "next/image";
 import { trackEvent, trackClarityFunnelStep, CLK_FUNNEL_MENU_VIEWED } from "../lib/analytics";
 
@@ -164,7 +165,22 @@ const defaultMenuCategoryOrder = [
   "Very Fast Food", "Beast BBQ", "Pizza Parlour", "Hotpot and Chinese", "Rolls Royce", "The Chai Company", "Very Extra"
 ];
 
-export default function MenuPage() {
+export default function MenuPage({
+  initialItemSlug,
+  initialPlatterSlug,
+}: {
+  initialItemSlug?: string;
+  initialPlatterSlug?: string;
+} = {}) {
+  const router = useRouter();
+  const pathname = usePathname();
+
+  useEffect(() => {
+    if (pathname === '/order') {
+      router.replace('/');
+    }
+  }, [pathname, router]);
+
   const [sections, setSections] = useState<PageSection[]>([]);
   const [allPlatters, setAllPlatters] = useState<Platter[]>([]);
   const [pageLoading, setPageLoading] = useState<boolean>(true);

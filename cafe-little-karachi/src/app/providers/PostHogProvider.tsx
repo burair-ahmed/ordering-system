@@ -36,11 +36,19 @@ function PostHogPageView() {
 
       // Construct a readable Page Name
       let pageName = 'Unknown Page';
+      const persistedArea = typeof window !== 'undefined' ? localStorage.getItem('CLK_AREA') || localStorage.getItem('posthog_last_area') : null;
+      const currentArea = searchParams?.get('area') || persistedArea || 'Unknown Area';
+
       if (pathname === '/') {
-        pageName = 'Home';
+        pageName = `Home / Menu - ${currentArea}`;
+      } else if (pathname.startsWith('/item/')) {
+        pageName = `Product - ${pathname.replace('/item/', '')}`;
+      } else if (pathname.startsWith('/platter/')) {
+        pageName = `Platter - ${pathname.replace('/platter/', '')}`;
+      } else if (pathname.startsWith('/table/')) {
+        pageName = `Table Dine-In - ${pathname.replace('/table/', '')}`;
       } else if (pathname.includes('/order')) {
-        const areaName = searchParams?.get('area') || 'Unknown Area';
-        pageName = `Menu - ${areaName}`;
+        pageName = `Menu - ${currentArea}`;
       } else if (pathname.includes('/checkout')) {
         pageName = 'Checkout';
       } else if (pathname.includes('/thank-you')) {
@@ -50,7 +58,7 @@ function PostHogPageView() {
       posthog.capture('$pageview', {
         '$current_url': url,
         'page_name': pageName, // Custom readable name
-        'area_context': searchParams?.get('area') || 'N/A' // Explicitly track area as a property
+        'area_context': currentArea // Explicitly track area as a property
       })
     }
   }, [pathname, searchParams, area])

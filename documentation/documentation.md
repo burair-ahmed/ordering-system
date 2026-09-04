@@ -18,10 +18,11 @@ version: 1.0.0
 ## 1. Golden Rules of Documentation
 
 1. **Document as You Build**: Never leave documentation for "later". Every feature, schema edit, bug fix, or API change MUST be documented immediately upon completion.
-2. **Micro-Detail Precision**: Capture exact function signatures, Mongoose schema fields, API payloads, Socket.IO event names, and file paths. Vague summaries are unacceptable.
-3. **Living Memory Update**: Every single session or task completion MUST update [[memory|Memory Log]] and [[status|Status Dashboard]].
-4. **Architectural Decision Records (ADRs)**: Any major technical choice (e.g., switching databases, changing real-time strategy, modifying the variation schema) MUST be recorded as an ADR in this document.
-5. **Project-Specific Docs**: Feature-level detail belongs in the sub-project's own `docs/` folder (`cafe-little-karachi/docs/` or `the-chai-company/docs/`). Monorepo-level patterns belong here in `/documentation`.
+2. **Strict Micro-Change Documentation Rule (MANDATORY)**: Even the smallest micro-changes—such as tweaking polling intervals, adding UI refresh buttons, updating fallback query parameters, adjusting error messages, or tuning CSS transitions—MUST be strictly and immediately documented in `documentation/memory.md`, `documentation/status.md`, and relevant architecture notes with exact line references and rationale.
+3. **Micro-Detail Precision**: Capture exact function signatures, Mongoose schema fields, API payloads, Socket.IO event names, and file paths. Vague summaries are unacceptable.
+4. **Living Memory Update**: Every single session or task completion MUST update [[memory|Memory Log]] and [[status|Status Dashboard]].
+5. **Architectural Decision Records (ADRs)**: Any major or structural choice (e.g., clean URL architecture, dual-persistence model, changing polling frequency) MUST be recorded as an ADR in this document.
+6. **Project-Specific Docs**: Feature-level detail belongs in the sub-project's own `docs/` folder (`cafe-little-karachi/docs/` or `the-chai-company/docs/`). Monorepo-level patterns belong here in `/documentation`.
 
 ---
 
@@ -138,3 +139,25 @@ const OrderSchema = new Schema({
 - **Context**: CLK and TCC share the same architectural DNA — identical tech stacks, shared patterns, and common governance rules. Separate repositories would duplicate documentation and diverge patterns.
 - **Decision**: Single monorepo workspace with `cafe-little-karachi/` and `the-chai-company/` as independently deployable sub-projects.
 - **Consequence**: Unified governance docs; easy pattern cross-referencing; independent deployments per project.
+
+### ADR-006: Site-Wide Clean URL Architecture & Ad Entrypoints
+- **Date**: 2026-09-04
+- **Status**: Approved
+- **Context**: Ugly query parameters (`?type=delivery&area=...&tableId=...`) cluttered URLs, broke marketing ad shareability, and caused state loss on page reloads.
+- **Decision**: Move the main ordering catalog directly to the root domain (`/`), remove query parameters across all customer touchpoints, and create dynamic marketing routes (`/item/[slug]`, `/platter/[slug]`, `/table/[tableId]`, `/delivery/[area]`) that auto-absorb context and open product customization modals smoothly.
+- **Consequence**: Pristine URLs for users and ad campaigns, seamless QR scanning, and zero state loss.
+
+### ADR-007: Dual-Layer State Persistence Engine
+- **Date**: 2026-09-04
+- **Status**: Approved
+- **Context**: Pure URL state or pure in-memory state leads to friction when refreshing or switching devices. Server components also need synchronous access to location headers.
+- **Decision**: `OrderContext.tsx` dual-writes state to both `localStorage` and first-party cookies (`CLK_ORDER_TYPE`, `CLK_AREA`, `CLK_TABLE`).
+- **Consequence**: Robust client hydration, seamless SSR compatibility, and zero layout shift.
+
+### ADR-008: Admin Polling Frequency & Manual Sync
+- **Date**: 2026-09-04
+- **Status**: Approved
+- **Context**: 5-second database polling on the admin dashboard caused unnecessary server strain on high volume.
+- **Decision**: Relax automated polling to 2 minutes (120s) and add a prominent manual "Refresh Orders" button with a spinning indicator for instant manual synchronization.
+- **Consequence**: Significant reduction in server load while preserving instant manual control for kitchen/admin staff.
+

@@ -18,20 +18,18 @@ const BRAND_FROM = "#741052";
 const BRAND_TO = "#d0269b";
 const BRAND_GRADIENT = `bg-gradient-to-r from-[${BRAND_FROM}] to-[${BRAND_TO}]`;
 
-/**
- * Props:
- *  - closeSidebar: () => void
- *  - tableId: string
- */
+interface CartSidebarProps {
+  closeSidebar?: () => void;
+  onClose?: () => void;
+  isOpen?: boolean;
+  tableId?: string;
+}
+
 export default function CartSidebar({
   closeSidebar,
-}: {
-  closeSidebar: () => void;
-  tableId: string;
-}) 
-{
-
-    const { orderType, area, tableId } = useOrder();
+  onClose,
+}: CartSidebarProps) {
+  const { orderType, area, tableId } = useOrder();
 
   const { cartItems, removeFromCart, updateQuantity, totalAmount, clearCart } =
     useCart();
@@ -66,7 +64,10 @@ export default function CartSidebar({
   const handleClose = () => {
     setOpen(false);
     // allow exit animation before actually closing parent
-    setTimeout(closeSidebar, 320);
+    setTimeout(() => {
+      if (closeSidebar) closeSidebar();
+      if (onClose) onClose();
+    }, 320);
   };
 
   // Motion variants
@@ -108,14 +109,7 @@ export default function CartSidebar({
 
 
 
-const checkoutUrl =
-  orderType === "delivery"
-    ? `/checkout?type=delivery&area=${encodeURIComponent(area || "")}`
-    : orderType === "pickup"
-    ? `/checkout?type=pickup`
-    : orderType === "dinein"
-    ? `/checkout?type=dinein&tableId=${encodeURIComponent(tableId? tableId : "")}`
-    : "/"; // fallback
+  const checkoutUrl = "/checkout";
 
   return (
     <AnimatePresence>

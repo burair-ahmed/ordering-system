@@ -180,28 +180,19 @@ const CheckoutPageContent: FC = () => {
   }, [router]);
   // ────────────────────────────────────────────────────────────────────────
 
-  // preserve tableId from query or local storage
+  // preserve order state from OrderContext
   useEffect(() => {
     setMounted(true);
-    if (!searchParams) return;
-    const typeParam = searchParams.get("type");
-    if (typeParam) {
-      setFormData((s) => ({ ...s, ordertype: typeParam }));
-    }
 
-    const tableId = searchParams.get("tableId");
+    if (orderType) {
+      setFormData((s) => ({ ...s, ordertype: orderType }));
+    }
     if (tableId) {
       setFormData((s) => ({ ...s, tableNumber: tableId }));
-      // store locally as well
-      try {
-        localStorage.setItem("tableId", tableId);
-      } catch {}
-    } else {
-      // fallback to local storage if exists
-      try {
-        const t = localStorage.getItem("tableId");
-        if (t) setFormData((s) => ({ ...s, tableNumber: t }));
-      } catch {}
+    }
+    if (area) {
+      setDetectedArea(area);
+      setFormData((s) => ({ ...s, area }));
     }
 
     // Track entering checkout (Stage 7 — Checkout Started)
@@ -209,20 +200,11 @@ const CheckoutPageContent: FC = () => {
     trackEvent('journey_start_checkout', {
       item_count: cartItems.length,
       total_amount: totalAmount,
-      order_type: typeParam || formData.ordertype || 'dinein'
+      order_type: orderType || formData.ordertype || 'dinein'
     });
     // Force Clarity to record this high-value session
     clarityUpgrade('checkout_started');
-  }, [searchParams, cartItems.length, totalAmount]);
-  useEffect(() => {
-    if (!searchParams) return;
-
-    const encodedArea = searchParams.get("area");
-    if (encodedArea) {
-      const decodedArea = decodeURIComponent(encodedArea);
-      setDetectedArea(decodedArea); // ONLY STORE HERE
-    }
-  }, [searchParams]);
+  }, [orderType, tableId, area, cartItems.length, totalAmount]);
 
   // GSAP timeline on mount (optional). Dynamically import so build won't fail if gsap is missing.
   useEffect(() => {
@@ -383,21 +365,29 @@ const CheckoutPageContent: FC = () => {
   const handlePlaceOrder = async (): Promise<void> => {
     setIsProcessing(true);
 
+    const finalArea = formData.area || detectedArea || area || "";
+    const finalTable = formData.tableNumber || tableId || "";
+    const finalOrderType = formData.ordertype || orderType || "dinein";
+
     const newOrder = {
       customerName: formData.name,
       email: formData.email || "",
       phone: formData.phone || "",
-      area: formData.area || "",
-      tableNumber: formData.tableNumber,
-      ordertype: formData.ordertype,
+      area: finalArea,
+      tableNumber: finalTable,
+      ordertype: finalOrderType,
       deliveryCharge: deliveryCharge,
-      paymentMethod: formData.paymentMethod,
+      paymentMethod: formData.paymentMethod || "cash",
       items: cartItems.map((item) => ({
-        id: item.id,
+        id: String(item.id),
         title: item.title,
         quantity: item.quantity,
         price: item.price,
-        variations: item.variations || [],
+        variations: Array.isArray(item.variations)
+          ? item.variations.map((v: any) =>
+              typeof v === "string" ? v : v.name || v.optionName || JSON.stringify(v)
+            )
+          : [],
       })),
       totalAmount: finalAmount,
       status: "Received",
@@ -413,7 +403,7 @@ const CheckoutPageContent: FC = () => {
 
     // Track Order Submission (Stage 8 — Order Placed)
     posthog.capture('journey_submit_order', {
-      order_type: formData.ordertype,
+      order_type: finalOrderType,
       payment_method: formData.paymentMethod,
       item_count: cartItems.length,
       total_amount: finalAmount,
@@ -421,7 +411,7 @@ const CheckoutPageContent: FC = () => {
     });
 
     trackEvent('journey_order_placed', {
-      order_type: formData.ordertype,
+      order_type: finalOrderType,
       payment_method: formData.paymentMethod,
       item_count: cartItems.length,
       total_amount: finalAmount,
@@ -440,12 +430,23 @@ const CheckoutPageContent: FC = () => {
       if (res.ok) {
         const json = await res.json();
         const orderNumber = json.orderNumber || json.id || "N/A";
-        const orderType = json.ordertype;
+        const resolvedOrderType = json.ordertype || finalOrderType || "delivery";
+
+        // Persist latest order information for resilient Thank You page loading
+        try {
+          if (typeof window !== "undefined") {
+            localStorage.setItem("latest_order_number", orderNumber);
+            localStorage.setItem("latest_order_type", resolvedOrderType);
+            if (formData.phone) localStorage.setItem("latest_order_phone", formData.phone);
+          }
+        } catch (storageErr) {
+          console.warn("Storage persistence error:", storageErr);
+        }
 
         // Track successful order completion in database
         trackEvent('journey_order_success', {
           order_number: orderNumber,
-          order_type: orderType,
+          order_type: resolvedOrderType,
           payment_method: formData.paymentMethod,
           total_amount: finalAmount,
           item_count: cartItems.length
@@ -456,21 +457,23 @@ const CheckoutPageContent: FC = () => {
         clearCart();
         setIsModalOpen(false);
 
-        // Redirect dynamically based on order type
-        if (orderType === "dinein") {
-          router.push(`/thank-you?type=dinein&tableId=${formData.tableNumber}`);
-        } else if (orderType === "pickup") {
-          router.push(`/thank-you?type=pickup&order=${orderNumber}`);
-        } else if (orderType === "delivery") {
-          router.push(
-            `/thank-you?type=delivery&order=${orderNumber}&phone=${
-              formData.phone
-            }&area=${encodeURIComponent(formData.area)}`
-          );
+        // Redirect dynamically based on order type with clean URL parameters
+        const targetUrl =
+          resolvedOrderType === "dinein" && finalTable
+            ? `/thank-you?type=dinein&tableId=${encodeURIComponent(finalTable)}&order=${encodeURIComponent(orderNumber)}`
+            : `/thank-you?type=${resolvedOrderType}&order=${encodeURIComponent(orderNumber)}${
+                formData.phone ? `&phone=${encodeURIComponent(formData.phone)}` : ""
+              }${formData.area ? `&area=${encodeURIComponent(formData.area)}` : ""}`;
+
+        try {
+          router.push(targetUrl);
+        } catch {
+          window.location.assign(targetUrl);
         }
       } else {
+        const errorJson = await res.json().catch(() => ({}));
         toast.error("Order failed", {
-          description: "Could not save your order. Please try again.",
+          description: errorJson.message || "Could not save your order. Please try again.",
         });
       }
     } catch (err) {

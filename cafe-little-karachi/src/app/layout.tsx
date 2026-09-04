@@ -51,8 +51,8 @@ export default function RootLayout({
           <CSPostHogProvider>
             <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
               <TableProvider>
-                <CartProvider>
-                  <OrderProvider>
+                <OrderProvider>
+                  <CartProvider>
                     <RestaurantStatusPopup />
                     <Header />
                     <main className="flex-grow">
@@ -60,8 +60,8 @@ export default function RootLayout({
                     </main>
                     <Footer />
                     <WhatsAppButton />
-                  </OrderProvider>
-                </CartProvider>
+                  </CartProvider>
+                </OrderProvider>
               </TableProvider>
               <Toaster richColors />
             </ThemeProvider>

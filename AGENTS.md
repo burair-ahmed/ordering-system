@@ -22,6 +22,7 @@ This is the **Advanced Ordering Ecosystem**, a monorepo workspace containing two
 3. Each sub-project has its own `docs/` folder for project-specific documentation.
 4. The root `documentation/` folder contains monorepo-level specs and tracking.
 5. Update `documentation/status.md` and `documentation/memory.md` after every completed task.
+6. **Strict Micro-Change Documentation Rule (MANDATORY)**: Even the smallest micro-changes (e.g., polling interval adjustments, button additions, fallback parameters, error handling tweaks, or style updates) MUST be strictly and immediately documented in `documentation/memory.md`, `documentation/status.md`, and the relevant documentation notes with exact file paths and rationale. Undocumented changes are strictly prohibited.
 
 ---
 

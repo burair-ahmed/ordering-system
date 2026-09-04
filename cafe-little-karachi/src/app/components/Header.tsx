@@ -9,7 +9,7 @@ import { motion, AnimatePresence, useScroll, useTransform } from 'framer-motion'
 import CartSidebar from './CartSidebar';
 import { useCart } from '../context/CartContext';
 import { useOrder } from '../context/OrderContext';
-import { ShoppingBag, Phone, MapPin, Menu, X, ArrowRight } from 'lucide-react';
+import { ShoppingBag, Phone, MapPin, Menu, X, ArrowRight, Edit2 } from 'lucide-react';
 import { FaWhatsapp } from 'react-icons/fa';
 import { isOpenAt } from '../lib/restaurantStatus';
 
@@ -17,8 +17,14 @@ export default function Header() {
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isClient, setIsClient] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const { cartItems, totalAmount } = useCart();
-  const { orderType, tableId, isCheckoutModalOpen } = useOrder();
+  const { cartItems } = useCart();
+  const {
+    orderType,
+    area,
+    tableId,
+    isLocationSet,
+    setLocationModalOpen
+  } = useOrder();
   
   const { scrollY } = useScroll();
   
@@ -36,16 +42,22 @@ export default function Header() {
   }, []);
 
   const toggleCartSidebar = () => {
-    if (['dinein', 'delivery', 'pickup'].includes(orderType)) {
-      setIsCartOpen((prev) => !prev);
-    } else {
-      console.warn('No valid order type found in context');
-    }
+    setIsCartOpen((prev) => !prev);
   };
 
   if (!isClient) return null;
 
   const totalItems = cartItems.reduce((total, item) => total + item.quantity, 0);
+
+  // Derive human-readable location tag
+  const locationLabel = () => {
+    if (orderType === "delivery" && area) return area;
+    if (orderType === "dinein" && tableId) return `Table ${tableId}`;
+    if (orderType === "pickup") return "Pickup";
+    return null;
+  };
+
+  const activeLocation = locationLabel();
 
   return (
     <>
@@ -105,7 +117,7 @@ export default function Header() {
 
             {/* Center: Brand Identity */}
             <div className="absolute left-1/2 -translate-x-1/2">
-              <Link href={tableId ? `/order?tableId=${tableId}` : '/'} className="group flex items-center justify-center relative">
+              <Link href="/" className="group flex items-center justify-center relative">
                 {/* Logo Halo Effect */}
                 <div className="absolute inset-0 bg-[#ff9824]/20 blur-2xl rounded-full scale-0 group-hover:scale-150 transition-transform duration-500" />
                 
@@ -127,20 +139,31 @@ export default function Header() {
               </Link>
             </div>
 
-            {/* Right: Cart and Actions */}
-            <div className="flex items-center gap-2 md:gap-4">
-               {/* Location Icon (Mobile & Desktop) */}
-               <motion.a 
-                whileTap={{ scale: 0.9 }}
-                target="_blank" 
-                rel="noopener noreferrer"
-                href="https://maps.app.goo.gl/VT5tV6Lm51pxRH7D8?g_st=aw"
-                className="flex w-10 h-10 rounded-full bg-white/5 border border-white/10 items-center justify-center text-[#ff9824]"
-                title="Find Us"
-                aria-label="View location on Google Maps"
+            {/* Right: Location Selector & Cart */}
+            <div className="flex items-center gap-2 md:gap-3">
+              {/* Location Button — opens OrderTypeModal to change delivery area / table / pickup */}
+              <motion.button 
+                whileTap={{ scale: 0.95 }}
+                onClick={() => setLocationModalOpen(true)}
+                className={`flex items-center gap-1.5 h-10 md:h-12 px-2.5 md:px-3.5 rounded-full border transition-all duration-300 ${
+                  activeLocation 
+                    ? "bg-white/10 hover:bg-white/15 border-white/20 text-white" 
+                    : "bg-white/5 hover:bg-white/10 border-white/10 text-[#ff9824]"
+                }`}
+                title="Update Location or Order Mode"
+                aria-label="Update Location"
               >
-                <MapPin size={18} className="text-[#ff9824]" />
-              </motion.a>
+                <MapPin size={16} className="text-[#ff9824] shrink-0" />
+                {activeLocation ? (
+                  <div className="hidden sm:flex flex-col text-left mr-1">
+                    <span className="text-[9px] text-white/50 uppercase tracking-wider font-semibold">Location</span>
+                    <span className="text-xs font-bold text-white truncate max-w-[100px] md:max-w-[130px]">{activeLocation}</span>
+                  </div>
+                ) : (
+                  <span className="hidden sm:inline text-xs font-semibold text-white/80">Location</span>
+                )}
+                <Edit2 size={12} className="text-white/40 hidden sm:inline" />
+              </motion.button>
 
               {/* Premium Cart Button */}
               <motion.button
@@ -184,8 +207,9 @@ export default function Header() {
 
             <nav className="flex flex-col gap-8">
               {[
-                { label: 'Menu Selection', href: tableId ? `/order?tableId=${tableId}` : '/order' },
-                { label: 'Our Location', href: 'https://maps.app.goo.gl/VT5tV6Lm51pxRH7D8?g_st=aw', external: true },
+                { label: 'Menu Selection', href: '/' },
+                { label: 'Change Location / Mode', onClick: () => { setMobileMenuOpen(false); setLocationModalOpen(true); } },
+                { label: 'Find Us On Map', href: 'https://maps.app.goo.gl/VT5tV6Lm51pxRH7D8?g_st=aw', external: true },
                 { label: 'Direct Call', href: 'tel:+923331702706' },
               ].map((link, i) => (
                 <motion.div
@@ -194,15 +218,25 @@ export default function Header() {
                   animate={{ x: 0, opacity: 1 }}
                   transition={{ delay: i * 0.1 }}
                 >
-                  <Link 
-                    href={link.href} 
-                    target={link.external ? '_blank' : undefined}
-                    onClick={() => setMobileMenuOpen(false)}
-                    className="flex justify-between items-center group font-black text-3xl text-white uppercase tracking-tighter"
-                  >
-                    <span>{link.label}</span>
-                    <ArrowRight className="text-[#ff9824] opacity-0 group-hover:opacity-100 -translate-x-4 group-hover:translate-x-0 transition-all" />
-                  </Link>
+                  {link.onClick ? (
+                    <button
+                      onClick={link.onClick}
+                      className="flex w-full justify-between items-center group font-black text-2xl text-white uppercase tracking-tighter text-left"
+                    >
+                      <span>{link.label}</span>
+                      <ArrowRight className="text-[#ff9824] opacity-0 group-hover:opacity-100 -translate-x-4 group-hover:translate-x-0 transition-all" />
+                    </button>
+                  ) : (
+                    <Link 
+                      href={link.href!} 
+                      target={link.external ? '_blank' : undefined}
+                      onClick={() => setMobileMenuOpen(false)}
+                      className="flex justify-between items-center group font-black text-3xl text-white uppercase tracking-tighter"
+                    >
+                      <span>{link.label}</span>
+                      <ArrowRight className="text-[#ff9824] opacity-0 group-hover:opacity-100 -translate-x-4 group-hover:translate-x-0 transition-all" />
+                    </Link>
+                  )}
                 </motion.div>
               ))}
             </nav>
@@ -210,53 +244,8 @@ export default function Header() {
         )}
       </AnimatePresence>
 
-      {/* Spacing for Fixed Header */}
-      <div className="h-24 md:h-32" />
-
-      {/* MOBILE BOTTOM CHECKOUT BAR (Refined) */}
-      <AnimatePresence>
-        {cartItems.length > 0 && !isCheckoutModalOpen && (
-          <motion.div 
-            initial={{ y: 100 }}
-            animate={{ y: 0 }}
-            exit={{ y: 100 }}
-            className="fixed bottom-6 left-0 w-full px-4 z-40 lg:hidden"
-          >
-            <div className="bg-black/95 backdrop-blur-xl border border-white/10 rounded-2xl p-4 flex justify-between items-center shadow-2xl">
-              <div className="flex flex-col">
-                <span className="text-[10px] text-white/40 uppercase tracking-widest font-bold">Subtotal</span>
-                <span className="text-lg font-black text-white">Rs. {totalAmount.toLocaleString()}</span>
-              </div>
-              <motion.button
-                whileTap={{ scale: 0.95 }}
-                onClick={toggleCartSidebar}
-                className={`${isOpenAt() ? 'bg-[#ff9824] hover:bg-[#ff7b00]' : 'bg-slate-700'} text-white rounded-xl px-6 py-3 font-black text-xs sm:text-sm uppercase flex items-center gap-2`}
-              >
-                <span>{isOpenAt() ? 'Checkout' : 'Closed (Opens 6:30 PM)'}</span>
-                <ArrowRight size={16} />
-              </motion.button>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* Cart Sidebar Implementation remains safe and functional */}
-      <AnimatePresence>
-        {isCartOpen && (
-          <>
-            <motion.div
-              className="fixed inset-0 bg-black/60 backdrop-blur-md z-[110]"
-              onClick={toggleCartSidebar}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-            />
-            <div className="z-[120] fixed inset-y-0 right-0">
-               <CartSidebar closeSidebar={toggleCartSidebar} tableId={tableId ?? ''} />
-            </div>
-          </>
-        )}
-      </AnimatePresence>
+      {/* CART SIDEBAR COMPONENT */}
+      {isCartOpen && <CartSidebar closeSidebar={() => setIsCartOpen(false)} />}
     </>
   );
 }

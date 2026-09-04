@@ -27,6 +27,7 @@ import {
   Phone,
   MessageCircle,
   Download,
+  RefreshCw,
 } from "lucide-react";
 import Preloader from "../components/Preloader";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -124,6 +125,7 @@ const OrdersList: FC<OrdersListProps> = ({
   const [consents, setConsents] = useState<ConsentEntry[]>([]);
   const [loadingDetail, setLoadingDetail] = useState<boolean>(false);
   const [showAllConsents, setShowAllConsents] = useState<boolean>(false);
+  const [isRefreshing, setIsRefreshing] = useState<boolean>(false);
 
   // 🎵 Audio setup (using external context if provided)
   const playNotificationSound = () => {
@@ -139,23 +141,31 @@ const OrdersList: FC<OrdersListProps> = ({
 
 
   // 🔄 Fetch Orders
-  const fetchOrders = async () => {
+  const fetchOrders = async (showRefreshIndicator = false) => {
+    if (showRefreshIndicator) setIsRefreshing(true);
     try {
       const response = await fetch("/api/orders");
       const data = await response.json();
 
       if (response.ok) {
-        const newOrders = data.orders || [];
+        const newOrders: Order[] = Array.isArray(data)
+          ? data
+          : Array.isArray(data?.orders)
+          ? data.orders
+          : Array.isArray(data?.data)
+          ? data.data
+          : [];
         const previousOrders = previousOrdersRef.current;
 
         const isNewOrder =
-          newOrders.length > previousOrders.length ||
-          newOrders.some(
-            (o: Order) =>
-              !previousOrders.some(
-                (p) => p.orderNumber === o.orderNumber
-              )
-          );
+          previousOrders.length > 0 &&
+          (newOrders.length > previousOrders.length ||
+            newOrders.some(
+              (o: Order) =>
+                !previousOrders.some(
+                  (p) => p.orderNumber === o.orderNumber
+                )
+            ));
 
         if (isNewOrder) playNotificationSound();
 
@@ -164,11 +174,18 @@ const OrdersList: FC<OrdersListProps> = ({
       }
     } catch (error) {
       console.error("Fetch orders error:", error);
+    } finally {
+      if (showRefreshIndicator) {
+        setTimeout(() => setIsRefreshing(false), 400);
+      }
     }
   };
 
   useEffect(() => {
-    const interval = setInterval(fetchOrders, 5000);
+    fetchOrders();
+    const interval = setInterval(() => {
+      fetchOrders();
+    }, 120000); // 2 minutes auto-refresh
     return () => clearInterval(interval);
   }, []);
 
@@ -369,22 +386,36 @@ const toggleExpand = (orderNumber: string) => {
             </SelectContent>
           </Select>
         </div>
-          </div>
+      </div>
 
-      <div className="mt-2 flex gap-3 text-xs text-neutral-600">
-        <span>{filteredOrders.length} showing</span>
-        <button
-          onClick={() => {
-            setStatusFilter("all");
-            setTypeFilter("all");
-            setPaymentFilter("all");
-            setSearchTerm("");
-          }}
-          className="underline text-[#741052] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#741052]"
+      {/* Filter Stats & Manual Refresh */}
+      <div className="mt-3 flex items-center justify-between gap-3 text-xs text-neutral-600">
+        <div className="flex items-center gap-3">
+          <span>{filteredOrders.length} showing</span>
+          <button
+            onClick={() => {
+              setStatusFilter("all");
+              setTypeFilter("all");
+              setPaymentFilter("all");
+              setSearchTerm("");
+            }}
+            className="underline text-[#741052] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#741052]"
+          >
+            Clear filters
+          </button>
+        </div>
+
+        <Button
+          onClick={() => fetchOrders(true)}
+          variant="outline"
+          size="sm"
+          disabled={isRefreshing}
+          className="h-8 px-3 text-xs flex items-center gap-1.5 border-neutral-300 hover:border-[#741052] hover:text-[#741052] transition-colors"
         >
-          Clear filters
-        </button>
-          </div>
+          <RefreshCw className={`h-3.5 w-3.5 ${isRefreshing ? "animate-spin text-[#741052]" : ""}`} />
+          {isRefreshing ? "Refreshing..." : "Refresh Orders"}
+        </Button>
+      </div>
 
 
       {/* 🧾 Orders Grid */}

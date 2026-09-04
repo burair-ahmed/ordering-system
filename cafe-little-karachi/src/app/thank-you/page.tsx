@@ -10,6 +10,7 @@ import { toast } from 'sonner';
 import posthog from 'posthog-js';
 import { trackEvent } from '../lib/analytics';
 import { useCart } from '../context/CartContext';
+import { useOrder } from '../context/OrderContext';
 import {
   CheckCircle,
   Clock,
@@ -94,21 +95,33 @@ const ThankYouPage: FC = () => {
   const searchParams = useSearchParams();
   const router = useRouter();
   const { addToCart, clearCart, setOrderContext } = useCart();
+  const { orderType: ctxOrderType, tableId: ctxTableId } = useOrder();
 
-  // Query parameters
-  const orderType = searchParams?.get('type');
-  const tableId = searchParams?.get('tableId');
-  const orderParam = searchParams?.get('order');
-  const phone = searchParams?.get('phone');
+  // Query parameters with context and storage fallback
+  const orderType =
+    searchParams?.get('type') ||
+    ctxOrderType ||
+    (typeof window !== 'undefined' ? localStorage.getItem('latest_order_type') : null) ||
+    'delivery';
+  const tableId = searchParams?.get('tableId') || ctxTableId;
+  const orderParam =
+    searchParams?.get('order') ||
+    searchParams?.get('orderNumber') ||
+    searchParams?.get('id') ||
+    (typeof window !== 'undefined' ? localStorage.getItem('latest_order_number') : null);
+  const phone =
+    searchParams?.get('phone') ||
+    (typeof window !== 'undefined' ? localStorage.getItem('latest_order_phone') : null);
 
   const fetchOrderDetails = useCallback(async (opts?: { showLoader?: boolean }) => {
-    if (!orderType || (!orderNumber && !tableId)) return;
+    const activeOrderNum = orderNumber || orderParam;
+    if (!activeOrderNum && !tableId) return;
     if (opts?.showLoader) setLoading(true);
     setIsPolling(true);
     setPollError(null);
     try {
-      const query = orderNumber
-        ? `orderNumber=${encodeURIComponent(orderNumber)}`
+      const query = activeOrderNum
+        ? `orderNumber=${encodeURIComponent(activeOrderNum)}`
         : tableId
         ? `tableId=${encodeURIComponent(tableId)}`
         : '';
@@ -128,20 +141,29 @@ const ThankYouPage: FC = () => {
       if (opts?.showLoader) setLoading(false);
       setIsPolling(false);
     }
-  }, [orderType, orderNumber, tableId]);
+  }, [orderNumber, orderParam, tableId]);
 
   useEffect(() => {
-    // Dine-in: fetch order number using tableId
+    // If orderParam is available (URL or storage), directly use it regardless of orderType
+    if (orderParam) {
+      setOrderNumber(orderParam);
+      setError(null);
+      setLoading(false);
+      return;
+    }
+
+    // Dine-in: fetch order number using tableId if orderParam not present
     if (orderType === 'dinein' && tableId) {
       const fetchOrderNumber = async () => {
         try {
-          const response = await fetch(`/api/getOrderByTableId?tableId=${tableId}`);
+          const response = await fetch(`/api/getOrderByTableId?tableId=${encodeURIComponent(tableId)}`);
           const data = await response.json();
 
-          if (response.ok) {
+          if (response.ok && data.orderNumber) {
             setOrderNumber(data.orderNumber);
+            setError(null);
           } else {
-            setError('Failed to fetch order details.');
+            setError('Failed to fetch order details for table.');
           }
         } catch {
           setError('An error occurred while fetching order details.');
@@ -150,33 +172,18 @@ const ThankYouPage: FC = () => {
         }
       };
       fetchOrderNumber();
-    } 
-    // Pickup or Delivery: order number comes directly from query
-    else if (orderType === 'pickup' || orderType === 'delivery') {
-      if (orderParam) {
-        setOrderNumber(orderParam);
-        setLoading(false);
-      } else {
-        setError('Order number missing in URL.');
-        setLoading(false);
-      }
-    } 
-    // Unknown or missing order type
-    else {
-      setError('Invalid or missing order type.');
+    } else {
+      setError('Order number missing in URL or session.');
       setLoading(false);
     }
   }, [orderType, tableId, orderParam]);
 
   // Fetch order details once we know the identifier
   useEffect(() => {
-    if (!orderType) return;
-    if (orderType === 'dinein' && tableId) {
-      fetchOrderDetails({ showLoader: true });
-    } else if ((orderType === 'pickup' || orderType === 'delivery') && orderNumber) {
+    if (orderNumber || tableId) {
       fetchOrderDetails({ showLoader: true });
     }
-  }, [orderNumber, orderType, tableId]);
+  }, [orderNumber, tableId, fetchOrderDetails]);
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
@@ -201,11 +208,7 @@ const ThankYouPage: FC = () => {
   }, [orderNumber, orderType, tableId, fetchOrderDetails]);
 
   const handleBackToOrder = () => {
-    if (orderType === 'dinein' && tableId) {
-      router.push(`/order?tableId=${tableId}`);
-    } else {
-      router.push('/');
-    }
+    router.push('/');
   };
 
   // Play success sound + toast once when we have an order number
