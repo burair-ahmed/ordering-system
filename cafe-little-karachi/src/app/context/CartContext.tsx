@@ -1,6 +1,6 @@
 'use client';
 
-import { createContext, useContext, useEffect, useMemo, useState, ReactNode, Suspense } from "react";
+import { createContext, useContext, useEffect, useMemo, useState, useRef, ReactNode, Suspense } from "react";
 import Preloader from "../components/Preloader";
 import { trackEvent } from "../lib/analytics";
 import { useOrder } from "./OrderContext";
@@ -52,49 +52,61 @@ function CartProviderInner({ children }: CartProviderProps) {
   }, [orderType, ctxTableId, ctxArea]);
 
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
-  const [totalAmount, setTotalAmount] = useState<number>(0);
+  const isLoaded = useRef(false);
 
-  const storageKey = useMemo(() => {
-    const safeId = orderIdentifier ? orderIdentifier.replace(/\s+/g, "_") : "default";
-    return `cart-${orderType}-${safeId}`;
-  }, [orderType, orderIdentifier]);
+  // Compute total amount derived directly from cart items
+  const totalAmount = useMemo(
+    () => cartItems.reduce((sum, it) => sum + (it.price || 0) * (it.quantity || 1), 0),
+    [cartItems]
+  );
 
+  // 1. Load persisted cart on mount (supports current clk_cart key and legacy cart-* keys)
   useEffect(() => {
     if (typeof window === "undefined") return;
 
     try {
-      const saved = localStorage.getItem(storageKey);
+      let saved = localStorage.getItem("clk_cart");
+      if (!saved) {
+        // Fallback check for legacy keys e.g. cart-pickup-default, cart-dinein-*
+        for (let i = 0; i < localStorage.length; i++) {
+          const key = localStorage.key(i);
+          if (key && key.startsWith("cart-")) {
+            const legacyVal = localStorage.getItem(key);
+            if (legacyVal) {
+              saved = legacyVal;
+              break;
+            }
+          }
+        }
+      }
+
       if (saved) {
         const parsed: CartItem[] = JSON.parse(saved);
-        setCartItems(parsed);
-        const total = parsed.reduce((sum, it) => sum + it.price * it.quantity, 0);
-        setTotalAmount(total);
-      } else {
-        setCartItems([]);
-        setTotalAmount(0);
+        if (Array.isArray(parsed)) {
+          setCartItems(parsed);
+        }
       }
     } catch (err) {
       console.error("Failed to load cart:", err);
-      setCartItems([]);
-      setTotalAmount(0);
+    } finally {
+      isLoaded.current = true;
     }
-  }, [storageKey]);
+  }, []);
 
+  // 2. Persist cart items to localStorage on change
   useEffect(() => {
-    if (typeof window === "undefined") return;
+    if (typeof window === "undefined" || !isLoaded.current) return;
 
     try {
       if (cartItems.length > 0) {
-        localStorage.setItem(storageKey, JSON.stringify(cartItems));
+        localStorage.setItem("clk_cart", JSON.stringify(cartItems));
       } else {
-        localStorage.removeItem(storageKey);
+        localStorage.removeItem("clk_cart");
       }
-      const total = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
-      setTotalAmount(total);
     } catch (err) {
       console.error("Failed to save cart:", err);
     }
-  }, [cartItems, storageKey]);
+  }, [cartItems]);
 
   const addToCart = (item: CartItem) => {
     setCartItems((prevItems) => {
@@ -106,10 +118,10 @@ function CartProviderInner({ children }: CartProviderProps) {
 
       if (existingIndex >= 0) {
         return prevItems.map((ci, i) =>
-          i === existingIndex ? { ...ci, quantity: ci.quantity + 1 } : ci
+          i === existingIndex ? { ...ci, quantity: ci.quantity + (item.quantity || 1) } : ci
         );
       } else {
-        return [...prevItems, { ...item, quantity: 1 }];
+        return [...prevItems, { ...item, quantity: item.quantity || 1 }];
       }
     });
   };

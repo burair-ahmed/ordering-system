@@ -13,6 +13,7 @@ import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
 import Image from "next/image";
 import { trackEvent, trackClarityFunnelStep, CLK_FUNNEL_MENU_VIEWED } from "../lib/analytics";
+import { slugify } from "../lib/slugify";
 
 // --- Types ---
 interface MenuItemData {
@@ -772,6 +773,7 @@ export default function MenuPage({
                       items={displayedItems}
                       isLoading={isLoading}
                       onLastItemRef={(node) => handleLastItemRef(section.id, node)}
+                      initialOpenSlug={section.props.itemType === 'platter' ? initialPlatterSlug : undefined}
                     />
                   );
                 
@@ -1261,10 +1263,12 @@ interface ItemSectionProps {
   items: any[];
   isLoading: boolean;
   onLastItemRef?: (node: HTMLDivElement | null) => void;
+  /** If provided, the PlatterItem whose slugified title matches this value will open automatically */
+  initialOpenSlug?: string;
 }
 
 // 6. Product Grid Section
-const ItemGridSection = ({ section, items, isLoading, onLastItemRef }: ItemSectionProps) => {
+const ItemGridSection = ({ section, items, isLoading, onLastItemRef, initialOpenSlug }: ItemSectionProps) => {
   const {
     columns = 4,
     cardStyle = 'gourmet',
@@ -1318,7 +1322,11 @@ const ItemGridSection = ({ section, items, isLoading, onLastItemRef }: ItemSecti
                   }}
                 >
                   {isPlatter(item) ? (
-                    <PlatterItem platter={item} cardStyle={cardStyle} />
+                    <PlatterItem
+                      platter={item}
+                      cardStyle={cardStyle}
+                      initialOpen={!!(initialOpenSlug && slugify(item.title) === initialOpenSlug)}
+                    />
                   ) : (
                     <MenuItem item={item as any} cardStyle={cardStyle} />
                   )}

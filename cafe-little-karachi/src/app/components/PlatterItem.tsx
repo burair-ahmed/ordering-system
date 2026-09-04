@@ -2,7 +2,7 @@
 
 "use client";
 
-import { FC, useState, useEffect, useMemo, useCallback } from "react";
+import { FC, useState, useEffect, useMemo, useCallback, useRef } from "react";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import AddToCartButtonForPlatters from "./AddToCartButtonForPlatters";
@@ -13,6 +13,8 @@ import { X, Check } from "lucide-react";
 import posthog from 'posthog-js';
 import { trackEvent } from '../lib/analytics';
 import { slugify } from '../lib/slugify';
+import { useOrder } from '../context/OrderContext';
+import { useCart } from '../context/CartContext';
 
 interface CategoryOption {
   uuid: string;
@@ -54,6 +56,14 @@ interface PlatterItemProps {
 const platterCategoryCache = new Map<string, any[]>();
 
 const PlatterItem: FC<PlatterItemProps> = ({ platter, cardStyle = 'gourmet', initialOpen = false }) => {
+  const { isLocationSet, setLocationModalOpen } = useOrder();
+  const { addToCart } = useCart();
+
+  // Stores a pending cart add that waits for order-type selection
+  const pendingCartItem = useRef<{ id: string; title: string; price: number; quantity: number; image: string; variations: string[] } | null>(null);
+  // Track previous isLocationSet to detect the false→true transition
+  const prevIsLocationSet = useRef(isLocationSet);
+
   const [showModal, setShowModal] = useState(initialOpen);
   const [showAddedMessage, setShowAddedMessage] = useState(false);
   const [categoryItems, setCategoryItems] = useState<{
@@ -75,7 +85,20 @@ const PlatterItem: FC<PlatterItemProps> = ({ platter, cardStyle = 'gourmet', ini
     }
   }, [platterSlug]);
 
+  // Auto-open when the current URL already points to this platter's slug.
+  // This handles hard navigations (typing URL + Enter) where the initialOpen
+  // prop may not fire reliably due to progressive/async item loading.
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    if (window.location.pathname === `/platter/${platterSlug}`) {
+      setShowModal(true);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [platterSlug]);
+
   // Non-blocking smooth modal close with clean URL revert
+  // If the order type hasn't been set yet and the user closes without adding,
+  // we open the location modal so they can set their order type.
   const closeModal = useCallback(() => {
     setShowModal(false);
     if (typeof window !== 'undefined') {
@@ -85,7 +108,11 @@ const PlatterItem: FC<PlatterItemProps> = ({ platter, cardStyle = 'gourmet', ini
         }
       });
     }
-  }, []);
+    // Deferred so the platter modal closes first before the location modal appears
+    if (!isLocationSet) {
+      setTimeout(() => setLocationModalOpen(true), 200);
+    }
+  }, [isLocationSet, setLocationModalOpen]);
 
   // Sync with browser back/forward buttons
   useEffect(() => {
@@ -103,7 +130,7 @@ const PlatterItem: FC<PlatterItemProps> = ({ platter, cardStyle = 'gourmet', ini
     return () => window.removeEventListener('popstate', handlePopState);
   }, [platterSlug]);
 
-  // Handle initialOpen property if landing directly on /platter/[slug]
+  // Handle initialOpen prop changes (e.g. slug prop resolves after data load)
   useEffect(() => {
     if (initialOpen) {
       setShowModal(true);
@@ -239,7 +266,8 @@ const PlatterItem: FC<PlatterItemProps> = ({ platter, cardStyle = 'gourmet', ini
     };
   }, [showModal, platter.categories, fetchCategoryItems, fetchItemsByIds]);
 
-  const handleItemAdded = () => {
+  // Fires after the item is confirmed added (analytics + UI feedback)
+  const handleItemAdded = useCallback(() => {
     posthog.capture('journey_add_platter_to_cart', {
       platter_id: platter.id,
       platter_name: platter.title,
@@ -256,7 +284,54 @@ const PlatterItem: FC<PlatterItemProps> = ({ platter, cardStyle = 'gourmet', ini
 
     setShowAddedMessage(true);
     setTimeout(() => setShowAddedMessage(false), 1500);
-  };
+  }, [platter.id, platter.title, totalPrice, selections.categories]);
+
+  // The actual cart add — called directly when order type is already set,
+  // or deferred until order type is confirmed.
+  const performCartAdd = useCallback(() => {
+    addToCart({
+      id: platter.id,
+      title: platter.title,
+      price: totalPrice,
+      quantity: 1,
+      image: platter.image,
+      variations: getFlattenedVariations(),
+    });
+    handleItemAdded();
+  }, [addToCart, platter.id, platter.title, totalPrice, platter.image, getFlattenedVariations, handleItemAdded]);
+
+  // Guard: called when the "Add to Cart" button is pressed.
+  // If the order type is already set → add immediately.
+  // If not → open the location modal and queue the add for after selection.
+  const handleAddRequest = useCallback(() => {
+    if (isLocationSet) {
+      performCartAdd();
+    } else {
+      // Queue the pending cart item (capturing current variation snapshot)
+      pendingCartItem.current = {
+        id: platter.id,
+        title: platter.title,
+        price: totalPrice,
+        quantity: 1,
+        image: platter.image,
+        variations: getFlattenedVariations(),
+      };
+      setLocationModalOpen(true);
+    }
+  }, [isLocationSet, performCartAdd, platter.id, platter.title, totalPrice, platter.image, getFlattenedVariations, setLocationModalOpen]);
+
+  // Flush deferred cart add once the user finishes selecting an order type
+  useEffect(() => {
+    const wasUnset = !prevIsLocationSet.current;
+    const isNowSet = isLocationSet;
+    prevIsLocationSet.current = isLocationSet;
+
+    if (wasUnset && isNowSet && pendingCartItem.current) {
+      addToCart(pendingCartItem.current);
+      handleItemAdded();
+      pendingCartItem.current = null;
+    }
+  }, [isLocationSet, addToCart, handleItemAdded]);
 
   const handleCategorySelect = (categoryId: string, option: SelectedVariation) => {
     selectCategoryVariation(categoryId, option);
@@ -523,6 +598,7 @@ const PlatterItem: FC<PlatterItemProps> = ({ platter, cardStyle = 'gourmet', ini
                   <AddToCartButtonForPlatters
                     platter={platter}
                     selectedVariations={getFlattenedVariations()}
+                    onAddRequest={handleAddRequest}
                     onClick={handleItemAdded}
                     className=""
                     disabled={platter.status === "out of stock" || !isValid}

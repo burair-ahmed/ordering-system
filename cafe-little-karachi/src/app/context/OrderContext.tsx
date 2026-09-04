@@ -123,10 +123,15 @@ export function OrderProvider({ children }: { children: ReactNode }) {
         isLocationModalOpen: false,
       }));
     } else {
-      // If user hasn't set location and is on main root / menu, open location modal
+      // On product entrypoint URLs (/platter/* or /item/*), suppress the auto-open
+      // so the product modal is not blocked. PlatterItem/MenuItem will trigger it
+      // at the right moment (on Add to Cart click, or when the product modal is closed).
+      const suppressPaths = ['/platter/', '/item/'];
+      const currentPath = typeof window !== 'undefined' ? window.location.pathname : '';
+      const shouldSuppress = suppressPaths.some((p) => currentPath.startsWith(p));
       setOrderState((prev) => ({
         ...prev,
-        isLocationModalOpen: true,
+        isLocationModalOpen: !shouldSuppress,
       }));
     }
   }, []);

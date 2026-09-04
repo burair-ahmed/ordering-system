@@ -85,12 +85,23 @@ const MenuItem: FC<MenuItemProps> = ({ item, cardStyle = 'gourmet', initialOpen 
     return () => window.removeEventListener('popstate', handlePopState);
   }, [itemSlug]);
 
-  // Handle initialOpen property if landing directly on /item/[slug]
+  // Handle initialOpen prop changes (e.g. slug prop resolves after data load)
   useEffect(() => {
     if (initialOpen) {
       setShowModal(true);
     }
   }, [initialOpen]);
+
+  // Auto-open when the current URL already points to this item's slug.
+  // This handles hard navigations (typing URL + Enter) where the initialOpen
+  // prop may not fire reliably due to progressive/async item loading.
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    if (window.location.pathname === `/item/${itemSlug}`) {
+      setShowModal(true);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [itemSlug]);
 
   // Calculate discounted base price
   const basePrice = useMemo(() => {
