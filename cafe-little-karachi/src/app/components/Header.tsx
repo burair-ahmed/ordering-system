@@ -81,16 +81,20 @@ export default function Header() {
           <div className="w-full flex items-center justify-between relative">
             
             {/* Left: Contact Info (Desktop) */}
-            <div className="hidden lg:flex items-center gap-6">
-              <Link href="tel:+923331702706" className="group flex items-center gap-3">
-                <div className="w-9 h-9 rounded-full bg-white/5 border border-white/10 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-                  <Phone size={14} className="text-[#ff9824]" />
+            <div className="hidden lg:flex items-center gap-3">
+              <motion.a
+                href="tel:+923331702706"
+                whileTap={{ scale: 0.95 }}
+                className="flex items-center gap-1.5 h-10 md:h-12 px-2.5 md:px-3.5 rounded-full border transition-all duration-300 bg-white/10 hover:bg-white/15 border-white/20 text-white"
+                title="Call Us: +92 333 1702706"
+                aria-label="Call Us"
+              >
+                <Phone size={16} className="text-[#ff9824] shrink-0" />
+                <div className="flex flex-col text-left mr-1">
+                  <span className="text-[9px] text-white/50 uppercase tracking-wider font-semibold">Call Us</span>
+                  <span className="text-xs font-bold text-white truncate">+92 333 1702706</span>
                 </div>
-                <div className="flex flex-col">
-                  <span className="text-[10px] text-white/40 uppercase tracking-widest font-bold">Call Us</span>
-                  <span className="text-xs font-semibold text-white">+92 333 1702706</span>
-                </div>
-              </Link>
+              </motion.a>
             </div>
 
             {/* Mobile Actions: Hamburger Menu + WhatsApp */}

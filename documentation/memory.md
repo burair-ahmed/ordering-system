@@ -38,6 +38,8 @@ last_updated: 2026-09-04
   - **Problem**: When a user without an order type selected clicked "Add to Cart" on a platter, selected an order type in `TableForm`, the green "Added to cart" message flashed, but the cart remained empty (0 items).
   - **Root Cause**: `CartContext` dynamically computed `storageKey` based on `orderType` and `tableId`/`area` (`cart-${orderType}-${safeId}`). When the order type was confirmed, `OrderContext` updated `orderType` from `""` to `"dinein"`, changing `storageKey` to `"cart-dinein-5"`. An effect in `CartContext` listening to `[storageKey]` fired and read `localStorage.getItem("cart-dinein-5")` (which was empty `null`) and executed `setCartItems([])`, clobbering the pending cart add from `PlatterItem` and wiping out the cart.
   - **Fix**: Standardized `CartContext` to use a stable persistent storage key (`clk_cart`) across the entire session so items are preserved across order mode / table changes, with derived `totalAmount` via `useMemo` for instant synchronicity and legacy `cart-*` key migration on mount.
+- **Micro-Fix: Header "Call Us" Pill Design Alignment (`src/app/components/Header.tsx`)**:
+  - Re-styled the desktop "Call Us" contact element into a rounded-full pill 100% identical in geometry (`h-10 md:h-12 px-2.5 md:px-3.5`), background/border styling (`bg-white/10 hover:bg-white/15 border-white/20`), orange icon accents (`Phone` with `text-[#ff9824]`), and typography hierarchy (2-tier text: uppercase category + bold value) to match the Header Location pill.
 
 ---
 
