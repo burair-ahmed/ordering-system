@@ -97,34 +97,38 @@ export default function RestaurantStatusPopup() {
     <>
       <style>{gradientAnimation}</style>
 
-      {/* Top Banner when browsing menu while closed */}
+      {/* Bottom-right compact toast when browsing menu while closed */}
       {isBrowseMode && (
         <motion.div
-          initial={{ y: -50, opacity: 0 }}
+          initial={{ y: 30, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
-          className="fixed top-20 left-1/2 -translate-x-1/2 z-[60] w-[92%] max-w-2xl bg-slate-950/95 backdrop-blur-xl border border-amber-500/40 text-white rounded-2xl p-3 px-5 shadow-2xl flex items-center justify-between gap-3 text-xs md:text-sm"
+          transition={{ type: "spring", stiffness: 180, damping: 22 }}
+          className="fixed bottom-5 right-4 z-[60] w-[clamp(200px,88vw,280px)] bg-slate-950/95 backdrop-blur-xl border border-amber-500/30 text-white rounded-2xl p-3 shadow-2xl"
         >
-          <div className="flex items-center gap-3">
-            <span className="flex h-3 w-3 relative flex-shrink-0">
+          {/* Pulsing dot + label */}
+          <div className="flex items-center gap-2 mb-2">
+            <span className="flex h-2 w-2 relative flex-shrink-0">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-3 w-3 bg-amber-500"></span>
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-amber-500"></span>
             </span>
-            <div>
-              <p className="font-bold text-amber-200">
-                Closed Until 6:30 PM • View Only Menu Mode
-              </p>
-              <p className="text-[11px] text-gray-300 hidden sm:block">
-                Feel free to explore our menu. Ordering opens at 6:30 PM!
-              </p>
-            </div>
+            <p className="font-bold text-amber-300 text-[11px] leading-tight">
+              Browse Only · Opens 6:30 PM
+            </p>
           </div>
-          <button
-            onClick={handleOpenPopup}
-            className="px-3.5 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 text-white font-semibold transition-all flex items-center gap-1.5 text-xs flex-shrink-0 border border-white/10"
-          >
-            <Clock size={14} className="text-amber-400" />
-            <span>Opening Timer</span>
-          </button>
+
+          {/* Countdown */}
+          <div className="flex items-center justify-between gap-2">
+            <span className="font-mono text-base font-bold text-white tracking-wider">
+              {timeStr}
+            </span>
+            <button
+              onClick={handleOpenPopup}
+              className="px-2.5 py-1 rounded-lg bg-white/10 hover:bg-white/20 text-white font-semibold transition-all flex items-center gap-1 text-[10px] flex-shrink-0 border border-white/10"
+            >
+              <Clock size={10} className="text-amber-400" />
+              <span>Timer</span>
+            </button>
+          </div>
         </motion.div>
       )}
 
