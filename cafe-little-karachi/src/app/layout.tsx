@@ -12,6 +12,7 @@ import { Toaster } from "sonner";
 import { CSPostHogProvider } from './providers/PostHogProvider';
 import { GoogleAnalytics } from "@next/third-parties/google";
 import { ClarityProvider } from "./providers/ClarityProvider";
+import { MetaPixelProvider } from "./providers/MetaPixelProvider";
 import dynamic from "next/dynamic";
 import RestaurantStatusPopup from "./components/RestaurantStatusPopup";
 import WhatsAppButton from "./components/WhatsAppButton";
@@ -68,6 +69,7 @@ export default function RootLayout({
           </CSPostHogProvider>
           <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GOOGLE_ANALYTICS_ID || ""} />
           <ClarityProvider />
+          <MetaPixelProvider />
           </div>
         )}
       </body>

@@ -40,6 +40,13 @@ last_updated: 2026-09-04
   - **Fix**: Standardized `CartContext` to use a stable persistent storage key (`clk_cart`) across the entire session so items are preserved across order mode / table changes, with derived `totalAmount` via `useMemo` for instant synchronicity and legacy `cart-*` key migration on mount.
 - **Micro-Fix: Header "Call Us" Pill Design Alignment (`src/app/components/Header.tsx`)**:
   - Re-styled the desktop "Call Us" contact element into a rounded-full pill 100% identical in geometry (`h-10 md:h-12 px-2.5 md:px-3.5`), background/border styling (`bg-white/10 hover:bg-white/15 border-white/20`), orange icon accents (`Phone` with `text-[#ff9824]`), and typography hierarchy (2-tier text: uppercase category + bold value) to match the Header Location pill.
+- **Phase 4.6 Meta Pixel & Conversions API (CAPI) Integration (`src/lib/metaCapi.ts`, `src/app/lib/metaPixel.ts`, `src/app/providers/MetaPixelProvider.tsx`, `src/pages/api/orders.ts`, `src/pages/api/analytics/meta-capi.ts`, `src/app/lib/analytics.ts`)**:
+  - **Meta Pixel**: Integrated Pixel ID `1619761243277122` via `<MetaPixelProvider />` in `src/app/layout.tsx` with dynamic page view tracking on route transitions and `<noscript>` fallback.
+  - **Meta Conversions API (CAPI)**: Built robust server-side CAPI client (`src/lib/metaCapi.ts`) supporting SHA-256 PII hashing (email, Pakistani mobile phone normalization `03...` ➔ `923...`), client IP, User-Agent, and `_fbp`/`_fbc` cookie extraction.
+  - **Purchase Server-Side Dispatch**: Wired asynchronous, non-blocking CAPI `Purchase` event dispatch directly into `src/pages/api/orders.ts` on MongoDB order creation.
+  - **Event Deduplication**: Shared `event_id: orderNumber` between client-side Meta Pixel and server-side CAPI to guarantee zero duplicate conversion counts in Meta Events Manager.
+  - **Unified Analytics Bridge**: Updated `src/app/lib/analytics.ts` so all journey events (`ViewContent`, `AddToCart`, `InitiateCheckout`, `Purchase`) automatically fan out to Meta Pixel, Microsoft Clarity, and internal analytics.
+  - **API Relay Endpoint**: Created `/api/analytics/meta-capi.ts` for relaying client conversion events to CAPI.
 
 ---
 
@@ -48,6 +55,14 @@ last_updated: 2026-09-04
 
 | File | Type | Purpose |
 | :--- | :--- | :--- |
+| `src/lib/metaCapi.ts` | Backend Utility | Meta Conversions API (CAPI) client with SHA-256 PII hashing & Graph API v21.0 integration |
+| `src/app/lib/metaPixel.ts` | Frontend Utility | Meta Pixel typed helpers (`trackMetaPageView`, `trackMetaViewContent`, `trackMetaAddToCart`, `trackMetaInitiateCheckout`, `trackMetaPurchase`) |
+| `src/app/providers/MetaPixelProvider.tsx` | UI Provider | Meta Pixel script injection, `<noscript>` fallback, and route transition PageView watcher |
+| `src/pages/api/analytics/meta-capi.ts` | API Route | Serverless endpoint for relaying client events to Meta CAPI with IP and cookie enrichment |
+| `src/pages/api/orders.ts` | API Route | Fires server-side CAPI `Purchase` event with `eventId: orderNumber` on order creation |
+| `src/app/lib/analytics.ts` | Analytics Bridge | Connects `trackEvent` to Meta Pixel e-commerce events |
+| `src/app/layout.tsx` | Root Layout | Mounts `<MetaPixelProvider />` globally |
+| `.env` & `.env.production` | Environment | Configured `NEXT_PUBLIC_META_PIXEL_ID`, `META_PIXEL_ID`, and `META_CONVERSIONS_API_TOKEN` |
 | `src/app/context/OrderContext.tsx` | Core Context | Dual persistence (localStorage + Cookies), legacy query param migration, modal open/close triggers |
 | `src/app/lib/slugify.ts` | Utility | Slug generation and item/platter lookup helpers |
 | `src/app/page.tsx` | Root Page | Hosts full ordering catalog directly at `/` |

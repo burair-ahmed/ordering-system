@@ -4,6 +4,7 @@ import Order from "../../models/Order";
 import { Server as HTTPServer } from "http";
 import { Server as SocketIOServer } from "socket.io";
 import { isOpenAt } from "../../app/lib/restaurantStatus";
+import { sendMetaCapiEvent } from "../../lib/metaCapi";
 
 const MONGODB_URI =
   process.env.MONGODB_URI ||
@@ -132,6 +133,51 @@ const ordersHandler = async (req: NextApiRequest, res: NextApiResponse) => {
       });
 
       await newOrder.save();
+
+      // Dispatch Meta Conversions API (CAPI) Purchase Event (Server-Side)
+      try {
+        const forwardedFor = req.headers["x-forwarded-for"];
+        const clientIp =
+          (typeof forwardedFor === "string"
+            ? forwardedFor.split(",")[0].trim()
+            : undefined) || req.socket.remoteAddress;
+        const clientUserAgent = req.headers["user-agent"];
+        const fbp = req.cookies?.["_fbp"];
+        const fbc = req.cookies?.["_fbc"];
+        const referer = req.headers.referer || "https://cafelittlekarachi.com/checkout";
+
+        sendMetaCapiEvent({
+          eventName: "Purchase",
+          eventId: orderNumber, // Matches browser Meta Pixel eventID for deduplication
+          eventSourceUrl: referer,
+          userData: {
+            email: email || undefined,
+            phone: phone || undefined,
+            firstName: customerName ? customerName.split(" ")[0] : undefined,
+            lastName: customerName && customerName.includes(" ") ? customerName.split(" ").slice(1).join(" ") : undefined,
+            clientIp,
+            clientUserAgent,
+            fbp,
+            fbc,
+          },
+          customData: {
+            currency: "PKR",
+            value: totalAmount,
+            content_type: "product",
+            order_id: orderNumber,
+            contents: items.map((it: OrderItem) => ({
+              id: String(it.id),
+              quantity: it.quantity,
+              item_price: it.price,
+              title: it.title,
+            })),
+          },
+        }).catch((capiErr) => {
+          console.warn("[Meta CAPI Purchase] Async send error:", capiErr);
+        });
+      } catch (capiSyncErr) {
+        console.warn("[Meta CAPI Purchase] Setup error:", capiSyncErr);
+      }
 
       // Emit real-time WebSocket event to kitchen/admin dashboard
       try {

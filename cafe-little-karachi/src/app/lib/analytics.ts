@@ -3,10 +3,18 @@
 // Unified analytics bridge — every call fans out to:
 //   1. Internal `/api/analytics/track` endpoint (MongoDB / custom analytics)
 //   2. Microsoft Clarity custom events  (session recordings + funnels)
+//   3. Meta Pixel & Meta Conversions API (CAPI) events
 //
 // The Clarity funnel is built around the CLK 10-stage ordering journey.
 // Each stage constant maps 1-to-1 with the funnel step configured in the
 // Clarity dashboard (Settings → Funnels).
+
+import {
+  trackMetaViewContent,
+  trackMetaAddToCart,
+  trackMetaInitiateCheckout,
+  trackMetaPurchase,
+} from './metaPixel';
 
 // ─── CLK Funnel Event Constants ──────────────────────────────────────────────
 
@@ -175,6 +183,59 @@ export function trackEvent(eventType: string, properties: Record<string, any> = 
   }
   if (properties.orderType) {
     claritySetInternal('order_type', properties.orderType);
+  }
+
+  // ── 3. Meta Pixel standard events ──────────────────────────────────────────
+  try {
+    if (
+      eventType === 'journey_view_item_details' ||
+      eventType === 'clk_s5_item_customised'
+    ) {
+      trackMetaViewContent({
+        id: properties.item_id || properties.id,
+        name: properties.item_name || properties.title,
+        category: properties.category,
+        price: properties.price,
+      });
+    } else if (
+      eventType === 'journey_add_to_cart' ||
+      eventType === 'journey_add_item' ||
+      eventType === 'clk_s6_add_to_cart'
+    ) {
+      trackMetaAddToCart({
+        id: properties.item_id || properties.id,
+        name: properties.item_name || properties.title,
+        category: properties.category,
+        price: properties.price,
+        quantity: properties.quantity,
+      });
+    } else if (
+      eventType === 'journey_checkout_started' ||
+      eventType === 'journey_start_checkout' ||
+      eventType === 'clk_s7_checkout_started'
+    ) {
+      trackMetaInitiateCheckout({
+        totalAmount: properties.total_amount || properties.totalAmount,
+        numItems: properties.item_count || properties.itemCount,
+      });
+    } else if (
+      eventType === 'journey_order_success' ||
+      eventType === 'clk_s9_order_confirmed'
+    ) {
+      const orderNum =
+        properties.order_number ||
+        properties.orderNumber ||
+        properties.order_id ||
+        properties.orderId;
+      if (orderNum) {
+        trackMetaPurchase({
+          orderNumber: orderNum,
+          totalAmount: properties.total_amount || properties.totalAmount || 0,
+        });
+      }
+    }
+  } catch (metaErr) {
+    console.warn('[Analytics] Meta Pixel track failed:', metaErr);
   }
 }
 

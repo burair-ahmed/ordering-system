@@ -11,6 +11,12 @@ last_updated: 2026-09-04
 # Next Steps & Handoff Guide — Advanced Ordering Ecosystem
 
 ## Completed in Current Sprint
+- [x] **Phase 4.6 Meta Pixel & Conversions API (CAPI) Integration**:
+  - Injected Meta Pixel (ID: `1619761243277122`) across all pages with automated route transition `PageView` tracking.
+  - Built server-side CAPI client (`src/lib/metaCapi.ts`) with SHA-256 PII hashing (email, phone), client IP, User-Agent, and cookie enrichment.
+  - Linked server-side `Purchase` event directly in `src/pages/api/orders.ts` on order creation with deduplication `event_id`.
+  - Wired full funnel e-commerce events (`ViewContent`, `AddToCart`, `InitiateCheckout`, `Purchase`) through unified analytics bridge (`src/app/lib/analytics.ts`).
+  - Added CAPI proxy endpoint `/api/analytics/meta-capi`.
 - [x] **Phase 4.5 Site-Wide Clean URL Architecture & Production Hardening**:
   - Implemented dual persistence (`localStorage` + Cookies) via `OrderContext`.
   - Upgraded root domain `/` to host main catalog and Hero.
