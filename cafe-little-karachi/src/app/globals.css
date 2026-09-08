@@ -49,12 +49,11 @@ a {
   font-family: var(--font-poppins), sans-serif;
   text-decoration: none;
   color: inherit; /* Inherit color from parent */
-  transition: color 0.3s ease;
+  transition: color 0.2s ease, opacity 0.2s ease;
 }
 
 a:hover, a:focus {
-  text-decoration: underline;
-  color: #741052; /* Custom color on hover */
+  text-decoration: none;
 }
 
 /* Lists */

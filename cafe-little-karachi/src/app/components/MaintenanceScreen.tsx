@@ -18,7 +18,7 @@ const MaintenanceScreen = () => {
             <div className="absolute inset-0 bg-[#ff9824]/20 blur-2xl rounded-full scale-110" />
             <div className="relative z-10 w-24 h-24 md:w-32 md:h-32">
                 <Image
-                src="/butter-paper1.webp"
+                src="/hd-logo.webp"
                 alt="Cafe Little Karachi Logo"
                 fill
                 className="object-contain drop-shadow-[0_0_15px_rgba(0,0,0,0.5)]"

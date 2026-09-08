@@ -52,11 +52,11 @@ const Footer: FC = () => {
           >
             <Link href="/">
               <Image
-                src="/butter-paper1.webp"
+                src="/hd-logo.webp"
                 alt="Logo"
                 width={140}
                 height={140}
-                className="transition-transform duration-300 hover:scale-105 hover:drop-shadow-[0_0_15px_rgba(255,152,36,0.6)]"
+                className="object-contain transition-transform duration-300 hover:scale-105 hover:drop-shadow-[0_0_15px_rgba(255,152,36,0.6)]"
               />
             </Link>
             <p className="mt-4 text-sm text-neutral-200 text-center sm:text-left max-w-xs">
