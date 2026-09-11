@@ -96,10 +96,16 @@ interface PageSection {
     autoPlay?: boolean;
     autoPlayInterval?: number;
     showArrows?: boolean;
+    showArrowsMobile?: boolean;
     showDots?: boolean;
     marginX?: number;
     marginTop?: number;
     borderRadius?: number;
+    aspectRatio?: string;
+    mobileMarginX?: number;
+    mobileMarginTop?: number;
+    mobileBorderRadius?: number;
+    mobileAspectRatio?: string;
 
     // Rich content specific
     description?: string;

@@ -19,7 +19,6 @@ import {
   trackMetaContact,
   trackMetaFindLocation,
   trackMetaSearch,
-  trackMetaLead,
 } from './metaPixel';
 
 // ─── CLK Funnel Event Constants ──────────────────────────────────────────────
@@ -302,11 +301,14 @@ export function trackEvent(eventType: string, properties: Record<string, any> = 
       eventType === 'journey_feedback_submitted' ||
       eventType === 'journey_lead'
     ) {
-      trackMetaLead({
-        leadType: properties.lead_type || 'order_feedback',
-        orderNumber: properties.order_number || properties.orderNumber,
-        value: properties.rating,
-      });
+      // Feedback is submitted after a confirmed order — fire Purchase to reinforce conversion signal
+      const orderNum = properties.order_number || properties.orderNumber;
+      if (orderNum) {
+        trackMetaPurchase({
+          orderNumber: orderNum,
+          totalAmount: properties.total_amount || properties.totalAmount || 0,
+        });
+      }
     }
   } catch (metaErr) {
     console.warn('[Analytics] Meta Pixel track failed:', metaErr);

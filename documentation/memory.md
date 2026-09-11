@@ -10,7 +10,48 @@ last_updated: 2026-09-11
 
 # Living Project Memory & Task Tracker
 
-## 0. Phase 4.10 Architecture Changes — PC Header Full-Width Layout & Responsive Spacing
+## 0. Phase 4.12 Micro-Changes — Meta Pixel Lead→Purchase & Platter AddToCart Fix (2026-09-11)
+
+### Meta Pixel: `trackMetaLead` Removed, Feedback Fires `Purchase` Instead
+- **Files**: `src/app/lib/metaPixel.ts`, `src/app/lib/analytics.ts`
+- **Rationale**: `trackMetaLead` fired a `Lead` Meta Pixel event on feedback submission from the thank-you page. `Lead` has no meaningful use case in a restaurant ordering funnel.
+- **`metaPixel.ts`**: Removed the entire `trackMetaLead` function.
+- **`analytics.ts`**: Removed `trackMetaLead` from imports. Changed `journey_feedback_submitted` / `journey_lead` branch to call `trackMetaPurchase({ orderNumber, totalAmount })` instead — only fires if `orderNumber` is present.
+
+### Platter AddToCart: Always Adds Immediately (No Longer Blocked by Location Modal)
+- **File**: `src/app/components/PlatterItem.tsx`
+- **Root Cause**: `handleAddRequest` checked `isLocationSet` first. If unset, item was queued in `pendingCartItem.current` and location modal opened — but cart was not updated until after modal dismiss. Menu items never had this gate.
+- **Fix**: Removed `pendingCartItem` ref, `prevIsLocationSet` ref, and deferred-flush `useEffect`. `handleAddRequest` now always calls `performCartAdd()` immediately. If `isLocationSet` is false, location modal opens 300ms after (non-blocking). Removed unused `useRef` from React import.
+
+## 1. Phase 4.11 Architecture Changes — Image Banner Slider Mobile Scaling & Separate Mobile Customizations
+
+
+### Image Banner Slider Dot Navigation & Mobile Scaling (2026-09-11)
+- **Files**:
+  - `src/app/components/BannerSlider.tsx`
+  - `src/app/components/AdminPageBuilder.tsx`
+  - `src/app/order/page.tsx`
+- **Carousel Navigation Indicator Proportions Refinement**:
+  - Halved indicator vertical height to 4px–5px (`h-1 sm:h-[5px]`).
+  - Circular dots scaled down accordingly to perfect 4px–5px round circles (`w-1 sm:w-[5px] h-1 sm:h-[5px]`) in muted semi-transparent white (`bg-white/45`).
+  - Active slide rendered as an elongated horizontal pill expanded to 32px–40px wide (`w-8 sm:w-9 md:w-10`) in solid white (`bg-white shadow-md`), sharing the exact same 4px–5px height.
+  - Even spacing (`gap-1.5 sm:gap-2`) between all indicators.
+  - Horizontally centered at the bottom of the banner (`left-1/2 -translate-x-1/2 bottom-2 sm:bottom-3`).
+  - Encased in a compact frosted glass capsule pill (`bg-black/35 backdrop-blur-md border border-white/10 px-2 sm:px-2.5 py-1 sm:py-1.5 rounded-full shadow-lg`).
+  - Fluid, animated morph transition (`transition-all duration-300 ease-out`) between dot and pill on slide change.
+- **Mobile Scale Down**:
+  - Scaled down arrow buttons on mobile (`w-6 h-6 sm:w-8 sm:h-8 md:w-9 md:h-9`) with smaller chevron icons (`w-3.5 h-3.5`).
+  - Scaled down text overlays and buttons (`text-sm` heading, `text-[10px]` subtitle, `text-[10px]` CTA button with compact padding `py-1 px-3`).
+  - Default mobile aspect ratio set to `16/9` to prevent oversized height on phone screens.
+- **Separated Mobile Customizations in CMS Editor**:
+  - Split `ImageSliderConfigEditor` layout tab into 3 distinct sections:
+    - 🖥️ **Desktop Layout & Sizing**: Aspect Ratio (`21/8`, `21/9`, `16/9`, `3/1`, `4/3`), Border Radius, Horizontal Margin, Top Margin.
+    - 📱 **Mobile Layout & Sizing (Separated)**: Mobile Aspect Ratio (`16/9`, `2/1`, `4/3`, `1/1`, `21/9`), Mobile Border Radius, Mobile Horizontal Margin, Mobile Top Margin, Show Navigation Arrows on Mobile switch.
+    - ⚙️ **Behavior & Controls**: Auto-play switch, Auto-play interval, Desktop Arrows switch, Dot Pill switch.
+- **CSS Variable Responsive Engine**:
+  - Slider container dynamically applies CSS variables `--m-top`, `--m-x`, `--d-top`, `--d-x`, `--m-rad`, `--d-rad`, `--m-asp`, `--d-asp` to guarantee fluid zero-layout-shift responsive rendering.
+
+## 1. Phase 4.10 Architecture Changes — PC Header Full-Width Layout & Responsive Spacing
 
 ### PC Header Full-Width Responsive Layout (2026-09-11)
 - **File**: `src/app/components/Header.tsx`

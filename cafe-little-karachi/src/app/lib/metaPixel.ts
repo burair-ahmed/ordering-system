@@ -286,31 +286,6 @@ export function trackMetaSearch(
 }
 
 /**
- * Track Lead event (customer feedback submission or inquiry).
- */
-export function trackMetaLead(
-  data: {
-    leadType?: string;
-    orderNumber?: string;
-    value?: number;
-    currency?: string;
-  },
-  eventId?: string
-): void {
-  fbqTrack(
-    'Lead',
-    {
-      content_name: data.leadType || 'Order Feedback',
-      content_category: 'Lead',
-      order_id: data.orderNumber,
-      value: typeof data.value === 'number' ? data.value : 0,
-      currency: data.currency || 'PKR',
-    },
-    eventId
-  );
-}
-
-/**
  * Track Purchase event.
  * Uses orderNumber as eventID to deduplicate with server-side CAPI event.
  */

@@ -25,10 +25,20 @@ interface BannerSliderSection {
     autoPlay?: boolean;
     autoPlayInterval?: number;
     showArrows?: boolean;
+    showArrowsMobile?: boolean;
     showDots?: boolean;
+
+    // Desktop styling
     marginX?: number;
     marginTop?: number;
     borderRadius?: number;
+    aspectRatio?: string;
+
+    // Mobile specific styling
+    mobileMarginX?: number;
+    mobileMarginTop?: number;
+    mobileBorderRadius?: number;
+    mobileAspectRatio?: string;
   };
 }
 
@@ -38,10 +48,16 @@ export default function BannerSlider({ section }: { section: BannerSliderSection
     autoPlay = true,
     autoPlayInterval = 4000,
     showArrows = true,
+    showArrowsMobile = true,
     showDots = true,
     marginX = 16,
     marginTop = 12,
     borderRadius = 20,
+    aspectRatio = '21/8',
+    mobileMarginX = 8,
+    mobileMarginTop = 6,
+    mobileBorderRadius = 14,
+    mobileAspectRatio = '16/9',
   } = section.props;
 
   const [current, setCurrent] = useState(0);
@@ -91,17 +107,54 @@ export default function BannerSlider({ section }: { section: BannerSliderSection
   const getTextColorClass = (color?: string) =>
     color === 'black' ? 'text-neutral-900' : 'text-white';
 
+  // Format aspect ratio correctly for CSS
+  const formatAspect = (val: string) => {
+    if (!val) return '21/8';
+    return val.includes('/') ? val.replace('/', ' / ') : val;
+  };
+
   // Don't render until client-side to avoid hydration mismatch
   if (!isMounted || !count) return null;
 
   return (
     <div
-      className="relative select-none"
-      style={{ margin: `${marginTop}px ${marginX}px 0` }}
+      className="relative select-none banner-slider-root"
+      style={{
+        ['--m-top' as any]: `${mobileMarginTop}px`,
+        ['--m-x' as any]: `${mobileMarginX}px`,
+        ['--d-top' as any]: `${marginTop}px`,
+        ['--d-x' as any]: `${marginX}px`,
+        ['--m-rad' as any]: `${mobileBorderRadius}px`,
+        ['--d-rad' as any]: `${borderRadius}px`,
+        ['--m-asp' as any]: formatAspect(mobileAspectRatio),
+        ['--d-asp' as any]: formatAspect(aspectRatio),
+      }}
     >
+      <style jsx>{`
+        .banner-slider-root {
+          margin: var(--m-top) var(--m-x) 0;
+        }
+        .banner-slider-frame {
+          border-radius: var(--m-rad);
+        }
+        .banner-slide-box {
+          aspect-ratio: var(--m-asp);
+        }
+        @media (min-width: 768px) {
+          .banner-slider-root {
+            margin: var(--d-top) var(--d-x) 0;
+          }
+          .banner-slider-frame {
+            border-radius: var(--d-rad);
+          }
+          .banner-slide-box {
+            aspect-ratio: var(--d-asp);
+          }
+        }
+      `}</style>
+
       <div
-        className="relative overflow-hidden w-full shadow-xl"
-        style={{ borderRadius: `${borderRadius}px` }}
+        className="banner-slider-frame relative overflow-hidden w-full shadow-xl"
         onMouseEnter={() => setIsPaused(true)}
         onMouseLeave={() => setIsPaused(false)}
         onTouchStart={handleTouchStart}
@@ -115,8 +168,7 @@ export default function BannerSlider({ section }: { section: BannerSliderSection
           {slides.map((s) => (
             <div
               key={s.id}
-              className="relative w-full flex-shrink-0"
-              style={{ aspectRatio: '21 / 8' }}
+              className="banner-slide-box relative w-full flex-shrink-0"
             >
               {/* Desktop image */}
               <img
@@ -143,22 +195,22 @@ export default function BannerSlider({ section }: { section: BannerSliderSection
                     }}
                   />
                   <div
-                    className={`absolute inset-0 flex flex-col justify-end pb-8 px-5 sm:pb-10 sm:px-10 ${getAlignClass(s.align)} ${getTextColorClass(s.textColor)}`}
+                    className={`absolute inset-0 flex flex-col justify-end pb-4 px-3 sm:pb-8 sm:px-6 md:pb-10 md:px-10 ${getAlignClass(s.align)} ${getTextColorClass(s.textColor)}`}
                   >
                     {s.title && (
-                      <h2 className="text-xl sm:text-3xl md:text-4xl font-black leading-tight drop-shadow-lg mb-1 font-poppins">
+                      <h2 className="text-sm sm:text-2xl md:text-3xl lg:text-4xl font-black leading-tight drop-shadow-lg mb-0.5 sm:mb-1 font-poppins">
                         {s.title}
                       </h2>
                     )}
                     {s.subtitle && (
-                      <p className="text-sm sm:text-base opacity-90 mb-3 drop-shadow max-w-xl">
+                      <p className="text-[10px] sm:text-sm md:text-base opacity-90 mb-1.5 sm:mb-3 drop-shadow max-w-xl line-clamp-2 sm:line-clamp-none">
                         {s.subtitle}
                       </p>
                     )}
                     {s.ctaText && s.ctaLink && (
                       <Link
                         href={s.ctaLink}
-                        className="inline-flex items-center gap-2 bg-[#741052] hover:bg-[#5c0d40] text-white font-bold py-2.5 px-6 rounded-full shadow-lg hover:shadow-xl hover:scale-105 active:scale-95 transition-all duration-300 text-sm w-fit mt-1"
+                        className="inline-flex items-center gap-1 sm:gap-2 bg-[#741052] hover:bg-[#5c0d40] text-white font-bold py-1 px-3 sm:py-2.5 sm:px-6 rounded-full shadow-lg hover:shadow-xl hover:scale-105 active:scale-95 transition-all duration-300 text-[10px] sm:text-sm w-fit mt-0.5 sm:mt-1"
                       >
                         {s.ctaText}
                       </Link>
@@ -170,38 +222,39 @@ export default function BannerSlider({ section }: { section: BannerSliderSection
           ))}
         </div>
 
-        {/* ── Arrow buttons (inside slider) ── */}
+        {/* ── Arrow buttons (inside slider, scaled cleanly for mobile) ── */}
         {showArrows && count > 1 && (
           <>
             <button
               onClick={(e) => { e.stopPropagation(); prev(); }}
-              className="absolute left-3 top-1/2 -translate-y-1/2 z-20 w-9 h-9 rounded-full bg-black/40 hover:bg-black/65 backdrop-blur-sm text-white flex items-center justify-center transition-all duration-200 hover:scale-110 active:scale-95 shadow-md"
+              className={`absolute left-1.5 sm:left-2.5 md:left-3 top-1/2 -translate-y-1/2 z-20 w-6 h-6 sm:w-8 sm:h-8 md:w-9 md:h-9 rounded-full bg-black/40 hover:bg-black/65 backdrop-blur-sm text-white flex items-center justify-center transition-all duration-200 hover:scale-105 active:scale-95 shadow-md ${showArrowsMobile === false ? 'hidden md:flex' : 'flex'
+                }`}
               aria-label="Previous slide"
             >
-              <ChevronLeft size={18} strokeWidth={2.5} />
+              <ChevronLeft className="w-3.5 h-3.5 sm:w-4 sm:h-4 md:w-5 md:h-5" strokeWidth={2.5} />
             </button>
             <button
               onClick={(e) => { e.stopPropagation(); next(); }}
-              className="absolute right-3 top-1/2 -translate-y-1/2 z-20 w-9 h-9 rounded-full bg-black/40 hover:bg-black/65 backdrop-blur-sm text-white flex items-center justify-center transition-all duration-200 hover:scale-110 active:scale-95 shadow-md"
+              className={`absolute right-1.5 sm:right-2.5 md:right-3 top-1/2 -translate-y-1/2 z-20 w-6 h-6 sm:w-8 sm:h-8 md:w-9 md:h-9 rounded-full bg-black/40 hover:bg-black/65 backdrop-blur-sm text-white flex items-center justify-center transition-all duration-200 hover:scale-105 active:scale-95 shadow-md ${showArrowsMobile === false ? 'hidden md:flex' : 'flex'
+                }`}
               aria-label="Next slide"
             >
-              <ChevronRight size={18} strokeWidth={2.5} />
+              <ChevronRight className="w-3.5 h-3.5 sm:w-4 sm:h-4 md:w-5 md:h-5" strokeWidth={2.5} />
             </button>
           </>
         )}
 
-        {/* ── Dot navigation pill (inside slider at bottom center) ── */}
+        {/* ── Carousel Navigation Indicators (Halved 4-5px height, 4-5px circular dots, expanded 32-40px active pill) ── */}
         {showDots && count > 1 && (
-          <div className="absolute bottom-3 left-1/2 -translate-x-1/2 z-20 flex items-center gap-1.5 bg-black/35 backdrop-blur-sm rounded-full px-3 py-[7px]">
+          <div className="absolute bottom-1 sm:bottom-3 left-1/2 -translate-x-1/2 z-20 flex items-center gap-1.5 sm:gap-2 bg-black/35 backdrop-blur-md border border-white/10 rounded-full px-2 sm:px-2.5 py-1 sm:py-1.5 shadow-lg">
             {slides.map((_, i) => (
               <button
                 key={i}
                 onClick={() => goTo(i)}
-                className={`transition-all duration-300 rounded-full ${
-                  i === current
-                    ? 'w-5 h-2 bg-white shadow-sm'
-                    : 'w-2 h-2 bg-white/50 hover:bg-white/80'
-                }`}
+                className={`transition-all duration-300 ease-out rounded-full cursor-pointer ${i === current
+                    ? 'w-8 sm:w-9 md:w-10 h-1 sm:h-[5px] bg-white shadow-md'
+                    : 'w-1 sm:w-[5px] h-1 sm:h-[5px] bg-white/45 hover:bg-white/75'
+                  }`}
                 aria-label={`Go to slide ${i + 1}`}
               />
             ))}

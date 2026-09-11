@@ -2,7 +2,7 @@
 
 "use client";
 
-import { FC, useState, useEffect, useMemo, useCallback, useRef } from "react";
+import { FC, useState, useEffect, useMemo, useCallback } from "react";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import AddToCartButtonForPlatters from "./AddToCartButtonForPlatters";
@@ -58,11 +58,6 @@ const platterCategoryCache = new Map<string, any[]>();
 const PlatterItem: FC<PlatterItemProps> = ({ platter, cardStyle = 'gourmet', initialOpen = false }) => {
   const { isLocationSet, setLocationModalOpen } = useOrder();
   const { addToCart } = useCart();
-
-  // Stores a pending cart add that waits for order-type selection
-  const pendingCartItem = useRef<{ id: string; title: string; price: number; quantity: number; image: string; variations: string[] } | null>(null);
-  // Track previous isLocationSet to detect the false→true transition
-  const prevIsLocationSet = useRef(isLocationSet);
 
   const [showModal, setShowModal] = useState(initialOpen);
   const [showAddedMessage, setShowAddedMessage] = useState(false);
@@ -300,38 +295,16 @@ const PlatterItem: FC<PlatterItemProps> = ({ platter, cardStyle = 'gourmet', ini
     handleItemAdded();
   }, [addToCart, platter.id, platter.title, totalPrice, platter.image, getFlattenedVariations, handleItemAdded]);
 
-  // Guard: called when the "Add to Cart" button is pressed.
-  // If the order type is already set → add immediately.
-  // If not → open the location modal and queue the add for after selection.
+  // Called when the "Add to Cart" button is pressed.
+  // Always adds to cart immediately (same behaviour as menu items).
+  // If the order type hasn't been set yet, the location modal is shown
+  // non-blockingly AFTER the item is already in the cart.
   const handleAddRequest = useCallback(() => {
-    if (isLocationSet) {
-      performCartAdd();
-    } else {
-      // Queue the pending cart item (capturing current variation snapshot)
-      pendingCartItem.current = {
-        id: platter.id,
-        title: platter.title,
-        price: totalPrice,
-        quantity: 1,
-        image: platter.image,
-        variations: getFlattenedVariations(),
-      };
-      setLocationModalOpen(true);
+    performCartAdd();
+    if (!isLocationSet) {
+      setTimeout(() => setLocationModalOpen(true), 300);
     }
-  }, [isLocationSet, performCartAdd, platter.id, platter.title, totalPrice, platter.image, getFlattenedVariations, setLocationModalOpen]);
-
-  // Flush deferred cart add once the user finishes selecting an order type
-  useEffect(() => {
-    const wasUnset = !prevIsLocationSet.current;
-    const isNowSet = isLocationSet;
-    prevIsLocationSet.current = isLocationSet;
-
-    if (wasUnset && isNowSet && pendingCartItem.current) {
-      addToCart(pendingCartItem.current);
-      handleItemAdded();
-      pendingCartItem.current = null;
-    }
-  }, [isLocationSet, addToCart, handleItemAdded]);
+  }, [isLocationSet, performCartAdd, setLocationModalOpen]);
 
   const handleCategorySelect = (categoryId: string, option: SelectedVariation) => {
     selectCategoryVariation(categoryId, option);

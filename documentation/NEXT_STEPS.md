@@ -11,6 +11,10 @@ last_updated: 2026-09-11
 # Next Steps & Handoff Guide — Advanced Ordering Ecosystem
 
 ## Completed in Current Sprint
+- [x] **Image Banner Slider Mobile Styling & Dot Navigation (CLK)**:
+  - Refined carousel navigation indicator proportions: halved height to 4px–5px (`h-1 sm:h-[5px]`), matched circular dots to 4px–5px diameter (`w-1 sm:w-[5px] h-1 sm:h-[5px]`), expanded active pill width to 32px–40px (`w-8 sm:w-9 md:w-10`), tightened frosted container padding (`px-2 sm:px-2.5 py-1 sm:py-1.5`), and maintained centered alignment (`bottom-2 sm:bottom-3`).
+  - Scaled down arrows, chevron icons, and text overlay typography on mobile to prevent slider from displaying too large.
+  - Added separated **Mobile Layout & Sizing** customization panel in `AdminPageBuilder.tsx` (Mobile Aspect Ratio `16/9`, `2/1`, `4/3`, `1/1`, `21/9`, Mobile Border Radius, Mobile Horizontal Margin, Mobile Top Margin, and Mobile Arrow Visibility toggle).
 - [x] **PC Header Full-Width Responsive Layout (CLK)**:
   - Removed `max-w-7xl` constraint on the main header, allowing it to stretch full-width on PC displays.
   - Added responsive left and right container gutters (`px-3 sm:px-6 md:px-8 lg:px-10 xl:px-12 2xl:px-14`) on the outer wrapper and `px-4 sm:px-6 md:px-8 lg:px-10` on the header pill for spacing from the screen edges.

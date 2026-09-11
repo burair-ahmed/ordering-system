@@ -6,8 +6,8 @@ tags:
   - #project/ordering-ecosystem
 created: 2026-09-04
 last_updated: 2026-09-11
-overall_completion: "Phase 4.10: PC Header Full-Width Responsive Layout (100%)"
-current_sprint: "PC Header Full-Width Responsive Spacing"
+overall_completion: "Phase 4.12: Meta Pixel Lead→Purchase & Platter AddToCart Fix (100%)"
+current_sprint: "Meta Pixel Lead→Purchase & Platter AddToCart Fix"
 ---
 
 # Project Status Dashboard — Advanced Ordering Ecosystem
@@ -16,8 +16,23 @@ current_sprint: "PC Header Full-Width Responsive Spacing"
 
 | Sub-Project | Phase | Focus | Status |
 | :--- | :--- | :--- | :--- |
-| **Cafe Little Karachi (CLK)** | Phase 4.10 | PC Header Full-Width Layout & Responsive Spacing | **Completed** 🟢 |
+| **Cafe Little Karachi (CLK)** | Phase 4.12 | Meta Pixel Lead→Purchase & Platter AddToCart Fix | **Completed** 🟢 |
 | **The Chai Company (TCC)** | Base | Monorepo Structure | Ready for Next Cycle ⚪ |
+
+---
+
+## Phase 4.12 Completion Summary — Meta Pixel Lead→Purchase & Platter AddToCart Fix
+
+- [x] **`trackMetaLead` Removed (`metaPixel.ts`)**: Deleted the `Lead` event function entirely — `Lead` has no valid use case in a restaurant ordering funnel.
+- [x] **Feedback Fires `Purchase` Instead (`analytics.ts`)**: The `journey_feedback_submitted` / `journey_lead` analytics branch now calls `trackMetaPurchase({ orderNumber, totalAmount })` to reinforce the conversion signal (feedback is only submittable after a confirmed order). Removed `trackMetaLead` from imports.
+- [x] **Platter AddToCart Always Works (`PlatterItem.tsx`)**: Removed `pendingCartItem` ref, `prevIsLocationSet` ref, and deferred-flush `useEffect`. `handleAddRequest` now always calls `performCartAdd()` immediately — matching menu item behaviour. If order type is not set, the location modal appears 300ms after the add (non-blocking). Removed unused `useRef` from React import.
+
+---
+
+- [x] **Carousel Navigation Indicator Proportions Refinement (`BannerSlider.tsx`)**: Halved indicator height to 4px–5px (`h-1 sm:h-[5px]`), scaled circular dots to match (`w-1 sm:w-[5px] h-1 sm:h-[5px]`), and expanded the active pill width to `w-8 sm:w-9 md:w-10` (32px–40px) in solid white (`bg-white shadow-md`). Encased in a compact frosted glass capsule (`px-2 sm:px-2.5 py-1 sm:py-1.5`) with even spacing (`gap-1.5 sm:gap-2`), centered at `bottom-2 sm:bottom-3`.
+- [x] **Mobile Scale Down (`BannerSlider.tsx`)**: Scaled down arrow buttons (`w-6 h-6 sm:w-8 sm:h-8 md:w-9 md:h-9`), chevron icons, text overlays (`text-sm` headings, `text-[10px]` subtitles), and CTA buttons to fit mobile screens perfectly without dominating viewport height.
+- [x] **Dedicated Mobile Customization Controls (`AdminPageBuilder.tsx`)**: Split layout settings into separated 🖥️ Desktop vs 📱 Mobile styling panels in CMS editor. Added dedicated controls for Mobile Aspect Ratio (`16/9`, `2/1`, `4/3`, `1/1`, `21/9`), Mobile Border Radius, Mobile Horizontal Margin, Mobile Top Margin, and Mobile Navigation Arrow visibility toggle.
+- [x] **Zero-Layout-Shift CSS Variable Theming (`BannerSlider.tsx`)**: Applied CSS variables for responsive margins, border radius, and aspect ratios.
 
 ---
 

@@ -125,10 +125,16 @@ interface PageSection {
     autoPlay?: boolean;
     autoPlayInterval?: number;
     showArrows?: boolean;
+    showArrowsMobile?: boolean;
     showDots?: boolean;
     marginX?: number;
     marginTop?: number;
     borderRadius?: number;
+    aspectRatio?: string;
+    mobileMarginX?: number;
+    mobileMarginTop?: number;
+    mobileBorderRadius?: number;
+    mobileAspectRatio?: string;
 
     // Rich content specific
     description?: string;
@@ -253,10 +259,16 @@ const SECTION_PRESETS = [
       autoPlay: true,
       autoPlayInterval: 4000,
       showArrows: true,
+      showArrowsMobile: true,
       showDots: true,
       marginX: 16,
       marginTop: 12,
       borderRadius: 20,
+      aspectRatio: '21/8',
+      mobileMarginX: 8,
+      mobileMarginTop: 6,
+      mobileBorderRadius: 14,
+      mobileAspectRatio: '16/9',
     }
   }
 ];
@@ -629,56 +641,192 @@ export function ImageSliderConfigEditor({
 
       {/* LAYOUT TAB */}
       {sliderTab === 'layout' && (
-        <div className="grid gap-4 sm:grid-cols-2 pt-2 animate-fadeIn">
-          <div className="sm:col-span-2 flex items-center gap-3 p-3 bg-neutral-50/50 dark:bg-neutral-900/40 rounded-xl border border-neutral-100 dark:border-neutral-800">
-            <Switch
-              id={`autoplay-${section.id}`}
-              checked={section.props.autoPlay !== false}
-              onCheckedChange={(val: boolean) => updateProps({ autoPlay: val })}
-            />
-            <Label htmlFor={`autoplay-${section.id}`} className="font-bold cursor-pointer text-xs text-neutral-800 dark:text-neutral-200">
-              Auto-play Slides
-            </Label>
-          </div>
-
-          {section.props.autoPlay !== false && (
-            <div>
-              <Label className="font-semibold text-neutral-600 dark:text-neutral-400">Auto-play Interval (ms)</Label>
-              <Input type="number" min={1000} step={500} value={section.props.autoPlayInterval ?? 4000} onChange={e => updateProps({ autoPlayInterval: parseInt(e.target.value) || 4000 })} className="mt-1 h-9 rounded-lg text-xs" />
+        <div className="space-y-4 pt-2 animate-fadeIn">
+          {/* 🖥️ Desktop Layout & Sizing */}
+          <div className="p-3.5 bg-neutral-50/70 dark:bg-neutral-900/50 rounded-2xl border border-neutral-200/70 dark:border-neutral-800 space-y-3">
+            <div className="flex items-center gap-2 text-xs font-bold text-neutral-800 dark:text-neutral-200 border-b border-neutral-200 dark:border-neutral-800/80 pb-2">
+              <span className="text-base">🖥️</span> Desktop Layout & Sizing
             </div>
-          )}
+            <div className="grid gap-3 sm:grid-cols-2">
+              <div>
+                <Label className="text-[11px] font-semibold text-neutral-600 dark:text-neutral-400">Desktop Aspect Ratio</Label>
+                <SelectInput
+                  value={section.props.aspectRatio || '21/8'}
+                  onChange={e => updateProps({ aspectRatio: e.target.value })}
+                  className="mt-1"
+                >
+                  <option value="21/8">21:8 (Default Panoramic)</option>
+                  <option value="21/9">21:9 (Ultra Wide)</option>
+                  <option value="16/9">16:9 (Standard Widescreen)</option>
+                  <option value="3/1">3:1 (Slim Banner)</option>
+                  <option value="4/3">4:3 (Tall Box)</option>
+                </SelectInput>
+              </div>
 
-          <div className="flex items-center gap-3 p-3 bg-neutral-50/50 dark:bg-neutral-900/40 rounded-xl border border-neutral-100 dark:border-neutral-800">
-            <Switch
-              id={`arrows-${section.id}`}
-              checked={section.props.showArrows !== false}
-              onCheckedChange={(val: boolean) => updateProps({ showArrows: val })}
-            />
-            <Label htmlFor={`arrows-${section.id}`} className="font-bold cursor-pointer text-xs text-neutral-800 dark:text-neutral-200">Show Navigation Arrows</Label>
+              <div>
+                <Label className="text-[11px] font-semibold text-neutral-600 dark:text-neutral-400">Border Radius (px)</Label>
+                <Input
+                  type="number"
+                  min={0}
+                  max={60}
+                  value={section.props.borderRadius ?? 20}
+                  onChange={e => updateProps({ borderRadius: parseInt(e.target.value) || 0 })}
+                  className="mt-1 h-9 rounded-lg text-xs"
+                />
+              </div>
+
+              <div>
+                <Label className="text-[11px] font-semibold text-neutral-600 dark:text-neutral-400">Horizontal Margin (px)</Label>
+                <Input
+                  type="number"
+                  min={0}
+                  max={80}
+                  value={section.props.marginX ?? 16}
+                  onChange={e => updateProps({ marginX: parseInt(e.target.value) || 0 })}
+                  className="mt-1 h-9 rounded-lg text-xs"
+                />
+              </div>
+
+              <div>
+                <Label className="text-[11px] font-semibold text-neutral-600 dark:text-neutral-400">Top Margin (px)</Label>
+                <Input
+                  type="number"
+                  min={0}
+                  max={80}
+                  value={section.props.marginTop ?? 12}
+                  onChange={e => updateProps({ marginTop: parseInt(e.target.value) || 0 })}
+                  className="mt-1 h-9 rounded-lg text-xs"
+                />
+              </div>
+            </div>
           </div>
 
-          <div className="flex items-center gap-3 p-3 bg-neutral-50/50 dark:bg-neutral-900/40 rounded-xl border border-neutral-100 dark:border-neutral-800">
-            <Switch
-              id={`dots-${section.id}`}
-              checked={section.props.showDots !== false}
-              onCheckedChange={(val: boolean) => updateProps({ showDots: val })}
-            />
-            <Label htmlFor={`dots-${section.id}`} className="font-bold cursor-pointer text-xs text-neutral-800 dark:text-neutral-200">Show Dot Navigation Pill</Label>
+          {/* 📱 Mobile Layout & Sizing (Separated) */}
+          <div className="p-3.5 bg-neutral-50/70 dark:bg-neutral-900/50 rounded-2xl border border-neutral-200/70 dark:border-neutral-800 space-y-3">
+            <div className="flex items-center gap-2 text-xs font-bold text-neutral-800 dark:text-neutral-200 border-b border-neutral-200 dark:border-neutral-800/80 pb-2">
+              <span className="text-base">📱</span> Mobile Layout & Sizing (Phone Screen)
+            </div>
+            <div className="grid gap-3 sm:grid-cols-2">
+              <div>
+                <Label className="text-[11px] font-semibold text-neutral-600 dark:text-neutral-400">Mobile Aspect Ratio</Label>
+                <SelectInput
+                  value={section.props.mobileAspectRatio || '16/9'}
+                  onChange={e => updateProps({ mobileAspectRatio: e.target.value })}
+                  className="mt-1"
+                >
+                  <option value="16/9">16:9 (Recommended Mobile - Compact)</option>
+                  <option value="2/1">2:1 (Slim Mobile)</option>
+                  <option value="4/3">4:3 (Medium)</option>
+                  <option value="1/1">1:1 (Square)</option>
+                  <option value="21/9">21:9 (Ultra Thin)</option>
+                </SelectInput>
+              </div>
+
+              <div>
+                <Label className="text-[11px] font-semibold text-neutral-600 dark:text-neutral-400">Mobile Border Radius (px)</Label>
+                <Input
+                  type="number"
+                  min={0}
+                  max={40}
+                  value={section.props.mobileBorderRadius ?? 14}
+                  onChange={e => updateProps({ mobileBorderRadius: parseInt(e.target.value) || 0 })}
+                  className="mt-1 h-9 rounded-lg text-xs"
+                />
+              </div>
+
+              <div>
+                <Label className="text-[11px] font-semibold text-neutral-600 dark:text-neutral-400">Mobile Horizontal Margin (px)</Label>
+                <Input
+                  type="number"
+                  min={0}
+                  max={40}
+                  value={section.props.mobileMarginX ?? 8}
+                  onChange={e => updateProps({ mobileMarginX: parseInt(e.target.value) || 0 })}
+                  className="mt-1 h-9 rounded-lg text-xs"
+                />
+              </div>
+
+              <div>
+                <Label className="text-[11px] font-semibold text-neutral-600 dark:text-neutral-400">Mobile Top Margin (px)</Label>
+                <Input
+                  type="number"
+                  min={0}
+                  max={40}
+                  value={section.props.mobileMarginTop ?? 6}
+                  onChange={e => updateProps({ mobileMarginTop: parseInt(e.target.value) || 0 })}
+                  className="mt-1 h-9 rounded-lg text-xs"
+                />
+              </div>
+
+              <div className="sm:col-span-2 flex items-center justify-between p-2.5 bg-white dark:bg-neutral-800 rounded-xl border border-neutral-200/60 dark:border-neutral-700/60">
+                <div>
+                  <Label htmlFor={`arrows-mob-${section.id}`} className="font-bold cursor-pointer text-xs text-neutral-800 dark:text-neutral-200 block">
+                    Show Arrows on Mobile
+                  </Label>
+                  <span className="text-[10px] text-neutral-400">Touch swipe navigation is always active on mobile</span>
+                </div>
+                <Switch
+                  id={`arrows-mob-${section.id}`}
+                  checked={section.props.showArrowsMobile !== false}
+                  onCheckedChange={(val: boolean) => updateProps({ showArrowsMobile: val })}
+                />
+              </div>
+            </div>
           </div>
 
-          <div>
-            <Label className="font-semibold text-neutral-600 dark:text-neutral-400">Border Radius (px)</Label>
-            <Input type="number" min={0} max={60} value={section.props.borderRadius ?? 20} onChange={e => updateProps({ borderRadius: parseInt(e.target.value) || 20 })} className="mt-1 h-9 rounded-lg text-xs" />
-          </div>
+          {/* ⚙️ Behavior & Navigation */}
+          <div className="p-3.5 bg-neutral-50/70 dark:bg-neutral-900/50 rounded-2xl border border-neutral-200/70 dark:border-neutral-800 space-y-3">
+            <div className="flex items-center gap-2 text-xs font-bold text-neutral-800 dark:text-neutral-200 border-b border-neutral-200 dark:border-neutral-800/80 pb-2">
+              <span className="text-base">⚙️</span> Behavior & Controls
+            </div>
+            <div className="grid gap-3 sm:grid-cols-2">
+              <div className="sm:col-span-2 flex items-center justify-between p-2.5 bg-white dark:bg-neutral-800 rounded-xl border border-neutral-200/60 dark:border-neutral-700/60">
+                <Label htmlFor={`autoplay-${section.id}`} className="font-bold cursor-pointer text-xs text-neutral-800 dark:text-neutral-200">
+                  Auto-play Slides
+                </Label>
+                <Switch
+                  id={`autoplay-${section.id}`}
+                  checked={section.props.autoPlay !== false}
+                  onCheckedChange={(val: boolean) => updateProps({ autoPlay: val })}
+                />
+              </div>
 
-          <div>
-            <Label className="font-semibold text-neutral-600 dark:text-neutral-400">Horizontal Margin (px)</Label>
-            <Input type="number" min={0} max={80} value={section.props.marginX ?? 16} onChange={e => updateProps({ marginX: parseInt(e.target.value) || 0 })} className="mt-1 h-9 rounded-lg text-xs" />
-          </div>
+              {section.props.autoPlay !== false && (
+                <div className="sm:col-span-2">
+                  <Label className="text-[11px] font-semibold text-neutral-600 dark:text-neutral-400">Auto-play Interval (ms)</Label>
+                  <Input
+                    type="number"
+                    min={1000}
+                    step={500}
+                    value={section.props.autoPlayInterval ?? 4000}
+                    onChange={e => updateProps({ autoPlayInterval: parseInt(e.target.value) || 4000 })}
+                    className="mt-1 h-9 rounded-lg text-xs"
+                  />
+                </div>
+              )}
 
-          <div>
-            <Label className="font-semibold text-neutral-600 dark:text-neutral-400">Top Margin (px)</Label>
-            <Input type="number" min={0} max={80} value={section.props.marginTop ?? 12} onChange={e => updateProps({ marginTop: parseInt(e.target.value) || 0 })} className="mt-1 h-9 rounded-lg text-xs" />
+              <div className="flex items-center justify-between p-2.5 bg-white dark:bg-neutral-800 rounded-xl border border-neutral-200/60 dark:border-neutral-700/60">
+                <Label htmlFor={`arrows-${section.id}`} className="font-bold cursor-pointer text-xs text-neutral-800 dark:text-neutral-200">
+                  Desktop Arrows
+                </Label>
+                <Switch
+                  id={`arrows-${section.id}`}
+                  checked={section.props.showArrows !== false}
+                  onCheckedChange={(val: boolean) => updateProps({ showArrows: val })}
+                />
+              </div>
+
+              <div className="flex items-center justify-between p-2.5 bg-white dark:bg-neutral-800 rounded-xl border border-neutral-200/60 dark:border-neutral-700/60">
+                <Label htmlFor={`dots-${section.id}`} className="font-bold cursor-pointer text-xs text-neutral-800 dark:text-neutral-200">
+                  Dot Pill
+                </Label>
+                <Switch
+                  id={`dots-${section.id}`}
+                  checked={section.props.showDots !== false}
+                  onCheckedChange={(val: boolean) => updateProps({ showDots: val })}
+                />
+              </div>
+            </div>
           </div>
         </div>
       )}
