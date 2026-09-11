@@ -7,6 +7,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import MenuItem from "../components/MenuItem";
 import PlatterItem from "../components/PlatterItem";
 import Hero from "../components/Hero";
+import BannerSlider, { type BannerSlide } from "../components/BannerSlider";
 import SkeletonLoader from "../components/SkeletonLoader";
 import { Star, Clock, ArrowRight, ChevronLeft, ChevronRight } from "lucide-react";
 import Link from "next/link";
@@ -55,7 +56,7 @@ interface Platter {
 
 interface PageSection {
   id: string;
-  type: 'hero' | 'banner' | 'rich-content' | 'divider' | 'testimonials' | 'slider' | 'grid';
+  type: 'hero' | 'banner' | 'rich-content' | 'divider' | 'testimonials' | 'slider' | 'grid' | 'image-slider';
   title: string;
   isVisible: boolean;
   props: {
@@ -89,6 +90,16 @@ interface PageSection {
     bannerTextColor?: string;
     hasCountdown?: boolean;
     countdownEnd?: string;
+
+    // Image Slider specific
+    slides?: BannerSlide[];
+    autoPlay?: boolean;
+    autoPlayInterval?: number;
+    showArrows?: boolean;
+    showDots?: boolean;
+    marginX?: number;
+    marginTop?: number;
+    borderRadius?: number;
 
     // Rich content specific
     description?: string;
@@ -589,13 +600,18 @@ export default function MenuPage({
 
   // --- Classic Layout Conditional Render ---
   if (!useCmsLayout) {
-    const heroSection = sections.find(s => s.type === 'hero');
+    const heroSection = sections.find(s => s.type === 'hero' && s.isVisible);
+    const imageSliderSection = sections.find(s => s.type === 'image-slider' && s.isVisible);
     return (
       <div className="bg-white text-black min-h-screen pb-20">
-        <Hero 
-          title={heroSection?.title}
-          {...(heroSection?.props || {})}
-        />
+        {imageSliderSection ? (
+          <BannerSlider section={imageSliderSection as any} />
+        ) : heroSection ? (
+          <Hero 
+            title={heroSection?.title}
+            {...(heroSection?.props || {})}
+          />
+        ) : null}
         <div className="flex justify-center mt-4 gap-4">
         </div>
 
@@ -785,6 +801,9 @@ export default function MenuPage({
                       isLoading={isLoading}
                     />
                   );
+                
+                case 'image-slider':
+                  return <BannerSlider section={section} />;
                 
                 default:
                   return null;

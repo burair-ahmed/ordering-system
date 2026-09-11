@@ -11,9 +11,15 @@
 
 import {
   trackMetaViewContent,
+  trackMetaCustomizeProduct,
   trackMetaAddToCart,
   trackMetaInitiateCheckout,
+  trackMetaAddPaymentInfo,
   trackMetaPurchase,
+  trackMetaContact,
+  trackMetaFindLocation,
+  trackMetaSearch,
+  trackMetaLead,
 } from './metaPixel';
 
 // ─── CLK Funnel Event Constants ──────────────────────────────────────────────
@@ -189,22 +195,42 @@ export function trackEvent(eventType: string, properties: Record<string, any> = 
   try {
     if (
       eventType === 'journey_view_item_details' ||
-      eventType === 'clk_s5_item_customised'
+      eventType === 'journey_view_platter_details'
     ) {
       trackMetaViewContent({
-        id: properties.item_id || properties.id,
-        name: properties.item_name || properties.title,
+        id: properties.item_id || properties.platter_id || properties.id,
+        name: properties.item_name || properties.platter_name || properties.title,
         category: properties.category,
         price: properties.price,
       });
     } else if (
+      eventType === 'journey_customise_product' ||
+      eventType === 'journey_variation_opened' ||
+      eventType === 'journey_variation_confirmed' ||
+      eventType === 'journey_variation_select' ||
+      eventType === 'journey_platter_option_select' ||
+      eventType === 'clk_s5_item_customised'
+    ) {
+      trackMetaCustomizeProduct({
+        id: properties.item_id || properties.platter_id || properties.id,
+        name: properties.item_name || properties.platter_name || properties.title,
+        category: properties.category,
+        price: properties.price,
+        customizationType:
+          properties.customization_type ||
+          properties.variation_name ||
+          properties.option_name ||
+          properties.choice_heading,
+      });
+    } else if (
       eventType === 'journey_add_to_cart' ||
       eventType === 'journey_add_item' ||
+      eventType === 'journey_add_platter_to_cart' ||
       eventType === 'clk_s6_add_to_cart'
     ) {
       trackMetaAddToCart({
-        id: properties.item_id || properties.id,
-        name: properties.item_name || properties.title,
+        id: properties.item_id || properties.platter_id || properties.id,
+        name: properties.item_name || properties.platter_name || properties.title,
         category: properties.category,
         price: properties.price,
         quantity: properties.quantity,
@@ -215,6 +241,15 @@ export function trackEvent(eventType: string, properties: Record<string, any> = 
       eventType === 'clk_s7_checkout_started'
     ) {
       trackMetaInitiateCheckout({
+        totalAmount: properties.total_amount || properties.totalAmount,
+        numItems: properties.item_count || properties.itemCount,
+      });
+    } else if (
+      eventType === 'journey_payment_toggle' ||
+      eventType === 'journey_add_payment_info'
+    ) {
+      trackMetaAddPaymentInfo({
+        paymentMethod: properties.method || properties.paymentMethod || properties.payment_method,
         totalAmount: properties.total_amount || properties.totalAmount,
         numItems: properties.item_count || properties.itemCount,
       });
@@ -233,6 +268,45 @@ export function trackEvent(eventType: string, properties: Record<string, any> = 
           totalAmount: properties.total_amount || properties.totalAmount || 0,
         });
       }
+    } else if (
+      eventType === 'journey_call_click' ||
+      eventType === 'journey_whatsapp_click' ||
+      eventType === 'journey_contact'
+    ) {
+      trackMetaContact({
+        contactType: properties.channel || properties.contact_type || 'phone',
+        source: properties.source || 'header',
+        destination: properties.destination,
+      });
+    } else if (
+      eventType === 'journey_table_selected' ||
+      eventType === 'journey_area_selected' ||
+      eventType === 'journey_find_location' ||
+      eventType === 'clk_s3_table_selected'
+    ) {
+      trackMetaFindLocation({
+        orderType: properties.order_type || properties.orderType,
+        tableId: properties.table || properties.tableId,
+        area: properties.area,
+        locationName: properties.location_name || properties.area || (properties.table ? `Table ${properties.table}` : undefined),
+      });
+    } else if (
+      eventType === 'journey_menu_search' ||
+      eventType === 'journey_search'
+    ) {
+      trackMetaSearch({
+        searchString: properties.query || properties.search_string || '',
+        contentCategory: properties.category,
+      });
+    } else if (
+      eventType === 'journey_feedback_submitted' ||
+      eventType === 'journey_lead'
+    ) {
+      trackMetaLead({
+        leadType: properties.lead_type || 'order_feedback',
+        orderNumber: properties.order_number || properties.orderNumber,
+        value: properties.rating,
+      });
     }
   } catch (metaErr) {
     console.warn('[Analytics] Meta Pixel track failed:', metaErr);

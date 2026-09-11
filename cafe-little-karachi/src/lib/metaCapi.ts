@@ -84,7 +84,19 @@ export interface MetaCapiCustomData {
 }
 
 export interface SendMetaCapiEventOptions {
-  eventName: 'Purchase' | 'InitiateCheckout' | 'AddToCart' | 'ViewContent' | 'PageView' | string;
+  eventName:
+    | 'Purchase'
+    | 'InitiateCheckout'
+    | 'AddToCart'
+    | 'ViewContent'
+    | 'CustomizeProduct'
+    | 'AddPaymentInfo'
+    | 'Contact'
+    | 'FindLocation'
+    | 'Search'
+    | 'Lead'
+    | 'PageView'
+    | string;
   eventId?: string;
   eventSourceUrl?: string;
   userData?: MetaCapiUserData;

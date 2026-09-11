@@ -524,6 +524,11 @@ const ThankYouPage: FC = () => {
       if (!res.ok) throw new Error();
       setFeedbackStatus('success');
       toast.success('Thanks for your feedback!');
+      trackEvent('journey_feedback_submitted', {
+        order_number: orderNumber,
+        rating,
+        lead_type: 'order_feedback',
+      });
     } catch {
       setFeedbackStatus('error');
       toast.error('Could not submit feedback');

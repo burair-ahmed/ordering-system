@@ -55,13 +55,34 @@ last_updated: 2026-09-04
 - **Micro-Fix: Compact Bottom-Right Browse-Mode Banner (`src/app/components/RestaurantStatusPopup.tsx`)**:
   - **Problem**: The "View Only Menu Mode" top banner that appeared when customers clicked "View Menu (Browse Only)" during off-hours was a very wide, center-top floating bar that felt intrusive and too large.
   - **Fix**: Replaced the wide `top-20 left-1/2 max-w-2xl` top banner with a compact `bottom-5 right-4` floating toast (`w-[clamp(200px,88vw,280px)]`). The new design shows a pulsing amber dot, "Browse Only · Opens 6:30 PM" label, the live countdown timer (`HH:MM:SS`), and a small "Timer" button to re-open the full modal — all in a tight dark pill on the bottom-right that doesn't obstruct the menu.
+- **Micro-Fix: Remove Visible Noscript Banner from MetaPixelProvider (`src/app/providers/MetaPixelProvider.tsx`)**:
+  - **Problem**: In Next.js App Router, `<noscript>` inside a `'use client'` component is hydrated as normal DOM — React renders the inner `<img height="1" width="1">` as a fully visible element on the page, producing a mysterious small image/box that looks like an old banner stub.
+  - **Fix**: Removed the `<noscript>` fallback block entirely. Next.js always runs with JavaScript, so the noscript fallback is completely redundant. The `<Script strategy="afterInteractive">` pixel already handles 100% of users.
+- **Feature: Image Banner Slider + Admin Page Builder Revamp (`src/app/components/BannerSlider.tsx`, `src/app/components/AdminPageBuilder.tsx`, `src/order/page.tsx`, `src/models/PageConfig.ts`)**:
+  - **New `image-slider` section type**: Added to MongoDB `PageConfig` schema, `AdminPageBuilder.tsx` section preset list, `order/page.tsx` renderer, and the `PageSection` TypeScript type union across all relevant files.
+  - **`BannerSlider.tsx`** (new client component): Full-width image carousel with configurable outer margin (`marginX`, `marginTop`), `border-radius` (default 20px), CSS-transform slide transitions (500ms ease-out), left/right `ChevronLeft`/`ChevronRight` arrow buttons inside the slider, animated bottom dot-navigation pill inside the slider, autoplay with pause-on-hover, touch swipe support, and per-slide optional text overlay (title, subtitle, CTA button, overlay opacity, text colour, alignment). Falls back gracefully to desktop image if no mobile image provided.
+  - **Image-Only Slide Mode (`imageOnly?: boolean`)**: Added an explicit "Image Only" toggle per slide. When enabled, all text overlays, button CTAs, and dark background gradients are completely skipped on the frontend, and the corresponding input fields are collapsed in the admin editor, rendering a clean, pure graphical banner without obstruction.
+  - **Admin Editor Preset Exposure Fix (`AdminPageBuilder.tsx`)**: Fixed the category filtering array in the "Layout Sections" sidebar (`types: ["hero", "banner", "image-slider"]`), resolving the issue where "Image Banner Slider" was excluded from the "Header & Banners" category and not visible to admins.
+  - **Dual Layout Mode Support (`order/page.tsx`)**: Rendered `BannerSlider` in both Advanced CMS mode and Classic Layout mode (`!useCmsLayout`), ensuring the animated banner slider immediately displays at the top of the ordering page whenever an `image-slider` section is active, even if the store is running in Classic category list mode.
+  - **Admin Editor** (`AdminPageBuilder.tsx`): Added new editor panel under section type `image-slider` with two tabs — **Slides** (per-slide desktop/mobile image upload with browser + phone mockup previews, live Cloudinary upload via `/api/upload`, imageOnly toggle, title/subtitle/CTA text/CTA link/overlay opacity/text colour/alignment inputs, add/remove slide buttons, empty-state placeholder) and **Layout & Behaviour** (autoPlay toggle, interval ms, showArrows, showDots, borderRadius, marginX, marginTop inputs). Added `GalleryHorizontal` icon import, `sliderTab` state, `uploadingSlides` state, `addSlide`/`removeSlide`/`updateSlide`/`handleSlideImageUpload` helpers, `BannerSlide` interface export, and sky-blue theme colour for the section type badge.
 - **Phase 4.6 Meta Pixel & Conversions API (CAPI) Integration (`src/lib/metaCapi.ts`, `src/app/lib/metaPixel.ts`, `src/app/providers/MetaPixelProvider.tsx`, `src/pages/api/orders.ts`, `src/pages/api/analytics/meta-capi.ts`, `src/app/lib/analytics.ts`)**:
-  - **Meta Pixel**: Integrated Pixel ID `1619761243277122` via `<MetaPixelProvider />` in `src/app/layout.tsx` with dynamic page view tracking on route transitions and `<noscript>` fallback.
+  - **Meta Pixel**: Integrated Pixel ID `1619761243277122` via `<MetaPixelProvider />` in `src/app/layout.tsx` with dynamic page view tracking on route transitions.
   - **Meta Conversions API (CAPI)**: Built robust server-side CAPI client (`src/lib/metaCapi.ts`) supporting SHA-256 PII hashing (email, Pakistani mobile phone normalization `03...` ➔ `923...`), client IP, User-Agent, and `_fbp`/`_fbc` cookie extraction.
   - **Purchase Server-Side Dispatch**: Wired asynchronous, non-blocking CAPI `Purchase` event dispatch directly into `src/pages/api/orders.ts` on MongoDB order creation.
   - **Event Deduplication**: Shared `event_id: orderNumber` between client-side Meta Pixel and server-side CAPI to guarantee zero duplicate conversion counts in Meta Events Manager.
-  - **Unified Analytics Bridge**: Updated `src/app/lib/analytics.ts` so all journey events (`ViewContent`, `AddToCart`, `InitiateCheckout`, `Purchase`) automatically fan out to Meta Pixel, Microsoft Clarity, and internal analytics.
-  - **API Relay Endpoint**: Created `/api/analytics/meta-capi.ts` for relaying client conversion events to CAPI.
+  - **Full 10 Meta Standard Events Rollout**:
+    1. `ViewContent`: Fired on item / platter detail modal view (`trackMetaViewContent`).
+    2. `CustomizeProduct`: Fired on variation selection, add-on picks, and platter choices in `MenuItem.tsx` and `PlatterItem.tsx` (`trackMetaCustomizeProduct`).
+    3. `AddToCart`: Fired when items or platters are added to the cart (`trackMetaAddToCart`).
+    4. `InitiateCheckout`: Fired when opening cart drawer or checkout page (`trackMetaInitiateCheckout`).
+    5. `AddPaymentInfo`: Fired when toggling payment method (Cash vs Online) with order amount & item count in `checkout/page.tsx` (`trackMetaAddPaymentInfo`).
+    6. `Purchase`: Fired on thank-you page with deduplication against server CAPI (`trackMetaPurchase`).
+    7. `Contact`: Fired on clicking desktop Call Us pill, mobile WhatsApp icon, sidebar drawer call/WhatsApp links, and footer contact link (`trackMetaContact`).
+    8. `FindLocation`: Fired on submitting dining mode / delivery area / table number in `TableForm.tsx` and clicking Google Maps directions in drawer (`trackMetaFindLocation`).
+    9. `Search`: Fired on menu/catalog queries (`trackMetaSearch`).
+    10. `Lead`: Fired on submitting customer rating/feedback in `thank-you/page.tsx` (`trackMetaLead`).
+  - **Unified Analytics Bridge**: Updated `src/app/lib/analytics.ts` so `trackEvent` automatically fans out to Meta Pixel (`fbqTrack`), Microsoft Clarity, and internal analytics.
+  - **Server-Side CAPI Support**: Expanded `SendMetaCapiEventOptions.eventName` union type in `src/lib/metaCapi.ts` to include all standard events.
 
 ---
 
@@ -95,3 +116,6 @@ last_updated: 2026-09-04
 | `src/app/thank-you/page.tsx` | Thank You Page | Resilient multi-source order resolution (`order`/`orderNumber`/`id`/localStorage) |
 | `src/app/components/OrdersList.tsx` | UI Component | Admin order list with universal array parsing, 2m interval, and manual refresh button |
 | `src/app/providers/PostHogProvider.tsx` | Analytics | Supports clean routes and persisted location context |
+| `src/app/components/BannerSlider.tsx` | UI Component | **[NEW]** Image carousel with inner arrows, dot pill, autoplay, touch swipe, per-slide overlays |
+| `src/app/components/AdminPageBuilder.tsx` | Admin Panel | Added `image-slider` type editor: per-slide upload, overlay config, layout tab |
+| `src/models/PageConfig.ts` | Mongoose Model | Added `'image-slider'` to section type enum |

@@ -6,6 +6,7 @@ import Link from "next/link"
 import { FaFacebook, FaInstagram, FaTwitter, FaLinkedin } from "react-icons/fa"
 import { motion, Variants } from "framer-motion"
 import { Button } from "@/components/ui/button"
+import { trackEvent } from "../lib/analytics"
 
 const Footer: FC = () => {
   const [tableId, setTableId] = useState<string>("")
@@ -92,6 +93,13 @@ const Footer: FC = () => {
               </Link>
               <Link
                 href="/contact"
+                onClick={() => {
+                  trackEvent('journey_contact', {
+                    channel: 'page',
+                    destination: '/contact',
+                    source: 'footer',
+                  });
+                }}
                 className="text-sm font-medium transition-colors duration-300 hover:text-[#ff9824]"
               >
                 Contact

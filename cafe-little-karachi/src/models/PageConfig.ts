@@ -19,7 +19,7 @@ const PageSectionSchema = new Schema({
   type: { 
       type: String, 
       required: true, 
-      enum: ['hero', 'banner', 'rich-content', 'divider', 'testimonials', 'slider', 'grid'] 
+      enum: ['hero', 'banner', 'rich-content', 'divider', 'testimonials', 'slider', 'grid', 'image-slider'] 
   },
   title: { type: String, default: "" },
   isVisible: { type: Boolean, default: true },

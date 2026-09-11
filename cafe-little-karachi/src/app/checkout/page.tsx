@@ -284,7 +284,11 @@ const CheckoutPageContent: FC = () => {
 
   const handlePaymentChange = (method: "cash" | "online") => {
     setFormData((s) => ({ ...s, paymentMethod: method }));
-    trackEvent('journey_payment_toggle', { method });
+    trackEvent('journey_payment_toggle', {
+      method,
+      total_amount: finalAmount || totalAmount,
+      item_count: cartItems.length,
+    });
   };
 
   const focusAreaInput = () => {

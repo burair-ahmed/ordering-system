@@ -12,6 +12,7 @@ import { useOrder } from '../context/OrderContext';
 import { ShoppingBag, Phone, MapPin, Menu, X, ArrowRight, Edit2, Utensils, Navigation } from 'lucide-react';
 import { FaWhatsapp } from 'react-icons/fa';
 import { isOpenAt } from '../lib/restaurantStatus';
+import { trackEvent } from '../lib/analytics';
 
 export default function Header() {
   const [isCartOpen, setIsCartOpen] = useState(false);
@@ -113,6 +114,13 @@ export default function Header() {
               <motion.a
                 href="tel:+923331702706"
                 whileTap={{ scale: 0.95 }}
+                onClick={() => {
+                  trackEvent('journey_call_click', {
+                    channel: 'phone',
+                    destination: '+923331702706',
+                    source: 'header_desktop',
+                  });
+                }}
                 className="hidden lg:flex items-center gap-1.5 h-10 md:h-12 px-2.5 md:px-3.5 rounded-full border transition-all duration-300 bg-white/10 hover:bg-white/15 border-white/20 text-white"
                 title="Call Us: +92 333 1702706"
                 aria-label="Call Us"
@@ -130,6 +138,13 @@ export default function Header() {
                 href={`https://wa.me/${process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || '923331702706'}?text=${encodeURIComponent('Hello Cafe Little Karachi! I have an inquiry.')}`}
                 target="_blank"
                 rel="noopener noreferrer"
+                onClick={() => {
+                  trackEvent('journey_whatsapp_click', {
+                    channel: 'whatsapp',
+                    destination: process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || '923331702706',
+                    source: 'header_mobile_icon',
+                  });
+                }}
                 className="flex lg:hidden w-10 h-10 rounded-full bg-white/5 border border-white/10 items-center justify-center text-[#ff9824]"
                 aria-label="Chat on WhatsApp"
               >
@@ -303,7 +318,16 @@ export default function Header() {
                         <Link 
                           href={link.href!} 
                           target={link.external ? '_blank' : undefined}
-                          onClick={() => setMobileMenuOpen(false)}
+                          onClick={() => {
+                            setMobileMenuOpen(false);
+                            if (link.isWhatsApp) {
+                              trackEvent('journey_whatsapp_click', { channel: 'whatsapp', source: 'mobile_sidebar' });
+                            } else if (link.href?.startsWith('tel:')) {
+                              trackEvent('journey_call_click', { channel: 'phone', destination: '+923331702706', source: 'mobile_sidebar' });
+                            } else if (link.icon === Navigation) {
+                              trackEvent('journey_find_location', { location_name: 'Google Maps Directions', source: 'mobile_sidebar' });
+                            }
+                          }}
                           className="flex w-full items-center justify-between group py-3 px-3.5 rounded-2xl bg-white/10 hover:bg-white/20 border border-white/15 hover:border-[#ff9824]/60 text-white font-bold text-sm sm:text-base uppercase tracking-tight transition-all duration-200 shadow-sm no-underline hover:no-underline"
                         >
                           <div className="flex items-center gap-3 min-w-0">

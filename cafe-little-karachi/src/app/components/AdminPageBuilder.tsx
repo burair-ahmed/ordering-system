@@ -40,7 +40,8 @@ import {
   X,
   Loader2,
   Laptop,
-  Smartphone
+  Smartphone,
+  GalleryHorizontal
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -67,9 +68,23 @@ interface PlatterCategoryItem {
   name: string;
 }
 
+export interface BannerSlide {
+  id: string;
+  image: string;
+  mobileImage?: string;
+  imageOnly?: boolean;
+  title?: string;
+  subtitle?: string;
+  ctaText?: string;
+  ctaLink?: string;
+  overlayOpacity?: number;
+  textColor?: 'white' | 'black';
+  align?: 'left' | 'center' | 'right';
+}
+
 interface PageSection {
   id: string;
-  type: 'hero' | 'banner' | 'rich-content' | 'divider' | 'testimonials' | 'slider' | 'grid';
+  type: 'hero' | 'banner' | 'rich-content' | 'divider' | 'testimonials' | 'slider' | 'grid' | 'image-slider';
   title: string;
   isVisible: boolean;
   props: {
@@ -103,6 +118,16 @@ interface PageSection {
     bannerTextColor?: string;
     hasCountdown?: boolean;
     countdownEnd?: string;
+
+    // Image Slider specific
+    slides?: BannerSlide[];
+    autoPlay?: boolean;
+    autoPlayInterval?: number;
+    showArrows?: boolean;
+    showDots?: boolean;
+    marginX?: number;
+    marginTop?: number;
+    borderRadius?: number;
 
     // Rich content specific
     description?: string;
@@ -217,6 +242,21 @@ const SECTION_PRESETS = [
       bgColor: "default",
       spacingY: "medium"
     }
+  },
+  {
+    type: 'image-slider',
+    label: 'Image Banner Slider',
+    desc: 'A full-width image carousel with arrows, dots, autoplay, and per-slide text overlays.',
+    defaultProps: {
+      slides: [],
+      autoPlay: true,
+      autoPlayInterval: 4000,
+      showArrows: true,
+      showDots: true,
+      marginX: 16,
+      marginTop: 12,
+      borderRadius: 20,
+    }
   }
 ];
 
@@ -252,6 +292,7 @@ const getSectionTheme = (type: string) => {
     case 'divider': return { border: 'border border-slate-400/30', bg: 'bg-slate-500/10 text-slate-600 dark:bg-slate-500/20 dark:text-slate-400', label: 'Spacer Divider' };
     case 'slider': return { border: 'border border-violet-500/30', bg: 'bg-violet-500/10 text-violet-600 dark:bg-violet-500/20 dark:text-violet-400', label: 'Category Slider' };
     case 'grid': return { border: 'border border-purple-500/30', bg: 'bg-purple-500/10 text-purple-600 dark:bg-purple-500/20 dark:text-purple-400', label: 'Product Grid' };
+    case 'image-slider': return { border: 'border border-sky-500/30', bg: 'bg-sky-500/10 text-sky-600 dark:bg-sky-500/20 dark:text-sky-400', label: 'Image Slider' };
     default: return { border: 'border border-neutral-400/30', bg: 'bg-neutral-500/10 text-neutral-600 dark:bg-neutral-500/20 dark:text-neutral-400', label: 'Section' };
   }
 };
@@ -271,11 +312,13 @@ function SortableSection({ section, index, updateSection, removeSection, items, 
   const [searchQuery, setSearchQuery] = useState("");
   const [uploadingPc, setUploadingPc] = useState(false);
   const [uploadingMobile, setUploadingMobile] = useState(false);
+  const [uploadingSlides, setUploadingSlides] = useState<Record<string, 'pc' | 'mobile' | null>>({});
 
   // Top-level tab states to satisfy React Hook rules
   const [heroTab, setHeroTab] = useState<'images' | 'text' | 'cta'>('images');
   const [gridTab, setGridTab] = useState<'source' | 'layout' | 'theme'>('source');
   const [bannerTab, setBannerTab] = useState<'design' | 'timer'>('design');
+  const [sliderTab, setSliderTab] = useState<'slides' | 'layout'>('slides');
 
   const handleBannerUpload = async (e: React.ChangeEvent<HTMLInputElement>, field: 'backgroundImage' | 'mobileBackgroundImage') => {
     const file = e.target.files?.[0];
@@ -368,6 +411,44 @@ function SortableSection({ section, index, updateSection, removeSection, items, 
     const currentList = section.props.testimonials || [];
     const updated = currentList.map(t => t.id === tid ? { ...t, ...fields } : t);
     updateProps({ testimonials: updated });
+  };
+
+  // --- Image Slider Helpers ---
+  const addSlide = () => {
+    const slides: BannerSlide[] = section.props.slides || [];
+    updateProps({ slides: [...slides, { id: uuidv4(), image: '', mobileImage: '', imageOnly: true, title: '', subtitle: '', ctaText: '', ctaLink: '', overlayOpacity: 0.35, textColor: 'white', align: 'center' }] });
+  };
+
+  const removeSlide = (sid: string) => {
+    const slides: BannerSlide[] = section.props.slides || [];
+    updateProps({ slides: slides.filter(s => s.id !== sid) });
+  };
+
+  const updateSlide = (sid: string, fields: Partial<BannerSlide>) => {
+    const slides: BannerSlide[] = section.props.slides || [];
+    updateProps({ slides: slides.map(s => s.id === sid ? { ...s, ...fields } : s) });
+  };
+
+  const handleSlideImageUpload = async (e: React.ChangeEvent<HTMLInputElement>, slideId: string, field: 'image' | 'mobileImage') => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploadingSlides(prev => ({ ...prev, [`${slideId}-${field}`]: field === 'image' ? 'pc' : 'mobile' }));
+    try {
+      const reader = new FileReader();
+      const base64: string = await new Promise(resolve => {
+        reader.onloadend = () => resolve(reader.result as string);
+        reader.readAsDataURL(file);
+      });
+      const res = await fetch('/api/upload', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ image: base64 }) });
+      if (!res.ok) throw new Error((await res.json()).error || 'Upload failed');
+      const data = await res.json();
+      updateSlide(slideId, { [field]: data.url });
+      toast.success(`Slide ${field === 'image' ? 'desktop' : 'mobile'} image uploaded!`);
+    } catch (err: any) {
+      toast.error(`Upload failed: ${err.message}`);
+    } finally {
+      setUploadingSlides(prev => { const n = { ...prev }; delete n[`${slideId}-${field}`]; return n; });
+    }
   };
 
   const theme = getSectionTheme(section.type);
@@ -1061,6 +1142,302 @@ function SortableSection({ section, index, updateSection, removeSection, items, 
             </div>
           )}
 
+          {/* 8. IMAGE BANNER SLIDER CONFIG */}
+          {section.type === 'image-slider' && (
+            <div className="space-y-4">
+              {/* Tab bar */}
+              <div className="flex border-b border-neutral-200 dark:border-neutral-800 pb-px gap-1">
+                {(['slides', 'layout'] as const).map(tab => (
+                  <button
+                    key={tab}
+                    type="button"
+                    onClick={() => setSliderTab(tab)}
+                    className={`px-3 py-2 text-xs font-bold capitalize transition-all duration-250 border-b-2 -mb-px ${
+                      sliderTab === tab
+                        ? 'border-[#741052] text-[#741052] dark:border-fuchsia-500 dark:text-fuchsia-400'
+                        : 'border-transparent text-neutral-400 hover:text-neutral-600 dark:hover:text-neutral-300'
+                    }`}
+                  >
+                    {tab === 'slides' ? `Slides (${(section.props.slides || []).length})` : 'Layout & Behaviour'}
+                  </button>
+                ))}
+              </div>
+
+              {/* SLIDES TAB */}
+              {sliderTab === 'slides' && (
+                <div className="space-y-4 animate-fadeIn">
+                  {/* Add slide button */}
+                  <div className="flex items-center justify-between">
+                    <p className="text-xs text-neutral-500 dark:text-neutral-400">
+                      Each slide can have a desktop image, an optional mobile image, and optional text overlay.
+                    </p>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="border-sky-500/50 text-sky-600 hover:bg-sky-50 dark:border-sky-500/40 dark:text-sky-400 dark:hover:bg-sky-950/20 transition-colors h-8 font-bold flex-shrink-0 ml-3"
+                      onClick={addSlide}
+                    >
+                      <Plus className="mr-1 h-3.5 w-3.5" /> Add Slide
+                    </Button>
+                  </div>
+
+                  {/* Per-slide cards */}
+                  {(section.props.slides || []).length === 0 && (
+                    <div className="flex flex-col items-center justify-center gap-3 py-10 border-2 border-dashed border-neutral-200 dark:border-neutral-800 rounded-2xl text-neutral-400">
+                      <GalleryHorizontal size={28} className="text-neutral-300 dark:text-neutral-700" />
+                      <p className="text-xs font-medium">No slides yet. Click "Add Slide" to begin.</p>
+                    </div>
+                  )}
+
+                  {(section.props.slides || []).map((slide, si) => (
+                    <div key={slide.id} className="border border-neutral-200 dark:border-neutral-800 rounded-2xl overflow-hidden bg-neutral-50/40 dark:bg-neutral-900/20">
+                      {/* Slide header */}
+                      <div className="flex items-center justify-between px-4 py-2.5 border-b border-neutral-100 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/40">
+                        <span className="text-xs font-bold text-neutral-600 dark:text-neutral-300 flex items-center gap-2">
+                          <GalleryHorizontal size={13} className="text-sky-500" />
+                          Slide {si + 1}
+                        </span>
+                        <button
+                          onClick={() => removeSlide(slide.id)}
+                          className="text-red-400 hover:text-red-600 transition-colors p-1 rounded-lg hover:bg-red-50 dark:hover:bg-red-950/20"
+                          title="Remove slide"
+                        >
+                          <Trash size={14} />
+                        </button>
+                      </div>
+
+                      <div className="p-4 space-y-4">
+                        {/* Image uploaders */}
+                        <div className="grid gap-4 md:grid-cols-2">
+                          {/* Desktop Image */}
+                          <div className="space-y-2">
+                            <div className="flex justify-between items-center">
+                              <Label className="font-bold text-neutral-700 dark:text-neutral-300 flex items-center gap-1 text-xs">
+                                <Laptop size={13} className="text-neutral-400" /> Desktop Image
+                              </Label>
+                              {slide.image && (
+                                <button onClick={() => updateSlide(slide.id, { image: '' })} className="text-[10px] text-red-500 hover:text-red-700 font-semibold flex items-center gap-0.5">
+                                  <X size={11} /> Clear
+                                </button>
+                              )}
+                            </div>
+                            {/* Browser mockup */}
+                            <div className="w-full border border-neutral-200 dark:border-neutral-800 rounded-xl overflow-hidden shadow-sm bg-neutral-100 dark:bg-neutral-950">
+                              <div className="flex items-center gap-2 px-3 py-1.5 bg-neutral-50 dark:bg-neutral-900 border-b border-neutral-200 dark:border-neutral-800">
+                                <div className="flex items-center gap-1 shrink-0">
+                                  <div className="w-2 h-2 rounded-full bg-red-400" />
+                                  <div className="w-2 h-2 rounded-full bg-yellow-400" />
+                                  <div className="w-2 h-2 rounded-full bg-green-400" />
+                                </div>
+                                <div className="flex-1 flex justify-center">
+                                  <div className="bg-white dark:bg-neutral-900 border dark:border-neutral-800 rounded-md text-[8px] text-neutral-400 px-3 py-0.5 truncate max-w-[120px] w-full text-center font-mono">
+                                    clk.com
+                                  </div>
+                                </div>
+                              </div>
+                              <div className="relative aspect-[21/9] bg-neutral-50 dark:bg-neutral-900 flex items-center justify-center overflow-hidden">
+                                {slide.image ? (
+                                  <img src={slide.image} alt="Desktop preview" className="w-full h-full object-cover" />
+                                ) : (
+                                  <div className="text-center p-3">
+                                    <ImageIcon className="mx-auto h-6 w-6 mb-1 text-neutral-300 dark:text-neutral-700" />
+                                    <span className="text-[9px] text-neutral-400 block">No desktop image</span>
+                                  </div>
+                                )}
+                                {uploadingSlides[`${slide.id}-image`] && (
+                                  <div className="absolute inset-0 bg-white/80 dark:bg-black/80 backdrop-blur-sm flex flex-col items-center justify-center gap-1">
+                                    <Loader2 className="h-4 w-4 animate-spin text-[#741052]" />
+                                    <span className="text-[9px] font-semibold text-neutral-700 dark:text-neutral-300">Uploading…</span>
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                            <div className="flex gap-1.5">
+                              <Input
+                                value={slide.image || ''}
+                                onChange={e => updateSlide(slide.id, { image: e.target.value })}
+                                placeholder="Image URL or upload"
+                                className="h-8 rounded-lg flex-1 text-xs"
+                              />
+                              <div className="relative">
+                                <input type="file" accept="image/*" id={`slide-pc-${slide.id}`} className="hidden" onChange={e => handleSlideImageUpload(e, slide.id, 'image')} disabled={!!uploadingSlides[`${slide.id}-image`]} />
+                                <Button type="button" variant="outline" size="sm" disabled={!!uploadingSlides[`${slide.id}-image`]} onClick={() => document.getElementById(`slide-pc-${slide.id}`)?.click()} className="h-8 rounded-lg font-semibold flex items-center gap-1 text-xs px-2">
+                                  <Upload className="h-3 w-3" /><span>Upload</span>
+                                </Button>
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Mobile Image */}
+                          <div className="space-y-2 flex flex-col justify-between">
+                            <div>
+                              <div className="flex justify-between items-center mb-2">
+                                <Label className="font-bold text-neutral-700 dark:text-neutral-300 flex items-center gap-1 text-xs">
+                                  <Smartphone size={13} className="text-neutral-400" /> Mobile Image <span className="font-normal text-neutral-400">(optional)</span>
+                                </Label>
+                                {slide.mobileImage && (
+                                  <button onClick={() => updateSlide(slide.id, { mobileImage: '' })} className="text-[10px] text-red-500 hover:text-red-700 font-semibold flex items-center gap-0.5">
+                                    <X size={11} /> Clear
+                                  </button>
+                                )}
+                              </div>
+                              {/* Phone mockup */}
+                              <div className="relative mx-auto w-20 border-[3px] border-neutral-800 dark:border-neutral-700 rounded-[1.25rem] overflow-hidden shadow-sm bg-neutral-100 dark:bg-neutral-950 aspect-[9/16]">
+                                <div className="absolute top-1 left-1/2 -translate-x-1/2 w-6 h-1.5 bg-neutral-800 dark:bg-neutral-700 rounded-full z-10" />
+                                <div className="relative w-full h-full bg-neutral-50 dark:bg-neutral-900 flex items-center justify-center overflow-hidden">
+                                  {slide.mobileImage ? (
+                                    <img src={slide.mobileImage} alt="Mobile preview" className="w-full h-full object-cover" />
+                                  ) : (
+                                    <div className="text-center p-2">
+                                      <ImageIcon className="mx-auto h-4 w-4 mb-0.5 text-neutral-300 dark:text-neutral-700" />
+                                      <span className="text-[8px] text-neutral-400 block leading-tight">Falls back to desktop</span>
+                                    </div>
+                                  )}
+                                  {uploadingSlides[`${slide.id}-mobileImage`] && (
+                                    <div className="absolute inset-0 bg-white/80 dark:bg-black/80 backdrop-blur-sm flex items-center justify-center">
+                                      <Loader2 className="h-3 w-3 animate-spin text-[#741052]" />
+                                    </div>
+                                  )}
+                                </div>
+                              </div>
+                            </div>
+                            <div className="flex gap-1.5 mt-auto">
+                              <Input
+                                value={slide.mobileImage || ''}
+                                onChange={e => updateSlide(slide.id, { mobileImage: e.target.value })}
+                                placeholder="Mobile image URL or upload"
+                                className="h-8 rounded-lg flex-1 text-xs"
+                              />
+                              <div className="relative">
+                                <input type="file" accept="image/*" id={`slide-mobile-${slide.id}`} className="hidden" onChange={e => handleSlideImageUpload(e, slide.id, 'mobileImage')} disabled={!!uploadingSlides[`${slide.id}-mobileImage`]} />
+                                <Button type="button" variant="outline" size="sm" disabled={!!uploadingSlides[`${slide.id}-mobileImage`]} onClick={() => document.getElementById(`slide-mobile-${slide.id}`)?.click()} className="h-8 rounded-lg font-semibold flex items-center gap-1 text-xs px-2">
+                                  <Upload className="h-3 w-3" /><span>Upload</span>
+                                </Button>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Image Only toggle + conditional text overlay fields */}
+                        <div className="pt-3 border-t border-neutral-100 dark:border-neutral-800 space-y-3">
+                          {/* Toggle row */}
+                          <div className="flex items-center justify-between p-3 rounded-xl bg-neutral-50 dark:bg-neutral-900/40 border border-neutral-200 dark:border-neutral-800">
+                            <div>
+                              <p className="text-xs font-bold text-neutral-700 dark:text-neutral-300">Image Only</p>
+                              <p className="text-[10px] text-neutral-400 mt-0.5">No text, no overlay — pure image slide</p>
+                            </div>
+                            <Switch
+                              id={`imageonly-${slide.id}`}
+                              checked={slide.imageOnly !== false && slide.imageOnly !== undefined ? !!slide.imageOnly : false}
+                              onCheckedChange={(val: boolean) => updateSlide(slide.id, { imageOnly: val })}
+                            />
+                          </div>
+
+                          {/* Text fields — hidden when imageOnly is true */}
+                          {!slide.imageOnly && (
+                            <div className="grid gap-3 sm:grid-cols-2 animate-fadeIn">
+                              <div>
+                                <Label className="text-[11px] font-semibold text-neutral-500">Slide Title (optional)</Label>
+                                <Input value={slide.title || ''} onChange={e => updateSlide(slide.id, { title: e.target.value })} placeholder="e.g. Eid Special Platters" className="mt-1 h-8 text-xs rounded-lg" />
+                              </div>
+                              <div>
+                                <Label className="text-[11px] font-semibold text-neutral-500">Subtitle (optional)</Label>
+                                <Input value={slide.subtitle || ''} onChange={e => updateSlide(slide.id, { subtitle: e.target.value })} placeholder="e.g. Limited time deals" className="mt-1 h-8 text-xs rounded-lg" />
+                              </div>
+                              <div>
+                                <Label className="text-[11px] font-semibold text-neutral-500">CTA Button Text</Label>
+                                <Input value={slide.ctaText || ''} onChange={e => updateSlide(slide.id, { ctaText: e.target.value })} placeholder="Order Now" className="mt-1 h-8 text-xs rounded-lg" />
+                              </div>
+                              <div>
+                                <Label className="text-[11px] font-semibold text-neutral-500">CTA Button Link</Label>
+                                <Input value={slide.ctaLink || ''} onChange={e => updateSlide(slide.id, { ctaLink: e.target.value })} placeholder="/order#platters" className="mt-1 h-8 text-xs rounded-lg" />
+                              </div>
+                              <div>
+                                <Label className="text-[11px] font-semibold text-neutral-500">Overlay Opacity (0–1)</Label>
+                                <Input type="number" min={0} max={1} step={0.05} value={slide.overlayOpacity ?? 0.35} onChange={e => updateSlide(slide.id, { overlayOpacity: parseFloat(e.target.value) || 0 })} className="mt-1 h-8 text-xs rounded-lg" />
+                              </div>
+                              <div>
+                                <Label className="text-[11px] font-semibold text-neutral-500">Text Colour</Label>
+                                <SelectInput value={slide.textColor || 'white'} onChange={e => updateSlide(slide.id, { textColor: e.target.value as 'white' | 'black' })}>
+                                  <option value="white">White (dark banners)</option>
+                                  <option value="black">Black (light banners)</option>
+                                </SelectInput>
+                              </div>
+                              <div className="sm:col-span-2">
+                                <Label className="text-[11px] font-semibold text-neutral-500">Text Alignment</Label>
+                                <SelectInput value={slide.align || 'center'} onChange={e => updateSlide(slide.id, { align: e.target.value as 'left' | 'center' | 'right' })}>
+                                  <option value="left">Left</option>
+                                  <option value="center">Center</option>
+                                  <option value="right">Right</option>
+                                </SelectInput>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {/* LAYOUT TAB */}
+              {sliderTab === 'layout' && (
+                <div className="grid gap-4 sm:grid-cols-2 pt-2 animate-fadeIn">
+                  <div className="sm:col-span-2 flex items-center gap-3 p-3 bg-neutral-50/50 dark:bg-neutral-900/40 rounded-xl border border-neutral-100 dark:border-neutral-800">
+                    <Switch
+                      id={`autoplay-${section.id}`}
+                      checked={section.props.autoPlay !== false}
+                      onCheckedChange={(val: boolean) => updateProps({ autoPlay: val })}
+                    />
+                    <Label htmlFor={`autoplay-${section.id}`} className="font-bold cursor-pointer text-xs text-neutral-800 dark:text-neutral-200">
+                      Auto-play Slides
+                    </Label>
+                  </div>
+
+                  {section.props.autoPlay !== false && (
+                    <div>
+                      <Label className="font-semibold text-neutral-600 dark:text-neutral-400">Auto-play Interval (ms)</Label>
+                      <Input type="number" min={1000} step={500} value={section.props.autoPlayInterval ?? 4000} onChange={e => updateProps({ autoPlayInterval: parseInt(e.target.value) || 4000 })} className="mt-1 h-9 rounded-lg text-xs" />
+                    </div>
+                  )}
+
+                  <div className="flex items-center gap-3 p-3 bg-neutral-50/50 dark:bg-neutral-900/40 rounded-xl border border-neutral-100 dark:border-neutral-800">
+                    <Switch
+                      id={`arrows-${section.id}`}
+                      checked={section.props.showArrows !== false}
+                      onCheckedChange={(val: boolean) => updateProps({ showArrows: val })}
+                    />
+                    <Label htmlFor={`arrows-${section.id}`} className="font-bold cursor-pointer text-xs text-neutral-800 dark:text-neutral-200">Show Navigation Arrows</Label>
+                  </div>
+
+                  <div className="flex items-center gap-3 p-3 bg-neutral-50/50 dark:bg-neutral-900/40 rounded-xl border border-neutral-100 dark:border-neutral-800">
+                    <Switch
+                      id={`dots-${section.id}`}
+                      checked={section.props.showDots !== false}
+                      onCheckedChange={(val: boolean) => updateProps({ showDots: val })}
+                    />
+                    <Label htmlFor={`dots-${section.id}`} className="font-bold cursor-pointer text-xs text-neutral-800 dark:text-neutral-200">Show Dot Navigation Pill</Label>
+                  </div>
+
+                  <div>
+                    <Label className="font-semibold text-neutral-600 dark:text-neutral-400">Border Radius (px)</Label>
+                    <Input type="number" min={0} max={60} value={section.props.borderRadius ?? 20} onChange={e => updateProps({ borderRadius: parseInt(e.target.value) || 20 })} className="mt-1 h-9 rounded-lg text-xs" />
+                  </div>
+
+                  <div>
+                    <Label className="font-semibold text-neutral-600 dark:text-neutral-400">Horizontal Margin (px)</Label>
+                    <Input type="number" min={0} max={80} value={section.props.marginX ?? 16} onChange={e => updateProps({ marginX: parseInt(e.target.value) || 0 })} className="mt-1 h-9 rounded-lg text-xs" />
+                  </div>
+
+                  <div>
+                    <Label className="font-semibold text-neutral-600 dark:text-neutral-400">Top Margin (px)</Label>
+                    <Input type="number" min={0} max={80} value={section.props.marginTop ?? 12} onChange={e => updateProps({ marginTop: parseInt(e.target.value) || 0 })} className="mt-1 h-9 rounded-lg text-xs" />
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
           {/* 6 & 7. GRID & SLIDER PRODUCT SECTIONS */}
           {['grid', 'slider'].includes(section.type) && (
             <div className="space-y-4">
@@ -1471,7 +1848,7 @@ export default function AdminPageBuilder() {
             {[
               {
                 name: "Header & Banners",
-                types: ["hero", "banner"],
+                types: ["hero", "banner", "image-slider"],
                 icon: <ImageIcon size={14} className="text-pink-500" />,
                 bg: "bg-pink-500/[0.04] dark:bg-pink-500/[0.02]"
               },
