@@ -6,8 +6,8 @@ tags:
   - #project/ordering-ecosystem
 created: 2026-09-04
 last_updated: 2026-09-11
-overall_completion: "Phase 4.12: Meta Pixel Lead→Purchase & Platter AddToCart Fix (100%)"
-current_sprint: "Meta Pixel Lead→Purchase & Platter AddToCart Fix"
+overall_completion: "Phase 4.14: ViewCart Meta Pixel Event & Floating WhatsApp Contact Pixel (100%)"
+current_sprint: "ViewCart Meta Pixel Event & Floating WhatsApp Contact Pixel"
 ---
 
 # Project Status Dashboard — Advanced Ordering Ecosystem
@@ -16,8 +16,32 @@ current_sprint: "Meta Pixel Lead→Purchase & Platter AddToCart Fix"
 
 | Sub-Project | Phase | Focus | Status |
 | :--- | :--- | :--- | :--- |
-| **Cafe Little Karachi (CLK)** | Phase 4.12 | Meta Pixel Lead→Purchase & Platter AddToCart Fix | **Completed** 🟢 |
+| **Cafe Little Karachi (CLK)** | Phase 4.14 | ViewCart Event & WhatsApp Pixel | **Completed** 🟢 |
 | **The Chai Company (TCC)** | Base | Monorepo Structure | Ready for Next Cycle ⚪ |
+
+---
+
+## Phase 4.14 Completion Summary — ViewCart Meta Pixel Event & WhatsApp Contact Pixel Fix
+
+- [x] **`trackMetaViewCart` Custom Event (`metaPixel.ts`)**: Added dedicated `trackMetaViewCart` helper that fires custom Meta Pixel event `ViewCart` with `content_type: 'product'`, `content_ids`, `contents` array, `value`, `currency`, and `num_items`.
+- [x] **ViewCart Trigger on Cart Open (`CartSidebar.tsx`)**: Wired `trackEvent('journey_view_cart', { item_count, total_amount, items })` inside `CartSidebar.tsx` mount `useEffect`, capturing cart views in real-time when the customer opens the cart drawer.
+- [x] **Analytics Fan-Out & Clarity Mapping (`analytics.ts`)**: Integrated `trackMetaViewCart` into the unified analytics bridge fan-out for `eventType === 'journey_view_cart'`, mapped `journey_add_platter_to_cart: CLK_FUNNEL_ADD_TO_CART`, and added `journey_view_cart: 'clk_view_cart'` to the Clarity event map.
+- [x] **CAPI Parity (`metaCapi.ts`)**: Added `'ViewCart'` to the server-side `SendMetaCapiEventOptions.eventName` union type.
+- [x] **WhatsApp Floating Button Contact Pixel Fix (`WhatsAppButton.tsx`)**: Added `trackEvent('journey_whatsapp_click', { channel: 'whatsapp', source: 'floating_button' | 'floating_button_tooltip', destination: whatsappNumber })` to both the primary floating `<motion.a>` button and the tooltip hint link. Tapping/clicking now reliably triggers the Meta standard `Contact` event (`trackMetaContact`) and Clarity logging.
+
+---
+
+## Phase 4.13 Completion Summary — Horizontal Category Navigation Strip
+
+- [x] **`CategoryNavStrip` Component (`CategoryNavStrip.tsx`)**: Created reusable horizontal category navigation strip positioned immediately below the hero banner.
+- [x] **Brand-Aligned Lavender Tint**: Styled with soft light purple/lavender background tint (`bg-[#f6eff7] dark:bg-[#250a20]`), subtle rounded soft edges (`rounded-2xl`), and subtle purple border (`border-[#741052]/15 dark:border-[#d0269b]/25`).
+- [x] **Full-Width Header Alignment**: Set width to `w-full` with responsive horizontal padding matching the header (`px-3 sm:px-6 md:px-8 lg:px-10 xl:px-12 2xl:px-14`), perfectly aligning the strip with the header edges across mobile, tablet, laptop, and ultrawide screens.
+- [x] **Zero Scrollbars Cross-Platform**: Suppressed horizontal scrollbars completely using `scrollbarWidth: 'none'`, `msOverflowStyle: 'none'`, and Tailwind `[&::-webkit-scrollbar]:hidden [&::-webkit-scrollbar]:[display:none]`.
+- [x] **Evenly Spaced Labels & No Dividers**: Displayed platter categories followed by menu item categories in bold dark purple/black (`font-bold text-[#330523] dark:text-neutral-200`) with consistent padding between items (`gap-2 sm:gap-3 md:gap-4 px-3.5 sm:px-4 py-1.5 sm:py-2 rounded-xl`) and zero dividers.
+- [x] **Fixed Circular End Chevron Buttons**: Mounted fixed white circular buttons (`bg-white dark:bg-neutral-900 border border-[#741052]/25 dark:border-[#d0269b]/40 shadow-md w-8 h-8 sm:w-9 sm:h-9 rounded-full`) with subtle purple chevrons (`<ChevronLeft />`, `<ChevronRight />`) on both left and right ends over lavender gradient fade masks.
+- [x] **Full-Page Sticky Navigation (`CategoryNavStrip.tsx`, `order/page.tsx`)**: Configured `CategoryNavStrip` with `sticky top-0 z-30` and `backdrop-blur-md bg-white/80 dark:bg-black/80`. Lifted component out of the banner section DOM wrapper in `order/page.tsx` via `Fragment` so that its sticky container context spans the entire catalog, keeping it pinned to the top as customers browse down through all categories.
+- [x] **Dynamic Real-Time Active Category Sync**: Integrated viewport-based `getBoundingClientRect().top` scroll-spy with smooth auto-centering of active category pills, ensuring the active category seamlessly updates as customers scroll through platter and menu sections.
+- [x] **Click-To-Category Offset Scroll**: Clicking any category smoothly animates `window.scrollTo` with a calibrated `85px` top offset, ensuring section headers are never obstructed beneath the sticky strip.
 
 ---
 
@@ -29,7 +53,7 @@ current_sprint: "Meta Pixel Lead→Purchase & Platter AddToCart Fix"
 
 ---
 
-- [x] **Carousel Navigation Indicator Proportions Refinement (`BannerSlider.tsx`)**: Halved indicator height to 4px–5px (`h-1 sm:h-[5px]`), scaled circular dots to match (`w-1 sm:w-[5px] h-1 sm:h-[5px]`), and expanded the active pill width to `w-8 sm:w-9 md:w-10` (32px–40px) in solid white (`bg-white shadow-md`). Encased in a compact frosted glass capsule (`px-2 sm:px-2.5 py-1 sm:py-1.5`) with even spacing (`gap-1.5 sm:gap-2`), centered at `bottom-2 sm:bottom-3`.
+- [x] **Carousel Navigation Indicator Proportions Refinement (`BannerSlider.tsx`)**: Perfected half-size dimensions: height halved to 2px–2.5px (`h-[2px] sm:h-[2.5px]`), circular dots scaled accordingly to 2px–2.5px round dots (`w-[2px] sm:w-[2.5px] h-[2px] sm:h-[2.5px]`), and active pill width kept wide and expanded to 28px–36px (`w-7 sm:w-8 md:w-9`) in solid white (`bg-white shadow-md`), with even spacing (`gap-1.5 sm:gap-2`), frosted capsule padding (`px-2 sm:px-2.5 py-[2px] sm:py-[3px]`), and centered positioning (`bottom-1.5 sm:bottom-2`).
 - [x] **Mobile Scale Down (`BannerSlider.tsx`)**: Scaled down arrow buttons (`w-6 h-6 sm:w-8 sm:h-8 md:w-9 md:h-9`), chevron icons, text overlays (`text-sm` headings, `text-[10px]` subtitles), and CTA buttons to fit mobile screens perfectly without dominating viewport height.
 - [x] **Dedicated Mobile Customization Controls (`AdminPageBuilder.tsx`)**: Split layout settings into separated 🖥️ Desktop vs 📱 Mobile styling panels in CMS editor. Added dedicated controls for Mobile Aspect Ratio (`16/9`, `2/1`, `4/3`, `1/1`, `21/9`), Mobile Border Radius, Mobile Horizontal Margin, Mobile Top Margin, and Mobile Navigation Arrow visibility toggle.
 - [x] **Zero-Layout-Shift CSS Variable Theming (`BannerSlider.tsx`)**: Applied CSS variables for responsive margins, border radius, and aspect ratios.

@@ -13,6 +13,7 @@ import { useOrder } from "../context/OrderContext";
 import posthog from 'posthog-js';
 import { isOpenAt } from "../lib/restaurantStatus";
 import { toast } from "sonner";
+import { trackEvent } from "../lib/analytics";
 
 const BRAND_FROM = "#741052";
 const BRAND_TO = "#d0269b";
@@ -41,6 +42,16 @@ export default function CartSidebar({
   useEffect(() => {
     // mount animation
     const t = setTimeout(() => setOpen(true), 20);
+    trackEvent('journey_view_cart', {
+      item_count: cartItems.reduce((s, it) => s + (it.quantity || 0), 0),
+      total_amount: totalAmount,
+      items: cartItems.map((it) => ({
+        id: it.id,
+        title: it.title,
+        price: it.price,
+        quantity: it.quantity,
+      })),
+    });
     return () => clearTimeout(t);
   }, []);
 

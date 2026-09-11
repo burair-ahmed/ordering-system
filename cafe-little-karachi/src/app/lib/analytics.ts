@@ -13,6 +13,7 @@ import {
   trackMetaViewContent,
   trackMetaCustomizeProduct,
   trackMetaAddToCart,
+  trackMetaViewCart,
   trackMetaInitiateCheckout,
   trackMetaAddPaymentInfo,
   trackMetaPurchase,
@@ -127,6 +128,8 @@ const CLARITY_EVENT_MAP: Record<string, string> = {
   // Stage 6 — Add to cart
   journey_add_to_cart: CLK_FUNNEL_ADD_TO_CART,
   journey_add_item: CLK_FUNNEL_ADD_TO_CART,
+  journey_add_platter_to_cart: CLK_FUNNEL_ADD_TO_CART,
+  journey_view_cart: 'clk_view_cart',
   // Stage 7 — Checkout started (supports both naming variants)
   journey_checkout_started: CLK_FUNNEL_CHECKOUT_STARTED,
   journey_start_checkout: CLK_FUNNEL_CHECKOUT_STARTED,
@@ -233,6 +236,14 @@ export function trackEvent(eventType: string, properties: Record<string, any> = 
         category: properties.category,
         price: properties.price,
         quantity: properties.quantity,
+      });
+    } else if (
+      eventType === 'journey_view_cart'
+    ) {
+      trackMetaViewCart({
+        totalAmount: properties.total_amount || properties.totalAmount || 0,
+        numItems: properties.item_count || properties.itemCount || 0,
+        items: properties.items,
       });
     } else if (
       eventType === 'journey_checkout_started' ||

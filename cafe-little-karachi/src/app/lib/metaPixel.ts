@@ -129,6 +129,40 @@ export function trackMetaAddToCart(
 }
 
 /**
+ * Track ViewCart event (when viewing or opening the cart sidebar).
+ */
+export function trackMetaViewCart(
+  data: {
+    items?: Array<{ id: string | number; title?: string; price?: number; quantity?: number }>;
+    totalAmount?: number;
+    currency?: string;
+    numItems?: number;
+  },
+  eventId?: string
+): void {
+  const items = data.items || [];
+  const contents = items.map((it) => ({
+    id: String(it.id),
+    quantity: it.quantity || 1,
+    item_price: it.price || 0,
+  }));
+  const contentIds = items.map((it) => String(it.id));
+
+  fbqCustom(
+    'ViewCart',
+    {
+      content_ids: contentIds.length > 0 ? contentIds : undefined,
+      contents: contents.length > 0 ? contents : undefined,
+      content_type: 'product',
+      value: typeof data.totalAmount === 'number' ? data.totalAmount : 0,
+      currency: data.currency || 'PKR',
+      num_items: data.numItems ?? items.reduce((sum, it) => sum + (it.quantity || 1), 0),
+    },
+    eventId
+  );
+}
+
+/**
  * Track InitiateCheckout event.
  */
 export function trackMetaInitiateCheckout(

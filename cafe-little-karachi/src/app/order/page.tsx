@@ -2,13 +2,14 @@
 
 'use client';
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, Fragment } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import MenuItem from "../components/MenuItem";
 import PlatterItem from "../components/PlatterItem";
 import Hero from "../components/Hero";
 import BannerSlider, { type BannerSlide } from "../components/BannerSlider";
 import SkeletonLoader from "../components/SkeletonLoader";
+import CategoryNavStrip, { type CategoryItem } from "../components/CategoryNavStrip";
 import { Star, Clock, ArrowRight, ChevronLeft, ChevronRight } from "lucide-react";
 import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
@@ -616,6 +617,11 @@ export default function MenuPage({
     const showSlider = classicBannerType === 'image-slider' && imageSliderSection;
     const showHero = (classicBannerType === 'hero' || !imageSliderSection) && heroSection;
 
+    const classicCategories: CategoryItem[] = [
+      ...defaultPlatterCategoryOrder.map(cat => ({ id: slugify(cat), name: cat, isPlatter: true })),
+      ...defaultMenuCategoryOrder.map(cat => ({ id: slugify(cat), name: cat, isPlatter: false }))
+    ];
+
     return (
       <div className="bg-white text-black min-h-screen pb-20">
         {showSlider ? (
@@ -626,6 +632,10 @@ export default function MenuPage({
             {...(heroSection?.props || {})}
           />
         ) : null}
+
+        {/* Horizontal Category Navigation Strip sitting right below hero banner */}
+        <CategoryNavStrip categories={classicCategories} />
+
         <div className="flex justify-center mt-4 gap-4">
         </div>
 
@@ -637,7 +647,7 @@ export default function MenuPage({
             const isLoading = classicPlatterLoading && displayedPlatters.length === 0;
 
             return (
-              <div key={category} className="mt-8">
+              <div key={category} id={`category-${slugify(category)}`} className="mt-8 scroll-mt-24">
                 <div className="w-full flex justify-center mb-4">
                   <h1 className="text-3xl font-semibold text-white bg-gradient-to-r from-[#741052] to-[#d0269b] shadow-lg hover:shadow-pink-500/40 py-3 px-6 rounded-lg text-center">
                     {category}
@@ -694,7 +704,7 @@ export default function MenuPage({
             const isLoading = classicMenuLoading[category] && displayedItems.length === 0;
 
             return (
-              <div key={category} className="mt-8">
+              <div key={category} id={`category-${slugify(category)}`} className="mt-8 scroll-mt-24">
                 <div className="w-full flex justify-center mb-4">
                   <h1 className="text-3xl font-semibold text-white bg-gradient-to-r from-[#741052] to-[#d0269b] py-3 px-6 rounded-lg shadow-md text-center">
                     {category}
@@ -754,6 +764,26 @@ export default function MenuPage({
     );
   }
 
+  // In CMS Layout mode, identify visible product sections for category navigation
+  const firstBannerIndex = sections.findIndex(
+    s => s.isVisible && (s.type === 'hero' || s.type === 'image-slider')
+  );
+
+  const productSections = sections.filter(
+    s => s.isVisible && (s.type === 'grid' || s.type === 'slider') && s.title
+  );
+
+  const cmsCategories: CategoryItem[] = productSections.length > 0
+    ? productSections.map(s => ({
+        id: slugify(s.title),
+        name: s.title,
+        isPlatter: s.props.itemType === 'platter'
+      }))
+    : [
+        ...defaultPlatterCategoryOrder.map(cat => ({ id: slugify(cat), name: cat, isPlatter: true })),
+        ...defaultMenuCategoryOrder.map(cat => ({ id: slugify(cat), name: cat, isPlatter: false }))
+      ];
+
   return (
     <div className="bg-white dark:bg-black text-black dark:text-white min-h-screen">
       {/* Hide Scrollbars Style tag */}
@@ -767,6 +797,11 @@ export default function MenuPage({
         }
       `}} />
 
+      {/* Fallback category nav if no banner section exists */}
+      {firstBannerIndex === -1 && (
+        <CategoryNavStrip categories={cmsCategories} />
+      )}
+
       {sections.map((section, idx) => {
         if (!section.isVisible) return null;
 
@@ -775,55 +810,66 @@ export default function MenuPage({
 
         // Render target anchor just before the first non-hero visible section
         const renderAnchor = idx > 0 && sections[idx - 1].type === 'hero';
+        const isTargetBanner = idx === firstBannerIndex;
 
         return (
-          <div key={section.id}>
-            {renderAnchor && <div id="menu-content" className="scroll-mt-20" />}
-            {(() => {
-              switch (section.type) {
-                case 'hero':
-                  return <HeroSection section={section} />;
-                
-                case 'banner':
-                  return <PromoBanner section={section} />;
-                
-                case 'rich-content':
-                  return <ChefStoryRow section={section} />;
-                
-                case 'divider':
-                  return <SpacerDivider section={section} />;
-                
-                case 'testimonials':
-                  return <TestimonialsStrip section={section} />;
-                
-                case 'grid':
-                  return (
-                    <ItemGridSection
-                      section={section}
-                      items={displayedItems}
-                      isLoading={isLoading}
-                      onLastItemRef={(node) => handleLastItemRef(section.id, node)}
-                      initialOpenSlug={section.props.itemType === 'platter' ? initialPlatterSlug : undefined}
-                    />
-                  );
-                
-                case 'slider':
-                  return (
-                    <ItemSliderSection
-                      section={section}
-                      items={displayedItems}
-                      isLoading={isLoading}
-                    />
-                  );
-                
-                case 'image-slider':
-                  return <BannerSlider section={section} />;
-                
-                default:
-                  return null;
-              }
-            })()}
-          </div>
+          <Fragment key={section.id}>
+            <div 
+              id={section.title ? `category-${slugify(section.title)}` : undefined} 
+              className="scroll-mt-24"
+            >
+              {renderAnchor && <div id="menu-content" className="scroll-mt-20" />}
+              {(() => {
+                switch (section.type) {
+                  case 'hero':
+                    return <HeroSection section={section} />;
+                  
+                  case 'banner':
+                    return <PromoBanner section={section} />;
+                  
+                  case 'rich-content':
+                    return <ChefStoryRow section={section} />;
+                  
+                  case 'divider':
+                    return <SpacerDivider section={section} />;
+                  
+                  case 'testimonials':
+                    return <TestimonialsStrip section={section} />;
+                  
+                  case 'grid':
+                    return (
+                      <ItemGridSection
+                        section={section}
+                        items={displayedItems}
+                        isLoading={isLoading}
+                        onLastItemRef={(node) => handleLastItemRef(section.id, node)}
+                        initialOpenSlug={section.props.itemType === 'platter' ? initialPlatterSlug : undefined}
+                      />
+                    );
+                  
+                  case 'slider':
+                    return (
+                      <ItemSliderSection
+                        section={section}
+                        items={displayedItems}
+                        isLoading={isLoading}
+                      />
+                    );
+                  
+                  case 'image-slider':
+                    return <BannerSlider section={section} />;
+                  
+                  default:
+                    return null;
+                }
+              })()}
+            </div>
+
+            {/* Horizontal Category Navigation Strip sitting right below hero banner (Direct child of root container for full-page sticky) */}
+            {isTargetBanner && (
+              <CategoryNavStrip categories={cmsCategories} />
+            )}
+          </Fragment>
         );
       })}
     </div>

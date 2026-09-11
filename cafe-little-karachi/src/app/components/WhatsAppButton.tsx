@@ -5,6 +5,7 @@ import { usePathname } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FaWhatsapp } from 'react-icons/fa';
 import { X } from 'lucide-react';
+import { trackEvent } from '../lib/analytics';
 
 export default function WhatsAppButton() {
   const pathname = usePathname();
@@ -28,6 +29,13 @@ export default function WhatsAppButton() {
         whileHover={{ scale: 1.1 }}
         whileTap={{ scale: 0.95 }}
         transition={{ type: 'spring', stiffness: 260, damping: 20 }}
+        onClick={() => {
+          trackEvent('journey_whatsapp_click', {
+            channel: 'whatsapp',
+            source: 'floating_button',
+            destination: whatsappNumber,
+          });
+        }}
         className="relative group flex items-center justify-center w-14 h-14 rounded-full bg-gradient-to-r from-emerald-500 to-green-600 text-white shadow-[0_8px_25px_rgba(37,211,102,0.4)] hover:shadow-[0_12px_30px_rgba(37,211,102,0.6)] border border-white/20 transition-all duration-300"
       >
         {/* Pulsing Outer Ring */}
@@ -54,6 +62,13 @@ export default function WhatsAppButton() {
               href={whatsappUrl}
               target="_blank"
               rel="noopener noreferrer"
+              onClick={() => {
+                trackEvent('journey_whatsapp_click', {
+                  channel: 'whatsapp',
+                  source: 'floating_button_tooltip',
+                  destination: whatsappNumber,
+                });
+              }}
               className="hover:text-emerald-400 transition-colors"
             >
               <span>Chat with us on WhatsApp!</span>

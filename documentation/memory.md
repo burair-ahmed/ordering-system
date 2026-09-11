@@ -10,6 +10,67 @@ last_updated: 2026-09-11
 
 # Living Project Memory & Task Tracker
 
+## 0. Phase 4.14 Micro-Changes — ViewCart Meta Pixel Event & Floating WhatsApp Contact Pixel Fix (2026-09-11)
+
+### ViewCart Meta Pixel Event Implementation
+- **Files**:
+  - `src/app/lib/metaPixel.ts`
+  - `src/app/lib/analytics.ts`
+  - `src/app/components/CartSidebar.tsx`
+  - `src/lib/metaCapi.ts`
+- **`metaPixel.ts`**: Added `trackMetaViewCart` typed helper function which formats `items` into `contents` and `content_ids` arrays and dispatches custom Meta event `ViewCart` via `fbqCustom('ViewCart', { content_ids, contents, content_type: 'product', value, currency: 'PKR', num_items })`.
+- **`analytics.ts`**:
+  - Imported `trackMetaViewCart` from `./metaPixel`.
+  - Added `journey_view_cart: 'clk_view_cart'` and `journey_add_platter_to_cart: CLK_FUNNEL_ADD_TO_CART` to `CLARITY_EVENT_MAP`.
+  - Added `eventType === 'journey_view_cart'` branch in `trackEvent` to automatically dispatch `trackMetaViewCart`.
+- **`CartSidebar.tsx`**:
+  - Imported `trackEvent` from `../lib/analytics`.
+  - Wired `trackEvent('journey_view_cart', { item_count, total_amount, items })` inside the component's mount `useEffect`, guaranteeing every time a user opens the cart drawer, the event is logged to internal analytics, Clarity, and Meta Pixel.
+- **`metaCapi.ts`**: Added `'ViewCart'` to `SendMetaCapiEventOptions.eventName` union type.
+
+### Floating WhatsApp Button Contact Pixel Fix
+- **File**: `src/app/components/WhatsAppButton.tsx`
+- **Root Cause**: The desktop floating WhatsApp button rendered a `<motion.a>` without an `onClick` event handler, causing clicks on the floating WhatsApp widget to bypass analytics.
+- **Fix**:
+  - Imported `trackEvent` from `../lib/analytics`.
+  - Added `onClick` handler on the primary `<motion.a>` button calling `trackEvent('journey_whatsapp_click', { channel: 'whatsapp', source: 'floating_button', destination: whatsappNumber })`.
+  - Added `onClick` handler on the tooltip pill anchor calling `trackEvent('journey_whatsapp_click', { channel: 'whatsapp', source: 'floating_button_tooltip', destination: whatsappNumber })`.
+  - `journey_whatsapp_click` routes directly to `trackMetaContact({ contactType: 'whatsapp', source, destination })`, correctly firing the standard `Contact` Meta Pixel event.
+
+## 0. Phase 4.13 Micro-Changes — Horizontal Category Navigation Strip Below Hero Banner (2026-09-11)
+
+### Reusable Category Navigation Strip Component
+- **Files**:
+  - `src/app/components/CategoryNavStrip.tsx`
+  - `src/app/order/page.tsx`
+- **Visual Design & Theming**:
+  - **Background & Border**: Soft light purple/lavender tint (`bg-[#f6eff7] dark:bg-[#250a20]`) with subtle purple border (`border-[#741052]/15 dark:border-[#d0269b]/25`) matching Cafe Little Karachi's pink-purple theme.
+  - **Container & Edges**: Subtle rounded edges (`rounded-2xl`) with soft ambient shadow (`shadow-[0_2px_14px_rgba(116,16,82,0.06)]`).
+  - **Full Width & Header Alignment**: Width set to `w-full` with matching responsive gutters (`px-3 sm:px-6 md:px-8 lg:px-10 xl:px-12 2xl:px-14`), ensuring strict alignment with the header on phones, tablets, laptops, and wide screens.
+- **Scrollbar Suppression**:
+  - Completely removed scrollbars across Windows Chrome, macOS Safari, and Firefox via `style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}` and Tailwind classes `[scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden [&::-webkit-scrollbar]:[display:none]`.
+- **Labels & Spacing**:
+  - Displayed platter categories followed by menu item categories.
+  - Bold dark purple or black text (`font-bold text-[#330523] dark:text-neutral-200 hover:text-[#741052] dark:hover:text-white`).
+  - Consistent padding between items (`gap-2 sm:gap-3 md:gap-4 px-3.5 sm:px-4 py-1.5 sm:py-2 rounded-xl`), with zero vertical dividers.
+  - Active category highlighted with brand plum pill (`bg-[#741052] text-white shadow-md shadow-[#741052]/25 scale-[1.02]`).
+- **Fixed Circular Arrow Buttons**:
+  - Fixed white circular buttons (`w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-white dark:bg-neutral-900 border border-[#741052]/25 dark:border-[#d0269b]/40 shadow-md`) mounted at left and right ends over lavender gradient fade masks (`bg-gradient-to-r / to-l from-[#f6eff7] via-[#f6eff7]/95 to-transparent`).
+  - Subtle purple chevron icons (`ChevronLeft`, `ChevronRight` with `text-[#741052] dark:text-[#d0269b]`).
+  - Clicking shifts the horizontal scroll container by 260px smoothly. Buttons automatically disable with reduced opacity when scrolled to either extreme.
+- **Sticky Behavior & Full-Page Context**:
+  - `CategoryNavStrip` styled with `sticky top-0 z-30` and `backdrop-blur-md bg-white/80 dark:bg-black/80`.
+  - In `order/page.tsx`, wrapped CMS sections in `Fragment` so that `CategoryNavStrip` is a direct child of the root `min-h-screen` container rather than nested inside the banner div. This ensures its sticky positioning context spans the entire height of the catalog.
+- **Dynamic Real-Time Active Category Sync (Scroll-Spy)**:
+  - Utilizes viewport-relative `getBoundingClientRect().top <= 160` to determine the visible category heading in real time.
+  - Automatically updates `activeCategoryId` as customers scroll up and down the page.
+  - Smoothly auto-centers the active pill in the horizontal strip using `activeBtn.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' })`.
+- **Calibrated Click-To-Category Navigation**:
+  - Clicking any category animates `window.scrollTo` with an `85px` top offset so section headers rest cleanly below the sticky navigation bar without being obscured.
+- **Classic & CMS Dual Mode Integration**:
+  - In Classic Layout mode: Renders directly below `BannerSlider` or `Hero`, passing `defaultPlatterCategoryOrder` + `defaultMenuCategoryOrder`.
+  - In CMS Layout mode: Renders directly below the first visible hero or image-slider section, dynamically mapping all visible product sections.
+
 ## 0. Phase 4.12 Micro-Changes — Meta Pixel Lead→Purchase & Platter AddToCart Fix (2026-09-11)
 
 ### Meta Pixel: `trackMetaLead` Removed, Feedback Fires `Purchase` Instead
@@ -31,13 +92,14 @@ last_updated: 2026-09-11
   - `src/app/components/BannerSlider.tsx`
   - `src/app/components/AdminPageBuilder.tsx`
   - `src/app/order/page.tsx`
-- **Carousel Navigation Indicator Proportions Refinement**:
-  - Halved indicator vertical height to 4px–5px (`h-1 sm:h-[5px]`).
-  - Circular dots scaled down accordingly to perfect 4px–5px round circles (`w-1 sm:w-[5px] h-1 sm:h-[5px]`) in muted semi-transparent white (`bg-white/45`).
-  - Active slide rendered as an elongated horizontal pill expanded to 32px–40px wide (`w-8 sm:w-9 md:w-10`) in solid white (`bg-white shadow-md`), sharing the exact same 4px–5px height.
-  - Even spacing (`gap-1.5 sm:gap-2`) between all indicators.
-  - Horizontally centered at the bottom of the banner (`left-1/2 -translate-x-1/2 bottom-2 sm:bottom-3`).
-  - Encased in a compact frosted glass capsule pill (`bg-black/35 backdrop-blur-md border border-white/10 px-2 sm:px-2.5 py-1 sm:py-1.5 rounded-full shadow-lg`).
+- **Carousel Navigation Indicator Proportions Refinement (Perfect Half)**:
+  - Height halved to 2px–2.5px (`h-[2px] sm:h-[2.5px]`).
+  - Circular dots scaled down accordingly to 2px–2.5px round circles (`w-[2px] sm:w-[2.5px] h-[2px] sm:h-[2.5px]`) in muted semi-transparent white (`bg-white/45`).
+  - Active slide rendered as an elongated horizontal pill kept wide and expanded to 28px–36px wide (`w-7 sm:w-8 md:w-9`) in solid white (`bg-white shadow-md`), sharing the exact same 2px–2.5px height.
+  - Spacing set to balanced `gap-1.5 sm:gap-2`.
+  - Horizontally centered at the bottom of the banner (`left-1/2 -translate-x-1/2 bottom-1.5 sm:bottom-2`).
+  - Encased in a frosted glass capsule pill (`bg-black/35 backdrop-blur-md border border-white/10 px-2 sm:px-2.5 py-[2px] sm:py-[3px] rounded-full shadow-lg`).
+  - Preserved accessible click target via `before:-inset-2` expansion.
   - Fluid, animated morph transition (`transition-all duration-300 ease-out`) between dot and pill on slide change.
 - **Mobile Scale Down**:
   - Scaled down arrow buttons on mobile (`w-6 h-6 sm:w-8 sm:h-8 md:w-9 md:h-9`) with smaller chevron icons (`w-3.5 h-3.5`).

@@ -244,16 +244,16 @@ export default function BannerSlider({ section }: { section: BannerSliderSection
           </>
         )}
 
-        {/* ── Carousel Navigation Indicators (Halved 4-5px height, 4-5px circular dots, expanded 32-40px active pill) ── */}
+        {/* ── Carousel Navigation Indicators (Perfect half: 2-2.5px height & circles, elongated 28-36px active pill) ── */}
         {showDots && count > 1 && (
-          <div className="absolute bottom-1 sm:bottom-3 left-1/2 -translate-x-1/2 z-20 flex items-center gap-1.5 sm:gap-2 bg-black/35 backdrop-blur-md border border-white/10 rounded-full px-2 sm:px-2.5 py-1 sm:py-1.5 shadow-lg">
+          <div className="absolute bottom-1.5 sm:bottom-2 left-1/2 -translate-x-1/2 z-20 flex items-center gap-1.5 sm:gap-2 bg-black/35 backdrop-blur-md border border-white/10 rounded-full px-2 sm:px-2.5 py-[2px] sm:py-[3px] shadow-lg">
             {slides.map((_, i) => (
               <button
                 key={i}
                 onClick={() => goTo(i)}
-                className={`transition-all duration-300 ease-out rounded-full cursor-pointer ${i === current
-                    ? 'w-8 sm:w-9 md:w-10 h-1 sm:h-[5px] bg-white shadow-md'
-                    : 'w-1 sm:w-[5px] h-1 sm:h-[5px] bg-white/45 hover:bg-white/75'
+                className={`relative transition-all duration-300 ease-out rounded-full cursor-pointer before:content-[''] before:absolute before:-inset-2 before:rounded-full ${i === current
+                  ? 'w-5 sm:w-8 md:w-9 h-[1.5px] sm:h-[2.5px] bg-white shadow-md'
+                  : 'w-[1px] sm:w-[2px] h-[1px] sm:h-[2px] bg-white/45 hover:bg-white/75'
                   }`}
                 aria-label={`Go to slide ${i + 1}`}
               />

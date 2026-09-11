@@ -88,13 +88,13 @@ export interface SendMetaCapiEventOptions {
     | 'Purchase'
     | 'InitiateCheckout'
     | 'AddToCart'
+    | 'ViewCart'
     | 'ViewContent'
     | 'CustomizeProduct'
     | 'AddPaymentInfo'
     | 'Contact'
     | 'FindLocation'
     | 'Search'
-    | 'Lead'
     | 'PageView'
     | string;
   eventId?: string;

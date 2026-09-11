@@ -11,8 +11,17 @@ last_updated: 2026-09-11
 # Next Steps & Handoff Guide — Advanced Ordering Ecosystem
 
 ## Completed in Current Sprint
+- [x] **Horizontal Category Navigation Strip Below Hero Banner (CLK)**:
+  - Designed and implemented a horizontal category navigation strip positioned directly beneath the hero banner (in both Classic Layout mode and CMS mode).
+  - Encased in a full-width container matching header edge spacing (`w-full px-3 sm:px-6 md:px-8 lg:px-10 xl:px-12 2xl:px-14`) with a soft light purple/lavender background tint (`bg-[#f6eff7] dark:bg-[#250a20]`), subtle rounded edges (`rounded-2xl`), and subtle purple border (`border-[#741052]/15 dark:border-[#d0269b]/25`).
+  - Completely suppressed horizontal scrollbars across all platforms via CSS and Tailwind utilities.
+  - Platter categories and menu item categories rendered in bold dark purple/black (`font-bold text-[#330523] dark:text-neutral-200`) with consistent padding between items and no dividers.
+  - Fixed white circular chevron arrow buttons (`w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-white dark:bg-neutral-900 border border-[#741052]/25 dark:border-[#d0269b]/40 shadow-md`) mounted at both ends over lavender gradient fade masks with auto-scroll and disabled states.
+  - Implemented full-page sticky positioning (`sticky top-0 z-30` with `backdrop-blur-md bg-white/80 dark:bg-black/80`) by mounting `CategoryNavStrip` as a direct child of the root container via `Fragment`, keeping the strip floating at the top throughout catalog browsing.
+  - Added real-time scroll-spy using `getBoundingClientRect().top` to automatically update the active category pill and smoothly center it in the horizontal strip as customers scroll through platter and menu sections.
+  - Calibrated 1-click smooth scrolling with an `85px` top offset so section headers are never blocked by the sticky bar.
 - [x] **Image Banner Slider Mobile Styling & Dot Navigation (CLK)**:
-  - Refined carousel navigation indicator proportions: halved height to 4px–5px (`h-1 sm:h-[5px]`), matched circular dots to 4px–5px diameter (`w-1 sm:w-[5px] h-1 sm:h-[5px]`), expanded active pill width to 32px–40px (`w-8 sm:w-9 md:w-10`), tightened frosted container padding (`px-2 sm:px-2.5 py-1 sm:py-1.5`), and maintained centered alignment (`bottom-2 sm:bottom-3`).
+  - Perfected half-size carousel navigation indicators: height halved to 2px–2.5px (`h-[2px] sm:h-[2.5px]`), circular dots scaled to 2px–2.5px (`w-[2px] sm:w-[2.5px] h-[2px] sm:h-[2.5px]`), active pill width kept wide and expanded to 28px–36px (`w-7 sm:w-8 md:w-9`), with balanced spacing (`gap-1.5 sm:gap-2`), frosted capsule padding (`px-2 sm:px-2.5 py-[2px] sm:py-[3px]`), and centered positioning (`bottom-1.5 sm:bottom-2`).
   - Scaled down arrows, chevron icons, and text overlay typography on mobile to prevent slider from displaying too large.
   - Added separated **Mobile Layout & Sizing** customization panel in `AdminPageBuilder.tsx` (Mobile Aspect Ratio `16/9`, `2/1`, `4/3`, `1/1`, `21/9`, Mobile Border Radius, Mobile Horizontal Margin, Mobile Top Margin, and Mobile Arrow Visibility toggle).
 - [x] **PC Header Full-Width Responsive Layout (CLK)**:
