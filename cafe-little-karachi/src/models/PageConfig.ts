@@ -12,6 +12,7 @@ export interface IPageConfig extends Document {
   type: string;
   sections: IPageSection[];
   useCmsLayout: boolean;
+  classicBannerType?: 'hero' | 'image-slider';
 }
 
 const PageSectionSchema = new Schema({
@@ -30,7 +31,8 @@ const PageConfigSchema: Schema<IPageConfig> = new Schema(
   {
     type: { type: String, required: true, unique: true, default: "order-page" },
     sections: [PageSectionSchema],
-    useCmsLayout: { type: Boolean, default: true }
+    useCmsLayout: { type: Boolean, default: true },
+    classicBannerType: { type: String, enum: ['hero', 'image-slider'], default: 'hero' }
   },
   { timestamps: true }
 );

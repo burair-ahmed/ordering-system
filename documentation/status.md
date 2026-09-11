@@ -5,9 +5,9 @@ tags:
   - #status/active
   - #project/ordering-ecosystem
 created: 2026-09-04
-last_updated: 2026-09-04
-overall_completion: "Phase 4.5: Site-Wide Clean URL Architecture Completed (100%)"
-current_sprint: "Site-Wide Clean URL Architecture & Frictionless Ordering"
+last_updated: 2026-09-11
+overall_completion: "Phase 4.10: PC Header Full-Width Responsive Layout (100%)"
+current_sprint: "PC Header Full-Width Responsive Spacing"
 ---
 
 # Project Status Dashboard — Advanced Ordering Ecosystem
@@ -16,12 +16,36 @@ current_sprint: "Site-Wide Clean URL Architecture & Frictionless Ordering"
 
 | Sub-Project | Phase | Focus | Status |
 | :--- | :--- | :--- | :--- |
-| **Cafe Little Karachi (CLK)** | Phase 4.6 | Meta Conversions API (CAPI) & Meta Pixel Integration | **Completed** 🟢 |
+| **Cafe Little Karachi (CLK)** | Phase 4.10 | PC Header Full-Width Layout & Responsive Spacing | **Completed** 🟢 |
 | **The Chai Company (TCC)** | Base | Monorepo Structure | Ready for Next Cycle ⚪ |
 
 ---
 
-## Phase 4.6 Completion Summary — Meta Conversions API (CAPI) & Meta Pixel Integration
+## Phase 4.10 Completion Summary — PC Header Full-Width Responsive Layout
+
+- [x] **Full-Width Header Expansion (`Header.tsx`)**: Removed `max-w-7xl` bottleneck on the desktop header bar, enabling the header to span full-width.
+- [x] **Responsive Left & Right Spacing (`Header.tsx`)**: Configured responsive gutters (`px-3 sm:px-6 md:px-8 lg:px-10 xl:px-12 2xl:px-14` outer and `px-4 sm:px-6 md:px-8 lg:px-10` inner), ensuring proper edge clearance on laptops, desktops, and wide monitors.
+
+---
+
+## Phase 4.9 Completion Summary — Cloudinary Media Gallery & Banner Media Picker Integration
+
+- [x] **Backend Cloudinary Media API (`/api/media`)**: Built REST handler supporting listing with Search API + Admin fallback, pagination, search queries, multi-file upload, and single/bulk deletion.
+- [x] **Full-Featured Media Gallery (`MediaGallery.tsx`)**: Built rich responsive gallery with search, format filters, format badges, and live upload progress indicator.
+- [x] **Bulk Operations**: Added multi-select mode with selection count bar, Select All Filtered / Deselect All, and bulk delete modal with confirmation.
+- [x] **Side-by-Side Detail Inspection Modal**: On image click, displays high-res image on the left and full technical specifications on the right (pixel dimensions, file size in B/KB/MB, image type badge, upload date/time, public ID, direct Cloudinary link with 1-click copy button, and single delete button with confirmation).
+- [x] **Admin Panel Tab (`admin/page.tsx`)**: Registered `Media Gallery` tab with `ImageIcon` in sidebar navigation and rendered full `<MediaGallery />` view.
+- [x] **Banner & Slider Media Gallery Integration (`AdminPageBuilder.tsx`)**: Added "Gallery" picker buttons across Hero Banner (Desktop & Mobile), Image Banner Slider (per-slide Desktop & Mobile), Story Content, and Classic Layout Hero banner, allowing administrators to choose existing images or upload new ones.
+
+---
+
+## Phase 4.8 Completion Summary — Classic Layout Banner Slider Selection & Admin Theme Refactor
+
+- [x] **Theme Hook Resolution (`admin/page.tsx`)**: Re-imported `useTheme` from `next-themes` and instantiated `const { setTheme } = useTheme()` inside `AdminDashboard`, resolving the runtime `ReferenceError: setTheme is not defined` on the Preferences tab.
+- [x] **Classic Layout Banner Mode Selection (`AdminPageBuilder.tsx`)**: Integrated segmented control to choose between **Hero Banner** (single image/text header) and **Image Banner Slider** (multi-slide carousel) in Classic Normal Layout mode.
+- [x] **Modular `ImageSliderConfigEditor` Subcomponent (`AdminPageBuilder.tsx`)**: Extracted a standalone editor handling per-slide desktop and mobile browser/phone mockup previews, direct upload & URL input, pure image vs text overlay toggle, slide headings, subtitles, CTA button links, overlay opacity, text color & alignment, autoplay with interval timing, navigation arrows, dot navigation pills, horizontal/top margins, and border-radius.
+- [x] **Backend & Schema Persistence (`PageConfig.ts`, `api/page-config.ts`)**: Added `classicBannerType: { type: String, enum: ['hero', 'image-slider'], default: 'hero' }` to MongoDB model and updated REST endpoint to persist user preference.
+- [x] **Dynamic Customer Storefront Rendering (`order/page.tsx`)**: Wired `classicBannerType` state and conditional renderer to display either `<BannerSlider />` or `<Hero />` in Classic Layout mode based on admin choice.
 
 - [x] **Meta Pixel Provider (`MetaPixelProvider.tsx`)**: Injected Meta Pixel (ID: `1619761243277122`) with Next.js Script strategy `afterInteractive`, `<noscript>` tracking fallback, and route transition `PageView` tracking.
 - [x] **Meta Conversions API (CAPI) Server Engine (`metaCapi.ts`)**: Built server-side CAPI engine with SHA-256 PII hashing (email, Pakistani mobile phone normalization `03...` ➔ `923...`), client IP, User-Agent, and `_fbp`/`_fbc` cookie extraction.

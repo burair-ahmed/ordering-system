@@ -332,12 +332,6 @@ body {
   }
 }
 
-@media (max-width: 768px) {
-  .fixed {
-    bottom: 0; /* Ensure it stays at the bottom without affecting the hero section */
-  }
-}
-
 
 
 @layer base {

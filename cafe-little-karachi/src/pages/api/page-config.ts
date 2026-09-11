@@ -14,7 +14,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         config = new PageConfig({
           type: "order-page",
           sections: [],
-          useCmsLayout: true
+          useCmsLayout: true,
+          classicBannerType: 'hero'
         });
         await config.save();
       }
@@ -26,12 +27,17 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     }
   } else if (req.method === "POST") {
     try {
-      const { sections, useCmsLayout } = req.body;
-      console.log("Saving PageConfig for Cafe Little Karachi:", JSON.stringify({ sections, useCmsLayout }, null, 2));
+      const { sections, useCmsLayout, classicBannerType } = req.body;
+      console.log("Saving PageConfig for Cafe Little Karachi:", JSON.stringify({ sections, useCmsLayout, classicBannerType }, null, 2));
+
+      const updateData: any = { sections, useCmsLayout };
+      if (classicBannerType) {
+        updateData.classicBannerType = classicBannerType;
+      }
 
       const config = await PageConfig.findOneAndUpdate(
         { type: "order-page" },
-        { sections, useCmsLayout },
+        updateData,
         { new: true, upsert: true }
       );
       

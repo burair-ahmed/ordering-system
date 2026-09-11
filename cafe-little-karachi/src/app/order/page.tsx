@@ -197,6 +197,7 @@ export default function MenuPage({
   const [allPlatters, setAllPlatters] = useState<Platter[]>([]);
   const [pageLoading, setPageLoading] = useState<boolean>(true);
   const [useCmsLayout, setUseCmsLayout] = useState<boolean>(true);
+  const [classicBannerType, setClassicBannerType] = useState<'hero' | 'image-slider'>('hero');
 
   // Items loading state for each section ID
   const [sectionAllItems, setSectionAllItems] = useState<{ [sectionId: string]: any[] }>({});
@@ -434,11 +435,14 @@ export default function MenuPage({
 
         setSections(loadedSections);
         
-        // --- Read useCmsLayout toggle ---
+        // --- Read useCmsLayout toggle & classic banner type ---
         const cmsEnabled = configData && configData.useCmsLayout !== undefined
           ? configData.useCmsLayout
           : true; // default to true
         setUseCmsLayout(cmsEnabled);
+
+        const bType = configData?.classicBannerType || (configData?.sections?.some((s: any) => s.type === 'image-slider') && !configData?.sections?.some((s: any) => s.type === 'hero') ? 'image-slider' : 'hero');
+        setClassicBannerType(bType);
 
         // If classic layout mode is active, trigger the classic data fetch
         if (!cmsEnabled) {
@@ -448,6 +452,7 @@ export default function MenuPage({
         console.error("Error loading layout data:", err);
         setSections(DEFAULT_SECTIONS);
         setUseCmsLayout(true);
+        setClassicBannerType('hero');
       } finally {
         setPageLoading(false);
       }
@@ -602,11 +607,14 @@ export default function MenuPage({
   if (!useCmsLayout) {
     const heroSection = sections.find(s => s.type === 'hero' && s.isVisible);
     const imageSliderSection = sections.find(s => s.type === 'image-slider' && s.isVisible);
+    const showSlider = classicBannerType === 'image-slider' && imageSliderSection;
+    const showHero = (classicBannerType === 'hero' || !imageSliderSection) && heroSection;
+
     return (
       <div className="bg-white text-black min-h-screen pb-20">
-        {imageSliderSection ? (
+        {showSlider ? (
           <BannerSlider section={imageSliderSection as any} />
-        ) : heroSection ? (
+        ) : showHero ? (
           <Hero 
             title={heroSection?.title}
             {...(heroSection?.props || {})}

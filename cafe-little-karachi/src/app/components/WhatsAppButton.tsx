@@ -1,15 +1,19 @@
 'use client';
 
 import React, { useState } from 'react';
+import { usePathname } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FaWhatsapp } from 'react-icons/fa';
 import { X } from 'lucide-react';
 
 export default function WhatsAppButton() {
+  const pathname = usePathname();
   const [showTooltip, setShowTooltip] = useState(true);
   const whatsappNumber = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || '923331702706';
   const defaultMessage = encodeURIComponent('Hello Cafe Little Karachi! I have an inquiry about the menu/order.');
   const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${defaultMessage}`;
+
+  if (pathname?.startsWith('/admin')) return null;
 
   return (
     <div className="hidden md:flex fixed bottom-6 left-6 z-50 items-center gap-3">

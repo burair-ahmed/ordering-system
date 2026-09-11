@@ -5,7 +5,8 @@
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { motion, AnimatePresence, useScroll, useTransform } from 'framer-motion';
+import { usePathname } from 'next/navigation';
+import { motion, AnimatePresence } from 'framer-motion';
 import CartSidebar from './CartSidebar';
 import { useCart } from '../context/CartContext';
 import { useOrder } from '../context/OrderContext';
@@ -15,6 +16,7 @@ import { isOpenAt } from '../lib/restaurantStatus';
 import { trackEvent } from '../lib/analytics';
 
 export default function Header() {
+  const pathname = usePathname();
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isClient, setIsClient] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -26,17 +28,6 @@ export default function Header() {
     isLocationSet,
     setLocationModalOpen
   } = useOrder();
-  
-  const { scrollY } = useScroll();
-  
-  // Floating Island Animations
-  const islandWidth = useTransform(scrollY, [0, 100], ['95%', '90%']);
-  const islandY = useTransform(scrollY, [0, 100], [20, 10]);
-  const islandShadow = useTransform(
-    scrollY, 
-    [0, 100], 
-    ['0 4px 20px rgba(0,0,0,0.2)', '0 10px 40px rgba(0,0,0,0.4)']
-  );
 
   useEffect(() => {
     setIsClient(true);
@@ -47,6 +38,7 @@ export default function Header() {
   };
 
   if (!isClient) return null;
+  if (pathname?.startsWith('/admin')) return null;
 
   const totalItems = cartItems.reduce((total, item) => total + item.quantity, 0);
 
@@ -63,18 +55,13 @@ export default function Header() {
   return (
     <>
       {/* 
-        PREMIUM FLOATING ISLAND HEADER
-        - High contrast backdrop to solve "white on white" issues.
-        - Floating pill design for modern aesthetics.
+        PREMIUM ISLAND HEADER (NON-STICKY)
+        - Rendered in normal document flow so hero section has clean, natural spacing.
+        - Generous vertical padding gives the oversized circular emblem breathing room.
       */}
-      <div className="fixed top-0 left-0 w-full z-50 pointer-events-none flex justify-center">
-        <motion.header
-          style={{ 
-            width: islandWidth,
-            y: islandY,
-            boxShadow: islandShadow
-          }}
-          className="pointer-events-auto h-16 md:h-20 bg-[#5c0d40]/90 backdrop-blur-2xl border border-white/10 rounded-2xl md:rounded-[2rem] flex items-center px-4 md:px-8 transition-all duration-500 relative"
+      <div className="relative w-full z-40 flex justify-center px-3 sm:px-6 md:px-8 lg:px-10 xl:px-12 2xl:px-14 pt-4 pb-6 md:pt-6 md:pb-8">
+        <header
+          className="w-full h-16 md:h-20 bg-[#5c0d40] backdrop-blur-2xl border border-white/15 rounded-2xl md:rounded-[2rem] shadow-[0_12px_36px_rgba(0,0,0,0.35)] flex items-center px-4 sm:px-6 md:px-8 lg:px-10 relative"
         >
           {/* Subtle Inner Glow */}
           <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent rounded-t-[2rem]" />
@@ -212,7 +199,7 @@ export default function Header() {
               </motion.button>
             </div>
           </div>
-        </motion.header>
+        </header>
       </div>
 
       {/* MENU SIDEBAR DRAWER (Desktop & Mobile) */}

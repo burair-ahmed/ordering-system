@@ -14,17 +14,12 @@ import {
   ChevronLeft,
   ChevronRight,
   LogOut,
-  Sun,
-  Moon,
   Truck,
   Tag,
-  Menu as MenuIcon,
   X,
-  Volume2,
-  VolumeX,
   Activity,
+  Image as ImageIcon,
 } from 'lucide-react';
-import { useTheme } from 'next-themes';
 
 import OrdersList from '../components/OrdersList';
 import AddMenuItemForm from '../components/MenuItemForm';
@@ -43,6 +38,8 @@ import MenuManagement from '../components/MenuManagement';
 import PlatterManagement from '../components/PlatterManagement';
 import BehavioralAnalytics from '../components/BehavioralAnalytics';
 import AdminPageBuilder from '../components/AdminPageBuilder';
+import AdminHeader from '../components/AdminHeader';
+import MediaGallery from '../components/MediaGallery';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -53,6 +50,7 @@ import {
   TooltipTrigger,
 } from '@/components/ui/tooltip';
 import { useToast } from '@/hooks/use-toast';
+import { useTheme } from 'next-themes';
 
 interface Variation {
   name: string;
@@ -105,6 +103,7 @@ type TabKey =
   | 'platter'
   | 'addmenu'
   | 'addplatter'
+  | 'media'
   | 'bulkDiscounts'
   | 'deliveryCharges'
   | 'tables'
@@ -120,6 +119,7 @@ const TABS: { key: TabKey; label: string; icon: any }[] = [
   { key: 'platter', label: 'Gourmet Platters', icon: ListChecks },
   { key: 'addmenu', label: 'Add New Menu', icon: Plus },
   { key: 'addplatter', label: 'Add New Platter', icon: Plus },
+  { key: 'media', label: 'Media Gallery', icon: ImageIcon },
   { key: 'bulkDiscounts', label: 'Bulk Discounts', icon: Tag },
   { key: 'deliveryCharges', label: 'Delivery Charges', icon: Truck },
   { key: 'tables', label: 'Dine-in Tables', icon: Table2 },
@@ -131,8 +131,8 @@ const TABS: { key: TabKey; label: string; icon: any }[] = [
 ];
 
 const AdminDashboard: FC = () => {
-  const { theme, setTheme } = useTheme();
   const { toast } = useToast();
+  const { setTheme } = useTheme();
 
   const [activeTab, setActiveTab] = useState<TabKey>('orders');
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState<boolean>(false);
@@ -151,22 +151,12 @@ const AdminDashboard: FC = () => {
   // Authentication State
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const [audioInitialized, setAudioInitialized] = useState<boolean>(false);
-  const [systemTime, setSystemTime] = useState<string>('');
 
   const correctPassword = '123-$CLK-Admin-$Panel-786';
 
   // Audio Context references for alerts
   const audioContextRef = useRef<AudioContext | null>(null);
   const audioBufferRef = useRef<AudioBuffer | null>(null);
-
-  // Update header local clock
-  useEffect(() => {
-    setSystemTime(new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
-    const timer = setInterval(() => {
-      setSystemTime(new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
-    }, 30000);
-    return () => clearInterval(timer);
-  }, []);
 
   const initializeAudioContext = async () => {
     try {
@@ -357,68 +347,17 @@ const AdminDashboard: FC = () => {
 
         {/* MAIN DISPLAY VIEWPORT */}
         <section className="flex flex-1 flex-col overflow-y-auto">
-          
-          {/* HEADER BAR */}
-          <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-neutral-200/50 bg-white/70 dark:bg-neutral-950/60 px-6 backdrop-blur-md">
-            <div className="flex items-center gap-3">
-              <Button
-                variant="ghost"
-                size="icon"
-                className="md:hidden h-9 w-9 text-neutral-500 hover:bg-neutral-100 dark:hover:bg-neutral-800 rounded-lg"
-                onClick={() => setIsMobileSidebarOpen(true)}
-              >
-                <MenuIcon className="h-5 w-5" />
-              </Button>
-              
-              <div className="hidden sm:flex items-center gap-2">
-                <LayoutDashboard className="h-4.5 w-4.5 text-fuchsia-500" />
-                <span className="text-xs font-bold uppercase tracking-wider text-neutral-400">Dashboard</span>
-                <span className="text-neutral-300 dark:text-neutral-700">/</span>
-                <span className="text-xs font-bold text-neutral-800 dark:text-neutral-200 uppercase tracking-wider">
-                  {TABS.find(t => t.key === activeTab)?.label}
-                </span>
-              </div>
-            </div>
 
-            <div className="flex items-center gap-3">
-              {/* Audio indicators */}
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <div className="flex items-center gap-1.5 px-3 py-1 rounded-full border border-neutral-200 dark:border-neutral-800 text-[10px] font-bold text-neutral-500 uppercase bg-neutral-50/50 dark:bg-neutral-900/40">
-                    {audioInitialized ? (
-                      <>
-                        <Volume2 className="h-3.5 w-3.5 text-emerald-500" />
-                        <span>Sound Active</span>
-                      </>
-                    ) : (
-                      <>
-                        <VolumeX className="h-3.5 w-3.5 text-neutral-400" />
-                        <span>Muted</span>
-                      </>
-                    )}
-                  </div>
-                </TooltipTrigger>
-                <TooltipContent className="text-xs">Live order audio alert status</TooltipContent>
-              </Tooltip>
-
-              {/* Local Clock */}
-              <span className="hidden md:inline text-xs font-mono font-bold text-neutral-400 dark:text-neutral-500">
-                {systemTime}
-              </span>
-
-              <span className="text-neutral-200 dark:text-neutral-800 hidden md:inline">|</span>
-
-              {/* Dark mode switch */}
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-9 w-9 text-neutral-500 hover:bg-neutral-100 dark:hover:bg-neutral-800 rounded-lg shrink-0"
-                onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-              >
-                {theme === 'dark' ? <Sun className="h-4.5 w-4.5 text-amber-500" /> : <Moon className="h-4.5 w-4.5" />}
-              </Button>
-            </div>
-          </header>
+          {/* DEDICATED ADMIN HEADER */}
+          <AdminHeader
+            activeTabLabel={TABS.find(t => t.key === activeTab)?.label ?? 'Dashboard'}
+            activeTabIcon={TABS.find(t => t.key === activeTab)?.icon}
+            setIsMobileSidebarOpen={setIsMobileSidebarOpen}
+            audioInitialized={audioInitialized}
+            onToggleAudio={initializeAudioContext}
+            onTestSound={playNotificationSound}
+            onLogout={handleLogout}
+          />
 
           {/* DASHBOARD TAB CONTAINER CHANGER */}
           <main className="mx-auto w-full max-w-7xl flex-1 p-4 sm:p-6 space-y-6">
@@ -553,6 +492,19 @@ const AdminDashboard: FC = () => {
                 </CardHeader>
                 <CardContent>
                   <BehavioralAnalytics />
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Media Gallery tab */}
+            {activeTab === 'media' && (
+              <Card className="border border-neutral-200/50 shadow-sm rounded-3xl">
+                <CardHeader>
+                  <CardTitle className="text-xl font-bold tracking-tight">Cloudinary Media Gallery</CardTitle>
+                  <CardDescription>Browse, upload, inspect specifications, and manage all cloud media assets.</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <MediaGallery />
                 </CardContent>
               </Card>
             )}

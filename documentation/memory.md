@@ -5,10 +5,112 @@ tags:
   - #status/active
   - #project/ordering-ecosystem
 created: 2026-09-04
-last_updated: 2026-09-04
+last_updated: 2026-09-11
 ---
 
 # Living Project Memory & Task Tracker
+
+## 0. Phase 4.10 Architecture Changes — PC Header Full-Width Layout & Responsive Spacing
+
+### PC Header Full-Width Responsive Layout (2026-09-11)
+- **File**: `src/app/components/Header.tsx`
+  - Removed `max-w-7xl` constraint on the main customer header bar to allow it to expand gracefully to full-width across PC viewports.
+  - Added responsive left and right container gutters (`px-3 sm:px-6 md:px-8 lg:px-10 xl:px-12 2xl:px-14`) on the outer wrapper and `px-4 sm:px-6 md:px-8 lg:px-10` on the header pill, giving balanced spacing from the screen edges on wide displays while maintaining the centered oversized circular brand emblem.
+
+## 1. Phase 4.9 Architecture Changes — Cloudinary Media Gallery & Banner Media Picker Integration
+
+### Cloudinary Media Management API Endpoint (2026-09-11)
+- **File**: `src/pages/api/media.ts`
+  - **GET**: Lists media assets with search (`search`), folder filter (`folder`), pagination (`next_cursor`, `max_results`). Employs Cloudinary Search API with graceful fallback to Admin Resources API. Returns detailed metadata: `public_id`, `format`, `bytes`, `width`, `height`, `url`, `secure_url`, `folder`, `filename`, `created_at`.
+  - **POST**: Multi-file and single-file upload handler to Cloudinary folder (`cafe-little-karachi/gallery`).
+  - **DELETE**: Single and bulk deletion handler accepting `public_ids: string[]` using `cloudinary.api.delete_resources` / `cloudinary.uploader.destroy`.
+
+### Dedicated Media Gallery Component (2026-09-11)
+- **File**: `src/app/components/MediaGallery.tsx`
+  - **Grid & Search/Filter**: Thumbnail grid with format filters (`All`, `JPG`, `PNG`, `WEBP`, etc.), real-time keyword search, format badges, and byte size formatter (`formatBytes`).
+  - **Upload Engine**: Multi-file upload with progress tracking indicator and auto-refresh.
+  - **Bulk Management**: Multi-select mode with selection count bar, Select All Filtered / Deselect All, and bulk delete modal with confirmation.
+  - **Side-by-Side Detail Inspection Modal**:
+    - **Left**: High-resolution image preview container with checkerboard/dark backdrop and "Open original" external link.
+    - **Right**: Rich asset specification panel displaying:
+      - Dimensions in pixels (`width × height px`).
+      - File size formatted in B/KB/MB.
+      - Image format/type badge.
+      - Localized upload date/time.
+      - Public ID / folder path.
+      - Direct Cloudinary URL with 1-click "Copy Link" button (with "Copied!" feedback).
+      - Single-item delete button with confirmation dialog.
+  - **Picker Mode (`isPicker?: boolean`)**: Allows embedding the gallery inside modals with "Choose & Use This Image" button to pass selected image URLs directly into form fields.
+
+### Admin Dashboard Tab Registration (2026-09-11)
+- **File**: `src/app/admin/page.tsx`
+  - Added `media` to `TabKey` and registered `{ key: 'media', label: 'Media Gallery', icon: ImageIcon }` in `TABS`.
+  - Added `<MediaGallery />` card container rendering when `activeTab === 'media'`.
+
+### Banner & Slider Media Gallery Integration (2026-09-11)
+- **File**: `src/app/components/AdminPageBuilder.tsx`
+  - **Hero Banner (CMS Mode)**: Added "Gallery" picker button alongside PC Desktop and Mobile banner upload fields.
+  - **Image Banner Slider (CMS Mode)**: Added "Gallery" picker buttons for each individual slide's Desktop and Mobile image inputs.
+  - **Rich Content Story Row**: Added "Gallery" picker button for story image assets.
+  - **Hero Banner (Classic Mode)**: Added "Gallery" picker buttons for Classic mode Desktop and Mobile banner inputs.
+  - **Slide Image Picker Modal**: Embedded `<MediaGallery isPicker={true} />` inside responsive modal dialogs to seamlessly select existing assets into banner and slider configurations.
+
+## 1. Phase 4.8 Architecture Changes — Classic Layout Banner Slider Selection & Admin Theme Refactor
+
+### Admin Theme Hook Resolution (2026-09-11)
+- **File**: `src/app/admin/page.tsx`
+  - **Issue**: `ReferenceError: setTheme is not defined` occurred at lines 518–520 in the Preferences tab because `useTheme` was removed during the previous refactoring.
+  - **Fix**: Re-imported `useTheme` from `next-themes` and initialized `const { setTheme } = useTheme();` inside `AdminDashboard`.
+
+### Classic Normal Layout Banner Style Selection (2026-09-11)
+- **File**: `src/app/components/AdminPageBuilder.tsx`
+  - **Feature**: Added a sleek segmented control to the Classic Mode Top Banner editor allowing administrators to choose between:
+    1. **Hero Banner**: Single full-width header with text overlays, CTA buttons, background size, and PC/Mobile image uploads.
+    2. **Image Banner Slider**: Multi-slide carousel banner with desktop and mobile image mockups, direct upload/URL inputs, Image Only toggle, per-slide title/subtitle/CTA/opacity/alignment/colors, autoplay, autoplay interval timing, navigation arrows, dot navigation pills, horizontal/top margins, and custom border-radius.
+  - **Extracted Component**: Created `ImageSliderConfigEditor` as a reusable subcomponent shared seamlessly between CMS Layout Mode and Classic Normal Layout Mode.
+  - **State & Persistence**: Added `classicBannerType` state ('hero' | 'image-slider') loaded from `/api/page-config` and saved on layout update.
+
+### PageConfig Schema & API Updates (2026-09-11)
+- **Files**: `src/models/PageConfig.ts`, `src/pages/api/page-config.ts`
+  - Added `classicBannerType: { type: String, enum: ['hero', 'image-slider'], default: 'hero' }` to `IPageConfig` interface and `PageConfigSchema`.
+  - Updated API handler to accept `classicBannerType` on POST and return it on GET.
+
+### Customer Order Page Rendering Updates (2026-09-11)
+- **File**: `src/app/order/page.tsx`
+  - Updated `loadPageData` to read `classicBannerType` from the database config.
+  - Updated Classic Layout conditional render (`!useCmsLayout`) to display `<BannerSlider section={imageSliderSection} />` when `classicBannerType === 'image-slider'` or `<Hero ... />` when `classicBannerType === 'hero'`.
+
+## 1. Phase 4.7 Architecture Changes — Header UX & Admin Panel Separation
+
+### Header Non-Sticky Layout & Hero Spacing (2026-09-11)
+- **File**: `src/app/components/Header.tsx`
+  - **Change**: Converted from `fixed top-0 left-0 w-full z-50` (sticky fixed overlay) to in-document-flow `relative w-full z-40` container.
+  - **Vertical Padding**: Outer wrapper now has `pt-4 pb-6 md:pt-6 md:pb-8` so the oversized circular brand emblem (up to `w-32 h-32`) has full breathing room above and below without clipping or touching the Hero banner image.
+  - **Scroll Animations Removed**: Deleted `useScroll`, `useTransform`, `islandWidth`, `islandY`, and `islandShadow` — these depended on fixed positioning and are irrelevant in normal flow.
+  - **Admin Exclusion**: Added `usePathname` + early return `null` guard when `pathname?.startsWith('/admin')` so this component never renders inside the admin dashboard.
+  - **Tag change**: `<motion.header>` replaced with plain `<header>` (framer-motion `motion.` prefix no longer needed since scroll transforms are gone).
+
+### Footer & WhatsApp Button Admin Exclusion (2026-09-11)
+- **Files**: `src/app/components/Footer.tsx`, `src/app/components/WhatsAppButton.tsx`
+  - Added `usePathname` import and `if (pathname?.startsWith('/admin')) return null` guard in each component so the customer footer and floating WhatsApp CTA are completely suppressed on all `/admin/*` routes.
+
+### globals.css — Legacy .fixed Hack Removed (2026-09-11)
+- **File**: `src/app/globals.css`
+  - **Removed**: `@media (max-width: 768px) { .fixed { bottom: 0; } }` — this was a leftover workaround that incorrectly anchored ALL `position: fixed` elements to the bottom on mobile, breaking modals, cart sidebars, the RestaurantStatusPopup, and WhatsApp floating button.
+
+### Dedicated AdminHeader Component (2026-09-11)
+- **New File**: `src/app/components/AdminHeader.tsx`
+  - **Aesthetics**: Frosted glass (`bg-white/85 dark:bg-neutral-900/85 backdrop-blur-xl`), 64px height, `sticky top-0 z-30`.
+  - **Left Section**: Mobile drawer toggle, `CLK Admin` shield breadcrumb badge (plum on light / amber on dark), active tab icon + label, pulsing `System Live` dot pill (desktop).
+  - **Right Section**: Live digital clock with seconds + date (xl only), interactive audio alert pill (click-to-enable when off, click-to-test-chime when on), `Live Store` link (opens customer storefront in new tab), light/dark theme toggle, `Lock Workspace` `LogOut` button with rose hover.
+  - **Props**: `activeTabLabel`, `activeTabIcon`, `setIsMobileSidebarOpen`, `audioInitialized`, `onToggleAudio`, `onTestSound`, `onLogout`.
+
+### admin/page.tsx Refactoring (2026-09-11)
+- **File**: `src/app/admin/page.tsx`
+  - Removed `useTheme`, `LogOut`, `Sun`, `Moon`, `MenuIcon`, `Volume2`, `VolumeX` imports (now owned by `AdminHeader`).
+  - Removed `systemTime` state and its `setInterval` timer effect (now owned by `AdminHeader`).
+  - Removed old inline `<header>` block containing the generic breadcrumb + audio pill + clock + dark mode toggle.
+  - Imported and rendered `<AdminHeader ... />` with all required props wired to existing state and handlers.
 
 ## 1. Active Architecture Decisions (Phase 4.5)
 

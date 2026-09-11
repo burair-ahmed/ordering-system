@@ -3,12 +3,14 @@
 import { FC, useEffect, useState } from "react"
 import Image from "next/image"
 import Link from "next/link"
+import { usePathname } from "next/navigation"
 import { FaFacebook, FaInstagram, FaTwitter, FaLinkedin } from "react-icons/fa"
 import { motion, Variants } from "framer-motion"
 import { Button } from "@/components/ui/button"
 import { trackEvent } from "../lib/analytics"
 
 const Footer: FC = () => {
+  const pathname = usePathname()
   const [tableId, setTableId] = useState<string>("")
 
   useEffect(() => {
@@ -24,6 +26,8 @@ const Footer: FC = () => {
       }
     }
   }, [])
+
+  if (pathname?.startsWith("/admin")) return null
 
   // Animation variants (typed)
   const fadeUp: Variants = {
