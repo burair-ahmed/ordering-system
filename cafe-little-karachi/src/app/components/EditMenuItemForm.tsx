@@ -1,14 +1,10 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useState, useMemo, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
 import { VariationConfig, SimpleVariation } from "../../types/variations";
 import { toast } from "sonner";
-import { X, Save, Plus, Trash2, Upload, Edit, Layers, Percent, Eye, EyeOff } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { X, Plus, Trash2, Upload, UtensilsCrossed, Info } from "lucide-react";
 import CreateCategoryModal from "./CreateCategoryModal";
+import Preloader from "./Preloader";
 
 interface LegacyVariation {
   name: string;
@@ -22,7 +18,7 @@ interface EditMenuItemFormProps {
     description: string;
     price: number;
     category: string;
-    image: string; // Base64 string
+    image: string;
     variations: LegacyVariation[];
     status: "in stock" | "out of stock";
     discountType?: 'percentage' | 'fixed';
@@ -32,6 +28,15 @@ interface EditMenuItemFormProps {
   onClose: () => void;
   onUpdate: () => void;
 }
+
+const SectionHeading = ({ children }: { children: React.ReactNode }) => (
+  <div className="flex items-center gap-2 mb-3">
+    <span className="text-xs font-bold uppercase tracking-wider text-neutral-400 dark:text-neutral-500 shrink-0">
+      {children}
+    </span>
+    <div className="h-px bg-neutral-100 dark:bg-neutral-800 flex-1" />
+  </div>
+);
 
 const EditMenuItemForm: React.FC<EditMenuItemFormProps> = ({
   item,
@@ -80,7 +85,6 @@ const EditMenuItemForm: React.FC<EditMenuItemFormProps> = ({
     setFormData(prev => ({ ...prev, category: newCat.name }));
   };
 
-  // Computed properties for backward compatibility
   const variations = currentVariationConfig.simpleVariations || [];
 
   const handleChange = (
@@ -89,7 +93,7 @@ const EditMenuItemForm: React.FC<EditMenuItemFormProps> = ({
     >
   ) => {
     const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -112,8 +116,8 @@ const EditMenuItemForm: React.FC<EditMenuItemFormProps> = ({
 
       if (!res.ok) throw new Error('Upload failed');
       const data = await res.json();
-      setFormData({ ...formData, image: data.url });
-      toast.success('Image uploaded to Cloudinary!');
+      setFormData(prev => ({ ...prev, image: data.url }));
+      toast.success('Image uploaded successfully!');
     } catch (err) {
       console.error('Image upload error:', err);
       toast.error('Failed to upload image. Please try again.');
@@ -164,7 +168,6 @@ const EditMenuItemForm: React.FC<EditMenuItemFormProps> = ({
     setLoading(true);
 
     try {
-      // Convert VariationConfig to API format
       const apiVariations = variations
         .filter((v) => v.name.trim() !== "" && v.price > 0)
         .map((v) => ({ name: v.name, price: v.price }));
@@ -197,107 +200,76 @@ const EditMenuItemForm: React.FC<EditMenuItemFormProps> = ({
   };
 
   return (
-    <AnimatePresence>
-      <motion.div
-        className="fixed inset-0 z-50 flex items-center justify-center p-4"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-      >
-        <motion.div
-          className="absolute inset-0 bg-black/60 backdrop-blur-md"
-          onClick={onClose}
-        />
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/60 backdrop-blur-sm">
+      <div className="bg-white dark:bg-neutral-900 rounded-2xl shadow-2xl w-full max-w-5xl max-h-[88vh] flex flex-col overflow-hidden border border-neutral-100 dark:border-neutral-800">
+        {loading && <Preloader />}
 
-        <motion.div
-          ref={(el) => {
-            if (el) {
-              el.style.maxHeight = '90vh';
-            }
-          }}
-          className="relative w-full max-w-6xl bg-white rounded-3xl shadow-2xl overflow-hidden flex flex-col"
-          initial={{ scale: 0.9, opacity: 0, y: 20 }}
-          animate={{ scale: 1, opacity: 1, y: 0 }}
-          exit={{ scale: 0.9, opacity: 0, y: 20 }}
-          transition={{ type: "spring", stiffness: 300, damping: 30 }}
-        >
-          {/* Header */}
-          <div className="bg-gradient-to-r from-[#741052] to-[#d0269b] p-6 text-white">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <Edit className="h-6 w-6" />
-                <div>
-                  <h2 className="text-2xl font-bold">Edit Menu Item</h2>
-                  <p className="text-white/80 text-sm mt-1">Update your menu item details</p>
-                </div>
-              </div>
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={onClose}
-                className="text-white hover:bg-white/20 rounded-full"
-              >
-                <X className="h-5 w-5" />
-              </Button>
+        {/* Sticky header */}
+        <div className="flex items-center justify-between px-6 py-4 border-b border-neutral-100 dark:border-neutral-800 shrink-0 bg-white/80 dark:bg-neutral-900/80 backdrop-blur-sm">
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-[#741052] to-[#d0269b] flex items-center justify-center text-white shadow-sm">
+              <UtensilsCrossed className="w-4 h-4" />
+            </div>
+            <div>
+              <h2 className="text-base font-bold text-neutral-900 dark:text-white leading-tight">Edit Menu Item</h2>
+              <p className="text-xs text-neutral-400">Update item details, pricing, discount, and variations</p>
             </div>
           </div>
+          <button
+            type="button"
+            onClick={onClose}
+            className="w-8 h-8 rounded-lg flex items-center justify-center text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-200 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors"
+          >
+            <X className="w-4 h-4" />
+          </button>
+        </div>
 
-          {/* Content */}
-          <div className="flex-1 overflow-y-auto p-6">
-            <form onSubmit={handleSubmit} className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-              {/* Left Column */}
-              <motion.div
-                className="space-y-6"
-                initial={{ x: -20, opacity: 0 }}
-                animate={{ x: 0, opacity: 1 }}
-                transition={{ delay: 0.1 }}
-              >
-                <div className="bg-gradient-to-br from-gray-50 to-white p-6 rounded-2xl border border-gray-100">
-                  <h3 className="text-lg font-semibold text-[#741052] mb-4 flex items-center gap-2">
-                    <Edit className="h-5 w-5" />
-                    Basic Information
-                  </h3>
+        {/* Scrollable body */}
+        <div className="overflow-y-auto flex-1 p-6">
+          <form id="edit-item-form" onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            
+            {/* Left Column: Basic Info, Pricing, Discount, Visibility & Image */}
+            <div className="space-y-5">
+              
+              {/* Basic Info */}
+              <div>
+                <SectionHeading>Basic Information</SectionHeading>
+                <div className="space-y-3">
+                  <div>
+                    <label className="block text-xs font-semibold text-neutral-600 dark:text-neutral-400 mb-1">
+                      Item Title <span className="text-[#741052]">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      name="title"
+                      value={formData.title}
+                      onChange={handleChange}
+                      placeholder="e.g. Chicken Biryani Single"
+                      required
+                      className="w-full text-sm border border-neutral-200 dark:border-neutral-700 rounded-lg px-3 py-2 bg-transparent text-neutral-900 dark:text-white placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-[#741052]/30 focus:border-[#741052] transition-colors"
+                    />
+                  </div>
 
-                  <div className="space-y-4">
-                    {/* Title */}
+                  <div>
+                    <label className="block text-xs font-semibold text-neutral-600 dark:text-neutral-400 mb-1">
+                      Description
+                    </label>
+                    <textarea
+                      name="description"
+                      value={formData.description}
+                      onChange={handleChange}
+                      placeholder="Brief culinary description of the dish..."
+                      rows={3}
+                      className="w-full text-sm border border-neutral-200 dark:border-neutral-700 rounded-lg px-3 py-2 bg-transparent text-neutral-900 dark:text-white placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-[#741052]/30 focus:border-[#741052] transition-colors resize-none"
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-3">
                     <div>
-                      <Label htmlFor="title" className="text-sm font-semibold text-gray-700">
-                        Item Title *
-                      </Label>
-                      <Input
-                        id="title"
-                        name="title"
-                        value={formData.title}
-                        onChange={handleChange}
-                        placeholder="Enter item title"
-                        className="mt-1 focus:ring-[#741052] focus:border-[#741052]"
-                        required
-                      />
-                    </div>
-
-                    {/* Description */}
-                    <div>
-                      <Label htmlFor="description" className="text-sm font-semibold text-gray-700">
-                        Description
-                      </Label>
-                      <Textarea
-                        id="description"
-                        name="description"
-                        value={formData.description}
-                        onChange={handleChange}
-                        placeholder="Enter item description"
-                        rows={3}
-                        className="mt-1 focus:ring-[#741052] focus:border-[#741052]"
-                      />
-                    </div>
-
-                    {/* Price */}
-                    <div>
-                      <Label htmlFor="price" className="text-sm font-semibold text-gray-700">
-                        Base Price (Rs.) *
-                      </Label>
-                      <Input
-                        id="price"
+                      <label className="block text-xs font-semibold text-neutral-600 dark:text-neutral-400 mb-1">
+                        Base Price (Rs.) <span className="text-[#741052]">*</span>
+                      </label>
+                      <input
                         type="number"
                         name="price"
                         value={formData.price}
@@ -305,293 +277,287 @@ const EditMenuItemForm: React.FC<EditMenuItemFormProps> = ({
                         placeholder="0.00"
                         min="0"
                         step="0.01"
-                        className="mt-1 focus:ring-[#741052] focus:border-[#741052]"
                         required
+                        className="w-full text-sm border border-neutral-200 dark:border-neutral-700 rounded-lg px-3 py-2 bg-transparent text-neutral-900 dark:text-white placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-[#741052]/30 focus:border-[#741052] transition-colors"
                       />
                     </div>
 
-                     {/* Discount and Visibility */}
-                    <div className="grid grid-cols-1 gap-4">
-                      {/* Discount */}
-                      <div>
-                        <Label htmlFor="discountValue" className="text-sm font-semibold text-gray-700 flex items-center gap-2">
-                          <Percent className="h-4 w-4" />
-                          Discount
-                        </Label>
-                        <div className="flex gap-2 mt-1">
-                          <Input
-                            id="discountValue"
-                            name="discountValue"
-                            type="number"
-                            value={formData.discountValue}
-                            onChange={handleChange}
-                            placeholder="0"
-                            min="0"
-                            className="focus:ring-[#741052] focus:border-[#741052]"
-                          />
-                          <Select
-                            value={formData.discountType}
-                            onValueChange={(value) => setFormData(prev => ({ ...prev, discountType: value as 'percentage' | 'fixed' }))}
-                          >
-                            <SelectTrigger className="w-[100px] border focus:ring-[#741052] focus:border-[#741052]">
-                              <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="percentage">%</SelectItem>
-                              <SelectItem value="fixed">Fix</SelectItem>
-                            </SelectContent>
-                          </Select>
-                        </div>
-                      </div>
-
-                      {/* Visibility */}
-                      <div>
-                        <Label className="text-sm font-semibold text-gray-700 flex items-center gap-2">
-                           {formData.isVisible ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
-                           Visibility
-                        </Label>
-                        <div 
-                          className="mt-1 flex items-center gap-3 p-3 border rounded-md bg-gray-50 cursor-pointer"
-                          onClick={() => setFormData(prev => ({ ...prev, isVisible: !prev.isVisible }))}
-                        >
-                           <input
-                            type="checkbox"
-                            checked={formData.isVisible}
-                            onChange={(e) => setFormData(prev => ({ ...prev, isVisible: e.target.checked }))}
-                            className="w-4 h-4 text-[#741052] focus:ring-[#741052] cursor-pointer"
-                          />
-                          <span className="text-sm text-gray-700 select-none">
-                            {formData.isVisible ? "Visible" : "Hidden"}
-                          </span>
-                        </div>
-                      </div>
-                    </div>
                     <div>
-                      <Label htmlFor="category" className="text-sm font-semibold text-gray-700 flex items-center gap-2">
-                        <Layers className="h-4 w-4" />
-                        Category *
-                      </Label>
-                      <Select
+                      <label className="block text-xs font-semibold text-neutral-600 dark:text-neutral-400 mb-1">
+                        Category <span className="text-[#741052]">*</span>
+                      </label>
+                      <select
+                        name="category"
                         value={formData.category}
-                        onValueChange={(value) => {
-                          if (value === '__new__') {
+                        onChange={(e) => {
+                          if (e.target.value === '__new__') {
                             setIsCategoryModalOpen(true);
                           } else {
-                            setFormData(prev => ({ ...prev, category: value }));
+                            handleChange(e);
                           }
                         }}
+                        required
+                        className="w-full text-sm border border-neutral-200 dark:border-neutral-700 rounded-lg px-3 py-2 bg-white dark:bg-neutral-900 text-neutral-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#741052]/30 focus:border-[#741052] transition-colors"
                       >
-                        <SelectTrigger className="mt-1 focus:ring-[#741052] focus:border-[#741052] h-12">
-                          <SelectValue placeholder="Select a category" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {availableCategories.map((cat) => (
-                            <SelectItem key={cat._id} value={cat.name}>
-                              {cat.name}
-                            </SelectItem>
-                          ))}
-                          <SelectItem value="__new__" className="text-[#741052] font-semibold">
-                            + Create New Category
-                          </SelectItem>
-                        </SelectContent>
-                      </Select>
-                      <CreateCategoryModal
-                        isOpen={isCategoryModalOpen}
-                        onClose={() => setIsCategoryModalOpen(false)}
-                        onCategoryCreated={handleCategoryCreated}
-                      />
+                        <option value="">Select category</option>
+                        {availableCategories.map((cat) => (
+                          <option key={cat._id} value={cat.name}>
+                            {cat.name}
+                          </option>
+                        ))}
+                        <option value="__new__">+ Create New Category</option>
+                      </select>
                     </div>
                   </div>
                 </div>
+              </div>
 
-                <div className="bg-gradient-to-br from-blue-50 to-white p-6 rounded-2xl border border-blue-100">
-                  <h3 className="text-lg font-semibold text-[#741052] mb-4 flex items-center gap-2">
-                    <Upload className="h-5 w-5" />
-                    Media & Status
-                  </h3>
-
-                  <div className="space-y-4">
-                    {/* Image Upload */}
-                    <div>
-                      <Label htmlFor="image" className="text-sm font-semibold text-gray-700">
-                        Item Image
-                      </Label>
-                      <div className="mt-1">
-                        <Input
-                          id="image"
-                          type="file"
-                          accept="image/*"
-                          onChange={handleImageUpload}
-                          disabled={imageUploading}
-                          className="file:bg-gradient-to-r file:from-[#741052] file:to-[#d0269b] file:text-white file:border-0 file:rounded-lg file:px-4 file:py-2 file:mr-4 file:font-semibold hover:file:opacity-90"
-                        />
-                        {imageUploading ? (
-                          <p className="text-xs text-[#741052] mt-1 flex items-center gap-1">
-                            <span className="animate-spin inline-block w-3 h-3 border-2 border-t-transparent border-[#741052] rounded-full" />
-                            Uploading to Cloudinary...
-                          </p>
-                        ) : (
-                          <p className="text-xs text-gray-500 mt-1">
-                            Upload a high-quality image for better presentation
-                          </p>
-                        )}
-                      </div>
-                    </div>
-
-                    {/* Status */}
-                    <div>
-                      <Label htmlFor="status" className="text-sm font-semibold text-gray-700">
-                        Availability Status
-                      </Label>
-                      <Select
-                        value={formData.status}
-                        onValueChange={(value) => setFormData({ ...formData, status: value as "in stock" | "out of stock" })}
-                      >
-                        <SelectTrigger className="mt-1 focus:ring-[#741052] focus:border-[#741052]">
-                          <SelectValue placeholder="Select status" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="in stock">
-                            <div className="flex items-center gap-2">
-                              <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                              In Stock
-                            </div>
-                          </SelectItem>
-                          <SelectItem value="out of stock">
-                            <div className="flex items-center gap-2">
-                              <div className="w-2 h-2 bg-red-500 rounded-full"></div>
-                              Out of Stock
-                            </div>
-                          </SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
+              {/* Discount */}
+              <div>
+                <SectionHeading>Discount & Promotion</SectionHeading>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-xs font-semibold text-neutral-600 dark:text-neutral-400 mb-1">
+                      Discount Value
+                    </label>
+                    <input
+                      type="number"
+                      name="discountValue"
+                      value={formData.discountValue}
+                      onChange={handleChange}
+                      placeholder="0"
+                      min="0"
+                      className="w-full text-sm border border-neutral-200 dark:border-neutral-700 rounded-lg px-3 py-2 bg-transparent text-neutral-900 dark:text-white placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-[#741052]/30 focus:border-[#741052] transition-colors"
+                    />
                   </div>
-                </div>
-              </motion.div>
-
-              {/* Right Column - Variations */}
-              <motion.div
-                className="space-y-6"
-                initial={{ x: 20, opacity: 0 }}
-                animate={{ x: 0, opacity: 1 }}
-                transition={{ delay: 0.2 }}
-              >
-                <div className="bg-gradient-to-br from-purple-50 to-white p-6 rounded-2xl border border-purple-100">
-                  <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-lg font-semibold text-[#741052] flex items-center gap-2">
-                      <Plus className="h-5 w-5" />
-                      Variations
-                    </h3>
-                    <Button
-                      type="button"
-                      onClick={addVariation}
-                      size="sm"
-                      className="bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white"
+                  <div>
+                    <label className="block text-xs font-semibold text-neutral-600 dark:text-neutral-400 mb-1">
+                      Discount Type
+                    </label>
+                    <select
+                      name="discountType"
+                      value={formData.discountType}
+                      onChange={handleChange}
+                      className="w-full text-sm border border-neutral-200 dark:border-neutral-700 rounded-lg px-3 py-2 bg-white dark:bg-neutral-900 text-neutral-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#741052]/30 focus:border-[#741052] transition-colors"
                     >
-                      <Plus className="h-4 w-4 mr-1" />
-                      Add
-                    </Button>
+                      <option value="percentage">Percentage (%)</option>
+                      <option value="fixed">Fixed Amount (Rs.)</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              {/* Availability & Visibility */}
+              <div>
+                <SectionHeading>Availability & Visibility</SectionHeading>
+                <div className="grid grid-cols-2 gap-3">
+                  {/* Status Toggle */}
+                  <div>
+                    <label className="block text-xs font-semibold text-neutral-600 dark:text-neutral-400 mb-1.5">
+                      Stock Status
+                    </label>
+                    <div className="grid grid-cols-2 gap-1 p-1 bg-neutral-100 dark:bg-neutral-800 rounded-lg">
+                      <button
+                        type="button"
+                        onClick={() => setFormData(p => ({ ...p, status: 'in stock' }))}
+                        className={`py-1.5 text-xs font-semibold rounded-md transition-all ${
+                          formData.status === 'in stock'
+                            ? 'bg-emerald-600 text-white shadow-sm'
+                            : 'text-neutral-500 dark:text-neutral-400 hover:text-neutral-800 dark:hover:text-white'
+                        }`}
+                      >
+                        In Stock
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setFormData(p => ({ ...p, status: 'out of stock' }))}
+                        className={`py-1.5 text-xs font-semibold rounded-md transition-all ${
+                          formData.status === 'out of stock'
+                            ? 'bg-red-600 text-white shadow-sm'
+                            : 'text-neutral-500 dark:text-neutral-400 hover:text-neutral-800 dark:hover:text-white'
+                        }`}
+                      >
+                        Out
+                      </button>
+                    </div>
                   </div>
 
-                  <div className="space-y-3 max-h-96 overflow-y-auto">
-                    {variations.length === 0 ? (
-                      <div className="text-center py-8 text-gray-500">
-                        <Plus className="h-12 w-12 mx-auto mb-2 opacity-50" />
-                        <p>No variations added yet</p>
-                        <p className="text-sm">Click "Add" to create variations</p>
-                      </div>
-                    ) : (
-                      variations.map((variation, index) => (
-                        <motion.div
-                          key={variation.id}
-                          className="flex items-center gap-3 bg-white p-4 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow"
-                          initial={{ opacity: 0, y: 10 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          transition={{ delay: index * 0.05 }}
-                        >
-                          <div className="flex-1">
-                            <Input
-                              type="text"
-                              value={variation.name}
-                              onChange={(e) =>
-                                handleVariationChange(index, "name", e.target.value)
-                              }
-                              placeholder="Variation name (e.g., Small, Large)"
-                              className="focus:ring-[#741052] focus:border-[#741052]"
-                            />
-                          </div>
-                          <div className="w-24">
-                            <Input
-                              type="number"
-                              value={variation.price}
-                              onChange={(e) =>
-                                handleVariationChange(index, "price", e.target.value)
-                              }
-                              placeholder="0.00"
-                              min="0"
-                              step="0.01"
-                              className="focus:ring-[#741052] focus:border-[#741052]"
-                            />
-                          </div>
-                          <Button
-                            type="button"
-                            onClick={() => removeVariation(index)}
-                            variant="outline"
-                            size="sm"
-                            className="text-red-500 hover:text-red-700 hover:bg-red-50 border-red-200"
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                        </motion.div>
-                      ))
-                    )}
+                  {/* Visibility Toggle */}
+                  <div>
+                    <label className="block text-xs font-semibold text-neutral-600 dark:text-neutral-400 mb-1.5">
+                      Menu Visibility
+                    </label>
+                    <div className="grid grid-cols-2 gap-1 p-1 bg-neutral-100 dark:bg-neutral-800 rounded-lg">
+                      <button
+                        type="button"
+                        onClick={() => setFormData(p => ({ ...p, isVisible: true }))}
+                        className={`py-1.5 text-xs font-semibold rounded-md transition-all ${
+                          formData.isVisible
+                            ? 'bg-[#741052] text-white shadow-sm'
+                            : 'text-neutral-500 dark:text-neutral-400 hover:text-neutral-800 dark:hover:text-white'
+                        }`}
+                      >
+                        Visible
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setFormData(p => ({ ...p, isVisible: false }))}
+                        className={`py-1.5 text-xs font-semibold rounded-md transition-all ${
+                          !formData.isVisible
+                            ? 'bg-neutral-600 text-white shadow-sm'
+                            : 'text-neutral-500 dark:text-neutral-400 hover:text-neutral-800 dark:hover:text-white'
+                        }`}
+                      >
+                        Hidden
+                      </button>
+                    </div>
                   </div>
+                </div>
+              </div>
 
-                  {variations.length > 0 && (
-                    <div className="mt-4 p-3 bg-blue-50 rounded-lg border border-blue-200">
-                      <p className="text-sm text-blue-700">
-                        💡 <strong>Tip:</strong> Variations allow customers to choose different sizes, portions, or customizations with additional pricing.
-                      </p>
+              {/* Item Image */}
+              <div>
+                <SectionHeading>Item Image</SectionHeading>
+                <div className="space-y-3">
+                  {formData.image && (
+                    <div className="relative rounded-xl overflow-hidden border border-neutral-200 dark:border-neutral-700 bg-neutral-50 dark:bg-neutral-800">
+                      <img
+                        src={formData.image}
+                        alt="Current item image"
+                        className="w-full h-28 object-cover"
+                      />
+                      <span className="absolute bottom-2 left-2 text-[10px] font-bold uppercase tracking-wider bg-black/70 text-white px-2 py-0.5 rounded-md backdrop-blur-xs">
+                        Current image
+                      </span>
                     </div>
                   )}
-                </div>
-              </motion.div>
-            </form>
-          </div>
 
-          {/* Footer */}
-          <div className="border-t border-gray-200 bg-gray-50 px-6 py-4 flex justify-end gap-3">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={onClose}
-              className="px-6 py-2 border-2 border-gray-300 hover:border-gray-400 transition-colors"
-            >
-              Cancel
-            </Button>
-            <Button
-              type="submit"
-              onClick={handleSubmit}
-              disabled={loading}
-              className="bg-gradient-to-r from-[#741052] to-[#d0269b] text-white font-semibold px-6 py-2 rounded-xl shadow-lg hover:opacity-90 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {loading ? (
-                <>
-                  <div className="animate-spin rounded-full h-4 w-4 border-2 border-t-transparent border-white mr-2"></div>
-                  Updating...
-                </>
-              ) : (
-                <>
-                  <Save className="h-4 w-4 mr-2" />
-                  Update Item
-                </>
-              )}
-            </Button>
-          </div>
-        </motion.div>
-      </motion.div>
-    </AnimatePresence>
+                  <label className="relative flex flex-col items-center justify-center border-2 border-dashed border-neutral-200 dark:border-neutral-700 rounded-xl p-4 cursor-pointer hover:border-[#741052] dark:hover:border-[#d0269b] transition-colors bg-neutral-50/50 dark:bg-neutral-800/30">
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleImageUpload}
+                      disabled={imageUploading}
+                      className="sr-only"
+                    />
+                    <Upload className="w-5 h-5 text-neutral-400 mb-1" />
+                    <span className="text-xs font-semibold text-neutral-700 dark:text-neutral-300">
+                      {imageUploading
+                        ? "Uploading to Cloudinary..."
+                        : formData.image
+                        ? "Click to replace image"
+                        : "Click to upload image"}
+                    </span>
+                    <span className="text-[11px] text-neutral-400 mt-0.5">PNG, JPG, WEBP up to 5MB</span>
+                  </label>
+                </div>
+              </div>
+            </div>
+
+            {/* Right Column: Variations (Sizes / Portions / Options) */}
+            <div className="space-y-4 flex flex-col">
+              <div className="flex items-center justify-between">
+                <SectionHeading>Variations (Sizes / Portions)</SectionHeading>
+                <button
+                  type="button"
+                  onClick={addVariation}
+                  className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-[#741052] dark:text-[#d0269b] border border-[#741052]/30 dark:border-[#d0269b]/30 rounded-lg hover:bg-[#741052]/5 dark:hover:bg-[#d0269b]/10 transition-colors mb-3 shrink-0"
+                >
+                  <Plus className="w-3.5 h-3.5" />
+                  Add Variation
+                </button>
+              </div>
+
+              <div className="space-y-2.5 flex-1 overflow-y-auto pr-1">
+                {variations.length === 0 ? (
+                  <div className="border border-dashed border-neutral-200 dark:border-neutral-700 rounded-xl p-6 text-center text-neutral-400 dark:text-neutral-500">
+                    <div className="w-10 h-10 rounded-full bg-neutral-100 dark:bg-neutral-800 flex items-center justify-center mx-auto mb-2 text-neutral-400">
+                      <Plus className="w-5 h-5" />
+                    </div>
+                    <p className="text-xs font-semibold text-neutral-600 dark:text-neutral-400">No variations configured</p>
+                    <p className="text-[11px] text-neutral-400 mt-0.5">Add sizes or portions (e.g. Half, Full, 1 Pc, 2 Pcs) with their respective prices</p>
+                  </div>
+                ) : (
+                  variations.map((variation, index) => (
+                    <div
+                      key={variation.id}
+                      className="flex items-center gap-2 p-2.5 bg-neutral-50 dark:bg-neutral-800/60 rounded-xl border border-neutral-100 dark:border-neutral-700/60 hover:border-neutral-200 dark:hover:border-neutral-600 transition-colors"
+                    >
+                      <div className="flex-1">
+                        <input
+                          type="text"
+                          value={variation.name}
+                          onChange={(e) =>
+                            handleVariationChange(index, "name", e.target.value)
+                          }
+                          placeholder="Variation name (e.g. Half, Full, Large)"
+                          className="w-full text-xs border border-neutral-200 dark:border-neutral-700 rounded-lg px-2.5 py-1.5 bg-white dark:bg-neutral-900 text-neutral-900 dark:text-white placeholder-neutral-400 focus:outline-none focus:ring-1 focus:ring-[#741052] focus:border-[#741052]"
+                        />
+                      </div>
+                      <div className="w-28">
+                        <input
+                          type="number"
+                          value={variation.price}
+                          onChange={(e) =>
+                            handleVariationChange(index, "price", e.target.value)
+                          }
+                          placeholder="Price (Rs.)"
+                          min="0"
+                          step="0.01"
+                          className="w-full text-xs border border-neutral-200 dark:border-neutral-700 rounded-lg px-2.5 py-1.5 bg-white dark:bg-neutral-900 text-neutral-900 dark:text-white placeholder-neutral-400 focus:outline-none focus:ring-1 focus:ring-[#741052] focus:border-[#741052]"
+                        />
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => removeVariation(index)}
+                        className="w-7 h-7 flex items-center justify-center rounded-lg text-neutral-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors shrink-0"
+                        title="Delete variation"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  ))
+                )}
+              </div>
+
+              {/* Info banner */}
+              <div className="p-3 bg-neutral-50 dark:bg-neutral-800/40 rounded-xl border border-neutral-100 dark:border-neutral-800 flex items-start gap-2.5 shrink-0">
+                <Info className="w-4 h-4 text-neutral-400 shrink-0 mt-0.5" />
+                <p className="text-[11px] text-neutral-500 dark:text-neutral-400 leading-relaxed">
+                  Variations let customers pick specific portions or sizes with separate pricing. If no variations are set, the base price applies.
+                </p>
+              </div>
+            </div>
+
+            <CreateCategoryModal
+              isOpen={isCategoryModalOpen}
+              onClose={() => setIsCategoryModalOpen(false)}
+              onCategoryCreated={handleCategoryCreated}
+            />
+          </form>
+        </div>
+
+        {/* Sticky footer */}
+        <div className="flex items-center justify-end gap-3 px-6 py-3.5 border-t border-neutral-100 dark:border-neutral-800 shrink-0 bg-neutral-50/60 dark:bg-neutral-900/60">
+          <button
+            type="button"
+            onClick={onClose}
+            className="px-5 py-2 rounded-lg text-sm font-semibold text-neutral-600 dark:text-neutral-300 border border-neutral-200 dark:border-neutral-700 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors"
+          >
+            Cancel
+          </button>
+          <button
+            type="submit"
+            form="edit-item-form"
+            onClick={handleSubmit}
+            disabled={loading}
+            className={`px-6 py-2 rounded-lg text-sm font-semibold text-white bg-gradient-to-r from-[#741052] to-[#d0269b] hover:opacity-90 transition-all shadow-sm ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
+          >
+            {loading ? "Saving..." : "Save Changes"}
+          </button>
+        </div>
+      </div>
+    </div>
   );
 };
 

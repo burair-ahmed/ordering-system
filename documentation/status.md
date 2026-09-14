@@ -6,8 +6,8 @@ tags:
   - #project/ordering-ecosystem
 created: 2026-09-04
 last_updated: 2026-09-14
-overall_completion: "Phase 4.16: Item Order Sorting & CMS Classic Mode Cleanup (100%)"
-current_sprint: "Item Order Sorting Tab & CMS Classic Mode Clean View"
+overall_completion: "Phase 4.18: EditMenuItemForm Modern Redesign (100%)"
+current_sprint: "EditMenuItemForm Modern Redesign & Parity"
 ---
 
 # Project Status Dashboard — Advanced Ordering Ecosystem
@@ -16,8 +16,26 @@ current_sprint: "Item Order Sorting Tab & CMS Classic Mode Clean View"
 
 | Sub-Project | Phase | Focus | Status |
 | :--- | :--- | :--- | :--- |
-| **Cafe Little Karachi (CLK)** | Phase 4.16 | Item Order Sorting & CMS Classic Mode Cleanup | **Completed** 🟢 |
+| **Cafe Little Karachi (CLK)** | Phase 4.18 | EditMenuItemForm Modern Redesign | **Completed** 🟢 |
 | **The Chai Company (TCC)** | Base | Monorepo Structure | Ready for Next Cycle ⚪ |
+
+---
+
+## Phase 4.18 Completion Summary — EditMenuItemForm Modern Redesign
+
+- [x] **Compact Modal Layout (`EditMenuItemForm.tsx`)**: Replaced overflowing popup with a responsive `max-h-[88vh]` flex column layout featuring sticky header with `UtensilsCrossed` icon and sticky action footer.
+- [x] **Current Image Preview (`EditMenuItemForm.tsx`)**: Added live image thumbnail preview with "Current image" overlay badge above the upload input, with dynamic upload states ("Upload image" / "Replace image" / "Uploading...").
+- [x] **Pill Toggle Controls (`EditMenuItemForm.tsx`)**: Implemented modern two-button pill toggles for **Stock Status** (*In Stock* / *Out*) and **Menu Visibility** (*Visible* / *Hidden*).
+- [x] **Variations List & Empty State (`EditMenuItemForm.tsx`)**: Clean variation cards with Variation Name, Price input, and `Trash2` deletion, alongside dashed empty state and subtle informational note with zero emojis.
+- [x] **Design Tokens & Dark Mode (`EditMenuItemForm.tsx`)**: Fully unified with `neutral-*` token set, uppercase divider section headers, and dark mode styling.
+
+---
+
+## Phase 4.17 Completion Summary — EditPlatterForm Modern Redesign
+
+- [x] **Choice & Option Deletion (`EditPlatterForm.tsx`)**: Added `Trash2` deletion button for whole additional choice groups, `X` deletion buttons on each option pill/row, and targeted sub-handlers (`handleAdditionalChoiceHeadingChange`, `handleAdditionalOptionChange`, `addOptionToChoice`).
+- [x] **Current Image Preview (`EditPlatterForm.tsx`)**: Added live image thumbnail preview with "Current image" pill badge above the upload input, and dynamic upload label state ("Upload image" / "Replace image" / "Uploading...").
+- [x] **Modernized Compact Modal (`EditPlatterForm.tsx`)**: Replaced archaic popup with a responsive `max-h-[88vh]` card featuring sticky header and sticky action footer, pill toggles for stock & visibility, dashed add-button styling, neutral-* color system, and complete elimination of emojis.
 
 ---
 

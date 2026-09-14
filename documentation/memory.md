@@ -10,6 +10,46 @@ last_updated: 2026-09-14
 
 # Living Project Memory & Task Tracker
 
+## 0. Phase 4.18 Micro-Changes — EditMenuItemForm Modern Redesign (2026-09-14)
+
+### EditMenuItemForm — Modern Compact Layout & Visual Parity with EditPlatterForm
+- **File**: `src/app/components/EditMenuItemForm.tsx`
+- **Changes**:
+  - **Outer Modal**: Constrained to `max-h-[88vh] flex flex-col overflow-hidden` with sticky header bar (`UtensilsCrossed` icon + title + subtitle + `X` close button) and sticky action footer (`Cancel` + `Save Changes`).
+  - **Scrollable Two-Column Form**: Left column houses Basic Information (Title, Description, Base Price, Category dropdown + New Category trigger), Discount & Promotion (Value + Type), Availability & Visibility, and Item Image. Right column houses Variations (Sizes/Portions) with sticky "+ Add Variation" button.
+  - **Current Image Preview**: When `formData.image` is set, displays a clean `h-28 object-cover rounded-xl` thumbnail with a `"Current image"` overlay badge, accompanied by a styled dashed upload box indicating dynamic states ("Upload image" / "Replace image" / "Uploading...").
+  - **Pill Toggles**: Converted status dropdown and visibility checkbox into side-by-side pill toggle button groups (In Stock / Out for stock, Visible / Hidden for visibility).
+  - **Variations UI**: Clean list with Variation Name input, Price input, and red `<Trash2>` delete button. Shows a styled dashed empty state and a clean info box when no variations exist.
+  - **Design Tokens**: Standardized on `neutral-*` Tailwind tokens, clean uppercase `SectionHeading` divider lines, and zero emojis throughout the component.
+
+---
+
+## 0. Phase 4.17 Micro-Changes — EditPlatterForm Redesign (2026-09-14)
+
+### EditPlatterForm — Delete Buttons on Additional Choices
+- **File**: `src/app/components/EditPlatterForm.tsx`
+- **Change**: Each Additional Choice card now has a `<Trash2>` icon button in its heading row that calls `handleRemoveChoice(index)`. Each individual option row within a choice has an `<X>` icon button that calls `handleRemoveOption(choiceIndex, optionIndex)`. An "Add option" link (Plus icon) within each choice card calls `addOptionToChoice(choiceIndex)`.
+- **Handler additions**: Replaced the single `handleAdditionalChoiceChange` with three targeted handlers: `handleAdditionalChoiceHeadingChange`, `handleAdditionalOptionChange`, and `addOptionToChoice`.
+
+### EditPlatterForm — Current Image Preview
+- **File**: `src/app/components/EditPlatterForm.tsx`
+- **Change**: When `formData.image` is truthy, renders a `<img>` tag above the upload input with `h-28 object-cover` and a `"Current image"` overlay badge. Upload input replaced with a styled `<label>` (dashed border, Upload icon) that shows contextual text: "Upload image" → "Replace image" → "Uploading..." based on state.
+
+### EditPlatterForm — Modern Compact Redesign
+- **File**: `src/app/components/EditPlatterForm.tsx`
+- **Changes**:
+  - Outer modal: `max-h-[88vh] flex flex-col overflow-hidden` with sticky header bar (title + subtitle + X close button) and sticky footer bar (Cancel + Save Changes).
+  - Scrollable body: `overflow-y-auto flex-1` wraps the two-column form grid.
+  - Two-column layout retained; left column order: Basic Info → Discount → Availability → Image. Right column: Additional Choices → Categories.
+  - `SectionHeading` inner component: `<span>` label + `<hr>` divider line, no emojis.
+  - Status and Visibility: replaced checkbox+select with two side-by-side pill toggle buttons (emerald/red for stock, plum/neutral for visibility).
+  - Add buttons changed from filled gradient buttons to dashed-border outline buttons with Plus icon.
+  - Category remove button moved inline into the category card header row as a `<Trash2>` icon.
+  - All `gray-*` Tailwind classes replaced with `neutral-*` for consistent theming.
+  - No emojis used anywhere in the component.
+
+---
+
 ## 0. Phase 4.16 Micro-Changes — Item Order Sorting Tab & CMS Classic Mode Cleanup (2026-09-14)
 
 ### Schema: `sortOrder` Field Added to MenuItem & Platter
