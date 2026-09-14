@@ -10,6 +10,38 @@ last_updated: 2026-09-14
 
 # Living Project Memory & Task Tracker
 
+## 0. Phase 4.19 Micro-Changes — Classic Layout Category Configuration via CMS (2026-09-14)
+
+### PageConfig Schema & API: `classicCategories` Field
+- **Files**: `src/models/PageConfig.ts`, `src/pages/api/page-config.ts`
+- **Changes**:
+  - Added `classicCategories` schema field containing array of `{ id: String, name: String, isPlatter: Boolean, isVisible: Boolean }`.
+  - Default initialization includes all 10 legacy categories in their original hardcoded order (3 platter categories: Sharing Platters, Meal Boxes, Fast Food Deals; 7 menu categories: Very Fast Food, Beast BBQ, Pizza Parlour, Hotpot and Chinese, Rolls Royce, The Chai Company, Very Extra).
+  - API `GET` returns `classicCategories` (initializing defaults if unset), and `POST` persists updates.
+
+### Order Page: Removed Hardcoded Categories (`order/page.tsx`)
+- **File**: `src/app/order/page.tsx`
+- **Changes**:
+  - Removed static `defaultPlatterCategoryOrder` and `defaultMenuCategoryOrder` arrays.
+  - Added `classicCategories` state dynamically populated from `/api/page-config`.
+  - `fetchClassicData` dynamically fetches data only for active visible platter and menu categories.
+  - Classic mode rendering and `CategoryNavStrip` dynamically compute category lists from `classicCategories.filter(c => c.isVisible !== false)`.
+
+### Admin CMS: Classic Categories Manager (`AdminPageBuilder.tsx`)
+- **File**: `src/app/components/AdminPageBuilder.tsx`
+- **Changes**:
+  - Built `ClassicCategoriesManager` component rendered on the canvas when Classic Normal Layout is active.
+  - Category controls:
+    - Reordering: `▲` Move Up, `▼` Move Down, `⤒` Move to Top, `⤓` Move to Bottom.
+    - Visibility Toggle: `<Eye>` / `<EyeOff>` toggles category on the live `/order` page without deletion.
+    - Remove: `<Trash2>` removes category from classic layout.
+    - Add Category Form: Segmented selector (`Dish Menu` vs `Gourmet Platter`), choose existing DB category or enter custom name.
+    - Reset to Defaults: `<RotateCcw>` restores the original 10 categories.
+    - Filter Tabs: All, Platters, Dish Menu with real-time visible counter badges.
+  - Sidebar Overview: Displays active category counter and preview list in Classic Mode.
+
+---
+
 ## 0. Phase 4.18 Micro-Changes — EditMenuItemForm Modern Redesign (2026-09-14)
 
 ### EditMenuItemForm — Modern Compact Layout & Visual Parity with EditPlatterForm

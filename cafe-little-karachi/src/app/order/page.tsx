@@ -175,13 +175,25 @@ const DEFAULT_SECTIONS: PageSection[] = [
   { id: 'default-extra', type: 'grid', title: 'Very Extra', isVisible: true, props: { sourceType: 'category', itemType: 'menu', categoryId: 'Very Extra', columns: 4, cardStyle: 'gourmet', bgColor: 'default', spacingY: 'medium' }},
 ];
 
-// --- Classic Layout Categories ---
-const defaultPlatterCategoryOrder = [
-  "Sharing Platters", "Meal Boxes", "Fast Food Deals"
-];
+// --- Classic Layout Categories Configuration ---
+export interface ClassicCategoryConfig {
+  id: string;
+  name: string;
+  isPlatter: boolean;
+  isVisible: boolean;
+}
 
-const defaultMenuCategoryOrder = [
-  "Very Fast Food", "Beast BBQ", "Pizza Parlour", "Hotpot and Chinese", "Rolls Royce", "The Chai Company", "Very Extra"
+const DEFAULT_CLASSIC_CATEGORIES: ClassicCategoryConfig[] = [
+  { id: "sharing-platters", name: "Sharing Platters", isPlatter: true, isVisible: true },
+  { id: "meal-boxes", name: "Meal Boxes", isPlatter: true, isVisible: true },
+  { id: "fast-food-deals", name: "Fast Food Deals", isPlatter: true, isVisible: true },
+  { id: "very-fast-food", name: "Very Fast Food", isPlatter: false, isVisible: true },
+  { id: "beast-bbq", name: "Beast BBQ", isPlatter: false, isVisible: true },
+  { id: "pizza-parlour", name: "Pizza Parlour", isPlatter: false, isVisible: true },
+  { id: "hotpot-and-chinese", name: "Hotpot and Chinese", isPlatter: false, isVisible: true },
+  { id: "rolls-royce", name: "Rolls Royce", isPlatter: false, isVisible: true },
+  { id: "the-chai-company", name: "The Chai Company", isPlatter: false, isVisible: true },
+  { id: "very-extra", name: "Very Extra", isPlatter: false, isVisible: true },
 ];
 
 export default function MenuPage({
@@ -205,6 +217,7 @@ export default function MenuPage({
   const [pageLoading, setPageLoading] = useState<boolean>(true);
   const [useCmsLayout, setUseCmsLayout] = useState<boolean>(true);
   const [classicBannerType, setClassicBannerType] = useState<'hero' | 'image-slider'>('hero');
+  const [classicCategories, setClassicCategories] = useState<ClassicCategoryConfig[]>(DEFAULT_CLASSIC_CATEGORIES);
 
   // Items loading state for each section ID
   const [sectionAllItems, setSectionAllItems] = useState<{ [sectionId: string]: any[] }>({});
@@ -327,30 +340,38 @@ export default function MenuPage({
     });
   };
 
-  const fetchClassicData = async () => {
-    setClassicPlatterLoading(true);
-    try {
-      const res = await fetch("/api/platter");
-      const data: Platter[] = await res.json();
-      
-      const grouped: { [key: string]: Platter[] } = {};
-      data.forEach((p) => {
-        if (!grouped[p.platterCategory]) grouped[p.platterCategory] = [];
-        grouped[p.platterCategory].push(p);
-      });
+  const fetchClassicData = async (categoriesToFetch?: ClassicCategoryConfig[]) => {
+    const cats = categoriesToFetch || classicCategories;
+    const activePlatterCats = cats.filter(c => c.isPlatter && c.isVisible !== false).map(c => c.name);
+    const activeMenuCats = cats.filter(c => !c.isPlatter && c.isVisible !== false).map(c => c.name);
 
-      setClassicPlatters(grouped);
-      Object.entries(grouped).forEach(([category, categoryPlatters]) => {
-        loadClassicItemsProgressively(categoryPlatters, category, true);
-      });
-    } catch (err) {
-      console.error("Failed to fetch classic platters:", err);
-    } finally {
-      setClassicPlatterLoading(false);
+    if (activePlatterCats.length > 0) {
+      setClassicPlatterLoading(true);
+      try {
+        const res = await fetch("/api/platter");
+        const data: Platter[] = await res.json();
+        
+        const grouped: { [key: string]: Platter[] } = {};
+        data.forEach((p) => {
+          if (!grouped[p.platterCategory]) grouped[p.platterCategory] = [];
+          grouped[p.platterCategory].push(p);
+        });
+
+        setClassicPlatters(grouped);
+        activePlatterCats.forEach((category) => {
+          if (grouped[category]) {
+            loadClassicItemsProgressively(grouped[category], category, true);
+          }
+        });
+      } catch (err) {
+        console.error("Failed to fetch classic platters:", err);
+      } finally {
+        setClassicPlatterLoading(false);
+      }
     }
 
     // Fetch menu items category by category
-    defaultMenuCategoryOrder.forEach(async (category) => {
+    activeMenuCats.forEach(async (category) => {
       setClassicMenuLoading((prev) => ({ ...prev, [category]: true }));
       try {
         const res = await fetch(`/api/getitems?page=1&limit=10&category=${encodeURIComponent(category)}`);
@@ -451,15 +472,21 @@ export default function MenuPage({
         const bType = configData?.classicBannerType || (configData?.sections?.some((s: any) => s.type === 'image-slider') && !configData?.sections?.some((s: any) => s.type === 'hero') ? 'image-slider' : 'hero');
         setClassicBannerType(bType);
 
+        const loadedClassicCategories = (configData && configData.classicCategories && configData.classicCategories.length > 0)
+          ? configData.classicCategories
+          : DEFAULT_CLASSIC_CATEGORIES;
+        setClassicCategories(loadedClassicCategories);
+
         // If classic layout mode is active, trigger the classic data fetch
         if (!cmsEnabled) {
-          fetchClassicData();
+          fetchClassicData(loadedClassicCategories);
         }
       } catch (err) {
         console.error("Error loading layout data:", err);
         setSections(DEFAULT_SECTIONS);
         setUseCmsLayout(true);
         setClassicBannerType('hero');
+        setClassicCategories(DEFAULT_CLASSIC_CATEGORIES);
       } finally {
         setPageLoading(false);
       }
@@ -617,10 +644,15 @@ export default function MenuPage({
     const showSlider = classicBannerType === 'image-slider' && imageSliderSection;
     const showHero = (classicBannerType === 'hero' || !imageSliderSection) && heroSection;
 
-    const classicCategories: CategoryItem[] = [
-      ...defaultPlatterCategoryOrder.map(cat => ({ id: slugify(cat), name: cat, isPlatter: true })),
-      ...defaultMenuCategoryOrder.map(cat => ({ id: slugify(cat), name: cat, isPlatter: false }))
-    ];
+    const visibleClassicCategories = classicCategories.filter(c => c.isVisible !== false);
+    const activePlatterCategoryOrder = visibleClassicCategories.filter(c => c.isPlatter).map(c => c.name);
+    const activeMenuCategoryOrder = visibleClassicCategories.filter(c => !c.isPlatter).map(c => c.name);
+
+    const navStripCategories: CategoryItem[] = visibleClassicCategories.map(cat => ({
+      id: slugify(cat.name),
+      name: cat.name,
+      isPlatter: cat.isPlatter
+    }));
 
     return (
       <div className="bg-white text-black min-h-screen pb-20">
@@ -634,14 +666,14 @@ export default function MenuPage({
         ) : null}
 
         {/* Horizontal Category Navigation Strip sitting right below hero banner */}
-        <CategoryNavStrip categories={classicCategories} />
+        <CategoryNavStrip categories={navStripCategories} />
 
         <div className="flex justify-center mt-4 gap-4">
         </div>
 
         {/* Platters First */}
         <div>
-          {defaultPlatterCategoryOrder.map((category) => {
+          {activePlatterCategoryOrder.map((category) => {
             const allPlattersList = classicPlatters[category] || [];
             const displayedPlatters = classicLoadedPlatters[category] || [];
             const isLoading = classicPlatterLoading && displayedPlatters.length === 0;
@@ -698,7 +730,7 @@ export default function MenuPage({
 
         {/* Menu Items Below Platters */}
         <div>
-          {defaultMenuCategoryOrder.map((category) => {
+          {activeMenuCategoryOrder.map((category) => {
             const allItemsList = classicMenu[category] || [];
             const displayedItems = classicLoadedItems[category] || [];
             const isLoading = classicMenuLoading[category] && displayedItems.length === 0;
@@ -779,10 +811,9 @@ export default function MenuPage({
         name: s.title,
         isPlatter: s.props.itemType === 'platter'
       }))
-    : [
-        ...defaultPlatterCategoryOrder.map(cat => ({ id: slugify(cat), name: cat, isPlatter: true })),
-        ...defaultMenuCategoryOrder.map(cat => ({ id: slugify(cat), name: cat, isPlatter: false }))
-      ];
+    : classicCategories
+        .filter(c => c.isVisible !== false)
+        .map(cat => ({ id: slugify(cat.name), name: cat.name, isPlatter: cat.isPlatter }));
 
   return (
     <div className="bg-white dark:bg-black text-black dark:text-white min-h-screen">

@@ -31,17 +31,23 @@ import {
   User, 
   Grid, 
   Sliders, 
-  Image as ImageIcon,
-  Compass,
-  FileText,
-  Minimize2,
-  Trash,
-  Upload,
-  X,
-  Loader2,
-  Laptop,
-  Smartphone,
-  GalleryHorizontal
+  Image as ImageIcon, 
+  Compass, 
+  FileText, 
+  Minimize2, 
+  Trash, 
+  Upload, 
+  X, 
+  Loader2, 
+  Laptop, 
+  Smartphone, 
+  GalleryHorizontal,
+  ArrowUp,
+  ArrowDown,
+  ChevronsUp,
+  ChevronsDown,
+  Layers,
+  RotateCcw
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -1966,6 +1972,452 @@ function SortableSection({ section, index, updateSection, removeSection, items, 
   );
 }
 
+export interface ClassicCategoryConfig {
+  id: string;
+  name: string;
+  isPlatter: boolean;
+  isVisible: boolean;
+}
+
+export const DEFAULT_CLASSIC_CATEGORIES: ClassicCategoryConfig[] = [
+  { id: "sharing-platters", name: "Sharing Platters", isPlatter: true, isVisible: true },
+  { id: "meal-boxes", name: "Meal Boxes", isPlatter: true, isVisible: true },
+  { id: "fast-food-deals", name: "Fast Food Deals", isPlatter: true, isVisible: true },
+  { id: "very-fast-food", name: "Very Fast Food", isPlatter: false, isVisible: true },
+  { id: "beast-bbq", name: "Beast BBQ", isPlatter: false, isVisible: true },
+  { id: "pizza-parlour", name: "Pizza Parlour", isPlatter: false, isVisible: true },
+  { id: "hotpot-and-chinese", name: "Hotpot and Chinese", isPlatter: false, isVisible: true },
+  { id: "rolls-royce", name: "Rolls Royce", isPlatter: false, isVisible: true },
+  { id: "the-chai-company", name: "The Chai Company", isPlatter: false, isVisible: true },
+  { id: "very-extra", name: "Very Extra", isPlatter: false, isVisible: true },
+];
+
+function ClassicCategoriesManager({
+  classicCategories,
+  setClassicCategories,
+  availableCategories,
+  availablePlatterCategories,
+}: {
+  classicCategories: ClassicCategoryConfig[];
+  setClassicCategories: React.Dispatch<React.SetStateAction<ClassicCategoryConfig[]>>;
+  availableCategories: CategoryItem[];
+  availablePlatterCategories: PlatterCategoryItem[];
+}) {
+  const [isAdding, setIsAdding] = useState(false);
+  const [categoryType, setCategoryType] = useState<'menu' | 'platter'>('menu');
+  const [selectedDbCategory, setSelectedDbCategory] = useState<string>("");
+  const [customName, setCustomName] = useState<string>("");
+  const [activeFilter, setActiveFilter] = useState<'all' | 'platters' | 'menu'>('all');
+
+  const moveCategory = (index: number, direction: 'up' | 'down' | 'top' | 'bottom') => {
+    setClassicCategories((prev) => {
+      const updated = [...prev];
+      const item = updated[index];
+      if (direction === 'up' && index > 0) {
+        updated.splice(index, 1);
+        updated.splice(index - 1, 0, item);
+      } else if (direction === 'down' && index < updated.length - 1) {
+        updated.splice(index, 1);
+        updated.splice(index + 1, 0, item);
+      } else if (direction === 'top' && index > 0) {
+        updated.splice(index, 1);
+        updated.unshift(item);
+      } else if (direction === 'bottom' && index < updated.length - 1) {
+        updated.splice(index, 1);
+        updated.push(item);
+      }
+      return updated;
+    });
+  };
+
+  const toggleVisibility = (id: string) => {
+    setClassicCategories((prev) =>
+      prev.map((c) => (c.id === id ? { ...c, isVisible: !c.isVisible } : c))
+    );
+  };
+
+  const removeCategory = (id: string) => {
+    setClassicCategories((prev) => prev.filter((c) => c.id !== id));
+    toast.success("Category removed from classic layout");
+  };
+
+  const handleAddCategory = () => {
+    const nameToAdd = selectedDbCategory || customName.trim();
+    if (!nameToAdd) {
+      toast.error("Please enter or select a category name");
+      return;
+    }
+
+    const isPlatter = categoryType === 'platter';
+    const exists = classicCategories.some(
+      (c) => c.name.toLowerCase() === nameToAdd.toLowerCase() && c.isPlatter === isPlatter
+    );
+    if (exists) {
+      toast.error(`"${nameToAdd}" is already in the classic category list`);
+      return;
+    }
+
+    const newCat: ClassicCategoryConfig = {
+      id: uuidv4(),
+      name: nameToAdd,
+      isPlatter,
+      isVisible: true,
+    };
+
+    setClassicCategories((prev) => [...prev, newCat]);
+    setSelectedDbCategory("");
+    setCustomName("");
+    setIsAdding(false);
+    toast.success(`"${nameToAdd}" added to classic layout`);
+  };
+
+  const handleResetDefaults = () => {
+    if (typeof window !== "undefined" && window.confirm("Reset classic layout categories to original defaults?")) {
+      setClassicCategories(DEFAULT_CLASSIC_CATEGORIES);
+      toast.info("Restored default classic categories list");
+    }
+  };
+
+  const visibleCount = classicCategories.filter((c) => c.isVisible !== false).length;
+  const platterCount = classicCategories.filter((c) => c.isPlatter).length;
+  const menuCount = classicCategories.filter((c) => !c.isPlatter).length;
+
+  const filteredCategories = classicCategories.filter((c) => {
+    if (activeFilter === 'platters') return c.isPlatter;
+    if (activeFilter === 'menu') return !c.isPlatter;
+    return true;
+  });
+
+  return (
+    <Card className="rounded-2xl border border-neutral-200 dark:border-neutral-800 shadow-sm overflow-hidden bg-white dark:bg-neutral-950 mt-6">
+      <CardHeader className="bg-neutral-50/50 dark:bg-neutral-900/40 border-b pb-3.5">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+          <div>
+            <CardTitle className="text-sm font-bold uppercase tracking-wider text-[#741052] dark:text-fuchsia-300 flex items-center gap-2">
+              <Layers size={16} />
+              Classic Mode Categories Display & Order
+            </CardTitle>
+            <CardDescription className="text-[11px] mt-0.5">
+              Control which categories appear on the Classic /order page, rearrange their display sequence, or toggle visibility.
+            </CardDescription>
+          </div>
+
+          <div className="flex items-center gap-2 flex-wrap">
+            <Badge variant="outline" className="text-[11px] font-semibold text-neutral-600 dark:text-neutral-300 bg-white dark:bg-neutral-900 border-neutral-200 dark:border-neutral-700">
+              {visibleCount} of {classicCategories.length} Visible
+            </Badge>
+
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={handleResetDefaults}
+              className="h-8 text-xs font-semibold rounded-xl text-neutral-600 dark:text-neutral-300 border-neutral-200 dark:border-neutral-700 hover:bg-neutral-100 dark:hover:bg-neutral-800 flex items-center gap-1"
+            >
+              <RotateCcw size={12} />
+              Reset Defaults
+            </Button>
+
+            <Button
+              type="button"
+              size="sm"
+              onClick={() => setIsAdding((prev) => !prev)}
+              className="h-8 text-xs font-semibold rounded-xl bg-gradient-to-r from-[#741052] to-[#d0269b] hover:opacity-90 text-white flex items-center gap-1 shadow-sm"
+            >
+              <Plus size={13} />
+              {isAdding ? "Close Add Form" : "Add Category"}
+            </Button>
+          </div>
+        </div>
+      </CardHeader>
+
+      <CardContent className="p-5 space-y-4">
+        {/* Add Category Section */}
+        {isAdding && (
+          <div className="p-4 rounded-xl bg-[#741052]/5 dark:bg-[#741052]/10 border border-[#741052]/20 dark:border-fuchsia-500/30 space-y-3 animate-fadeIn">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-bold text-[#741052] dark:text-fuchsia-300 uppercase tracking-wider flex items-center gap-1.5">
+                <Plus size={13} /> Add Category to Classic Layout
+              </span>
+              <button
+                type="button"
+                onClick={() => setIsAdding(false)}
+                className="text-neutral-400 hover:text-neutral-600 dark:hover:text-neutral-200"
+              >
+                <X size={14} />
+              </button>
+            </div>
+
+            {/* Type selector */}
+            <div className="flex items-center gap-2">
+              <span className="text-xs font-semibold text-neutral-600 dark:text-neutral-400">Type:</span>
+              <div className="flex items-center p-0.5 bg-white dark:bg-neutral-900 rounded-lg border border-neutral-200 dark:border-neutral-700">
+                <button
+                  type="button"
+                  onClick={() => { setCategoryType('menu'); setSelectedDbCategory(''); }}
+                  className={`px-3 py-1 rounded-md text-xs font-bold transition-all ${
+                    categoryType === 'menu'
+                      ? 'bg-sky-600 text-white shadow-xs'
+                      : 'text-neutral-500 hover:text-neutral-800 dark:hover:text-neutral-200'
+                  }`}
+                >
+                  Dish Menu Category
+                </button>
+                <button
+                  type="button"
+                  onClick={() => { setCategoryType('platter'); setSelectedDbCategory(''); }}
+                  className={`px-3 py-1 rounded-md text-xs font-bold transition-all ${
+                    categoryType === 'platter'
+                      ? 'bg-[#741052] text-white shadow-xs'
+                      : 'text-neutral-500 hover:text-neutral-800 dark:hover:text-neutral-200'
+                  }`}
+                >
+                  Gourmet Platter Category
+                </button>
+              </div>
+            </div>
+
+            {/* Category selection */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <Label className="text-xs text-neutral-600 dark:text-neutral-400 mb-1 block font-semibold">
+                  Pick from Database {categoryType === 'platter' ? 'Platter Categories' : 'Menu Categories'}
+                </Label>
+                <select
+                  value={selectedDbCategory}
+                  onChange={(e) => {
+                    setSelectedDbCategory(e.target.value);
+                    if (e.target.value) setCustomName('');
+                  }}
+                  className="w-full text-xs border border-neutral-200 dark:border-neutral-700 rounded-lg px-3 py-2 bg-white dark:bg-neutral-900 text-neutral-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#741052]/30 focus:border-[#741052]"
+                >
+                  <option value="">-- Choose existing category --</option>
+                  {(categoryType === 'platter' ? availablePlatterCategories : availableCategories).map((cat) => (
+                    <option key={cat._id} value={cat.name}>
+                      {cat.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <Label className="text-xs text-neutral-600 dark:text-neutral-400 mb-1 block font-semibold">
+                  Or Type Custom Category Name
+                </Label>
+                <Input
+                  type="text"
+                  placeholder="e.g. Chef's Special Starters"
+                  value={customName}
+                  onChange={(e) => {
+                    setCustomName(e.target.value);
+                    if (e.target.value) setSelectedDbCategory('');
+                  }}
+                  className="h-8 text-xs bg-white dark:bg-neutral-900"
+                />
+              </div>
+            </div>
+
+            <div className="flex justify-end gap-2 pt-1">
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                onClick={() => setIsAdding(false)}
+                className="h-7 text-xs text-neutral-500"
+              >
+                Cancel
+              </Button>
+              <Button
+                type="button"
+                size="sm"
+                onClick={handleAddCategory}
+                className="h-7 text-xs font-semibold bg-gradient-to-r from-[#741052] to-[#d0269b] text-white"
+              >
+                <Plus size={12} className="mr-1" /> Add Category
+              </Button>
+            </div>
+          </div>
+        )}
+
+        {/* Filter Tabs */}
+        <div className="flex items-center gap-1.5 border-b border-neutral-100 dark:border-neutral-800 pb-2.5">
+          <button
+            type="button"
+            onClick={() => setActiveFilter('all')}
+            className={`px-3 py-1 rounded-lg text-xs font-bold transition-all ${
+              activeFilter === 'all'
+                ? 'bg-[#741052]/10 text-[#741052] dark:text-fuchsia-300'
+                : 'text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-200'
+            }`}
+          >
+            All Categories ({classicCategories.length})
+          </button>
+          <button
+            type="button"
+            onClick={() => setActiveFilter('platters')}
+            className={`px-3 py-1 rounded-lg text-xs font-bold transition-all ${
+              activeFilter === 'platters'
+                ? 'bg-[#741052]/10 text-[#741052] dark:text-fuchsia-300'
+                : 'text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-200'
+            }`}
+          >
+            Platters ({platterCount})
+          </button>
+          <button
+            type="button"
+            onClick={() => setActiveFilter('menu')}
+            className={`px-3 py-1 rounded-lg text-xs font-bold transition-all ${
+              activeFilter === 'menu'
+                ? 'bg-sky-500/10 text-sky-600 dark:text-sky-400'
+                : 'text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-200'
+            }`}
+          >
+            Dish Menu ({menuCount})
+          </button>
+        </div>
+
+        {/* Categories List */}
+        <div className="space-y-2">
+          {filteredCategories.length === 0 ? (
+            <div className="text-center py-8 border border-dashed border-neutral-200 dark:border-neutral-800 rounded-xl text-neutral-400">
+              <Layers className="w-8 h-8 mx-auto mb-1.5 opacity-40" />
+              <p className="text-xs font-semibold">No categories in this view</p>
+              <p className="text-[11px] text-neutral-400 mt-0.5">Click "Add Category" above to add categories to the classic layout</p>
+            </div>
+          ) : (
+            filteredCategories.map((cat) => {
+              const actualIndex = classicCategories.findIndex((c) => c.id === cat.id);
+              const isFirst = actualIndex === 0;
+              const isLast = actualIndex === classicCategories.length - 1;
+              const isVisible = cat.isVisible !== false;
+
+              return (
+                <div
+                  key={cat.id}
+                  className={`flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3 rounded-xl border transition-all ${
+                    isVisible
+                      ? 'bg-neutral-50/70 dark:bg-neutral-900/50 border-neutral-200/80 dark:border-neutral-800'
+                      : 'bg-neutral-100/50 dark:bg-neutral-900/20 border-dashed border-neutral-200 dark:border-neutral-800 opacity-60'
+                  }`}
+                >
+                  <div className="flex items-center gap-3">
+                    {/* Rank Number */}
+                    <span className="w-6 h-6 rounded-lg bg-neutral-200/60 dark:bg-neutral-800 flex items-center justify-center text-[10px] font-bold text-neutral-600 dark:text-neutral-300 shrink-0">
+                      #{actualIndex + 1}
+                    </span>
+
+                    {/* Type Badge */}
+                    {cat.isPlatter ? (
+                      <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md bg-[#741052]/10 text-[#741052] dark:text-fuchsia-300 shrink-0">
+                        Platter
+                      </span>
+                    ) : (
+                      <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md bg-sky-500/10 text-sky-600 dark:text-sky-400 shrink-0">
+                        Dish Menu
+                      </span>
+                    )}
+
+                    {/* Name */}
+                    <div>
+                      <h4 className="text-xs font-bold text-neutral-800 dark:text-neutral-100">
+                        {cat.name}
+                      </h4>
+                    </div>
+                  </div>
+
+                  {/* Right Actions */}
+                  <div className="flex items-center gap-1.5 self-end sm:self-center">
+                    {/* Status indicator */}
+                    <button
+                      type="button"
+                      onClick={() => toggleVisibility(cat.id)}
+                      className={`flex items-center gap-1 text-[10px] font-semibold px-2 py-1 rounded-lg transition-colors mr-1 ${
+                        isVisible
+                          ? 'bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 hover:bg-emerald-500/20'
+                          : 'bg-neutral-200/60 dark:bg-neutral-800 text-neutral-500 hover:bg-neutral-200 dark:hover:bg-neutral-700'
+                      }`}
+                      title={isVisible ? "Click to hide from /order" : "Click to show on /order"}
+                    >
+                      {isVisible ? (
+                        <>
+                          <Eye size={11} /> Visible
+                        </>
+                      ) : (
+                        <>
+                          <EyeOff size={11} /> Hidden
+                        </>
+                      )}
+                    </button>
+
+                    {/* Move Up */}
+                    <button
+                      type="button"
+                      disabled={isFirst}
+                      onClick={() => moveCategory(actualIndex, 'up')}
+                      className="w-7 h-7 flex items-center justify-center rounded-lg text-neutral-500 hover:text-neutral-900 dark:hover:text-white hover:bg-neutral-200/60 dark:hover:bg-neutral-800 disabled:opacity-20 disabled:cursor-not-allowed transition-colors"
+                      title="Move up"
+                    >
+                      <ArrowUp size={13} />
+                    </button>
+
+                    {/* Move Down */}
+                    <button
+                      type="button"
+                      disabled={isLast}
+                      onClick={() => moveCategory(actualIndex, 'down')}
+                      className="w-7 h-7 flex items-center justify-center rounded-lg text-neutral-500 hover:text-neutral-900 dark:hover:text-white hover:bg-neutral-200/60 dark:hover:bg-neutral-800 disabled:opacity-20 disabled:cursor-not-allowed transition-colors"
+                      title="Move down"
+                    >
+                      <ArrowDown size={13} />
+                    </button>
+
+                    {/* Move to Top */}
+                    <button
+                      type="button"
+                      disabled={isFirst}
+                      onClick={() => moveCategory(actualIndex, 'top')}
+                      className="w-7 h-7 flex items-center justify-center rounded-lg text-neutral-500 hover:text-neutral-900 dark:hover:text-white hover:bg-neutral-200/60 dark:hover:bg-neutral-800 disabled:opacity-20 disabled:cursor-not-allowed transition-colors"
+                      title="Move to top"
+                    >
+                      <ChevronsUp size={13} />
+                    </button>
+
+                    {/* Move to Bottom */}
+                    <button
+                      type="button"
+                      disabled={isLast}
+                      onClick={() => moveCategory(actualIndex, 'bottom')}
+                      className="w-7 h-7 flex items-center justify-center rounded-lg text-neutral-500 hover:text-neutral-900 dark:hover:text-white hover:bg-neutral-200/60 dark:hover:bg-neutral-800 disabled:opacity-20 disabled:cursor-not-allowed transition-colors"
+                      title="Move to bottom"
+                    >
+                      <ChevronsDown size={13} />
+                    </button>
+
+                    {/* Delete */}
+                    <button
+                      type="button"
+                      onClick={() => removeCategory(cat.id)}
+                      className="w-7 h-7 flex items-center justify-center rounded-lg text-neutral-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors ml-1"
+                      title="Remove category from classic layout"
+                    >
+                      <Trash2 size={13} />
+                    </button>
+                  </div>
+                </div>
+              );
+            })
+          )}
+        </div>
+
+        {/* Info Note */}
+        <div className="p-3 bg-neutral-50 dark:bg-neutral-900/40 rounded-xl border border-neutral-200/80 dark:border-neutral-800 text-[11px] text-neutral-500 dark:text-neutral-400 leading-relaxed">
+          <strong>Note:</strong> On the live <strong>/order</strong> page (in Classic Mode), platter categories are rendered first in their configured order, followed by dish menu categories in their configured order. Click <strong>Save Layout Settings</strong> at the top or sidebar to apply your changes.
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
 // --- Main Layout Builder View ---
 export default function AdminPageBuilder() {
   const [sections, setSections] = useState<PageSection[]>([]);
@@ -1976,6 +2428,7 @@ export default function AdminPageBuilder() {
   const [saving, setSaving] = useState(false);
   const [useCmsLayout, setUseCmsLayout] = useState(true);
   const [classicBannerType, setClassicBannerType] = useState<'hero' | 'image-slider'>('hero');
+  const [classicCategories, setClassicCategories] = useState<ClassicCategoryConfig[]>(DEFAULT_CLASSIC_CATEGORIES);
   const [classicUploadingPc, setClassicUploadingPc] = useState(false);
   const [classicUploadingMobile, setClassicUploadingMobile] = useState(false);
   const [classicPickerField, setClassicPickerField] = useState<'backgroundImage' | 'mobileBackgroundImage' | null>(null);
@@ -2016,6 +2469,11 @@ export default function AdminPageBuilder() {
         }
         if (configRes.useCmsLayout !== undefined) {
           setUseCmsLayout(configRes.useCmsLayout);
+        }
+        if (configRes.classicCategories && configRes.classicCategories.length > 0) {
+          setClassicCategories(configRes.classicCategories);
+        } else {
+          setClassicCategories(DEFAULT_CLASSIC_CATEGORIES);
         }
         if (configRes.classicBannerType !== undefined) {
           setClassicBannerType(configRes.classicBannerType);
@@ -2120,7 +2578,7 @@ export default function AdminPageBuilder() {
       const response = await fetch("/api/page-config", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ sections, useCmsLayout, classicBannerType })
+        body: JSON.stringify({ sections, useCmsLayout, classicBannerType, classicCategories })
       });
       if (response.ok) {
         toast.success("Order page layout configuration updated successfully.");
@@ -2223,17 +2681,28 @@ export default function AdminPageBuilder() {
                     ⚠️ Classic Mode Active
                   </p>
                   <p className="text-[10px] leading-relaxed">
-                    Section presets are disabled in Classic Normal Layout Mode. Toggle <strong>Advanced CMS Layout Mode</strong> in the canvas to re-enable the full CMS builder.
+                    Section presets are disabled in Classic Normal Layout Mode. Use the canvas editor to customize the top banner and manage displayed categories.
                   </p>
                 </div>
                 <div className="p-3.5 rounded-2xl bg-neutral-50/80 dark:bg-neutral-900/40 border border-neutral-200 dark:border-neutral-800">
-                  <p className="font-bold text-[10px] uppercase tracking-wider text-neutral-500 dark:text-neutral-400 mb-1.5">Classic Layout Overview</p>
-                  <ul className="space-y-1.5 text-[10px] text-neutral-500 dark:text-neutral-400">
-                    <li className="flex items-start gap-1.5"><span className="mt-0.5 text-green-500">✓</span> Single top banner (Hero or Image Slider)</li>
-                    <li className="flex items-start gap-1.5"><span className="mt-0.5 text-green-500">✓</span> Categorized side-by-side menu layout</li>
-                    <li className="flex items-start gap-1.5"><span className="mt-0.5 text-green-500">✓</span> Standard infinite scroll browsing</li>
-                    <li className="flex items-start gap-1.5"><span className="mt-0.5 text-neutral-300">○</span> CMS custom sections bypassed</li>
-                  </ul>
+                  <div className="flex items-center justify-between mb-2">
+                    <p className="font-bold text-[10px] uppercase tracking-wider text-neutral-500 dark:text-neutral-400">Classic Categories</p>
+                    <span className="text-[10px] font-bold text-[#741052] dark:text-fuchsia-400">
+                      {classicCategories.filter(c => c.isVisible !== false).length}/{classicCategories.length} Visible
+                    </span>
+                  </div>
+                  <div className="space-y-1 max-h-36 overflow-y-auto pr-1">
+                    {classicCategories.map((cat, i) => (
+                      <div key={cat.id} className="flex items-center justify-between text-[10px] py-0.5">
+                        <span className={`truncate max-w-[130px] ${cat.isVisible !== false ? 'text-neutral-700 dark:text-neutral-300 font-medium' : 'text-neutral-400 line-through opacity-60'}`}>
+                          {i + 1}. {cat.name}
+                        </span>
+                        <span className={`text-[8px] px-1 py-0.5 rounded font-bold uppercase shrink-0 ${cat.isPlatter ? 'bg-fuchsia-500/10 text-fuchsia-600 dark:text-fuchsia-400' : 'bg-sky-500/10 text-sky-600 dark:text-sky-400'}`}>
+                          {cat.isPlatter ? 'Platter' : 'Dish'}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               </div>
             )}
@@ -2674,6 +3143,14 @@ export default function AdminPageBuilder() {
                         )}
                       </CardContent>
                     </Card>
+
+                    {/* Classic Mode Categories Manager */}
+                    <ClassicCategoriesManager
+                      classicCategories={classicCategories}
+                      setClassicCategories={setClassicCategories}
+                      availableCategories={categories}
+                      availablePlatterCategories={platterCategories}
+                    />
                   </div>
                 )}
                 {useCmsLayout && (

@@ -6,8 +6,8 @@ tags:
   - #project/ordering-ecosystem
 created: 2026-09-04
 last_updated: 2026-09-14
-overall_completion: "Phase 4.18: EditMenuItemForm Modern Redesign (100%)"
-current_sprint: "EditMenuItemForm Modern Redesign & Parity"
+overall_completion: "Phase 4.19: Classic Layout Category Configuration (100%)"
+current_sprint: "Classic Layout Category Management via Order Page CMS"
 ---
 
 # Project Status Dashboard — Advanced Ordering Ecosystem
@@ -16,8 +16,23 @@ current_sprint: "EditMenuItemForm Modern Redesign & Parity"
 
 | Sub-Project | Phase | Focus | Status |
 | :--- | :--- | :--- | :--- |
-| **Cafe Little Karachi (CLK)** | Phase 4.18 | EditMenuItemForm Modern Redesign | **Completed** 🟢 |
+| **Cafe Little Karachi (CLK)** | Phase 4.19 | Classic Layout Category Configuration | **Completed** 🟢 |
 | **The Chai Company (TCC)** | Base | Monorepo Structure | Ready for Next Cycle ⚪ |
+
+---
+
+## Phase 4.19 Completion Summary — Classic Layout Category Configuration via CMS
+
+- [x] **Schema & API `classicCategories` (`PageConfig.ts`, `page-config.ts`)**: Added `classicCategories` field with persistence and automatic fallback to original 10 default categories in original hardcoded order.
+- [x] **Order Page Dynamic Categories (`order/page.tsx`)**: Removed hardcoded arrays (`defaultPlatterCategoryOrder`, `defaultMenuCategoryOrder`). Category rendering and `CategoryNavStrip` are now fully driven by database-stored `classicCategories`.
+- [x] **Admin Classic Categories Manager (`AdminPageBuilder.tsx`)**: Built full management suite on the CMS canvas when Classic Mode is active:
+  - Add categories (pick from DB or type custom name, assign Platter vs Dish type)
+  - Quick-sort categories (Move Up, Down, to Top, to Bottom)
+  - Show / Hide toggle (`Eye` / `EyeOff`)
+  - Remove category (`Trash2`)
+  - 1-click Reset to Defaults (`RotateCcw`)
+  - Category breakdown filter tabs (All, Platters, Dish Menu) with visible count badge
+- [x] **Sidebar Summary (`AdminPageBuilder.tsx`)**: Live category count and scrollable category list preview in sidebar when Classic Mode is active.
 
 ---
 
