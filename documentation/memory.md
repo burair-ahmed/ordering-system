@@ -37,6 +37,11 @@ last_updated: 2026-09-11
   - Added `onClick` handler on the tooltip pill anchor calling `trackEvent('journey_whatsapp_click', { channel: 'whatsapp', source: 'floating_button_tooltip', destination: whatsappNumber })`.
   - `journey_whatsapp_click` routes directly to `trackMetaContact({ contactType: 'whatsapp', source, destination })`, correctly firing the standard `Contact` Meta Pixel event.
 
+### Disabled Automatic Button Tracking (`SubscribeButtonClick` Fix)
+- **File**: `src/app/providers/MetaPixelProvider.tsx`
+- **Root Cause**: Meta Pixel defaults `autoConfig: true`, which attaches automatic click and form heuristic listeners to all page buttons, unexpectedly firing events like `SubscribeButtonClick` on button clicks.
+- **Fix**: Injected `fbq('set', 'autoConfig', false, '${pixelId}');` immediately prior to `fbq('init')` in the `<Script>` initialization block. This suppresses automatic heuristic button click listeners while leaving all custom and standard events (`trackMetaAddToCart`, `trackMetaViewContent`, `trackMetaViewCart`, `trackMetaInitiateCheckout`, `trackMetaPurchase`, etc.) fully functional.
+
 ## 0. Phase 4.13 Micro-Changes — Horizontal Category Navigation Strip Below Hero Banner (2026-09-11)
 
 ### Reusable Category Navigation Strip Component

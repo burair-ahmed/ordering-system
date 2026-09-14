@@ -28,6 +28,7 @@ current_sprint: "ViewCart Meta Pixel Event & Floating WhatsApp Contact Pixel"
 - [x] **Analytics Fan-Out & Clarity Mapping (`analytics.ts`)**: Integrated `trackMetaViewCart` into the unified analytics bridge fan-out for `eventType === 'journey_view_cart'`, mapped `journey_add_platter_to_cart: CLK_FUNNEL_ADD_TO_CART`, and added `journey_view_cart: 'clk_view_cart'` to the Clarity event map.
 - [x] **CAPI Parity (`metaCapi.ts`)**: Added `'ViewCart'` to the server-side `SendMetaCapiEventOptions.eventName` union type.
 - [x] **WhatsApp Floating Button Contact Pixel Fix (`WhatsAppButton.tsx`)**: Added `trackEvent('journey_whatsapp_click', { channel: 'whatsapp', source: 'floating_button' | 'floating_button_tooltip', destination: whatsappNumber })` to both the primary floating `<motion.a>` button and the tooltip hint link. Tapping/clicking now reliably triggers the Meta standard `Contact` event (`trackMetaContact`) and Clarity logging.
+- [x] **Disabled Automatic Button Tracking (`MetaPixelProvider.tsx`)**: Injected `fbq('set', 'autoConfig', false, '${pixelId}')` before `fbq('init')` to suppress Meta Pixel's automatic heuristic button click listener which was unexpectedly dispatching `SubscribeButtonClick` / auto events on normal website buttons.
 
 ---
 
