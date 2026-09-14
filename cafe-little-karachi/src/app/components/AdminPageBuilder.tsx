@@ -2156,65 +2156,87 @@ export default function AdminPageBuilder() {
             <CardDescription className="text-[10px]">Click any section below to append it to your ordering page layout.</CardDescription>
           </CardHeader>
           <CardContent className="p-4 space-y-4 overflow-y-auto flex-1 min-h-0">
-            {[
-              {
-                name: "Header & Banners",
-                types: ["hero", "banner", "image-slider"],
-                icon: <ImageIcon size={14} className="text-pink-500" />,
-                bg: "bg-pink-500/[0.04] dark:bg-pink-500/[0.02]"
-              },
-              {
-                name: "Products & Lists",
-                types: ["grid", "slider"],
-                icon: <Grid size={14} className="text-violet-500" />,
-                bg: "bg-violet-500/[0.04] dark:bg-violet-500/[0.02]"
-              },
-              {
-                name: "Content & Reviews",
-                types: ["rich-content", "testimonials"],
-                icon: <Compass size={14} className="text-indigo-500" />,
-                bg: "bg-indigo-500/[0.04] dark:bg-indigo-500/[0.02]"
-              },
-              {
-                name: "Structure",
-                types: ["divider"],
-                icon: <Sliders size={14} className="text-slate-500" />,
-                bg: "bg-slate-500/[0.04] dark:bg-slate-500/[0.02]"
-              }
-            ].map(cat => {
-              const catPresets = SECTION_PRESETS.filter(p => cat.types.includes(p.type));
-              return (
-                <div key={cat.name} className="space-y-2">
-                  <div className="flex items-center gap-1.5 px-1 py-0.5">
-                    {cat.icon}
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-neutral-400 dark:text-neutral-500">
-                      {cat.name}
-                    </span>
-                  </div>
-                  <div className="space-y-2">
-                    {catPresets.map(preset => (
-                      <div 
-                        key={preset.type} 
-                        className="group p-3 border border-neutral-100 dark:border-neutral-800/85 rounded-2xl hover:bg-fuchsia-500/[0.03] dark:hover:bg-fuchsia-500/[0.01] hover:border-[#741052]/30 dark:hover:border-fuchsia-500/20 cursor-pointer transition-all duration-200 active:scale-98 shadow-sm hover:shadow" 
-                        onClick={() => addSection(preset)}
-                      >
-                        <div className="flex items-center justify-between">
-                          <span className="font-bold text-neutral-805 dark:text-neutral-200 text-xs group-hover:text-[#741052] dark:group-hover:text-fuchsia-400 transition-colors">
-                            {preset.label}
-                          </span>
-                          <div className="h-5 w-5 rounded-full bg-neutral-50 dark:bg-neutral-900 group-hover:bg-[#741052]/10 flex items-center justify-center transition-colors">
-                            <Plus size={12} className="text-neutral-450 group-hover:text-[#741052] dark:group-hover:text-fuchsia-400 transition-colors" />
+            {useCmsLayout ? (
+              [
+                {
+                  name: "Header & Banners",
+                  types: ["hero", "banner", "image-slider"],
+                  icon: <ImageIcon size={14} className="text-pink-500" />,
+                  bg: "bg-pink-500/[0.04] dark:bg-pink-500/[0.02]"
+                },
+                {
+                  name: "Products & Lists",
+                  types: ["grid", "slider"],
+                  icon: <Grid size={14} className="text-violet-500" />,
+                  bg: "bg-violet-500/[0.04] dark:bg-violet-500/[0.02]"
+                },
+                {
+                  name: "Content & Reviews",
+                  types: ["rich-content", "testimonials"],
+                  icon: <Compass size={14} className="text-indigo-500" />,
+                  bg: "bg-indigo-500/[0.04] dark:bg-indigo-500/[0.02]"
+                },
+                {
+                  name: "Structure",
+                  types: ["divider"],
+                  icon: <Sliders size={14} className="text-slate-500" />,
+                  bg: "bg-slate-500/[0.04] dark:bg-slate-500/[0.02]"
+                }
+              ].map(cat => {
+                const catPresets = SECTION_PRESETS.filter(p => cat.types.includes(p.type));
+                return (
+                  <div key={cat.name} className="space-y-2">
+                    <div className="flex items-center gap-1.5 px-1 py-0.5">
+                      {cat.icon}
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-neutral-400 dark:text-neutral-500">
+                        {cat.name}
+                      </span>
+                    </div>
+                    <div className="space-y-2">
+                      {catPresets.map(preset => (
+                        <div 
+                          key={preset.type} 
+                          className="group p-3 border border-neutral-100 dark:border-neutral-800/85 rounded-2xl hover:bg-fuchsia-500/[0.03] dark:hover:bg-fuchsia-500/[0.01] hover:border-[#741052]/30 dark:hover:border-fuchsia-500/20 cursor-pointer transition-all duration-200 active:scale-98 shadow-sm hover:shadow" 
+                          onClick={() => addSection(preset)}
+                        >
+                          <div className="flex items-center justify-between">
+                            <span className="font-bold text-neutral-805 dark:text-neutral-200 text-xs group-hover:text-[#741052] dark:group-hover:text-fuchsia-400 transition-colors">
+                              {preset.label}
+                            </span>
+                            <div className="h-5 w-5 rounded-full bg-neutral-50 dark:bg-neutral-900 group-hover:bg-[#741052]/10 flex items-center justify-center transition-colors">
+                              <Plus size={12} className="text-neutral-450 group-hover:text-[#741052] dark:group-hover:text-fuchsia-400 transition-colors" />
+                            </div>
                           </div>
+                          <p className="text-[10px] text-neutral-400 dark:text-neutral-500 mt-0.5 leading-relaxed">
+                            {preset.desc}
+                          </p>
                         </div>
-                        <p className="text-[10px] text-neutral-400 dark:text-neutral-500 mt-0.5 leading-relaxed">
-                          {preset.desc}
-                        </p>
-                      </div>
-                    ))}
+                      ))}
+                    </div>
                   </div>
+                );
+              })
+            ) : (
+              <div className="space-y-3 pt-1">
+                <div className="p-3.5 rounded-2xl bg-amber-500/10 border border-amber-500/25 text-amber-800 dark:text-amber-300">
+                  <p className="font-bold text-xs flex items-center gap-1.5 text-amber-900 dark:text-amber-200 mb-1">
+                    ⚠️ Classic Mode Active
+                  </p>
+                  <p className="text-[10px] leading-relaxed">
+                    Section presets are disabled in Classic Normal Layout Mode. Toggle <strong>Advanced CMS Layout Mode</strong> in the canvas to re-enable the full CMS builder.
+                  </p>
                 </div>
-              );
-            })}
+                <div className="p-3.5 rounded-2xl bg-neutral-50/80 dark:bg-neutral-900/40 border border-neutral-200 dark:border-neutral-800">
+                  <p className="font-bold text-[10px] uppercase tracking-wider text-neutral-500 dark:text-neutral-400 mb-1.5">Classic Layout Overview</p>
+                  <ul className="space-y-1.5 text-[10px] text-neutral-500 dark:text-neutral-400">
+                    <li className="flex items-start gap-1.5"><span className="mt-0.5 text-green-500">✓</span> Single top banner (Hero or Image Slider)</li>
+                    <li className="flex items-start gap-1.5"><span className="mt-0.5 text-green-500">✓</span> Categorized side-by-side menu layout</li>
+                    <li className="flex items-start gap-1.5"><span className="mt-0.5 text-green-500">✓</span> Standard infinite scroll browsing</li>
+                    <li className="flex items-start gap-1.5"><span className="mt-0.5 text-neutral-300">○</span> CMS custom sections bypassed</li>
+                  </ul>
+                </div>
+              </div>
+            )}
           </CardContent>
         </Card>
         
@@ -2654,24 +2676,28 @@ export default function AdminPageBuilder() {
                     </Card>
                   </div>
                 )}
-                {sections.map((section, index) => (
-                  <SortableSection 
-                    key={section.id} 
-                    section={section} 
-                    index={index}
-                    updateSection={updateSection}
-                    removeSection={removeSection}
-                    items={items}
-                    categories={categories}
-                    platterCategories={platterCategories}
-                  />
-                ))}
-                {sections.length === 0 && (
-                  <div className="flex flex-col items-center justify-center py-20 text-center border-2 border-dashed border-neutral-200 dark:border-neutral-800 rounded-3xl p-6 bg-white dark:bg-neutral-900/50">
-                    <Compass className="h-10 w-10 text-neutral-300 dark:text-neutral-700 mb-2.5" />
-                    <p className="font-bold text-neutral-600 dark:text-neutral-400">Empty Page Layout</p>
-                    <p className="text-xs text-neutral-400 mt-1 max-w-sm">No visual sections added yet. Click items in the left panel to begin designing your customer menu layout.</p>
-                  </div>
+                {useCmsLayout && (
+                  <>
+                    {sections.map((section, index) => (
+                      <SortableSection 
+                        key={section.id} 
+                        section={section} 
+                        index={index}
+                        updateSection={updateSection}
+                        removeSection={removeSection}
+                        items={items}
+                        categories={categories}
+                        platterCategories={platterCategories}
+                      />
+                    ))}
+                    {sections.length === 0 && (
+                      <div className="flex flex-col items-center justify-center py-20 text-center border-2 border-dashed border-neutral-200 dark:border-neutral-800 rounded-3xl p-6 bg-white dark:bg-neutral-900/50">
+                        <Compass className="h-10 w-10 text-neutral-300 dark:text-neutral-700 mb-2.5" />
+                        <p className="font-bold text-neutral-600 dark:text-neutral-400">Empty Page Layout</p>
+                        <p className="text-xs text-neutral-400 mt-1 max-w-sm">No visual sections added yet. Click items in the left panel to begin designing your customer menu layout.</p>
+                      </div>
+                    )}
+                  </>
                 )}
               </div>
             </SortableContext>

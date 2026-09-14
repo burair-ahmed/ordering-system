@@ -8,7 +8,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
     await testMongoConnection();
 
     if (req.method === 'GET') {
-      const platters = await Platter.find();
+      const platters = await Platter.find().sort({ sortOrder: 1, createdAt: 1 });
       res.status(200).json(platters);
     } else if (req.method === 'POST') {
       const body = req.body;

@@ -10,6 +10,52 @@ last_updated: 2026-09-14
 
 # Living Project Memory & Task Tracker
 
+## 0. Phase 4.16 Micro-Changes — Item Order Sorting Tab & CMS Classic Mode Cleanup (2026-09-14)
+
+### Schema: `sortOrder` Field Added to MenuItem & Platter
+- **Files**: `src/models/MenuItem.ts`, `src/models/Platter.ts`
+- **Change**: Added `sortOrder: { type: Number, default: 0 }` field to both Mongoose schemas and TypeScript interfaces.
+- **Rationale**: Enables persistent, admin-controlled manual display ordering of products per category.
+
+### New API: Product Sort Order Endpoint
+- **File**: `src/pages/api/updateProductSortOrder.ts`
+- **Change**: Created `PUT` endpoint accepting `{ type: 'menu' | 'platter', items: Array<{ id: string; sortOrder: number }> }`. Uses MongoDB `bulkWrite` with `updateOne` for atomic batch updates in a single DB round-trip.
+- **Rationale**: Efficient batch persistence of drag-and-drop or quick-move reordering without N individual API calls.
+
+### Data Fetching: Sort Order Respected in All Item Queries
+- **Files**: `src/pages/api/getitems.ts`, `src/pages/api/getitemsadmin.ts`, `src/pages/api/platter.ts`, `src/pages/api/platteradmin.ts`
+- **Change**: Added `.sort({ sortOrder: 1, createdAt: 1 })` to all Mongoose queries. Customer-facing and admin-facing endpoints now both respect admin-set manual ordering.
+
+### New Component: `ItemOrderSorting.tsx`
+- **File**: `src/app/components/ItemOrderSorting.tsx`
+- **Change**: Built full-featured drag-and-drop item reordering component:
+  - Mode switch: Menu Dishes vs. Gourmet Combo Platters
+  - Left sidebar: Live categories list with item count badges
+  - Right canvas: `@dnd-kit` drag-and-drop + `▲ ▼ ⤒ ⤓` quick-move buttons per item
+  - Position rank badges (`#1`, `#2`, `#3`, gradient CLK plum for position 1)
+  - Unsaved-changes detection with pulsing amber warning + Reset/Save inline buttons
+  - `PUT /api/updateProductSortOrder` on save with toast success/failure notifications
+
+### Admin Panel: `itemSorting` Tab Wired
+- **File**: `src/app/admin/page.tsx`
+- **Changes**:
+  - Added `ArrowUpDown` to Lucide imports.
+  - Imported `ItemOrderSorting` from `./ItemOrderSorting`.
+  - Added `'itemSorting'` to `TabKey` union type.
+  - Added `{ key: 'itemSorting', label: 'Item Order Sorting', icon: ArrowUpDown }` to `TABS` array (between `layoutBuilder` and `settings`).
+  - Extended `useEffect` trigger: also fetches menu + platter items when `activeTab === 'itemSorting'`.
+  - Added render block: `{activeTab === 'itemSorting' && <ItemOrderSorting menuItems={menuItems} platterItems={platterItems} isLoading={...} refreshData={...} />}`.
+
+### CMS Classic Mode Clean View — Canvas
+- **File**: `src/app/components/AdminPageBuilder.tsx`
+- **Change**: Wrapped `sections.map(...)` and the "Empty Page Layout" empty-state block inside `{useCmsLayout && (...)}`. When Classic Normal Layout Mode is active (`useCmsLayout === false`), only the Classic banner/slider editor is visible in the canvas — no CMS section cards clutter the view.
+
+### CMS Classic Mode Clean View — Sidebar
+- **File**: `src/app/components/AdminPageBuilder.tsx`
+- **Change**: Wrapped the sidebar section preset groups list (`Header & Banners`, `Products & Lists`, `Content & Reviews`, `Structure`) in a `{useCmsLayout ? (...presets...) : (...info card...)}` conditional. When Classic Mode is active, shows a clean amber warning card + "Classic Layout Overview" checklist card instead of clickable section presets (which would be non-functional in Classic mode).
+
+---
+
 ## 0. Phase 4.15 Micro-Changes — Configurable Checkout & Bulk Discount Management (2026-09-14)
 
 ### Hardcoded Checkout Discount Removal & Dynamic Integration

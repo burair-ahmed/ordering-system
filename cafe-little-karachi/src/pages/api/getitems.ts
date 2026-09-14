@@ -28,6 +28,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
       }
       
       const menuItems = await MenuItem.find(query)
+        .sort({ sortOrder: 1, createdAt: 1 })
         .skip((Number(page) - 1) * Number(limit)) // Skip based on the page
         .limit(Number(limit)); // Limit the number of items fetched
 

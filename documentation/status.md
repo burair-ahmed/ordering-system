@@ -6,8 +6,8 @@ tags:
   - #project/ordering-ecosystem
 created: 2026-09-04
 last_updated: 2026-09-14
-overall_completion: "Phase 4.15: Configurable Checkout & Bulk Discount Management (100%)"
-current_sprint: "Configurable Checkout & Bulk Discount Management"
+overall_completion: "Phase 4.16: Item Order Sorting & CMS Classic Mode Cleanup (100%)"
+current_sprint: "Item Order Sorting Tab & CMS Classic Mode Clean View"
 ---
 
 # Project Status Dashboard — Advanced Ordering Ecosystem
@@ -16,8 +16,20 @@ current_sprint: "Configurable Checkout & Bulk Discount Management"
 
 | Sub-Project | Phase | Focus | Status |
 | :--- | :--- | :--- | :--- |
-| **Cafe Little Karachi (CLK)** | Phase 4.15 | Configurable Checkout & Bulk Discounts | **Completed** 🟢 |
+| **Cafe Little Karachi (CLK)** | Phase 4.16 | Item Order Sorting & CMS Classic Mode Cleanup | **Completed** 🟢 |
 | **The Chai Company (TCC)** | Base | Monorepo Structure | Ready for Next Cycle ⚪ |
+
+---
+
+## Phase 4.16 Completion Summary — Item Order Sorting & CMS Classic Mode Cleanup
+
+- [x] **`sortOrder` Schema Field (`MenuItem.ts`, `Platter.ts`)**: Added `sortOrder: Number, default: 0` to both schemas for persistent manual ordering.
+- [x] **Sort Order API (`updateProductSortOrder.ts`)**: `PUT` endpoint using MongoDB `bulkWrite` for atomic batch sort order persistence.
+- [x] **All Item Queries Sorted (`getitems.ts`, `getitemsadmin.ts`, `platter.ts`, `platteradmin.ts`)**: All four endpoints now sort by `.sort({ sortOrder: 1, createdAt: 1 })` so customer-facing pages and admin panels respect manual ordering.
+- [x] **`ItemOrderSorting.tsx` Component**: Full drag-and-drop reordering UI with category sidebar, `@dnd-kit` canvas, position rank badges (#1 gradient plum, #2 purple, #3 pink), quick arrow buttons (▲ ▼ ⤒ ⤓), unsaved-changes amber warning, and save/reset actions.
+- [x] **`itemSorting` Tab in Admin Panel (`admin/page.tsx`)**: Tab registered with `ArrowUpDown` icon, data fetch on activation, and `<ItemOrderSorting />` render block.
+- [x] **CMS Classic Mode Canvas Cleanup (`AdminPageBuilder.tsx`)**: `sections.map(...)` and empty-state wrapped in `{useCmsLayout && (...)}`. Classic mode shows only the banner/slider editor.
+- [x] **CMS Classic Mode Sidebar Cleanup (`AdminPageBuilder.tsx`)**: Section presets wrapped in `{useCmsLayout ? ...presets... : ...info card...}`. Classic mode shows an amber warning + Classic Layout Overview checklist in place of preset buttons.
 
 ---
 

@@ -19,6 +19,7 @@ import {
   X,
   Activity,
   Image as ImageIcon,
+  ArrowUpDown,
 } from 'lucide-react';
 
 import OrdersList from '../components/OrdersList';
@@ -40,6 +41,7 @@ import BehavioralAnalytics from '../components/BehavioralAnalytics';
 import AdminPageBuilder from '../components/AdminPageBuilder';
 import AdminHeader from '../components/AdminHeader';
 import MediaGallery from '../components/MediaGallery';
+import ItemOrderSorting from '../components/ItemOrderSorting';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -111,6 +113,7 @@ type TabKey =
   | 'analytics'
   | 'behavioral'
   | 'layoutBuilder'
+  | 'itemSorting'
   | 'settings';
 
 const TABS: { key: TabKey; label: string; icon: any }[] = [
@@ -127,6 +130,7 @@ const TABS: { key: TabKey; label: string; icon: any }[] = [
   { key: 'analytics', label: 'Analytics Panel', icon: BarChart3 },
   { key: 'behavioral', label: 'Behavioral Insights', icon: Activity },
   { key: 'layoutBuilder', label: 'Order Page CMS', icon: LayoutDashboard },
+  { key: 'itemSorting', label: 'Item Order Sorting', icon: ArrowUpDown },
   { key: 'settings', label: 'Preferences', icon: Settings },
 ];
 
@@ -240,8 +244,8 @@ const AdminDashboard: FC = () => {
 
   useEffect(() => {
     if (!isAuthenticated) return;
-    if (activeTab === 'menu' || activeTab === 'bulkDiscounts') fetchMenuItems();
-    if (activeTab === 'platter' || activeTab === 'bulkDiscounts') fetchPlatterItems();
+    if (activeTab === 'menu' || activeTab === 'bulkDiscounts' || activeTab === 'itemSorting') fetchMenuItems();
+    if (activeTab === 'platter' || activeTab === 'bulkDiscounts' || activeTab === 'itemSorting') fetchPlatterItems();
   }, [activeTab, isAuthenticated]);
 
   const handleLogout = () => {
@@ -520,6 +524,19 @@ const AdminDashboard: FC = () => {
                   <AdminPageBuilder />
                 </CardContent>
               </Card>
+            )}
+
+            {/* Item Order Sorting tab */}
+            {activeTab === 'itemSorting' && (
+              <ItemOrderSorting
+                menuItems={menuItems}
+                platterItems={platterItems}
+                isLoading={loadingMenu || loadingPlatter}
+                refreshData={async () => {
+                  await fetchMenuItems();
+                  await fetchPlatterItems();
+                }}
+              />
             )}
 
             {/* Preferences settings tab */}

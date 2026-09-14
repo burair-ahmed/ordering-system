@@ -8,8 +8,8 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
 
   if (req.method === "GET") {
     try {
-      // Fetch all menu items from the database
-      const menuItems = await MenuItem.find(); // Adjust according to your database setup
+      // Fetch all menu items from the database sorted by sortOrder
+      const menuItems = await MenuItem.find().sort({ sortOrder: 1, createdAt: 1 });
       res.status(200).json(menuItems); // Send the data as JSON response
     } catch (error) {
       console.error("Error fetching menu items:", error);

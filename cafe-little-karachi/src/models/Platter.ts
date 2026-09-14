@@ -30,6 +30,7 @@ interface IPlatter extends Document {
   additionalChoices: IAdditionalChoice[]; // Additional choices like meat, soup, etc.
   discountType?: 'percentage' | 'fixed'; // Discount type
   discountValue?: number; // Discount value
+  sortOrder?: number; // Ordering within category
   isVisible: boolean; // Visibility on order page
 }
 
@@ -69,6 +70,7 @@ const PlatterSchema: Schema = new Schema({
   ],
   discountType: { type: String, enum: ['percentage', 'fixed'] },
   discountValue: { type: Number, default: 0 },
+  sortOrder: { type: Number, default: 0 },
   isVisible: { type: Boolean, default: true },
 });
 
