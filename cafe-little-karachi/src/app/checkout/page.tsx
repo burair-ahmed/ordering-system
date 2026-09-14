@@ -114,6 +114,13 @@ const CheckoutPageContent: FC = () => {
     "none" | "exact" | "need-change"
   >("none");
   const [deliveryAreas, setDeliveryAreas] = useState<any[]>([]);
+  const [discountConfig, setDiscountConfig] = useState<{
+    isActive: boolean;
+    discountType: "percentage" | "fixed";
+    discountValue: number;
+    minOrderAmount: number;
+    label: string;
+  } | null>(null);
 
   useEffect(() => {
     const fetchDeliveryAreas = async () => {
@@ -127,7 +134,21 @@ const CheckoutPageContent: FC = () => {
         console.error("Error loading delivery areas:", err);
       }
     };
+
+    const fetchDiscountConfig = async () => {
+      try {
+        const res = await fetch("/api/discount-config");
+        if (res.ok) {
+          const data = await res.json();
+          setDiscountConfig(data);
+        }
+      } catch (err) {
+        console.error("Error loading discount config:", err);
+      }
+    };
+
     fetchDeliveryAreas();
+    fetchDiscountConfig();
   }, []);
 
   const areaNote = useMemo(() => {
@@ -355,11 +376,30 @@ const CheckoutPageContent: FC = () => {
   }, [detectedArea, formData.ordertype, deliveryAreas]);
 
   const discountAmount = useMemo(() => {
-    return totalAmount * 0.10;
-  }, [totalAmount]);
+    if (!discountConfig || !discountConfig.isActive || discountConfig.discountValue <= 0) {
+      return 0;
+    }
+    if (discountConfig.minOrderAmount > 0 && totalAmount < discountConfig.minOrderAmount) {
+      return 0;
+    }
+    if (discountConfig.discountType === "percentage") {
+      return (totalAmount * discountConfig.discountValue) / 100;
+    } else {
+      return Math.min(totalAmount, discountConfig.discountValue);
+    }
+  }, [totalAmount, discountConfig]);
+
+  const discountLabel = useMemo(() => {
+    if (!discountConfig || discountAmount <= 0) return "";
+    const typeStr =
+      discountConfig.discountType === "percentage"
+        ? `${discountConfig.discountValue}%`
+        : `Rs. ${discountConfig.discountValue}`;
+    return `${discountConfig.label || "Discount"} (${typeStr})`;
+  }, [discountConfig, discountAmount]);
 
   const finalAmount = useMemo(() =>
-    (totalAmount - discountAmount) + deliveryCharge,
+    Math.max(0, totalAmount - discountAmount) + deliveryCharge,
     [totalAmount, discountAmount, deliveryCharge]
   );
 
@@ -515,6 +555,8 @@ const CheckoutPageContent: FC = () => {
       orderNumber,
     } = order;
 
+    const discountLine = discountAmount > 0 ? `- Discount: Rs. ${discountAmount.toFixed(2)}\n` : '';
+
     const message = `
 New Order Received:
 - Order Number: ${orderNumber}
@@ -522,8 +564,7 @@ New Order Received:
 - Table Number: ${tableNumber}
 - Payment Method: ${paymentMethod}
 - Subtotal: Rs. ${totalAmount.toFixed(2)}
-- Discount: Rs. ${(totalAmount * 0.10).toFixed(2)}
-- Total Amount: Rs. ${order.totalAmount.toFixed(2)}
+${discountLine}- Total Amount: Rs. ${order.totalAmount.toFixed(2)}
 - Items:
 ${items
   .map(
@@ -1021,10 +1062,12 @@ ${items
                       <span className="font-medium">Rs. {totalAmount.toFixed(2)}</span>
                     </div>
 
-                    <div className="flex justify-between text-sm text-green-600">
-                      <span>Discount (10%)</span>
-                      <span className="font-medium">- Rs. {discountAmount.toFixed(2)}</span>
-                    </div>
+                    {discountAmount > 0 && (
+                      <div className="flex justify-between text-sm text-green-600">
+                        <span>{discountLabel || "Discount"}</span>
+                        <span className="font-medium">- Rs. {discountAmount.toFixed(2)}</span>
+                      </div>
+                    )}
 
                     {formData.ordertype === "delivery" && (
                       <div className="flex justify-between text-sm">
@@ -1222,10 +1265,12 @@ ${items
                               <span className="text-gray-600">Subtotal:</span>
                               <span className="font-medium">Rs. {totalAmount.toFixed(2)}</span>
                             </div>
-                            <div className="flex justify-between text-green-600">
-                              <span>Discount (10%):</span>
-                              <span className="font-medium">- Rs. {discountAmount.toFixed(2)}</span>
-                            </div>
+                            {discountAmount > 0 && (
+                              <div className="flex justify-between text-green-600">
+                                <span>{discountLabel || "Discount"}:</span>
+                                <span className="font-medium">- Rs. {discountAmount.toFixed(2)}</span>
+                              </div>
+                            )}
                             {formData.ordertype === "delivery" && (
                               <div className="flex justify-between">
                                 <span className="text-gray-600">Delivery Charges:</span>

@@ -5,9 +5,9 @@ tags:
   - #status/active
   - #project/ordering-ecosystem
 created: 2026-09-04
-last_updated: 2026-09-11
-overall_completion: "Phase 4.14: ViewCart Meta Pixel Event & Floating WhatsApp Contact Pixel (100%)"
-current_sprint: "ViewCart Meta Pixel Event & Floating WhatsApp Contact Pixel"
+last_updated: 2026-09-14
+overall_completion: "Phase 4.15: Configurable Checkout & Bulk Discount Management (100%)"
+current_sprint: "Configurable Checkout & Bulk Discount Management"
 ---
 
 # Project Status Dashboard — Advanced Ordering Ecosystem
@@ -16,8 +16,19 @@ current_sprint: "ViewCart Meta Pixel Event & Floating WhatsApp Contact Pixel"
 
 | Sub-Project | Phase | Focus | Status |
 | :--- | :--- | :--- | :--- |
-| **Cafe Little Karachi (CLK)** | Phase 4.14 | ViewCart Event & WhatsApp Pixel | **Completed** 🟢 |
+| **Cafe Little Karachi (CLK)** | Phase 4.15 | Configurable Checkout & Bulk Discounts | **Completed** 🟢 |
 | **The Chai Company (TCC)** | Base | Monorepo Structure | Ready for Next Cycle ⚪ |
+
+---
+
+## Phase 4.15 Completion Summary — Configurable Checkout & Bulk Discount Management
+
+- [x] **Hardcoded Checkout Discount Removal (`checkout/page.tsx`)**: Removed static 10% discount computation (`totalAmount * 0.10`). Checkout discounts are now dynamically resolved from the database via `/api/discount-config`.
+- [x] **Backend DiscountConfig Model & API (`DiscountConfig.ts`, `discount-config.ts`)**: Built Mongoose schema and REST endpoints for storing and configuring storewide checkout discounts with support for Percentage and Fixed Amount types, minimum order subtotal thresholds, and custom labels.
+- [x] **Whole-Catalog Bulk Discounting (`bulkUpdateCategoryDiscount.ts`)**: Upgraded bulk discount endpoint with `type: 'all'` and `category: 'all'` support to apply or remove discounts across all items and platters at once.
+- [x] **Admin Live Discounts Monitor (`BulkDiscountManagement.tsx`)**: Added real-time live discount status banner showing active checkout discount details, total discounted products counter, active category discount badges, and a 1-click emergency reset button.
+- [x] **Admin Global Checkout Discount Controller (`BulkDiscountManagement.tsx`)**: Added dedicated control card to configure checkout discounting with toggle activation, type selection, value input, min order threshold, custom label, and customer preview simulation.
+- [x] **Admin Storewide Bulk Discount Tool (`BulkDiscountManagement.tsx`)**: Added 1-click tool to apply or remove discounts to all catalog items and platters simultaneously.
 
 ---
 

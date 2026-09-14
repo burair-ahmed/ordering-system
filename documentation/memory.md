@@ -5,10 +5,39 @@ tags:
   - #status/active
   - #project/ordering-ecosystem
 created: 2026-09-04
-last_updated: 2026-09-11
+last_updated: 2026-09-14
 ---
 
 # Living Project Memory & Task Tracker
+
+## 0. Phase 4.15 Micro-Changes — Configurable Checkout & Bulk Discount Management (2026-09-14)
+
+### Hardcoded Checkout Discount Removal & Dynamic Integration
+- **File**: `src/app/checkout/page.tsx`
+- **Root Cause**: `discountAmount` was statically computed as `totalAmount * 0.10`, causing an unconditional 10% discount on every checkout order, in order totals, and on WhatsApp receipts.
+- **Fix**:
+  - Replaced hardcoded discount with dynamic `discountConfig` fetched from `/api/discount-config`.
+  - Added conditional qualification check: only applies when `discountConfig.isActive === true`, `discountConfig.discountValue > 0`, and `totalAmount >= (discountConfig.minOrderAmount || 0)`.
+  - Added support for both `percentage` (`(totalAmount * value) / 100`) and `fixed` (`Math.min(totalAmount, value)`) discount calculations.
+  - Formatted dynamic discount label `${discountConfig.label} (${discountConfig.discountType === 'percentage' ? `${discountConfig.discountValue}%` : `Rs. ${discountConfig.discountValue}`})`.
+  - Conditionally rendered discount rows in the sidebar order summary and the confirmation modal only when `discountAmount > 0`.
+  - Updated WhatsApp notification builder to dynamically include `- Discount: Rs. ...` only when a live discount applies.
+
+### Backend Discount Configuration Model & API Endpoint
+- **Files**:
+  - `src/models/DiscountConfig.ts`
+  - `src/pages/api/discount-config.ts`
+  - `src/pages/api/bulkUpdateCategoryDiscount.ts`
+- **`DiscountConfig.ts`**: Mongoose model with `isActive: boolean`, `discountType: 'percentage' | 'fixed'`, `discountValue: number`, `minOrderAmount: number`, and `label: string`.
+- **`discount-config.ts`**: REST handler supporting `GET` (retrieves config or initializes default inactive record) and `POST`/`PUT` (persists updated discount settings and automatically deactivates if value is set to 0).
+- **`bulkUpdateCategoryDiscount.ts`**: Upgraded to support `category: 'all'` or `type: 'all'`, allowing administrators to apply or remove discounts across all menu items and platter combo deals in a single operation.
+
+### Admin Panel Bulk Discount Management & Live Monitor Overhaul
+- **File**: `src/app/components/BulkDiscountManagement.tsx`
+- **Live Discounts Monitor**: Top dashboard bar displaying real-time live discount status (pulsing `LIVE DISCOUNTS ACTIVE` badge, Live Checkout Discount card, Total Discounted Products counter, and active category tags list) with 1-click "Clear All Live Discounts" safety action.
+- **Global Checkout / Cart Discount Controller**: Configurable card with enable/disable action button, Percentage vs Fixed amount selector, discount value input, minimum cart subtotal requirement, custom campaign label, and live customer checkout simulation preview.
+- **Storewide Catalog Bulk Discount Tool**: 1-click tool to apply or remove percentage/fixed discounts across all products and platters simultaneously.
+- **Enhanced Category Cards**: Real-time active discount badges, collapsible product preview grids, and category-level discount controls.
 
 ## 0. Phase 4.14 Micro-Changes — ViewCart Meta Pixel Event & Floating WhatsApp Contact Pixel Fix (2026-09-11)
 

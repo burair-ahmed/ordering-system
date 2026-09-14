@@ -31,31 +31,57 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       updateData.discountValue = 0;
     }
 
-    let result;
+    let modifiedCount = 0;
 
-    if (type === 'menu') {
+    if (type === 'all' || category === 'all') {
       if (updateData.$unset) {
-        result = await MenuItems.updateMany(
+        const resMenu = await MenuItems.updateMany(
+          {},
+          { $set: { discountValue: 0 }, $unset: { discountType: "" } }
+        );
+        const resPlatter = await Platter.updateMany(
+          {},
+          { $set: { discountValue: 0 }, $unset: { discountType: "" } }
+        );
+        modifiedCount = (resMenu.modifiedCount || 0) + (resPlatter.modifiedCount || 0);
+      } else {
+        const resMenu = await MenuItems.updateMany(
+          {},
+          { $set: { discountType, discountValue } }
+        );
+        const resPlatter = await Platter.updateMany(
+          {},
+          { $set: { discountType, discountValue } }
+        );
+        modifiedCount = (resMenu.modifiedCount || 0) + (resPlatter.modifiedCount || 0);
+      }
+    } else if (type === 'menu') {
+      if (updateData.$unset) {
+        const result = await MenuItems.updateMany(
           { category: category },
           { $set: { discountValue: 0 }, $unset: { discountType: "" } }
         );
+        modifiedCount = result.modifiedCount || 0;
       } else {
-        result = await MenuItems.updateMany(
+        const result = await MenuItems.updateMany(
           { category: category },
           { $set: { discountType, discountValue } }
         );
+        modifiedCount = result.modifiedCount || 0;
       }
     } else if (type === 'platter') {
       if (updateData.$unset) {
-        result = await Platter.updateMany(
+        const result = await Platter.updateMany(
           { platterCategory: category },
           { $set: { discountValue: 0 }, $unset: { discountType: "" } }
         );
+        modifiedCount = result.modifiedCount || 0;
       } else {
-        result = await Platter.updateMany(
+        const result = await Platter.updateMany(
           { platterCategory: category },
           { $set: { discountType, discountValue } }
         );
+        modifiedCount = result.modifiedCount || 0;
       }
     } else {
       return res.status(400).json({ success: false, message: 'Invalid type' });
@@ -63,8 +89,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     res.status(200).json({
       success: true,
-      message: `Discount applied to ${result.modifiedCount} items.`,
-      modifiedCount: result.modifiedCount
+      message: `Discount updated for ${modifiedCount} items.`,
+      modifiedCount
     });
   } catch (error: any) {
     console.error('Error applying bulk discount:', error);
