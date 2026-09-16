@@ -5,9 +5,9 @@ tags:
   - #status/active
   - #project/ordering-ecosystem
 created: 2026-09-04
-last_updated: 2026-09-14
-overall_completion: "Phase 4.19: Classic Layout Category Configuration (100%)"
-current_sprint: "Classic Layout Category Management via Order Page CMS"
+last_updated: 2026-09-15
+overall_completion: "Phase 4.20: Delivery Charges Resolution & Area Selection (100%)"
+current_sprint: "Delivery Charges Resolution & Accurate Funnel Calculations"
 ---
 
 # Project Status Dashboard — Advanced Ordering Ecosystem
@@ -16,8 +16,21 @@ current_sprint: "Classic Layout Category Management via Order Page CMS"
 
 | Sub-Project | Phase | Focus | Status |
 | :--- | :--- | :--- | :--- |
-| **Cafe Little Karachi (CLK)** | Phase 4.19 | Classic Layout Category Configuration | **Completed** 🟢 |
+| **Cafe Little Karachi (CLK)** | Phase 4.20 | Delivery Charges Resolution & Area Selector | **Completed** 🟢 |
 | **The Chai Company (TCC)** | Base | Monorepo Structure | Ready for Next Cycle ⚪ |
+
+---
+
+## Phase 4.20 Completion Summary — Delivery Charges Resolution & Accurate Funnel Calculations
+
+- [x] **Resilient Multi-Tier Area Matching (`checkout/page.tsx`)**: Created multi-level area lookup (`findMatchingArea`) matching exact name, case-insensitive, punctuation/dash-free, and substring inclusion against database delivery areas (`/api/delivery-areas`).
+- [x] **Checkout Delivery Area Selector & Street Address Split (`checkout/page.tsx`)**: Built a dedicated Delivery Area / Zone selector dropdown displaying all 46 active delivery zones with charge badges (`Rs. 380`, `Rs. 250`, etc.) paired with an independent Street/House Address input.
+- [x] **Real-Time Delivery Charges Calculation (`checkout/page.tsx`)**: `deliveryCharge` and `finalAmount` dynamically compute and update in real-time on area selection and order mode changes.
+- [x] **Order Summary & Confirmation Modal Alignment (`checkout/page.tsx`)**: Sidebar and confirmation modal display exact area name (`selectedAreaObj.name`), delivery charges (`Rs. 380.00`), and accurate total payable amount without showing 0.
+- [x] **WhatsApp Notification & Backend Order Submission (`checkout/page.tsx`)**: Forwarded `deliveryCharge`, destination address, and phone number to `/api/orders` and WhatsApp receipt builder.
+- [x] **Thank You Page Dynamic Totals (`thank-you/page.tsx`)**: Updated receipt breakdown and downloadable `.txt` receipt to compute subtotal, discount, delivery charges, and total paid from database record `orderDetails.totalAmount` and `orderDetails.deliveryCharge`.
+- [x] **Delivery Areas API Timing Race Fix (`checkout/page.tsx`)**: Added a dedicated `useEffect` triggered only on `[deliveryAreas]` that re-syncs `selectedDeliveryArea` after the delivery-areas API call completes — fixes the root cause where the main init effect ran with an empty `deliveryAreas = []` array (before the API resolved), leaving `selectedDeliveryArea` as `""` and rendering `deliveryCharge = 0` in both the sidebar and the confirmation modal.
+- [x] **Confirmation Modal Sticky Footer Fix (`checkout/page.tsx`)**: Moved the "Place Order" / "Cancel" action footer outside the `flex-1 overflow-y-auto` scrollable content div so it is truly pinned to the bottom of the modal on all screen sizes and never scrolls away behind content.
 
 ---
 

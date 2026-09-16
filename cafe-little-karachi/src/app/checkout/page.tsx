@@ -108,6 +108,8 @@ const CheckoutPageContent: FC = () => {
   const [confirmChecked, setConfirmChecked] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [detectedArea, setDetectedArea] = useState("");
+  const [selectedDeliveryArea, setSelectedDeliveryArea] = useState("");
+  const [streetAddress, setStreetAddress] = useState("");
   const [showOnlineInfo, setShowOnlineInfo] = useState(false);
   const [tipAmount, setTipAmount] = useState<string>("");
   const [cashPreference, setCashPreference] = useState<
@@ -121,6 +123,38 @@ const CheckoutPageContent: FC = () => {
     minOrderAmount: number;
     label: string;
   } | null>(null);
+
+  // Helper to normalize area string for resilient matching
+  const normalizeAreaStr = (str: string) =>
+    str ? str.toLowerCase().replace(/[^a-z0-9]/g, "").trim() : "";
+
+  // Resilient multi-tier delivery area finder
+  const findMatchingArea = (target: string, areas: any[]) => {
+    if (!target || !areas || areas.length === 0) return null;
+    const tTrim = target.trim();
+    const tNorm = normalizeAreaStr(target);
+    if (!tTrim) return null;
+
+    // 1. Exact match
+    let match = areas.find((a) => a.name === tTrim);
+    if (match) return match;
+
+    // 2. Case-insensitive match
+    match = areas.find((a) => a.name.trim().toLowerCase() === tTrim.toLowerCase());
+    if (match) return match;
+
+    // 3. Punctuation/dash-free normalized match
+    match = areas.find((a) => normalizeAreaStr(a.name) === tNorm);
+    if (match) return match;
+
+    // 4. Substring inclusion match (e.g. "Sector 5, Scheme 33")
+    match = areas.find((a) => {
+      const aNorm = normalizeAreaStr(a.name);
+      return aNorm.length >= 3 && (tNorm.includes(aNorm) || aNorm.includes(tNorm));
+    });
+
+    return match || null;
+  };
 
   useEffect(() => {
     const fetchDeliveryAreas = async () => {
@@ -151,27 +185,59 @@ const CheckoutPageContent: FC = () => {
     fetchDiscountConfig();
   }, []);
 
+  // Dynamically resolve the selected area object from available delivery areas
+  const selectedAreaObj = useMemo(() => {
+    if (formData.ordertype !== "delivery") return null;
+    return (
+      findMatchingArea(selectedDeliveryArea, deliveryAreas) ||
+      findMatchingArea(detectedArea, deliveryAreas) ||
+      findMatchingArea(formData.area, deliveryAreas) ||
+      null
+    );
+  }, [selectedDeliveryArea, detectedArea, formData.area, formData.ordertype, deliveryAreas]);
+
+  // Calculate delivery charge dynamically
+  const deliveryCharge = useMemo(() => {
+    if (formData.ordertype !== "delivery") return 0;
+    return selectedAreaObj ? Number(selectedAreaObj.charge || 0) : 0;
+  }, [formData.ordertype, selectedAreaObj]);
+
   const areaNote = useMemo(() => {
     if (formData.ordertype !== "delivery") return "";
-    const match = deliveryAreas.find((a) => a.name === detectedArea);
-    return match ? match.note : "";
-  }, [detectedArea, formData.ordertype, deliveryAreas]);
+    return selectedAreaObj ? selectedAreaObj.note || "" : "";
+  }, [formData.ordertype, selectedAreaObj]);
 
   useEffect(() => {
-    if (areaNote && mounted) {
-      toast(`Delivery Notice: ${detectedArea}`, {
+    if (areaNote && mounted && selectedAreaObj) {
+      toast(`Delivery Notice: ${selectedAreaObj.name}`, {
         description: areaNote,
         duration: 10000,
       });
     }
-  }, [areaNote, detectedArea, mounted]);
+  }, [areaNote, selectedAreaObj, mounted]);
+
+  // Re-sync selectedDeliveryArea once deliveryAreas has loaded.
+  // This handles the timing race where the main init effect ran before
+  // the delivery-areas API call completed (selectedDeliveryArea was left as "").
+  useEffect(() => {
+    if (deliveryAreas.length === 0) return; // areas not loaded yet
+    if (selectedDeliveryArea) return; // already set — don't overwrite user selection
+    const candidate = detectedArea || area || formData.area;
+    if (!candidate) return;
+    const matched = findMatchingArea(candidate, deliveryAreas);
+    if (matched) {
+      setSelectedDeliveryArea(matched.name);
+      setDetectedArea(matched.name);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [deliveryAreas]);
 
   // refs for GSAP timeline (optional)
   const formRef = useRef<HTMLDivElement | null>(null);
   const cartRef = useRef<HTMLDivElement | null>(null);
   const modalRef = useRef<HTMLDivElement | null>(null);
   const areaInputRef = useRef<HTMLInputElement | null>(null);
-  const { orderType, area, tableId, setCheckoutModalOpen } = useOrder();
+  const { orderType, area, tableId, setCheckoutModalOpen, setOrder } = useOrder();
   const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     let value = e.target.value.replace(/\D/g, ""); // remove non-digits
 
@@ -213,6 +279,10 @@ const CheckoutPageContent: FC = () => {
     }
     if (area) {
       setDetectedArea(area);
+      const matched = findMatchingArea(area, deliveryAreas);
+      if (matched) {
+        setSelectedDeliveryArea(matched.name);
+      }
       setFormData((s) => ({ ...s, area }));
     }
 
@@ -225,7 +295,7 @@ const CheckoutPageContent: FC = () => {
     });
     // Force Clarity to record this high-value session
     clarityUpgrade('checkout_started');
-  }, [orderType, tableId, area, cartItems.length, totalAmount]);
+  }, [orderType, tableId, area, cartItems.length, totalAmount, deliveryAreas]);
 
   // GSAP timeline on mount (optional). Dynamically import so build won't fail if gsap is missing.
   useEffect(() => {
@@ -348,19 +418,30 @@ const CheckoutPageContent: FC = () => {
       return;
     }
 
-    if (formData.ordertype === "delivery" && !formData.area) {
-      toast.error("Delivery address missing.", {
-        description: "Please provide your delivery address or area.",
-      });
-      trackEvent('journey_checkout_validation_error', { field: 'area', reason: 'missing' });
-      return;
-    }
-    if (formData.ordertype === "delivery" && !formData.phone) {
-      toast.error("Phone Number missing.", {
-        description: "Please provide your Contact Number.",
-      });
-      trackEvent('journey_checkout_validation_error', { field: 'phone', reason: 'missing' });
-      return;
+    if (formData.ordertype === "delivery") {
+      const areaToVerify = selectedAreaObj?.name || selectedDeliveryArea || detectedArea || formData.area;
+      if (!areaToVerify) {
+        toast.error("Delivery area missing.", {
+          description: "Please select your delivery area/zone.",
+        });
+        trackEvent('journey_checkout_validation_error', { field: 'area', reason: 'missing' });
+        return;
+      }
+      if (!streetAddress && !formData.area) {
+        toast.error("Street address missing.", {
+          description: "Please enter your house/flat/street address.",
+        });
+        areaInputRef.current?.focus();
+        trackEvent('journey_checkout_validation_error', { field: 'streetAddress', reason: 'missing' });
+        return;
+      }
+      if (!formData.phone) {
+        toast.error("Phone Number missing.", {
+          description: "Please provide your Contact Number.",
+        });
+        trackEvent('journey_checkout_validation_error', { field: 'phone', reason: 'missing' });
+        return;
+      }
     }
 
     setIsModalOpen(true);
@@ -368,12 +449,6 @@ const CheckoutPageContent: FC = () => {
       description: "Please confirm your order in the next step.",
     });
   };
-  // Calculate delivery charge dynamically
-  const deliveryCharge = useMemo(() => {
-    if (formData.ordertype !== "delivery") return 0;
-    const match = deliveryAreas.find((a) => a.name === detectedArea);
-    return match ? match.charge : 0;
-  }, [detectedArea, formData.ordertype, deliveryAreas]);
 
   const discountAmount = useMemo(() => {
     if (!discountConfig || !discountConfig.isActive || discountConfig.discountValue <= 0) {
@@ -409,7 +484,10 @@ const CheckoutPageContent: FC = () => {
   const handlePlaceOrder = async (): Promise<void> => {
     setIsProcessing(true);
 
-    const finalArea = formData.area || detectedArea || area || "";
+    const chosenAreaName = selectedAreaObj?.name || selectedDeliveryArea || detectedArea || formData.area || "";
+    const finalArea = streetAddress
+      ? (streetAddress.toLowerCase().includes(chosenAreaName.toLowerCase()) ? streetAddress : `${streetAddress}, ${chosenAreaName}`)
+      : (formData.area || chosenAreaName);
     const finalTable = formData.tableNumber || tableId || "";
     const finalOrderType = formData.ordertype || orderType || "dinein";
 
@@ -497,7 +575,14 @@ const CheckoutPageContent: FC = () => {
         });
 
         // send WhatsApp notification
-        await sendWhatsAppNotification({ ...newOrder, orderNumber });
+        await sendWhatsAppNotification({
+          ...newOrder,
+          orderNumber,
+          deliveryCharge,
+          area: finalArea,
+          phone: formData.phone,
+          ordertype: resolvedOrderType,
+        });
         clearCart();
         setIsModalOpen(false);
 
@@ -507,7 +592,7 @@ const CheckoutPageContent: FC = () => {
             ? `/thank-you?type=dinein&tableId=${encodeURIComponent(finalTable)}&order=${encodeURIComponent(orderNumber)}`
             : `/thank-you?type=${resolvedOrderType}&order=${encodeURIComponent(orderNumber)}${
                 formData.phone ? `&phone=${encodeURIComponent(formData.phone)}` : ""
-              }${formData.area ? `&area=${encodeURIComponent(formData.area)}` : ""}`;
+              }${finalArea ? `&area=${encodeURIComponent(finalArea)}` : ""}`;
 
         try {
           router.push(targetUrl);
@@ -530,12 +615,16 @@ const CheckoutPageContent: FC = () => {
     }
   };
 
-  // keep your WhatsApp sender intact
+  // WhatsApp notification sender
   const sendWhatsAppNotification = async (order: {
     orderNumber: string;
     customerName: string;
     email: string;
-    tableNumber: string;
+    tableNumber?: string | null;
+    area?: string | null;
+    phone?: string | null;
+    ordertype: string;
+    deliveryCharge?: number;
     paymentMethod: string;
     items: {
       id: string;
@@ -549,6 +638,10 @@ const CheckoutPageContent: FC = () => {
     const {
       customerName,
       tableNumber,
+      area: orderArea,
+      phone: orderPhone,
+      ordertype,
+      deliveryCharge: orderDeliveryCharge,
       paymentMethod,
       items,
       totalAmount,
@@ -556,15 +649,24 @@ const CheckoutPageContent: FC = () => {
     } = order;
 
     const discountLine = discountAmount > 0 ? `- Discount: Rs. ${discountAmount.toFixed(2)}\n` : '';
+    const deliveryLine = ordertype === 'delivery' && (orderDeliveryCharge || 0) > 0
+      ? `- Delivery Charges: Rs. ${(orderDeliveryCharge || 0).toFixed(2)}\n`
+      : '';
+    const destinationLine = ordertype === 'dinein'
+      ? `- Table Number: ${tableNumber || 'N/A'}`
+      : ordertype === 'delivery'
+      ? `- Delivery Address: ${orderArea || 'N/A'}\n- Contact Phone: ${orderPhone || 'N/A'}`
+      : `- Order Mode: Pickup\n- Contact Phone: ${orderPhone || 'N/A'}`;
 
     const message = `
 New Order Received:
 - Order Number: ${orderNumber}
 - Customer Name: ${customerName}
-- Table Number: ${tableNumber}
+- Order Type: ${ordertype.toUpperCase()}
+${destinationLine}
 - Payment Method: ${paymentMethod}
 - Subtotal: Rs. ${totalAmount.toFixed(2)}
-${discountLine}- Total Amount: Rs. ${order.totalAmount.toFixed(2)}
+${discountLine}${deliveryLine}- Total Amount: Rs. ${order.totalAmount.toFixed(2)}
 - Items:
 ${items
   .map(
@@ -743,25 +845,51 @@ ${items
                         exit={{ opacity: 0, height: 0 }}
                         className="grid md:grid-cols-2 gap-6"
                       >
+                        {/* Delivery Area / Zone Selector */}
                         <div className="space-y-2">
-                          <Label htmlFor="area" className="text-sm font-semibold text-gray-700 flex items-center gap-2">
-                            <MapPin className="h-4 w-4" />
-                            Delivery Address
+                          <Label htmlFor="delivery-area-select" className="text-sm font-semibold text-gray-700 flex items-center justify-between">
+                            <span className="flex items-center gap-2">
+                              <MapPin className="h-4 w-4 text-[#741052]" />
+                              Delivery Area / Zone
+                            </span>
+                            {selectedAreaObj && (
+                              <span className="text-xs font-bold text-[#741052] bg-pink-50 border border-pink-200 px-2 py-0.5 rounded-full">
+                                Delivery: Rs. {deliveryCharge}
+                              </span>
+                            )}
                           </Label>
-                          <Input
-                            ref={areaInputRef}
-                            id="area"
-                            name="area"
-                            type="text"
-                            value={formData.area}
-                            onChange={handleInputChange}
-                            onFocus={() => handleFieldFocus('area')}
-                            placeholder={`Enter delivery address`}
-                            className="h-12 border-2 focus:border-[#741052] transition-colors"
-                            required
-                          />
+                          <div className="relative">
+                            <select
+                              id="delivery-area-select"
+                              value={selectedDeliveryArea || selectedAreaObj?.name || ""}
+                              onChange={(e) => {
+                                const val = e.target.value;
+                                setSelectedDeliveryArea(val);
+                                setDetectedArea(val);
+                                if (val) {
+                                  setOrder({ orderType: "delivery", area: val });
+                                }
+                              }}
+                              className="h-12 w-full px-3 py-2 bg-white text-gray-900 border-2 rounded-md border-gray-200 focus:border-[#741052] focus:outline-none transition-colors text-sm font-medium"
+                              required
+                            >
+                              <option value="" disabled>
+                                {deliveryAreas.length === 0 ? "Loading delivery areas..." : "-- Select Your Delivery Area --"}
+                              </option>
+                              {deliveryAreas.map((a) => (
+                                <option
+                                  key={a._id || a.name}
+                                  value={a.name}
+                                  disabled={!a.isAvailable}
+                                >
+                                  {a.name} {a.isAvailable ? `(Rs. ${a.charge})` : "— Unavailable"} {a.note ? ` - ${a.note}` : ""}
+                                </option>
+                              ))}
+                            </select>
+                          </div>
                         </div>
 
+                        {/* Phone Number */}
                         <div className="space-y-2">
                           <Label htmlFor="phone" className="text-sm font-semibold text-gray-700 flex items-center gap-2">
                             <Phone className="h-4 w-4" />
@@ -779,6 +907,34 @@ ${items
                             required
                           />
                         </div>
+
+                        {/* Detailed Street Address / House / Flat */}
+                        <div className="col-span-full space-y-2">
+                          <Label htmlFor="street-address" className="text-sm font-semibold text-gray-700 flex items-center gap-2">
+                            <MapPin className="h-4 w-4" />
+                            Complete Street Address / House / Flat Details
+                          </Label>
+                          <Input
+                            ref={areaInputRef}
+                            id="street-address"
+                            name="streetAddress"
+                            type="text"
+                            value={streetAddress || (formData.area && !selectedAreaObj ? formData.area : "")}
+                            onChange={(e) => {
+                              setStreetAddress(e.target.value);
+                            }}
+                            onFocus={() => handleFieldFocus('streetAddress')}
+                            placeholder="e.g. House # 12, Street 4, Sector 5 / Apartment name & flat number"
+                            className="h-12 border-2 focus:border-[#741052] transition-colors"
+                            required
+                          />
+                          {(selectedAreaObj?.name || selectedDeliveryArea || detectedArea) && (
+                            <p className="text-xs text-gray-500">
+                              Destination: <span className="font-semibold text-gray-800">{streetAddress ? `${streetAddress}, ` : ""}{selectedAreaObj?.name || selectedDeliveryArea || detectedArea}</span>
+                            </p>
+                          )}
+                        </div>
+
                         {areaNote && (
                           <motion.div
                             initial={{ opacity: 0, y: -10 }}
@@ -787,7 +943,7 @@ ${items
                           >
                             <span className="text-lg">⚠️</span>
                             <div>
-                              <h5 className="font-semibold text-sm">Notice for {detectedArea}</h5>
+                              <h5 className="font-semibold text-sm">Notice for {selectedAreaObj?.name || detectedArea}</h5>
                               <p className="text-xs text-amber-700 mt-0.5">{areaNote}</p>
                             </div>
                           </motion.div>
@@ -1071,7 +1227,7 @@ ${items
 
                     {formData.ordertype === "delivery" && (
                       <div className="flex justify-between text-sm">
-                        <span className="text-gray-600">Delivery Charges</span>
+                        <span className="text-gray-600">Delivery Charges {selectedAreaObj ? `(${selectedAreaObj.name})` : ""}</span>
                         <span className="font-medium">Rs. {deliveryCharge.toFixed(2)}</span>
                       </div>
                     )}
@@ -1192,17 +1348,21 @@ ${items
                             {formData.ordertype === "delivery" && (
                               <>
                                 <div className="flex justify-between items-start">
+                                  <span className="text-gray-600">Area / Zone:</span>
+                                  <span className="font-semibold text-[#741052]">{selectedAreaObj?.name || selectedDeliveryArea || detectedArea || "Delivery Area"}</span>
+                                </div>
+                                <div className="flex justify-between items-start">
                                   <span className="text-gray-600">Address:</span>
                                   <div className="flex-1 ml-4">
                                     <TooltipProvider>
                                       <Tooltip>
                                         <TooltipTrigger asChild>
                                           <span className="font-medium cursor-help text-right block">
-                                            {truncateText(formData.area)}
+                                            {truncateText(streetAddress ? `${streetAddress}, ${selectedAreaObj?.name || selectedDeliveryArea || detectedArea}` : (formData.area || selectedAreaObj?.name || "Address provided"))}
                                           </span>
                                         </TooltipTrigger>
                                         <TooltipContent>
-                                          <p className="max-w-xs">{formData.area}</p>
+                                          <p className="max-w-xs">{streetAddress ? `${streetAddress}, ${selectedAreaObj?.name || selectedDeliveryArea || detectedArea}` : (formData.area || selectedAreaObj?.name)}</p>
                                         </TooltipContent>
                                       </Tooltip>
                                     </TooltipProvider>
@@ -1273,7 +1433,9 @@ ${items
                             )}
                             {formData.ordertype === "delivery" && (
                               <div className="flex justify-between">
-                                <span className="text-gray-600">Delivery Charges:</span>
+                                <span className="text-gray-600">
+                                  Delivery Charges {selectedAreaObj ? `(${selectedAreaObj.name})` : ""}:
+                                </span>
                                 <span className="font-medium">Rs. {deliveryCharge.toFixed(2)}</span>
                               </div>
                             )}
@@ -1317,34 +1479,35 @@ ${items
                       </div>
                     </div>
 
-                    {/* Fixed Footer */}
-                    <div className="flex-shrink-0 border-t border-gray-200 bg-white p-6">
-                      <div className="flex gap-3">
-                        <Button
-                          onClick={handlePlaceOrder}
-                          disabled={!confirmChecked || isProcessing}
-                          className="flex-1 bg-gradient-to-r from-[#741052] to-[#d0269b] text-white font-semibold py-3 rounded-xl shadow-lg hover:opacity-90 transition-all duration-200"
-                        >
-                          {isProcessing ? (
-                            <>
-                              <div className="animate-spin rounded-full h-4 w-4 border-2 border-t-transparent border-white mr-2"></div>
-                              Placing Order...
-                            </>
-                          ) : (
-                            <>
-                              <CheckCircle className="h-4 w-4 mr-2" />
-                              Place Order
-                            </>
-                          )}
-                        </Button>
-                        <Button
-                          variant="outline"
-                          onClick={() => setIsModalOpen(false)}
-                          className="px-6 py-3 border-2 border-gray-300 hover:border-gray-400 transition-colors"
-                        >
-                          Cancel
-                        </Button>
-                      </div>
+                  </div>
+
+                  {/* Sticky Footer — outside scrollable div so it's always visible */}
+                  <div className="flex-shrink-0 border-t border-gray-200 bg-white px-6 py-4">
+                    <div className="flex gap-3">
+                      <Button
+                        onClick={handlePlaceOrder}
+                        disabled={!confirmChecked || isProcessing}
+                        className="flex-1 bg-gradient-to-r from-[#741052] to-[#d0269b] text-white font-semibold py-3 rounded-xl shadow-lg hover:opacity-90 transition-all duration-200"
+                      >
+                        {isProcessing ? (
+                          <>
+                            <div className="animate-spin rounded-full h-4 w-4 border-2 border-t-transparent border-white mr-2"></div>
+                            Placing Order...
+                          </>
+                        ) : (
+                          <>
+                            <CheckCircle className="h-4 w-4 mr-2" />
+                            Place Order
+                          </>
+                        )}
+                      </Button>
+                      <Button
+                        variant="outline"
+                        onClick={() => setIsModalOpen(false)}
+                        className="px-6 py-3 border-2 border-gray-300 hover:border-gray-400 transition-colors"
+                      >
+                        Cancel
+                      </Button>
                     </div>
                   </div>
                 </motion.div>

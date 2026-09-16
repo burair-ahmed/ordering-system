@@ -439,34 +439,47 @@ const ThankYouPage: FC = () => {
         </div>
 
         <div className="mt-4 border-t border-gray-200 pt-3 space-y-2 text-sm text-gray-700">
-          <div className="flex items-center justify-between">
-            <span>Subtotal</span>
-            <span>Rs. {(orderDetails.items.reduce((sum, item) => sum + (item.price * item.quantity), 0)).toFixed(2)}</span>
-          </div>
-           
-           <div className="flex items-center justify-between text-green-600">
-            <span>Discount (10%)</span>
-            <span>
-              - Rs. {(orderDetails.items.reduce((sum, item) => sum + (item.price * item.quantity), 0) * 0.10).toFixed(2)}
-            </span>
-          </div>
+          {(() => {
+            const itemsSubtotal = (orderDetails.items || []).reduce(
+              (sum, item) => sum + item.price * item.quantity,
+              0
+            );
+            const isDelivery = orderDetails.ordertype === 'delivery' || orderType === 'delivery';
+            const deliveryFee = isDelivery ? (orderDetails.deliveryCharge || 0) : 0;
+            const finalPayable =
+              orderDetails.totalAmount !== undefined
+                ? orderDetails.totalAmount
+                : itemsSubtotal + deliveryFee;
+            const discountAmt = Math.max(0, itemsSubtotal + deliveryFee - finalPayable);
 
-          {orderType === 'delivery' && (
-            <div className="flex items-center justify-between">
-              <span>Delivery</span>
-              <span>Rs. {(orderDetails.deliveryCharge || 0).toFixed(2)}</span>
-            </div>
-          )}
-          <div className="flex items-center justify-between font-semibold">
-            <span>Total Paid/Payable</span>
-            <span>
-              Rs.{' '}
-              {(
-                (orderDetails.items.reduce((sum, item) => sum + (item.price * item.quantity), 0) * 0.90) +
-                (orderType === 'delivery' ? orderDetails.deliveryCharge || 0 : 0)
-              ).toFixed(2)}
-            </span>
-          </div>
+            return (
+              <>
+                <div className="flex items-center justify-between">
+                  <span>Subtotal</span>
+                  <span>Rs. {itemsSubtotal.toFixed(2)}</span>
+                </div>
+
+                {discountAmt > 0 && (
+                  <div className="flex items-center justify-between text-green-600">
+                    <span>Discount</span>
+                    <span>- Rs. {discountAmt.toFixed(2)}</span>
+                  </div>
+                )}
+
+                {isDelivery && (
+                  <div className="flex items-center justify-between">
+                    <span>Delivery Charges</span>
+                    <span>Rs. {deliveryFee.toFixed(2)}</span>
+                  </div>
+                )}
+
+                <div className="flex items-center justify-between font-semibold text-gray-900 pt-1 border-t border-gray-100">
+                  <span>Total Paid / Payable</span>
+                  <span className="text-[#741052]">Rs. {finalPayable.toFixed(2)}</span>
+                </div>
+              </>
+            );
+          })()}
           {orderDetails.paymentMethod && (
             <p className="text-xs text-gray-500">
               Payment method: {orderDetails.paymentMethod.toUpperCase()}
@@ -601,14 +614,23 @@ const ThankYouPage: FC = () => {
       toast.error('Receipt unavailable.');
       return;
     }
-    const total =
-      (orderDetails.totalAmount || 0) +
-      (orderDetails.ordertype === 'delivery' ? orderDetails.deliveryCharge || 0 : 0);
+    const itemsSubtotal = (orderDetails.items || []).reduce(
+      (sum, item) => sum + item.price * item.quantity,
+      0
+    );
+    const isDelivery = orderDetails.ordertype === 'delivery' || orderType === 'delivery';
+    const deliveryFee = isDelivery ? (orderDetails.deliveryCharge || 0) : 0;
+    const finalTotal =
+      orderDetails.totalAmount !== undefined
+        ? orderDetails.totalAmount
+        : itemsSubtotal + deliveryFee;
+    const discountVal = Math.max(0, itemsSubtotal + deliveryFee - finalTotal);
+
     const lines = [
       `Order: ${orderNumber}`,
-      `Type: ${orderDetails.ordertype ?? ''}`,
+      `Type: ${orderDetails.ordertype ?? orderType ?? ''}`,
       orderDetails.tableNumber ? `Table: ${orderDetails.tableNumber}` : '',
-      orderDetails.area ? `Area: ${orderDetails.area}` : '',
+      orderDetails.area ? `Area / Address: ${orderDetails.area}` : '',
       orderDetails.phone ? `Phone: ${orderDetails.phone}` : '',
       `Payment: ${orderDetails.paymentMethod ?? ''}`,
       `Status: ${orderDetails.status ?? ''}`,
@@ -621,15 +643,10 @@ const ThankYouPage: FC = () => {
           ).toFixed(2)}${it.variations && it.variations.length ? ` (${it.variations.join(', ')})` : ''}`
       ),
       '',
-      `Subtotal: Rs.${((orderDetails.items || []).reduce((sum, item) => sum + (item.price * item.quantity), 0)).toFixed(2)}`,
-       `Discount (10%): - Rs.${((orderDetails.items || []).reduce((sum, item) => sum + (item.price * item.quantity), 0) * 0.10).toFixed(2)}`,
-      orderDetails.ordertype === 'delivery'
-        ? `Delivery: Rs.${(orderDetails.deliveryCharge || 0).toFixed(2)}`
-        : '',
-      `Total: Rs.${(
-        ((orderDetails.items || []).reduce((sum, item) => sum + (item.price * item.quantity), 0) * 0.90) +
-        (orderDetails.ordertype === 'delivery' ? orderDetails.deliveryCharge || 0 : 0)
-      ).toFixed(2)}`,
+      `Subtotal: Rs.${itemsSubtotal.toFixed(2)}`,
+      discountVal > 0 ? `Discount: - Rs.${discountVal.toFixed(2)}` : '',
+      isDelivery ? `Delivery Charges: Rs.${deliveryFee.toFixed(2)}` : '',
+      `Total: Rs.${finalTotal.toFixed(2)}`,
     ]
       .filter(Boolean)
       .join('\n');

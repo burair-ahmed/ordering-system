@@ -71,8 +71,8 @@ export default function WhatsAppButton() {
               }}
               className="hover:text-emerald-400 transition-colors"
             >
-              <span>Chat with us on WhatsApp!</span>
-              <span className="inline-block ml-1">👋</span>
+              <span>Any Query?</span>
+              {/* <span className="inline-block ml-1">👋</span> */}
             </a>
             <button
               onClick={() => setShowTooltip(false)}

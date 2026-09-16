@@ -5,10 +5,24 @@ tags:
   - #status/active
   - #project/ordering-ecosystem
 created: 2026-09-04
-last_updated: 2026-09-14
+last_updated: 2026-09-15
 ---
 
 # Living Project Memory & Task Tracker
+
+## 0. Phase 4.20 Micro-Changes — Delivery Charges Timing Race Fix & Modal Footer (2026-09-15)
+
+### Delivery Areas API Timing Race Fix
+- **File**: `src/app/checkout/page.tsx`
+- **Root Cause**: The main init `useEffect` (responsible for syncing `orderType`, `tableId`, `area` from `OrderContext` into checkout state) ran **before** the `fetch('/api/delivery-areas')` call completed. At that point, `deliveryAreas = []`, so `findMatchingArea(area, [])` returned `null` and `selectedDeliveryArea` was never set. `selectedAreaObj` thus resolved to `null` → `deliveryCharge = 0` in both the sidebar order summary and the confirmation modal.
+- **Fix**: Added a dedicated `useEffect(() => { ... }, [deliveryAreas])` that fires exclusively when `deliveryAreas` populates. It checks `selectedDeliveryArea === ""` (not already set by user) and then calls `findMatchingArea(detectedArea || area || formData.area, deliveryAreas)` to re-sync the selected area and delivery charge as soon as the API data is available.
+
+### Confirmation Modal Sticky Footer Fix
+- **File**: `src/app/checkout/page.tsx`
+- **Root Cause**: The "Place Order" / "Cancel" action footer div (with class `flex-shrink-0`) was nested **inside** the `flex-1 overflow-y-auto p-6` scrollable content div. The `flex-shrink-0` had no effect because it was a child of the scrollable overflow container, not a sibling in the flex column. This caused the footer to scroll with content and potentially disappear below the viewport on smaller screens.
+- **Fix**: Moved the footer div **outside** the `overflow-y-auto` scrollable div but still inside the `flex flex-col` modal container. The modal now has the correct `[Header][Scrollable Content][Sticky Footer]` flex layout. Updated `p-6` to `px-6 py-4` for compact spacing.
+
+---
 
 ## 0. Phase 4.19 Micro-Changes — Classic Layout Category Configuration via CMS (2026-09-14)
 
