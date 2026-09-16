@@ -6,8 +6,8 @@ tags:
   - #project/ordering-ecosystem
 created: 2026-09-04
 last_updated: 2026-09-16
-overall_completion: "Phase 4.21: Social Media Links & Footprint Cleanup (100%)"
-current_sprint: "Social Media Links & Footprint Cleanup"
+overall_completion: "Phase 4.23: White Biryani Menu Products Upload to Pulao.com Category (100%)"
+current_sprint: "White Biryani Menu Products Upload to Pulao.com Category"
 ---
 
 # Project Status Dashboard — Advanced Ordering Ecosystem
@@ -16,8 +16,34 @@ current_sprint: "Social Media Links & Footprint Cleanup"
 
 | Sub-Project | Phase | Focus | Status |
 | :--- | :--- | :--- | :--- |
-| **Cafe Little Karachi (CLK)** | Phase 4.21 | Social Media Links & Footprint Cleanup | **Completed** 🟢 |
+| **Cafe Little Karachi (CLK)** | Phase 4.23 | White Biryani Products in Pulao.com | **Completed** 🟢 |
 | **The Chai Company (TCC)** | Base | Monorepo Structure | Ready for Next Cycle ⚪ |
+
+---
+
+## Phase 4.23 Completion Summary — White Biryani Menu Products Upload to Pulao.com Category
+
+- [x] **Product Catalog Seeding (`scripts/upload-pulao-products.ts`)**: Uploaded and verified 6 White Biryani dishes in MongoDB `menuitems` collection under category `Pulao.com`.
+- [x] **Items Uploaded**:
+  - `Chicken White Biryani – 1 KG Deg` (Rs. 2,050) — `1 KG Chicken, 1 KG Rice`
+  - `Beef White Biryani – 1 KG Deg` (Rs. 2,950) — `1 KG Beef, 1 KG Rice`
+  - `Chicken White Biryani – 375 Gram` (Rs. 225) — `375 Gram – Rice, 1 Chicken Piece, Aloo`
+  - `Beef White Biryani – 375 Gram` (Rs. 275) — `375 Gram – Rice, 3 Beef Pieces, Aloo`
+  - `Chicken White Biryani – 500 Gram` (Rs. 300) — `500 Gram – Rice, 1 Chicken Piece, Aloo`
+  - `Beef White Biryani – 500 Gram` (Rs. 370) — `500 Gram – Rice, 4 Beef Pieces, Aloo`
+- [x] **Category Management & Visibility Sync**: Ensured `Pulao.com` exists in MongoDB `categories` collection and updated `PageConfig.classicCategories` to include `{ id: 'pulao-com', name: 'Pulao.com', isPlatter: false, isVisible: true }`.
+- [x] **Placeholder Cloudinary Assets**: Attached high-resolution Cloudinary placeholder images from the CLK gallery for immediate customer storefront rendering.
+
+---
+
+## Phase 4.22 Completion Summary — Variable Delivery Charge Display for On-Demand Areas
+
+- [x] **Modal & Landing Area Selector (`TableForm.tsx`)**: Replaced `(Rs. 0)` with `(Variable)` in dropdown options when delivery charge is 0 or on-demand.
+- [x] **Checkout Zone Badge (`checkout/page.tsx`)**: Badge dynamically displays `Delivery: Variable` instead of `Delivery: Rs. 0` when `deliveryCharge === 0`.
+- [x] **Checkout Dropdown Selector (`checkout/page.tsx`)**: Formats delivery areas with `(Variable)` instead of `(Rs. 0)` while keeping attached notes intact.
+- [x] **Desktop Order Summary Card (`checkout/page.tsx`)**: Renders `Variable` for delivery fee row when `deliveryCharge === 0`.
+- [x] **Mobile Sticky Bottom Summary (`checkout/page.tsx`)**: Renders `Variable` for delivery fee row when `deliveryCharge === 0`.
+- [x] **Standard Price Preservation**: Standard delivery zones with non-zero charges (e.g., `Rs. 200`, `Rs. 250`) and timing notes continue displaying their fixed prices accurately.
 
 ---
 

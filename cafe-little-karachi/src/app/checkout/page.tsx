@@ -854,7 +854,7 @@ ${items
                             </span>
                             {selectedAreaObj && (
                               <span className="text-xs font-bold text-[#741052] bg-pink-50 border border-pink-200 px-2 py-0.5 rounded-full">
-                                Delivery: Rs. {deliveryCharge}
+                                Delivery: {deliveryCharge === 0 ? "Variable" : `Rs. ${deliveryCharge}`}
                               </span>
                             )}
                           </Label>
@@ -882,7 +882,7 @@ ${items
                                   value={a.name}
                                   disabled={!a.isAvailable}
                                 >
-                                  {a.name} {a.isAvailable ? `(Rs. ${a.charge})` : "— Unavailable"} {a.note ? ` - ${a.note}` : ""}
+                                  {a.name} {a.isAvailable ? (Number(a.charge) === 0 ? "(Variable)" : `(Rs. ${a.charge})`) : "— Unavailable"} {a.note ? ` - ${a.note}` : ""}
                                 </option>
                               ))}
                             </select>
@@ -1228,7 +1228,7 @@ ${items
                     {formData.ordertype === "delivery" && (
                       <div className="flex justify-between text-sm">
                         <span className="text-gray-600">Delivery Charges {selectedAreaObj ? `(${selectedAreaObj.name})` : ""}</span>
-                        <span className="font-medium">Rs. {deliveryCharge.toFixed(2)}</span>
+                        <span className="font-medium">{deliveryCharge === 0 ? "Variable" : `Rs. ${deliveryCharge.toFixed(2)}`}</span>
                       </div>
                     )}
 
@@ -1436,7 +1436,7 @@ ${items
                                 <span className="text-gray-600">
                                   Delivery Charges {selectedAreaObj ? `(${selectedAreaObj.name})` : ""}:
                                 </span>
-                                <span className="font-medium">Rs. {deliveryCharge.toFixed(2)}</span>
+                                <span className="font-medium">{deliveryCharge === 0 ? "Variable" : `Rs. ${deliveryCharge.toFixed(2)}`}</span>
                               </div>
                             )}
                             <div className="border-t border-gray-200 pt-4">

@@ -183,7 +183,7 @@ export default function OrderTypeModal() {
                 </option>
                 {deliveryAreas.map((area, idx) => (
                   <option key={area._id || idx} value={area.name} disabled={!area.isAvailable}>
-                    {area.name} {area.isAvailable ? `(Rs. ${area.charge})` : "(Unavailable)"} {area.note ? ` - ${area.note}` : ""}
+                    {area.name} {area.isAvailable ? (Number(area.charge) === 0 ? "(Variable)" : `(Rs. ${area.charge})`) : "(Unavailable)"} {area.note ? ` - ${area.note}` : ""}
                   </option>
                 ))}
               </select>

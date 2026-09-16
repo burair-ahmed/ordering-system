@@ -10,6 +10,46 @@ last_updated: 2026-09-16
 
 # Living Project Memory & Task Tracker
 
+## 0. Phase 4.23 Micro-Changes — White Biryani Products Upload to Pulao.com Category (2026-09-16)
+
+### Product Catalog Seeding & Category Configuration
+- **Files**:
+  - `cafe-little-karachi/scripts/upload-pulao-products.ts`
+  - MongoDB `menuitems` collection
+  - MongoDB `categories` collection
+  - MongoDB `pageconfigs` (`classicCategories`)
+- **Context**: The user requested 6 White Biryani dishes (Deg sizes and portion sizes for Chicken & Beef) to be uploaded into the `Pulao.com` category with initial placeholder images.
+- **Uploaded Products**:
+  1. `Chicken White Biryani – 1 KG Deg` — Rs. 2,050 (`1 KG Chicken, 1 KG Rice`)
+  2. `Beef White Biryani – 1 KG Deg` — Rs. 2,950 (`1 KG Beef, 1 KG Rice`)
+  3. `Chicken White Biryani – 375 Gram` — Rs. 225 (`375 Gram – Rice, 1 Chicken Piece, Aloo`)
+  4. `Beef White Biryani – 375 Gram` — Rs. 275 (`375 Gram – Rice, 3 Beef Pieces, Aloo`)
+  5. `Chicken White Biryani – 500 Gram` — Rs. 300 (`500 Gram – Rice, 1 Chicken Piece, Aloo`)
+  6. `Beef White Biryani – 500 Gram` — Rs. 370 (`500 Gram – Rice, 4 Beef Pieces, Aloo`)
+- **Changes**:
+  - Inserted all 6 documents into `menuitems` with UUIDs, `isVisible: true`, `status: 'in stock'`, `sortOrder: 1..6`, and high-res Cloudinary placeholder images.
+  - Confirmed `Pulao.com` entry in `categories` collection.
+  - Added `{ id: 'pulao-com', name: 'Pulao.com', isPlatter: false, isVisible: true }` into `PageConfig.classicCategories` to guarantee immediate navigation strip and catalog rendering on the live storefront.
+
+---
+
+## 0. Phase 4.22 Micro-Changes — Variable Delivery Charge Display for On-Demand Areas (2026-09-16)
+
+### Variable Charge Labeling for On-Demand Delivery Areas
+- **Files**:
+  - `cafe-little-karachi/src/app/components/TableForm.tsx`
+  - `cafe-little-karachi/src/app/checkout/page.tsx`
+- **Context**: Delivery areas with on-demand charges (such as Shahrah-e-Faisal with `charge: 0` and note `"Charges on demand"`) previously displayed `Rs. 0` in dropdown selectors and `Rs. 0.00` in order summaries, which could be misinterpreted by customers as free delivery.
+- **Changes**:
+  - `TableForm.tsx`: Updated delivery area dropdown option rendering to display `(Variable)` instead of `(Rs. 0)` when `Number(area.charge) === 0` (e.g., `Shahrah-e-Faisal (On Demand) (Variable) - Charges on demand`).
+  - `checkout/page.tsx` (Zone Badge): Updated Delivery Area badge header to display `Delivery: Variable` when `deliveryCharge === 0`.
+  - `checkout/page.tsx` (Area Select Dropdown): Updated dropdown options to render `(Variable)` instead of `(Rs. 0)` when `Number(a.charge) === 0`.
+  - `checkout/page.tsx` (Sidebar Order Summary): Rendered `Variable` in place of `Rs. 0.00` when `deliveryCharge === 0`.
+  - `checkout/page.tsx` (Mobile/Bottom Summary): Rendered `Variable` in place of `Rs. 0.00` when `deliveryCharge === 0`.
+  - Preserved standard numeric charge formatting (e.g., `Rs. 200.00`) for areas with fixed non-zero charges even if they include operational notes.
+
+---
+
 ## 0. Phase 4.21 Micro-Changes — Social Media Links Update & Dummy # Cleanup (2026-09-16)
 
 ### Footer Social Links Update & Placeholder Removal
