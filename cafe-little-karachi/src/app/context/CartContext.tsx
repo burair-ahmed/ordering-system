@@ -12,6 +12,7 @@ interface CartItem {
   quantity: number;
   image?: string;
   variations?: string[];
+  originalPrice?: number;
 }
 
 type OrderType = "dinein" | "delivery" | "pickup";

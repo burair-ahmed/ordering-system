@@ -5,9 +5,9 @@ tags:
   - #status/active
   - #project/ordering-ecosystem
 created: 2026-09-04
-last_updated: 2026-09-15
-overall_completion: "Phase 4.20: Delivery Charges Resolution & Area Selection (100%)"
-current_sprint: "Delivery Charges Resolution & Accurate Funnel Calculations"
+last_updated: 2026-09-16
+overall_completion: "Phase 4.21: Social Media Links & Footprint Cleanup (100%)"
+current_sprint: "Social Media Links & Footprint Cleanup"
 ---
 
 # Project Status Dashboard — Advanced Ordering Ecosystem
@@ -16,8 +16,18 @@ current_sprint: "Delivery Charges Resolution & Accurate Funnel Calculations"
 
 | Sub-Project | Phase | Focus | Status |
 | :--- | :--- | :--- | :--- |
-| **Cafe Little Karachi (CLK)** | Phase 4.20 | Delivery Charges Resolution & Area Selector | **Completed** 🟢 |
+| **Cafe Little Karachi (CLK)** | Phase 4.21 | Social Media Links & Footprint Cleanup | **Completed** 🟢 |
 | **The Chai Company (TCC)** | Base | Monorepo Structure | Ready for Next Cycle ⚪ |
+
+---
+
+## Phase 4.21 Completion Summary — Social Media Links & Footprint Cleanup
+
+- [x] **Live Social Channels Configured (`Footer.tsx`)**: Linked Little Karachi Express official Facebook (`https://www.facebook.com/littlekarachiexpress`) and Instagram (`https://www.instagram.com/littlekarachiexpress`).
+- [x] **Placeholder Dummy # Cleanup (`Footer.tsx`)**: Removed Twitter and LinkedIn entries with dummy `#` links.
+- [x] **Unused Icons Removed (`Footer.tsx`)**: Cleaned imports by removing `FaTwitter` and `FaLinkedin` from `react-icons/fa`.
+- [x] **Security & Accessibility Standards (`Footer.tsx`)**: Added `target="_blank"`, `rel="noopener noreferrer"`, and explicit `aria-label` attributes.
+- [x] **Contact Analytics Integration (`Footer.tsx`)**: Attached `trackEvent('journey_contact', ...)` to social icons to log standard `Contact` Meta Pixel events and Clarity session metrics.
 
 ---
 

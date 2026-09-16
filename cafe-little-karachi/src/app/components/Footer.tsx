@@ -4,7 +4,7 @@ import { FC, useEffect, useState } from "react"
 import Image from "next/image"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { FaFacebook, FaInstagram, FaTwitter, FaLinkedin } from "react-icons/fa"
+import { FaFacebook, FaInstagram } from "react-icons/fa"
 import { motion, Variants } from "framer-motion"
 import { Button } from "@/components/ui/button"
 import { trackEvent } from "../lib/analytics"
@@ -131,14 +131,30 @@ const Footer: FC = () => {
             </h3>
             <div className="flex gap-6">
               {[
-                { icon: <FaFacebook />, href: "#" },
-                { icon: <FaInstagram />, href: "#" },
-                { icon: <FaTwitter />, href: "#" },
-                { icon: <FaLinkedin />, href: "#" },
+                { 
+                  icon: <FaFacebook />, 
+                  href: "https://www.facebook.com/littlekarachiexpress", 
+                  label: "Facebook" 
+                },
+                { 
+                  icon: <FaInstagram />, 
+                  href: "https://www.instagram.com/littlekarachiexpress", 
+                  label: "Instagram" 
+                },
               ].map((item, i) => (
                 <motion.a
                   key={i}
                   href={item.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={item.label}
+                  onClick={() => {
+                    trackEvent('journey_contact', {
+                      channel: item.label.toLowerCase(),
+                      destination: item.href,
+                      source: 'footer',
+                    });
+                  }}
                   whileHover={{ scale: 1.2, color: "#ff9824" }}
                   className="text-2xl transition-colors"
                 >

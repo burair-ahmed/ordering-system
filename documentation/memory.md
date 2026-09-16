@@ -5,10 +5,26 @@ tags:
   - #status/active
   - #project/ordering-ecosystem
 created: 2026-09-04
-last_updated: 2026-09-15
+last_updated: 2026-09-16
 ---
 
 # Living Project Memory & Task Tracker
+
+## 0. Phase 4.21 Micro-Changes — Social Media Links Update & Dummy # Cleanup (2026-09-16)
+
+### Footer Social Links Update & Placeholder Removal
+- **File**: `cafe-little-karachi/src/app/components/Footer.tsx`
+- **Context**: The customer footer previously had placeholder dummy links (`href="#"`) for Facebook, Instagram, Twitter, and LinkedIn.
+- **Changes**:
+  - Replaced dummy Facebook link with official page: `https://www.facebook.com/littlekarachiexpress`.
+  - Replaced dummy Instagram link with official profile: `https://www.instagram.com/littlekarachiexpress`.
+  - Removed Twitter and LinkedIn social buttons entirely (cleaning out unused `#` placeholders).
+  - Cleaned up icon imports by removing unused `FaTwitter` and `FaLinkedin` from `react-icons/fa`.
+  - Added `target="_blank"` and `rel="noopener noreferrer"` for secure new-tab navigation.
+  - Added explicit accessibility `aria-label` attributes (`"Facebook"`, `"Instagram"`).
+  - Attached analytics tracking `trackEvent('journey_contact', { channel: item.label.toLowerCase(), destination: item.href, source: 'footer' })` to capture social visits in Meta Pixel (`Contact` standard event) and Clarity.
+
+---
 
 ## 0. Phase 4.20 Micro-Changes — Delivery Charges Timing Race Fix & Modal Footer (2026-09-15)
 
