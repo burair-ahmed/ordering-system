@@ -5,10 +5,100 @@ tags:
   - #status/active
   - #project/ordering-ecosystem
 created: 2026-09-04
-last_updated: 2026-09-16
+last_updated: 2026-09-17
 ---
 
 # Living Project Memory & Task Tracker
+
+## 0. Phase 4.28 Micro-Changes — Media Gallery: Used-In Detail, Storage Stats & Overlay Fix (2026-09-17)
+
+### 1. "Used In" Detail Panel in Image Popup
+- **Files**: `src/pages/api/media-usage.ts` (NEW), `src/app/components/MediaGallery.tsx`
+- **New API (`media-usage.ts`)**: `GET /api/media-usage?url=<cloudinaryUrl>` — uses `connectDB` from `@/lib/db`, extracts the public_id stem, queries MenuItem, Platter, and PageConfig (banners, sliders, story sections) in MongoDB, returns `{ total, usages: MediaUsageEntry[] }`.
+- **Component**: `usedIn` + `loadingUsedIn` state. On `activeDetailItem` change, calls API. Popup right panel now shows a color-coded "Used In" section: loading spinner, empty dashed note ("Not used in any menu item…"), or pill rows for each usage with contextual icons (plum = menu item, amber = platter, blue = banner, violet = slider, emerald = story).
+
+### 2. Total Storage Size & Media Count Stats Bar
+- **File**: `src/app/components/MediaGallery.tsx`
+- **Change**: Added `totalBytes` and `totalCount` via `useMemo`. Stats bar between bulk-selection area and grid shows: 🖼 Media Count (+ filtered count), 💾 Total Storage in human-readable format. Amber italic note shown when more images are available via `nextCursor`.
+
+### 3. Image Popup Overlay Not Covering Full Screen
+- **File**: `src/app/components/MediaGallery.tsx`
+- **Root Cause**: AdminHeader `sticky top-0 z-30 backdrop-blur-xl` creates a new CSS stacking context; siblings at `z-[110]` visually render underneath the header compositing layer on Chrome/Edge.
+- **Fix**: Raised popup overlay `z-[110]` → `z-[300]`, darkened backdrop to `bg-black/80`. Added `overflow-y-auto` to the right metadata column so the new "Used In" section doesn't overflow the modal.
+
+---
+
+## 0. Phase 4.27 Micro-Changes — Live Orders Color Theme Unification (2026-09-17)
+
+### Problem
+Color palette was inconsistent: "Delivered" status used flat `neutral-800` (grey), Delivery/Pickup order-type badges used plain `neutral-100/neutral-800`, and contact "Call" buttons used `neutral-200/neutral-800` — all clashing with the CLK Royal Plum identity (`#741052`).
+
+### Fix Applied
+**File**: `cafe-little-karachi/src/app/components/OrdersList.tsx`
+- **ORDER_TYPE_CONFIG**: `delivery` → `#96156a` rose-plum tint; `pickup` → `#5c0d40` deep plum tint (both on-brand)
+- **HUD "Delivered" button**: deep plum gradient (`#3d0a2b → #5c0d40`) — not grey
+- **HUD "All Orders" button**: `#741052` plum family icon & counts — not `neutral-900`
+- **Grid order cards**: Delivered state top banner → `from-[#3d0a2b] to-[#5c0d40]` gradient; border → plum-tinted
+- **Delivered badge/pill** (grid, kanban, table): `#3d0a2b/10` bg + `#5c0d40` text — consistent
+- **"Undo" buttons** everywhere: `#741052/10` bg + `#741052` text — plum family
+- **Call Phone button** (cards + modal): `#5c0d40/10-15` bg + `#5c0d40` text — not plain grey
+- **Kanban Delivered column**: plum-tinted border/bg/badge to match Received column style
+- **Modal header** (delivered): `from-[#3d0a2b] to-[#5c0d40]` gradient — not flat `neutral-800`
+- **Rationale**: All states and UI elements now live in the same CLK Royal Plum family. Lighter/darker shades of `#741052` distinguish active vs completed without introducing off-brand greys.
+
+## 1. Phase 4.26 Micro-Changes — Live Orders Tab Luxury Revamp & 2-Status Simplification (2026-09-17)
+
+### Live Orders Operations Hub & 2-Status Simplified Workflow
+- **Files**:
+  - `cafe-little-karachi/src/app/components/OrdersList.tsx`
+  - `cafe-little-karachi/src/pages/api/fetchCompletedOrders.ts`
+  - `cafe-little-karachi/src/app/admin/page.tsx`
+- **Context**: The user requested removing all multi-step intermediate statuses (Preparing, Ready, Out for delivery, Cancelled) and simplifying the Live Orders workflow to just **2 statuses**: `Received` and `Delivered`, making it completely intuitive and effortless for restaurant managers.
+- **Key Upgrades & Architectural Enhancements**:
+  1. **2-Status Core Workflow**:
+     - 🟡 **`RECEIVED`** (Pending / In Progress): Displays with an alert badge and a giant, prominent 1-click **`[ ✓ MARK AS DELIVERED ]`** action button.
+     - 🟢 **`DELIVERED`** (Completed / Fulfilled): Displays with a green checkmark badge and an **`[ Undo ]`** button.
+     - Legacy orders with intermediate statuses are automatically treated as active `Received` until marked `Delivered`.
+  2. **Big Visual Top Filter Strip**:
+     - `RECEIVED` button with pending count and live revenue.
+     - `DELIVERED` button with completed count.
+     - `ALL` button for full history.
+  3. **High-Legibility Scannable Cards**:
+     - Large `#CLK-XXXX` copyable order ID.
+     - High-contrast order mode badges (🛵 Delivery + Area, 🍽️ Dine-in + Table #, 🛍️ Pickup).
+     - 1-Click large green **WhatsApp** button and blue **Phone Call** button.
+     - Large bold item titles and quantity badges (`2× Chicken White Biryani`).
+  4. **Backend Completed Query Parity (`fetchCompletedOrders.ts`)**:
+     - Updated case-insensitive regex to `/^(completed|delivered)$/i` to seamlessly retrieve both `Delivered` and `Completed` orders.
+  5. **Admin Container Cleanup (`admin/page.tsx`)**: Removed redundant nested `<Card className="p-6">` so `OrdersList` renders as a full-bleed standalone operations suite.
+
+---
+
+## 0. Phase 4.25 Micro-Changes — Admin Panel Tab Label Renaming (2026-09-17)
+
+### Admin Dashboard Tab Label Updates
+- **File**: `cafe-little-karachi/src/app/admin/page.tsx`
+- **Context**: The user requested renaming the admin sidebar and header tabs for consistency and clarity.
+- **Changes**:
+  - Renamed tab `Menu Catalog` (`key: 'menu'`) to **`Menu Items`**.
+  - Renamed tab `Gourmet Platters` (`key: 'platter'`) to **`Platter Items`**.
+  - Both the desktop/mobile sidebar navigation items and the top `AdminHeader` breadcrumb title automatically synchronize with these updated labels via the `TABS` array.
+
+---
+
+## 0. Phase 4.24 Micro-Changes — Order Page Category Sorting & Unified Sequence Rendering (2026-09-16)
+
+### Elimination of Platter-First Partitioning & Direct Sequence Rendering
+- **Files**:
+  - `cafe-little-karachi/src/app/order/page.tsx`
+  - `cafe-little-karachi/src/pages/api/page-config.ts`
+  - `cafe-little-karachi/src/app/components/AdminPageBuilder.tsx`
+- **Root Cause**: In Classic Layout mode (`!useCmsLayout`), `order/page.tsx` previously split `visibleClassicCategories` into two separate arrays: `activePlatterCategoryOrder` (filtered by `isPlatter: true`) and `activeMenuCategoryOrder` (filtered by `isPlatter: false`), rendering a container for all platters first and another container for all dish menu items second. This hardcoded separation forced platters to always render above dish menu items regardless of the ordering sequence defined in the CMS tab.
+- **Changes**:
+  - `order/page.tsx`: Removed the split arrays and replaced the dual-container render with a single unified `.map(categoryConfig => ...)` over `visibleClassicCategories`. Each category (platter or dish menu) now renders in its exact sequential index (`#1`, `#2`, `#3`, etc.) configured in the CMS tab.
+  - `page-config.ts` & `AdminPageBuilder.tsx`: Added `{ id: 'pulao-com', name: 'Pulao.com', isPlatter: false, isVisible: true }` to `DEFAULT_CLASSIC_CATEGORIES`.
+
+---
 
 ## 0. Phase 4.23 Micro-Changes — White Biryani Products Upload to Pulao.com Category (2026-09-16)
 

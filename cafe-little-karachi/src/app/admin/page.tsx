@@ -118,8 +118,8 @@ type TabKey =
 
 const TABS: { key: TabKey; label: string; icon: any }[] = [
   { key: 'orders', label: 'Live Orders', icon: ListChecks },
-  { key: 'menu', label: 'Menu Catalog', icon: ListChecks },
-  { key: 'platter', label: 'Gourmet Platters', icon: ListChecks },
+  { key: 'menu', label: 'Menu Items', icon: ListChecks },
+  { key: 'platter', label: 'Platter Items', icon: ListChecks },
   { key: 'addmenu', label: 'Add New Menu', icon: Plus },
   { key: 'addplatter', label: 'Add New Platter', icon: Plus },
   { key: 'media', label: 'Media Gallery', icon: ImageIcon },
@@ -368,20 +368,12 @@ const AdminDashboard: FC = () => {
             
             {/* Orders view */}
             {activeTab === 'orders' && (
-              <Card className="border border-neutral-200/50 shadow-sm rounded-3xl overflow-hidden">
-                <CardHeader className="bg-gradient-to-r from-neutral-50 to-white dark:from-neutral-900/40 dark:to-neutral-900/10 border-b">
-                  <CardTitle className="text-xl font-bold tracking-tight">Real-time Orders</CardTitle>
-                  <CardDescription>Process, track, and dispatch ongoing customer checkout requests.</CardDescription>
-                </CardHeader>
-                <CardContent className="p-6">
-                  <OrdersList
-                    audioContextRef={audioContextRef}
-                    audioBufferRef={audioBufferRef}
-                    playNotificationSound={playNotificationSound}
-                    audioInitialized={audioInitialized}
-                  />
-                </CardContent>
-              </Card>
+              <OrdersList
+                audioContextRef={audioContextRef}
+                audioBufferRef={audioBufferRef}
+                playNotificationSound={playNotificationSound}
+                audioInitialized={audioInitialized}
+              />
             )}
 
             {/* Menu view */}

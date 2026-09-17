@@ -1989,6 +1989,7 @@ export const DEFAULT_CLASSIC_CATEGORIES: ClassicCategoryConfig[] = [
   { id: "hotpot-and-chinese", name: "Hotpot and Chinese", isPlatter: false, isVisible: true },
   { id: "rolls-royce", name: "Rolls Royce", isPlatter: false, isVisible: true },
   { id: "the-chai-company", name: "The Chai Company", isPlatter: false, isVisible: true },
+  { id: "pulao-com", name: "Pulao.com", isPlatter: false, isVisible: true },
   { id: "very-extra", name: "Very Extra", isPlatter: false, isVisible: true },
 ];
 

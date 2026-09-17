@@ -14,7 +14,7 @@ const fetchCompletedOrdersHandler = async (req: NextApiRequest, res: NextApiResp
   if (req.method === "GET") {
     try {
       await connectToDatabase();
-      const orders = await Order.find({ status: { $regex: /^completed$/i } }); // Case-insensitive search
+      const orders = await Order.find({ status: { $regex: /^(completed|delivered)$/i } }); // Case-insensitive search
       res.status(200).json({ orders });
     } catch (error) {
       console.error("Error fetching completed orders:", error);

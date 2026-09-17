@@ -3,7 +3,6 @@
 import { FC, useState, useEffect, useRef, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-  Upload,
   Trash2,
   Copy,
   Check,
@@ -16,19 +15,31 @@ import {
   Loader2,
   CheckSquare,
   Square,
-  Maximize2,
   Calendar,
   HardDrive,
   Layers,
   Plus,
   AlertTriangle,
   Folder,
-  MousePointerClick
+  MousePointerClick,
+  Tag,
+  UtensilsCrossed,
+  LayoutTemplate,
+  SlidersHorizontal,
+  BookImage,
+  PackageSearch,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
+
+export interface MediaUsageEntry {
+  type: 'menu_item' | 'platter' | 'banner_desktop' | 'banner_mobile' | 'slider_desktop' | 'slider_mobile' | 'story';
+  label: string;
+  id?: string;
+  category?: string;
+}
 
 export interface MediaItem {
   public_id: string;
@@ -101,6 +112,10 @@ const MediaGallery: FC<MediaGalleryProps> = ({
   const [isDeletingSingle, setIsDeletingSingle] = useState<boolean>(false);
   const [showSingleDeleteConfirm, setShowSingleDeleteConfirm] = useState<boolean>(false);
 
+  // "Used In" state for detail modal
+  const [usedIn, setUsedIn] = useState<MediaUsageEntry[]>([]);
+  const [loadingUsedIn, setLoadingUsedIn] = useState<boolean>(false);
+
   // Upload state
   const [isUploading, setIsUploading] = useState<boolean>(false);
   const [uploadProgressText, setUploadProgressText] = useState<string>('');
@@ -154,6 +169,23 @@ const MediaGallery: FC<MediaGalleryProps> = ({
   useEffect(() => {
     fetchMedia();
   }, []);
+
+  // Fetch usage info whenever a detail item is opened
+  useEffect(() => {
+    if (!activeDetailItem) {
+      setUsedIn([]);
+      return;
+    }
+    setLoadingUsedIn(true);
+    setUsedIn([]);
+    fetch(`/api/media-usage?url=${encodeURIComponent(activeDetailItem.secure_url)}`)
+      .then((r) => r.json())
+      .then((data) => {
+        setUsedIn(data.usages || []);
+      })
+      .catch(() => setUsedIn([]))
+      .finally(() => setLoadingUsedIn(false));
+  }, [activeDetailItem]);
 
   // Filtered Items
   const formats = useMemo(() => {
@@ -319,6 +351,10 @@ const MediaGallery: FC<MediaGalleryProps> = ({
     toast.success('Cloudinary URL copied to clipboard!');
     setTimeout(() => setCopiedLink(false), 2000);
   };
+
+  // Compute total storage stats from all loaded items
+  const totalBytes = useMemo(() => items.reduce((sum, i) => sum + (i.bytes || 0), 0), [items]);
+  const totalCount = items.length;
 
   return (
     <div className={`flex flex-col h-full space-y-4 ${isPicker ? 'p-1' : ''}`}>
@@ -533,6 +569,36 @@ const MediaGallery: FC<MediaGalleryProps> = ({
         </div>
       )}
 
+      {/* Storage Stats Bar */}
+      {!loading && totalCount > 0 && (
+        <div className="flex flex-wrap items-center gap-3 sm:gap-5 px-4 py-2.5 rounded-2xl bg-neutral-50 dark:bg-neutral-900/60 border border-neutral-200/80 dark:border-neutral-800 text-xs">
+          <div className="flex items-center gap-1.5">
+            <div className="p-1.5 rounded-lg bg-[#741052]/10 dark:bg-fuchsia-950/40">
+              <ImageIcon className="h-3.5 w-3.5 text-[#741052] dark:text-fuchsia-400" />
+            </div>
+            <span className="text-neutral-500 dark:text-neutral-400">Media Count</span>
+            <span className="font-bold text-neutral-800 dark:text-neutral-200">{totalCount.toLocaleString()}</span>
+            {filteredItems.length !== totalCount && (
+              <span className="text-neutral-400 dark:text-neutral-500">({filteredItems.length} shown)</span>
+            )}
+          </div>
+          <div className="w-px h-4 bg-neutral-200 dark:bg-neutral-800 hidden sm:block" />
+          <div className="flex items-center gap-1.5">
+            <div className="p-1.5 rounded-lg bg-blue-500/10 dark:bg-blue-950/40">
+              <HardDrive className="h-3.5 w-3.5 text-blue-600 dark:text-blue-400" />
+            </div>
+            <span className="text-neutral-500 dark:text-neutral-400">Total Storage</span>
+            <span className="font-bold text-neutral-800 dark:text-neutral-200">{formatBytes(totalBytes, 1)}</span>
+          </div>
+          {nextCursor && (
+            <>
+              <div className="w-px h-4 bg-neutral-200 dark:bg-neutral-800 hidden sm:block" />
+              <span className="text-[11px] text-amber-600 dark:text-amber-400 font-medium italic">More images available — scroll down to load</span>
+            </>
+          )}
+        </div>
+      )}
+
       {/* Main Grid Content */}
       <div className="flex-1 overflow-y-auto min-h-[360px] max-h-[calc(100vh-280px)] pr-1">
         {loading ? (
@@ -668,7 +734,7 @@ const MediaGallery: FC<MediaGalleryProps> = ({
       <AnimatePresence>
         {activeDetailItem && (
           <div
-            className="fixed inset-0 z-[110] bg-black/75 backdrop-blur-md flex items-center justify-center p-3 sm:p-6"
+            className="fixed inset-0 z-[300] bg-black/80 backdrop-blur-md flex items-center justify-center p-3 sm:p-6"
             onClick={() => {
               if (!isDeletingSingle) {
                 setActiveDetailItem(null);
@@ -733,7 +799,7 @@ const MediaGallery: FC<MediaGalleryProps> = ({
                 </div>
 
                 {/* Right: Rich Metadata & Actions */}
-                <div className="md:col-span-5 p-6 flex flex-col justify-between space-y-6 bg-white dark:bg-neutral-900">
+                <div className="md:col-span-5 p-6 flex flex-col justify-between space-y-6 bg-white dark:bg-neutral-900 overflow-y-auto">
                   <div className="space-y-4">
                     <h4 className="text-xs font-bold uppercase tracking-wider text-neutral-400 flex items-center gap-1.5">
                       <Layers size={13} className="text-[#741052] dark:text-fuchsia-400" />
@@ -824,6 +890,61 @@ const MediaGallery: FC<MediaGalleryProps> = ({
                         </Button>
                       </div>
                     </div>
+                  </div>
+
+                  {/* ── Used In Section ── */}
+                  <div className="space-y-2">
+                    <h4 className="text-xs font-bold uppercase tracking-wider text-neutral-400 flex items-center gap-1.5">
+                      <Tag size={13} className="text-[#741052] dark:text-fuchsia-400" />
+                      Used In
+                    </h4>
+
+                    {loadingUsedIn ? (
+                      <div className="flex items-center gap-2 px-3 py-2.5 rounded-xl bg-neutral-50 dark:bg-neutral-950/60 border border-neutral-100 dark:border-neutral-800 text-xs text-neutral-400">
+                        <Loader2 size={13} className="animate-spin shrink-0" />
+                        <span>Scanning usage...</span>
+                      </div>
+                    ) : usedIn.length === 0 ? (
+                      <div className="flex items-center gap-2 px-3 py-2.5 rounded-xl bg-neutral-50 dark:bg-neutral-950/60 border border-dashed border-neutral-200 dark:border-neutral-800 text-xs text-neutral-400">
+                        <PackageSearch size={13} className="shrink-0" />
+                        <span>Not used in any menu item, platter, or banner</span>
+                      </div>
+                    ) : (
+                      <div className="space-y-1.5 max-h-36 overflow-y-auto pr-0.5">
+                        {usedIn.map((u, idx) => {
+                          const iconMap = {
+                            menu_item: <UtensilsCrossed size={12} className="text-[#741052] dark:text-fuchsia-400 shrink-0" />,
+                            platter: <UtensilsCrossed size={12} className="text-amber-500 shrink-0" />,
+                            banner_desktop: <LayoutTemplate size={12} className="text-blue-500 shrink-0" />,
+                            banner_mobile: <LayoutTemplate size={12} className="text-blue-400 shrink-0" />,
+                            slider_desktop: <SlidersHorizontal size={12} className="text-violet-500 shrink-0" />,
+                            slider_mobile: <SlidersHorizontal size={12} className="text-violet-400 shrink-0" />,
+                            story: <BookImage size={12} className="text-emerald-500 shrink-0" />,
+                          };
+                          const colorMap = {
+                            menu_item: 'bg-[#741052]/8 border-[#741052]/20 text-[#5c0d40] dark:text-fuchsia-300',
+                            platter: 'bg-amber-500/8 border-amber-400/25 text-amber-700 dark:text-amber-300',
+                            banner_desktop: 'bg-blue-500/8 border-blue-400/25 text-blue-700 dark:text-blue-300',
+                            banner_mobile: 'bg-blue-400/8 border-blue-300/25 text-blue-600 dark:text-blue-400',
+                            slider_desktop: 'bg-violet-500/8 border-violet-400/25 text-violet-700 dark:text-violet-300',
+                            slider_mobile: 'bg-violet-400/8 border-violet-300/25 text-violet-600 dark:text-violet-400',
+                            story: 'bg-emerald-500/8 border-emerald-400/25 text-emerald-700 dark:text-emerald-300',
+                          };
+                          return (
+                            <div
+                              key={idx}
+                              className={`flex items-center gap-2 px-2.5 py-1.5 rounded-lg border text-[11px] font-semibold ${colorMap[u.type] || 'bg-neutral-100 border-neutral-200 text-neutral-700'}`}
+                            >
+                              {iconMap[u.type]}
+                              <span className="truncate">{u.label}</span>
+                              {u.category && (
+                                <span className="ml-auto shrink-0 text-[10px] opacity-60 font-normal">{u.category}</span>
+                              )}
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )}
                   </div>
 
                   {/* Actions Area */}

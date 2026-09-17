@@ -5,9 +5,9 @@ tags:
   - #status/active
   - #project/ordering-ecosystem
 created: 2026-09-04
-last_updated: 2026-09-16
-overall_completion: "Phase 4.23: White Biryani Menu Products Upload to Pulao.com Category (100%)"
-current_sprint: "White Biryani Menu Products Upload to Pulao.com Category"
+last_updated: 2026-09-17
+overall_completion: "Phase 4.28: Media Gallery Enhancements (100%)"
+current_sprint: "Media Gallery: Used-In Panel, Storage Stats & Overlay Fix"
 ---
 
 # Project Status Dashboard — Advanced Ordering Ecosystem
@@ -16,8 +16,46 @@ current_sprint: "White Biryani Menu Products Upload to Pulao.com Category"
 
 | Sub-Project | Phase | Focus | Status |
 | :--- | :--- | :--- | :--- |
-| **Cafe Little Karachi (CLK)** | Phase 4.23 | White Biryani Products in Pulao.com | **Completed** 🟢 |
+| **Cafe Little Karachi (CLK)** | Phase 4.28 | Media Gallery Enhancements | **Completed** 🟢 |
 | **The Chai Company (TCC)** | Base | Monorepo Structure | Ready for Next Cycle ⚪ |
+
+---
+
+## Phase 4.28 Completion Summary — Media Gallery Enhancements
+
+- [x] **"Used In" API (`media-usage.ts`)**: New `GET /api/media-usage?url=` endpoint scans MenuItem, Platter, and PageConfig in MongoDB, returning all usages (menu items, platters, banners, sliders, story sections) for a given Cloudinary image URL.
+- [x] **"Used In" Popup Panel (`MediaGallery.tsx`)**: Image detail popup right column now contains a color-coded "Used In" section with contextual icons, loading state, and "not used" empty state for easy orphan identification.
+- [x] **Storage Stats Bar (`MediaGallery.tsx`)**: Stats bar shows total media count and combined storage size above the image grid. Filtered count shown when active. Amber note shown when more pages exist.
+- [x] **Popup Overlay Full-Screen Fix (`MediaGallery.tsx`)**: Raised modal overlay from `z-[110]` to `z-[300]` to fully cover the sticky AdminHeader's `backdrop-blur-xl` stacking context.
+
+---
+
+## Phase 4.26 Completion Summary — Live Orders Tab Luxury Revamp & 2-Status Simplification
+
+- [x] **2-Status Manager Workflow (`OrdersList.tsx`)**: Eliminated intermediate statuses (Preparing, Ready, Out for delivery) and condensed the entire order lifecycle into 2 simple, foolproof states:
+  - 🟡 **`RECEIVED`** (Pending / In Progress) with a giant 1-click **`[ ✓ MARK AS DELIVERED ]`** action button.
+  - 🟢 **`DELIVERED`** (Fulfilled) with an **`[ Undo ]`** button to revert if needed.
+- [x] **Big Visual Metric Cards (`OrdersList.tsx`)**: 3 large top status trigger buttons: `RECEIVED (Pending)`, `DELIVERED (Completed)`, and `ALL (Total)`.
+- [x] **Scannable Order Cards (`OrdersList.tsx`)**: High-contrast cards with large copyable `#CLK-XXXX` ID, order mode chips (Dine-in with table #, Delivery with area, Pickup), prominent green WhatsApp & blue Call buttons, and large quantity dish list.
+- [x] **Backend Completed Query Support (`fetchCompletedOrders.ts`)**: Updated query regex `/^(completed|delivered)$/i` to treat both Delivered and Completed orders equivalently.
+- [x] **Admin Container Cleanup (`admin/page.tsx`)**: Rendered `OrdersList` full-bleed without double-nested card wrappers.
+
+---
+
+## Phase 4.25 Completion Summary — Admin Panel Tab Label Renaming
+
+- [x] **Tab Label Renaming (`admin/page.tsx`)**:
+  - Renamed `Menu Catalog` tab to **`Menu Items`**.
+  - Renamed `Gourmet Platters` tab to **`Platter Items`**.
+- [x] **Header & Sidebar Synchronization (`admin/page.tsx`)**: The top `AdminHeader` breadcrumb title and sidebar navigation button labels automatically reflect the updated naming.
+
+---
+
+## Phase 4.24 Completion Summary — Order Page Category Sorting & Unified Sequence Rendering
+
+- [x] **Eliminated Hardcoded Platter-First Partitioning (`order/page.tsx`)**: Replaced the separate `activePlatterCategoryOrder` (platters first) and `activeMenuCategoryOrder` (dishes second) blocks with a single unified map over `visibleClassicCategories`.
+- [x] **Strict CMS Sorting Adherence (`order/page.tsx`)**: The order page now renders categories in the exact sequence configured in the CMS tab (#1, #2, #3, etc.), allowing dish categories (e.g. `Pulao.com`, `Very Fast Food`) to appear above platters when ordered by the administrator.
+- [x] **Defaults Parity (`page-config.ts`, `AdminPageBuilder.tsx`)**: Added `Pulao.com` (`pulao-com`) to `DEFAULT_CLASSIC_CATEGORIES` across backend and CMS builder defaults.
 
 ---
 

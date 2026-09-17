@@ -645,8 +645,6 @@ export default function MenuPage({
     const showHero = (classicBannerType === 'hero' || !imageSliderSection) && heroSection;
 
     const visibleClassicCategories = classicCategories.filter(c => c.isVisible !== false);
-    const activePlatterCategoryOrder = visibleClassicCategories.filter(c => c.isPlatter).map(c => c.name);
-    const activeMenuCategoryOrder = visibleClassicCategories.filter(c => !c.isPlatter).map(c => c.name);
 
     const navStripCategories: CategoryItem[] = visibleClassicCategories.map(cat => ({
       id: slugify(cat.name),
@@ -671,72 +669,72 @@ export default function MenuPage({
         <div className="flex justify-center mt-4 gap-4">
         </div>
 
-        {/* Platters First */}
+        {/* Categories rendered in exact configured order */}
         <div>
-          {activePlatterCategoryOrder.map((category) => {
-            const allPlattersList = classicPlatters[category] || [];
-            const displayedPlatters = classicLoadedPlatters[category] || [];
-            const isLoading = classicPlatterLoading && displayedPlatters.length === 0;
+          {visibleClassicCategories.map((categoryConfig) => {
+            const category = categoryConfig.name;
 
-            return (
-              <div key={category} id={`category-${slugify(category)}`} className="mt-8 scroll-mt-24">
-                <div className="w-full flex justify-center mb-4">
-                  <h1 className="text-3xl font-semibold text-white bg-gradient-to-r from-[#741052] to-[#d0269b] shadow-lg hover:shadow-pink-500/40 py-3 px-6 rounded-lg text-center">
-                    {category}
-                  </h1>
-                </div>
-                <div className="grid grid-cols-2 gap-4 pr-6 pl-1 sm:px-6 lg:px-8 w-full max-w-6xl mx-auto sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 mt-4">
-                  <AnimatePresence>
-                    {isLoading ? (
-                      [...Array(4)].map((_, i) => <SkeletonLoader key={i} />)
-                    ) : (
-                      displayedPlatters.map((platter, index) => (
+            if (categoryConfig.isPlatter) {
+              const allPlattersList = classicPlatters[category] || [];
+              const displayedPlatters = classicLoadedPlatters[category] || [];
+              const isLoading = classicPlatterLoading && displayedPlatters.length === 0;
+
+              return (
+                <div key={`platter-${category}`} id={`category-${slugify(category)}`} className="mt-8 scroll-mt-24">
+                  <div className="w-full flex justify-center mb-4">
+                    <h1 className="text-3xl font-semibold text-white bg-gradient-to-r from-[#741052] to-[#d0269b] shadow-lg hover:shadow-pink-500/40 py-3 px-6 rounded-lg text-center">
+                      {category}
+                    </h1>
+                  </div>
+                  <div className="grid grid-cols-2 gap-4 pr-6 pl-1 sm:px-6 lg:px-8 w-full max-w-6xl mx-auto sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 mt-4">
+                    <AnimatePresence>
+                      {isLoading ? (
+                        [...Array(4)].map((_, i) => <SkeletonLoader key={i} />)
+                      ) : (
+                        displayedPlatters.map((platter, index) => (
+                          <motion.div
+                            key={`classic-platter-${category}-${platter.id}-${index}`}
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: -20 }}
+                            transition={{
+                              duration: 0.5,
+                              delay: index * 0.1,
+                              ease: "easeOut"
+                            }}
+                          >
+                            <PlatterItem platter={platter as any} />
+                          </motion.div>
+                        ))
+                      )}
+                    </AnimatePresence>
+
+                    {/* Show skeleton for remaining items that are still loading */}
+                    {allPlattersList.length > displayedPlatters.length && (
+                      [...Array(Math.min(4, allPlattersList.length - displayedPlatters.length))].map((_, i) => (
                         <motion.div
-                          key={`classic-platter-${category}-${platter.id}-${index}`}
-                          initial={{ opacity: 0, y: 20 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          exit={{ opacity: 0, y: -20 }}
-                          transition={{
-                            duration: 0.5,
-                            delay: index * 0.1,
-                            ease: "easeOut"
-                          }}
+                          key={`classic-loading-platter-${category}-${i}`}
+                          initial={{ opacity: 0 }}
+                          animate={{ opacity: 1 }}
+                          exit={{ opacity: 0 }}
+                          transition={{ duration: 0.3 }}
                         >
-                          <PlatterItem platter={platter as any} />
+                          <SkeletonLoader />
                         </motion.div>
                       ))
                     )}
-                  </AnimatePresence>
-
-                  {/* Show skeleton for remaining items that are still loading */}
-                  {allPlattersList.length > displayedPlatters.length && (
-                    [...Array(Math.min(4, allPlattersList.length - displayedPlatters.length))].map((_, i) => (
-                      <motion.div
-                        key={`classic-loading-platter-${category}-${i}`}
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
-                        transition={{ duration: 0.3 }}
-                      >
-                        <SkeletonLoader />
-                      </motion.div>
-                    ))
-                  )}
+                  </div>
                 </div>
-              </div>
-            );
-          })}
-        </div>
+              );
+            }
 
-        {/* Menu Items Below Platters */}
-        <div>
-          {activeMenuCategoryOrder.map((category) => {
+            // Dish Menu Category
             const allItemsList = classicMenu[category] || [];
             const displayedItems = classicLoadedItems[category] || [];
             const isLoading = classicMenuLoading[category] && displayedItems.length === 0;
 
             return (
-              <div key={category} id={`category-${slugify(category)}`} className="mt-8 scroll-mt-24">
+              <div key={`menu-${category}`} id={`category-${slugify(category)}`} className="mt-8 scroll-mt-24">
                 <div className="w-full flex justify-center mb-4">
                   <h1 className="text-3xl font-semibold text-white bg-gradient-to-r from-[#741052] to-[#d0269b] py-3 px-6 rounded-lg shadow-md text-center">
                     {category}
