@@ -27,8 +27,9 @@ last_updated: 2026-09-17
 
 ## 0. Phase 4.28 Micro-Changes — Media Gallery: Used-In Detail, Storage Stats & Overlay Fix (2026-09-17)
 
-### 1. "Used In" Detail Panel in Image Popup
-- **Files**: `src/pages/api/media-usage.ts` (NEW), `src/app/components/MediaGallery.tsx`
+### 1. "Used In" Detail Panel in Image Popup & Schema Alignment Fix
+- **Files**: `src/pages/api/media-usage.ts` (NEW / UPDATED), `src/app/components/MediaGallery.tsx`
+- **Root Cause & Compilation Fix**: `PageConfig` document does not have top-level `heroBannerDesktop` fields, and `MenuItem`/`Platter` schemas use `title` (not `name`). Updated `media-usage.ts` to query `MenuItem` (`title`, `category`), `Platter` (`title`, `platterCategory`), and inspect `PageConfig.sections` (`section.props.backgroundImage`, `section.props.mobileBackgroundImage`, `section.props.slides`, `section.props.image`), eliminating Next.js build compilation errors.
 - **New API (`media-usage.ts`)**: `GET /api/media-usage?url=<cloudinaryUrl>` — uses `connectDB` from `@/lib/db`, extracts the public_id stem, queries MenuItem, Platter, and PageConfig (banners, sliders, story sections) in MongoDB, returns `{ total, usages: MediaUsageEntry[] }`.
 - **Component**: `usedIn` + `loadingUsedIn` state. On `activeDetailItem` change, calls API. Popup right panel now shows a color-coded "Used In" section: loading spinner, empty dashed note ("Not used in any menu item…"), or pill rows for each usage with contextual icons (plum = menu item, amber = platter, blue = banner, violet = slider, emerald = story).
 

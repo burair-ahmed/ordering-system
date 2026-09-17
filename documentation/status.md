@@ -30,7 +30,7 @@ current_sprint: "Menu & Platter Forms: Gallery Picker & Direct Upload Integratio
 
 ---
 
-- [x] **"Used In" API (`media-usage.ts`)**: New `GET /api/media-usage?url=` endpoint scans MenuItem, Platter, and PageConfig in MongoDB, returning all usages (menu items, platters, banners, sliders, story sections) for a given Cloudinary image URL.
+- [x] **"Used In" API (`media-usage.ts`)**: `GET /api/media-usage?url=` endpoint scans MenuItem, Platter, and PageConfig in MongoDB, returning all usages (menu items, platters, banners, sliders, story sections) for a given Cloudinary image URL with full TypeScript schema alignment.
 - [x] **"Used In" Popup Panel (`MediaGallery.tsx`)**: Image detail popup right column now contains a color-coded "Used In" section with contextual icons, loading state, and "not used" empty state for easy orphan identification.
 - [x] **Storage Stats Bar (`MediaGallery.tsx`)**: Stats bar shows total media count and combined storage size above the image grid. Filtered count shown when active. Amber note shown when more pages exist.
 - [x] **Popup Overlay Full-Screen Fix (`MediaGallery.tsx`)**: Raised modal overlay from `z-[110]` to `z-[300]` to fully cover the sticky AdminHeader's `backdrop-blur-xl` stacking context.

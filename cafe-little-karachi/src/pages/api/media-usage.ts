@@ -16,6 +16,10 @@ export interface MediaUsageEntry {
   category?: string;
 }
 
+function escapeRegex(string: string) {
+  return string.replace(/[/\-\\^$*+?.()|[\]{}]/g, '\\$&');
+}
+
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== 'GET') {
     return res.status(405).json({ error: 'Method not allowed' });
@@ -31,76 +35,102 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     const usages: MediaUsageEntry[] = [];
 
+    // Extract filename stem without extension and clean URL path
+    const urlFilename = url.split('?')[0].split('/').pop() || '';
+    const publicIdStem = urlFilename.includes('.') ? urlFilename.substring(0, urlFilename.lastIndexOf('.')) : urlFilename;
+    const searchTarget = publicIdStem || url;
+
+    // Helper to check if a field contains the image reference
+    const matchesImage = (fieldVal?: string | null): boolean => {
+      if (!fieldVal || typeof fieldVal !== 'string') return false;
+      return fieldVal.includes(searchTarget) || fieldVal.includes(url) || fieldVal.includes(urlFilename);
+    };
+
     // 1. Check MenuItems
-    const menuItems = await MenuItem.find({ image: { $regex: url.split('/').pop()?.split('.')[0] || url, $options: 'i' } }).select('name category image').lean();
+    const menuItems = await MenuItem.find({
+      $or: [
+        { image: { $regex: escapeRegex(searchTarget), $options: 'i' } },
+        { image: url }
+      ]
+    }).select('title category image _id id').lean();
+
     for (const item of menuItems) {
-      if ((item.image as string)?.includes(url.split('/').pop()?.split('.')[0] || '')) {
+      if (matchesImage(item.image as string)) {
         usages.push({
           type: 'menu_item',
-          label: item.name as string,
-          id: (item._id as object).toString(),
+          label: (item.title as string) || 'Menu Item',
+          id: (item._id as any)?.toString() || item.id,
           category: item.category as string,
         });
       }
     }
 
     // 2. Check Platters
-    const platters = await Platter.find({ image: { $regex: url.split('/').pop()?.split('.')[0] || url, $options: 'i' } }).select('name image').lean();
+    const platters = await Platter.find({
+      $or: [
+        { image: { $regex: escapeRegex(searchTarget), $options: 'i' } },
+        { image: url }
+      ]
+    }).select('title platterCategory image _id id').lean();
+
     for (const platter of platters) {
-      if ((platter.image as string)?.includes(url.split('/').pop()?.split('.')[0] || '')) {
+      if (matchesImage(platter.image as string)) {
         usages.push({
           type: 'platter',
-          label: platter.name as string,
-          id: (platter._id as object).toString(),
+          label: (platter.title as string) || 'Platter Item',
+          id: (platter._id as any)?.toString() || platter.id,
+          category: platter.platterCategory as string,
         });
       }
     }
 
-    // 3. Check PageConfig (banners, sliders, stories)
-    const configs = await PageConfig.find({}).select('heroBannerDesktop heroBannerMobile classicBannerDesktop classicBannerMobile sections').lean();
-    
-    const publicId = url.split('/').pop()?.split('.')[0] || url;
+    // 3. Check PageConfig (CMS Sections: hero, sliders, stories)
+    const configs = await PageConfig.find({}).select('sections').lean();
 
     for (const cfg of configs) {
-      // Hero banners
-      if ((cfg.heroBannerDesktop as string)?.includes(publicId)) {
-        usages.push({ type: 'banner_desktop', label: 'Hero Banner (Desktop)' });
-      }
-      if ((cfg.heroBannerMobile as string)?.includes(publicId)) {
-        usages.push({ type: 'banner_mobile', label: 'Hero Banner (Mobile)' });
-      }
-      if ((cfg.classicBannerDesktop as string)?.includes(publicId)) {
-        usages.push({ type: 'banner_desktop', label: 'Classic Banner (Desktop)' });
-      }
-      if ((cfg.classicBannerMobile as string)?.includes(publicId)) {
-        usages.push({ type: 'banner_mobile', label: 'Classic Banner (Mobile)' });
-      }
-
-      // CMS Sections (sliders, stories, etc.)
       if (Array.isArray(cfg.sections)) {
         for (const section of cfg.sections as any[]) {
+          const props = section.props || {};
+
           // Image Banner Slider
-          if (section.type === 'image-slider' && Array.isArray(section.slides)) {
-            for (const slide of section.slides) {
-              if (slide.imageDesktop?.includes(publicId)) {
-                usages.push({ type: 'slider_desktop', label: `Slider Slide (Desktop): "${slide.title || 'Untitled'}"` });
+          if (section.type === 'image-slider' && Array.isArray(props.slides)) {
+            for (const slide of props.slides) {
+              if (matchesImage(slide.image)) {
+                usages.push({
+                  type: 'slider_desktop',
+                  label: `Slider Slide (Desktop): "${slide.title || section.title || 'Untitled'}"`,
+                });
               }
-              if (slide.imageMobile?.includes(publicId)) {
-                usages.push({ type: 'slider_mobile', label: `Slider Slide (Mobile): "${slide.title || 'Untitled'}"` });
+              if (matchesImage(slide.mobileImage)) {
+                usages.push({
+                  type: 'slider_mobile',
+                  label: `Slider Slide (Mobile): "${slide.title || section.title || 'Untitled'}"`,
+                });
               }
             }
           }
+
           // Rich Content Story
-          if (section.type === 'rich-content' && section.storyImage?.includes(publicId)) {
-            usages.push({ type: 'story', label: `Story Section: "${section.title || 'Untitled'}"` });
+          if (section.type === 'rich-content' && matchesImage(props.image)) {
+            usages.push({
+              type: 'story',
+              label: `Story Section: "${section.title || 'Untitled'}"`,
+            });
           }
+
           // Hero section
           if (section.type === 'hero') {
-            if (section.backgroundImage?.includes(publicId)) {
-              usages.push({ type: 'banner_desktop', label: `CMS Hero (Desktop): "${section.title || 'Hero'}"` });
+            if (matchesImage(props.backgroundImage)) {
+              usages.push({
+                type: 'banner_desktop',
+                label: `Hero Banner (Desktop): "${section.title || props.title || 'Hero'}"`,
+              });
             }
-            if (section.backgroundImageMobile?.includes(publicId)) {
-              usages.push({ type: 'banner_mobile', label: `CMS Hero (Mobile): "${section.title || 'Hero'}"` });
+            if (matchesImage(props.mobileBackgroundImage)) {
+              usages.push({
+                type: 'banner_mobile',
+                label: `Hero Banner (Mobile): "${section.title || props.title || 'Hero'}"`,
+              });
             }
           }
         }
