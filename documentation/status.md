@@ -6,8 +6,8 @@ tags:
   - #project/ordering-ecosystem
 created: 2026-09-04
 last_updated: 2026-09-17
-overall_completion: "Phase 4.29: Forms Gallery & Upload Dual-Choice (100%)"
-current_sprint: "Menu & Platter Forms: Gallery Picker & Direct Upload Integration"
+overall_completion: "Phase 4.30: Cart Backdrop Blur & Popular Upsells (100%)"
+current_sprint: "Cart Drawer: Backdrop Blur Overlay & Popular With Order Upsells"
 ---
 
 # Project Status Dashboard — Advanced Ordering Ecosystem
@@ -16,8 +16,18 @@ current_sprint: "Menu & Platter Forms: Gallery Picker & Direct Upload Integratio
 
 | Sub-Project | Phase | Focus | Status |
 | :--- | :--- | :--- | :--- |
-| **Cafe Little Karachi (CLK)** | Phase 4.29 | Forms Gallery Picker & Upload Dual-Choice | **Completed** 🟢 |
+| **Cafe Little Karachi (CLK)** | Phase 4.30 | Cart Backdrop Blur & Popular Upsell Carousel | **Completed** 🟢 |
 | **The Chai Company (TCC)** | Base | Monorepo Structure | Ready for Next Cycle ⚪ |
+
+---
+
+## Phase 4.30 Completion Summary — Cart Backdrop Blur & Popular Upsell Carousel
+
+- [x] **Full-Screen Backdrop Blur Overlay (`CartSidebar.tsx`)**: Upgraded cart overlay from inner panel constraint to full-screen `fixed inset-0 z-50` backdrop with `backdrop-filter: blur(8px)`, `-webkit-backdrop-filter: blur(8px)`, `bg-black/40` tint, smooth 220ms fade in/out animation, and click-to-close behavior. The cart drawer panel sits at `z-50` in front, perfectly sharp and unblurred.
+- [x] **"Popular with your order" Upsell Carousel (`CartSidebar.tsx`)**: Inserted horizontal recommendation carousel between `"Add more items"` and the Order Summary box. Features brand plum accent pill, `Flame` icon, left/right programmatic scroll buttons, smooth swipe, square aspect ratio thumbnails with overlaid circular `+` 1-tap add buttons, bold prices, and muted item titles.
+- [x] **Instant 1-Tap Cart Addition (`CartSidebar.tsx`)**: Clicking `+` immediately adds 1 quantity to the cart via `addToCart()`, recalculating subtotal, delivery fee, and grand total in real-time without navigating away or closing the drawer.
+- [x] **Backend & Schema Architecture (`CartUpsellConfig.ts`, `cart-upsells.ts`)**: Built Mongoose model and REST API for storing upsell configuration (`isEnabled`, `heading`, `mode: 'auto' | 'manual'`, `itemIds`). Auto mode dynamically serves top in-stock dishes; manual mode serves curated dish lists.
+- [x] **Admin Recommendations Manager (`CartUpsellManagement.tsx`, `admin/page.tsx`)**: Created dedicated `Cart Upsells` tab in admin dashboard with `Flame` icon, live drawer simulation preview, enable toggle, heading input, selection strategy switch, catalog product picker with search & category filters, and sequence reordering.
 
 ---
 

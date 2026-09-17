@@ -20,6 +20,7 @@ import {
   Activity,
   Image as ImageIcon,
   ArrowUpDown,
+  Flame,
 } from 'lucide-react';
 
 import OrdersList from '../components/OrdersList';
@@ -42,6 +43,7 @@ import AdminPageBuilder from '../components/AdminPageBuilder';
 import AdminHeader from '../components/AdminHeader';
 import MediaGallery from '../components/MediaGallery';
 import ItemOrderSorting from '../components/ItemOrderSorting';
+import CartUpsellManagement from '../components/CartUpsellManagement';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -107,6 +109,7 @@ type TabKey =
   | 'addplatter'
   | 'media'
   | 'bulkDiscounts'
+  | 'cartUpsells'
   | 'deliveryCharges'
   | 'tables'
   | 'completedOrders'
@@ -124,6 +127,7 @@ const TABS: { key: TabKey; label: string; icon: any }[] = [
   { key: 'addplatter', label: 'Add New Platter', icon: Plus },
   { key: 'media', label: 'Media Gallery', icon: ImageIcon },
   { key: 'bulkDiscounts', label: 'Bulk Discounts', icon: Tag },
+  { key: 'cartUpsells', label: 'Cart Upsells', icon: Flame },
   { key: 'deliveryCharges', label: 'Delivery Charges', icon: Truck },
   { key: 'tables', label: 'Dine-in Tables', icon: Table2 },
   { key: 'completedOrders', label: 'Completed Orders', icon: Archive },
@@ -244,8 +248,8 @@ const AdminDashboard: FC = () => {
 
   useEffect(() => {
     if (!isAuthenticated) return;
-    if (activeTab === 'menu' || activeTab === 'bulkDiscounts' || activeTab === 'itemSorting') fetchMenuItems();
-    if (activeTab === 'platter' || activeTab === 'bulkDiscounts' || activeTab === 'itemSorting') fetchPlatterItems();
+    if (activeTab === 'menu' || activeTab === 'bulkDiscounts' || activeTab === 'itemSorting' || activeTab === 'cartUpsells') fetchMenuItems();
+    if (activeTab === 'platter' || activeTab === 'bulkDiscounts' || activeTab === 'itemSorting' || activeTab === 'cartUpsells') fetchPlatterItems();
   }, [activeTab, isAuthenticated]);
 
   const handleLogout = () => {
@@ -528,6 +532,14 @@ const AdminDashboard: FC = () => {
                   await fetchMenuItems();
                   await fetchPlatterItems();
                 }}
+              />
+            )}
+
+            {/* Cart Upsells tab */}
+            {activeTab === 'cartUpsells' && (
+              <CartUpsellManagement
+                menuItems={menuItems}
+                platterItems={platterItems}
               />
             )}
 

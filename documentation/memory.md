@@ -10,7 +10,34 @@ last_updated: 2026-09-17
 
 # Living Project Memory & Task Tracker
 
-## 0. Phase 4.29 Micro-Changes — Add/Edit Menu & Platter Forms: Gallery Picker & Upload Dual-Choice (2026-09-17)
+## 0. Phase 4.30 Micro-Changes — Cart Backdrop Blur Overlay & "Popular with your order" Upsell Carousel (2026-09-17)
+
+### 1. Full-Screen Backdrop Blur Overlay Behind Cart Drawer
+- **File**: `cafe-little-karachi/src/app/components/CartSidebar.tsx`
+- **Feature**: Replaced the previous inner-panel constrained overlay with a full-screen `fixed inset-0 z-50` backdrop wrapper.
+- **Visuals & Behavior**:
+  - `bg-black/40` semi-transparent dark tint with `backdrop-filter: blur(8px)` and `[-webkit-backdrop-filter:blur(8px)]` for cross-browser Safari support.
+  - Smooth fade in/out transition (`motion.div` with 220ms duration) perfectly synchronized with drawer open/close animation.
+  - `pointer-events: auto` and `onClick={handleClose}` for intuitive modal-dismiss on outside click.
+  - `will-change: backdrop-filter, opacity` optimized for high framerates on mobile.
+  - The cart drawer `<motion.aside>` sits in front at `z-50`, razor sharp and in focus with zero blur applied to the drawer content itself.
+
+### 2. "Popular with your order" Upsell Carousel & Admin Recommendation Manager
+- **Files**:
+  - `cafe-little-karachi/src/models/CartUpsellConfig.ts` (NEW)
+  - `cafe-little-karachi/src/pages/api/cart-upsells.ts` (NEW)
+  - `cafe-little-karachi/src/app/components/CartUpsellManagement.tsx` (NEW)
+  - `cafe-little-karachi/src/app/components/CartSidebar.tsx` (UPDATED)
+  - `cafe-little-karachi/src/app/admin/page.tsx` (UPDATED)
+- **Cart Drawer Integration (`CartSidebar.tsx`)**:
+  - Inserted between the `"Add more items"` dashed button and the Order Summary box.
+  - **Header**: Vertical brand plum pill (`w-1 h-3.5 rounded-full bg-[#741052] dark:bg-[#d0269b]`) + Flame icon (`Flame`) + `"Popular with your order"` title + circular left/right chevron navigation buttons (`<ChevronLeft />`, `<ChevronRight />`).
+  - **Scroll Engine**: Smooth horizontal carousel (`overflow-x-auto`, `scroll-smooth`, zero scrollbars), touch drag/swipe on mobile, and 140px programmatic card step on desktop chevrons with scroll-spy auto-disabling arrows at boundary limits.
+  - **Product Card Styling**: Square aspect ratio thumbnail, overlaid circular "+" add button on bottom-right (`w-6 h-6 rounded-full bg-[#741052] text-white hover:scale-110 active:scale-90 shadow-md`), bold price (with strikethrough original price if discounted), and muted product title.
+  - **1-Tap Add Action**: Tapping "+" calls `addToCart(...)` with quantity 1, immediately recalculates cart subtotal, delivery fee, and grand total without closing the cart drawer, with sonner toast feedback.
+- **Admin Configuration Suite (`CartUpsellManagement.tsx` & `admin/page.tsx`)**:
+  - Registered `Cart Upsells` tab in admin sidebar with `Flame` icon.
+  - Includes Enable/Disable switch, custom section heading input, "Auto Popular" vs "Curated Handpicked" strategy toggle, searchable product catalog picker, sequence reordering (▲ ▼), and a live cart drawer simulation preview.
 
 ### 1. Dual-Choice Image System (Gallery vs Upload)
 - **Files Modified**:
