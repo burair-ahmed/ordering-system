@@ -6,8 +6,8 @@ tags:
   - #project/ordering-ecosystem
 created: 2026-09-04
 last_updated: 2026-09-17
-overall_completion: "Phase 4.30: Cart Backdrop Blur & Popular Upsells (100%)"
-current_sprint: "Cart Drawer: Backdrop Blur Overlay & Popular With Order Upsells"
+overall_completion: "Phase 4.32: Centered Minimalist Modern Footer Revamp (100%)"
+current_sprint: "Footer Revamp: Center-Aligned Modern Layout, Social & Contact Pills"
 ---
 
 # Project Status Dashboard — Advanced Ordering Ecosystem
@@ -16,8 +16,32 @@ current_sprint: "Cart Drawer: Backdrop Blur Overlay & Popular With Order Upsells
 
 | Sub-Project | Phase | Focus | Status |
 | :--- | :--- | :--- | :--- |
-| **Cafe Little Karachi (CLK)** | Phase 4.30 | Cart Backdrop Blur & Popular Upsell Carousel | **Completed** 🟢 |
-| **The Chai Company (TCC)** | Base | Monorepo Structure | Ready for Next Cycle ⚪ |
+| **Cafe Little Karachi (CLK)** | Phase 4.32 | Centered Minimalist Modern Footer Revamp | **Completed** 🟢 |
+| **The Chai Company (TCC)** | Phase 4.32 | Centered Modern Tea Lounge Footer | **Completed** 🟢 |
+
+---
+
+## Phase 4.32 Completion Summary — Centered Minimalist Modern Footer Revamp
+
+- [x] **Quick Links Elimination (`Footer.tsx`)**: Removed multi-column grid structure and legacy quick navigation links (`/about`, `/menu`, `/contact`, `/terms`), decluttering the footer entirely.
+- [x] **Centered Modern Visual Layout (`Footer.tsx`)**: Refactored the layout into a clean, center-aligned flex container with luxury dark plum background (`bg-gradient-to-b from-[#25041a] via-[#350726] to-[#1a0212]`), subtle top/bottom ambient lighting orbs, and a delicate top border.
+- [x] **Brand Emblem & Halo Glow (`Footer.tsx`)**: Encased high-definition logo (`/hd-logo.webp`) in an interactive circular backdrop-blurred emblem with warm glowing ambient aura.
+- [x] **Brand Story & Tagline (`Footer.tsx`)**: Displayed a warm, authentic brand description tailored for dining and fast delivery.
+- [x] **Interactive Contact Pills (`Footer.tsx`)**: Centered glassmorphic contact pills for Direct Call (`+92 333 1702706`), WhatsApp Support, and Google Maps Location Directions with event tracking and hover glow.
+- [x] **Brand Social Buttons (`Footer.tsx`)**: Clean circular buttons for Facebook and Instagram with custom brand hover tints, scale micro-animations, and Meta Pixel / Clarity journey tracking.
+- [x] **Centered Divider & Dynamic Copyright (`Footer.tsx`)**: Subtle gradient divider, dynamic copyright year (`© {new Date().getFullYear()}`), and pulsing live status badge (`Open Daily · Dine-In, Takeaway & Express Delivery`).
+- [x] **Mobile Responsiveness & Back to Top (`Footer.tsx`)**: Fully responsive flex-wrap layout preventing overflow on small screens, paired with a centered smooth "Back to Top" capsule button.
+
+---
+
+## Phase 4.31 Completion Summary — Banner Slider Zero-Cutoff, Smart Contain Fit & Single-Banner Sizing
+
+- [x] **Smart Zero-Cutoff Image Contain (`BannerSlider.tsx`)**: Upgraded slide image rendering to use `object-contain` as default fit mode, guaranteeing that 100% of the banner graphic (left, right, top, bottom) is rendered without any edges getting cut off or cropped.
+- [x] **Ambient Blurred Backdrop Glow (`BannerSlider.tsx`)**: Injected a matching ambient blurred backdrop (`blur-2xl scale-110 opacity-30 dark:opacity-40`) of the banner image behind the contained graphic, seamlessly filling any letterboxing areas with luxury brand ambiance.
+- [x] **Single-Banner Mobile Sizing Adaptability (`BannerSlider.tsx`)**: When only a PC banner is uploaded (`!s.mobileImage`), the mobile aspect ratio automatically adapts to the panoramic/wide ratio (`aspectRatio || '21/9'`) with contain fit, preventing mobile devices from applying a 16:9 crop that cuts the sides.
+- [x] **Desktop & Mobile Fit Controls (`AdminPageBuilder.tsx`)**: Added `Desktop Image Fit` and `Mobile Image Fit` dropdowns (`contain`, `cover`, `fill`) alongside expanded aspect ratio presets in the CMS editor (`auto`, `21/8`, `21/9`, `16/9`, `2/1`, `3/1`, `4/1`, `4/3`, `1/1`).
+- [x] **Admin Mockup Visual Parity (`AdminPageBuilder.tsx`)**: Updated PC browser and mobile phone mockup previews in the CMS slide editor to display images with contain mode and ambient glow, giving administrators an accurate WYSIWYG preview.
+- [x] **Schema TypeScript Interface Parity (`PageConfig.ts`)**: Added `'image-slider'` to the `IPageSection.type` union and extended `BannerSlide` & `PageSection.props` interfaces with `imageFit` and `mobileImageFit`.
 
 ---
 

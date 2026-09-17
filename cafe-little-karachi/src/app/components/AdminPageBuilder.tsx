@@ -87,6 +87,8 @@ export interface BannerSlide {
   overlayOpacity?: number;
   textColor?: 'white' | 'black';
   align?: 'left' | 'center' | 'right';
+  imageFit?: 'contain' | 'cover' | 'fill';
+  mobileImageFit?: 'contain' | 'cover' | 'fill';
 }
 
 interface PageSection {
@@ -137,10 +139,12 @@ interface PageSection {
     marginTop?: number;
     borderRadius?: number;
     aspectRatio?: string;
+    imageFit?: 'contain' | 'cover' | 'fill';
     mobileMarginX?: number;
     mobileMarginTop?: number;
     mobileBorderRadius?: number;
     mobileAspectRatio?: string;
+    mobileImageFit?: 'contain' | 'cover' | 'fill';
 
     // Rich content specific
     description?: string;
@@ -482,9 +486,20 @@ export function ImageSliderConfigEditor({
                           </div>
                         </div>
                       </div>
-                      <div className="relative aspect-[21/9] bg-neutral-50 dark:bg-neutral-900 flex items-center justify-center overflow-hidden">
+                      <div className="relative aspect-[21/9] bg-neutral-900 flex items-center justify-center overflow-hidden">
                         {slide.image ? (
-                          <img src={slide.image} alt="Desktop preview" className="w-full h-full object-cover" />
+                          <>
+                            <div 
+                              className="absolute inset-0 bg-cover bg-center filter blur-xl scale-110 opacity-30 pointer-events-none"
+                              style={{ backgroundImage: `url(${slide.image})` }}
+                              aria-hidden="true"
+                            />
+                            <img 
+                              src={slide.image} 
+                              alt="Desktop preview" 
+                              className={`relative z-10 w-full h-full ${(section.props.imageFit || 'contain') === 'contain' ? 'object-contain' : (section.props.imageFit === 'fill' ? 'object-fill' : 'object-cover')}`} 
+                            />
+                          </>
                         ) : (
                           <div className="text-center p-3">
                             <ImageIcon className="mx-auto h-6 w-6 mb-1 text-neutral-300 dark:text-neutral-700" />
@@ -492,7 +507,7 @@ export function ImageSliderConfigEditor({
                           </div>
                         )}
                         {uploadingSlides[`${slide.id}-image`] && (
-                          <div className="absolute inset-0 bg-white/80 dark:bg-black/80 backdrop-blur-sm flex flex-col items-center justify-center gap-1">
+                          <div className="absolute inset-0 bg-white/80 dark:bg-black/80 backdrop-blur-sm flex flex-col items-center justify-center gap-1 z-20">
                             <Loader2 className="h-4 w-4 animate-spin text-[#741052]" />
                             <span className="text-[9px] font-semibold text-neutral-700 dark:text-neutral-300">Uploading…</span>
                           </div>
@@ -540,9 +555,20 @@ export function ImageSliderConfigEditor({
                       {/* Phone mockup */}
                       <div className="relative mx-auto w-20 border-[3px] border-neutral-800 dark:border-neutral-700 rounded-[1.25rem] overflow-hidden shadow-sm bg-neutral-100 dark:bg-neutral-950 aspect-[9/16]">
                         <div className="absolute top-1 left-1/2 -translate-x-1/2 w-6 h-1.5 bg-neutral-800 dark:bg-neutral-700 rounded-full z-10" />
-                        <div className="relative w-full h-full bg-neutral-50 dark:bg-neutral-900 flex items-center justify-center overflow-hidden">
-                          {slide.mobileImage ? (
-                            <img src={slide.mobileImage} alt="Mobile preview" className="w-full h-full object-cover" />
+                        <div className="relative w-full h-full bg-neutral-900 flex items-center justify-center overflow-hidden">
+                          {slide.mobileImage || slide.image ? (
+                            <>
+                              <div 
+                                className="absolute inset-0 bg-cover bg-center filter blur-xl scale-110 opacity-30 pointer-events-none"
+                                style={{ backgroundImage: `url(${slide.mobileImage || slide.image})` }}
+                                aria-hidden="true"
+                              />
+                              <img 
+                                src={slide.mobileImage || slide.image} 
+                                alt="Mobile preview" 
+                                className={`relative z-10 w-full h-full ${(section.props.mobileImageFit || section.props.imageFit || 'contain') === 'contain' ? 'object-contain' : 'object-cover'}`} 
+                              />
+                            </>
                           ) : (
                             <div className="text-center p-2">
                               <ImageIcon className="mx-auto h-4 w-4 mb-0.5 text-neutral-300 dark:text-neutral-700" />
@@ -550,7 +576,7 @@ export function ImageSliderConfigEditor({
                             </div>
                           )}
                           {uploadingSlides[`${slide.id}-mobileImage`] && (
-                            <div className="absolute inset-0 bg-white/80 dark:bg-black/80 backdrop-blur-sm flex items-center justify-center">
+                            <div className="absolute inset-0 bg-white/80 dark:bg-black/80 backdrop-blur-sm flex items-center justify-center z-20">
                               <Loader2 className="h-3 w-3 animate-spin text-[#741052]" />
                             </div>
                           )}
@@ -655,17 +681,31 @@ export function ImageSliderConfigEditor({
             </div>
             <div className="grid gap-3 sm:grid-cols-2">
               <div>
+                <Label className="text-[11px] font-semibold text-neutral-600 dark:text-neutral-400">Desktop Image Fit / Sizing</Label>
+                <SelectInput
+                  value={section.props.imageFit || 'contain'}
+                  onChange={e => updateProps({ imageFit: e.target.value as 'contain' | 'cover' | 'fill' })}
+                  className="mt-1"
+                >
+                  <option value="contain">Contain — Complete Banner (Zero Cutoff · Recommended)</option>
+                  <option value="cover">Cover — Edge-to-Edge Fill (May Crop Edges)</option>
+                  <option value="fill">Fill — Stretch to Boundaries</option>
+                </SelectInput>
+              </div>
+
+              <div>
                 <Label className="text-[11px] font-semibold text-neutral-600 dark:text-neutral-400">Desktop Aspect Ratio</Label>
                 <SelectInput
                   value={section.props.aspectRatio || '21/8'}
                   onChange={e => updateProps({ aspectRatio: e.target.value })}
                   className="mt-1"
                 >
-                  <option value="21/8">21:8 (Default Panoramic)</option>
-                  <option value="21/9">21:9 (Ultra Wide)</option>
+                  <option value="21/8">21:8 (Panoramic Banner · Default)</option>
+                  <option value="21/9">21:9 (Ultra Wide Banner)</option>
                   <option value="16/9">16:9 (Standard Widescreen)</option>
                   <option value="3/1">3:1 (Slim Banner)</option>
-                  <option value="4/3">4:3 (Tall Box)</option>
+                  <option value="4/1">4:1 (Ultra Slim Ribbon)</option>
+                  <option value="4/3">4:3 (Box / Medium)</option>
                 </SelectInput>
               </div>
 
@@ -714,17 +754,31 @@ export function ImageSliderConfigEditor({
             </div>
             <div className="grid gap-3 sm:grid-cols-2">
               <div>
+                <Label className="text-[11px] font-semibold text-neutral-600 dark:text-neutral-400">Mobile Image Fit / Sizing</Label>
+                <SelectInput
+                  value={section.props.mobileImageFit || section.props.imageFit || 'contain'}
+                  onChange={e => updateProps({ mobileImageFit: e.target.value as 'contain' | 'cover' | 'fill' })}
+                  className="mt-1"
+                >
+                  <option value="contain">Contain — Complete Banner (Zero Cutoff · Recommended)</option>
+                  <option value="cover">Cover — Edge-to-Edge Fill</option>
+                  <option value="fill">Fill — Stretch to Boundaries</option>
+                </SelectInput>
+              </div>
+
+              <div>
                 <Label className="text-[11px] font-semibold text-neutral-600 dark:text-neutral-400">Mobile Aspect Ratio</Label>
                 <SelectInput
-                  value={section.props.mobileAspectRatio || '16/9'}
+                  value={section.props.mobileAspectRatio || 'auto'}
                   onChange={e => updateProps({ mobileAspectRatio: e.target.value })}
                   className="mt-1"
                 >
-                  <option value="16/9">16:9 (Recommended Mobile - Compact)</option>
-                  <option value="2/1">2:1 (Slim Mobile)</option>
-                  <option value="4/3">4:3 (Medium)</option>
+                  <option value="auto">Auto (Match PC Ratio · Best for Single Banner)</option>
+                  <option value="21/9">21:9 (Ultra Wide Banner)</option>
+                  <option value="2/1">2:1 (Slim Mobile Banner)</option>
+                  <option value="16/9">16:9 (Standard Mobile Widescreen)</option>
+                  <option value="4/3">4:3 (Medium Box)</option>
                   <option value="1/1">1:1 (Square)</option>
-                  <option value="21/9">21:9 (Ultra Thin)</option>
                 </SelectInput>
               </div>
 

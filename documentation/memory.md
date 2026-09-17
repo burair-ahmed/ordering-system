@@ -8,7 +8,58 @@ created: 2026-09-04
 last_updated: 2026-09-17
 ---
 
-# Living Project Memory & Task Tracker
+## 0. Phase 4.32 Micro-Changes — Centered Minimalist Modern Footer Revamp (2026-09-17)
+
+### 1. Minimalist Center-Aligned Footer Architecture
+- **Files**:
+  - `cafe-little-karachi/src/app/components/Footer.tsx` (UPDATED)
+  - `the-chai-company/src/app/components/Footer.tsx` (UPDATED)
+- **Context & Goal**: The user requested a complete footer revamp: removing all quick links, converting the layout to a center-aligned modern flow featuring solely the brand logo, authentic story/paragraph, social media links, interactive contact pills, operating hours, and copyright.
+- **Key Enhancements & Structural Improvements**:
+  1. **Clean Center-Aligned Layout**: Eliminated multi-column grid partitioning and legacy quick links (`/about`, `/menu`, `/contact`, `/terms`). Replaced with a centered flex column (`max-w-4xl mx-auto flex flex-col items-center text-center`).
+  2. **Elevated Brand Logo & Ambient Glow**:
+     - Embedded `/hd-logo.webp` in a circular backdrop-blurred emblem (`bg-[#5c0d40] border-2 border-white/20`) with ambient halo glow (`bg-gradient-to-r from-[#ff9824]/25 to-[#d0269b]/30 blur-xl`).
+     - Interactive spring hover scale and micro-interactions on hover.
+  3. **Readable Brand Story / Paragraph**: Added concise brand statement ("Experience authentic Karachi flavors at Little Karachi Express. Handcrafted traditional delicacies, premium dine-in, and fast delivery right to your doorstep.").
+  4. **Interactive Contact Pills**:
+     - **Direct Phone Call**: `tel:+923331702706` with `Phone` icon, pill styling, hover elevation, and `trackEvent('journey_call_click', ...)`.
+     - **WhatsApp Support**: `wa.me/923331702706` with `FaWhatsapp` icon, emerald hover glow, and `trackEvent('journey_whatsapp_click', ...)`.
+     - **Google Maps Directions**: Google Maps link with `Navigation` icon, amber glow, and `trackEvent('journey_find_location', ...)`.
+  5. **Social Media Icons**:
+     - Centered circular icon buttons for Facebook and Instagram with brand-specific hover border tints (`#1877F2` for Facebook, `#E4405F` for Instagram), scale micro-animations, and `trackEvent('journey_contact', ...)`.
+  6. **Center Gradient Divider & Copyright Badge**:
+     - Minimalist horizontal fade divider (`w-24 sm:w-36 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent`).
+     - Centered copyright year dynamic updater: `© {new Date().getFullYear()} Little Karachi Express. All rights reserved.`.
+     - Pulse indicator with operating badge: `Open Daily · Dine-In, Takeaway & Express Delivery`.
+  7. **Mobile Responsiveness & Scroll to Top**:
+     - Wrapped pills in responsive flex-wrap with touch-friendly dimensions on mobile viewports.
+     - Centered subtle "Back to Top" capsule button.
+
+---
+
+## 0. Phase 4.31 Micro-Changes — Image Banner Slider Zero-Cutoff, Smart Contain Fit & Single-Banner Sizing (2026-09-17)
+
+### 1. Smart Zero-Cutoff Image Contain & Ambient Blurred Backdrop Glow
+- **File**: `cafe-little-karachi/src/app/components/BannerSlider.tsx`
+- **Root Cause**: Banners uploaded on PC were using `object-cover` inside fixed aspect-ratio containers (`21/8` desktop, `16/9` mobile), which caused the left and right edges (and crucial text/graphics) to be cropped and cut off when banner aspect ratios differed.
+- **Fix Applied**:
+  - **Zero-Cutoff Contain Default**: Upgraded slide image rendering to use `object-contain` as default fit mode, guaranteeing that 100% of the graphic is visible from edge to edge with zero cropping.
+  - **Ambient Blurred Glow**: Injected `<div className="absolute inset-0 bg-cover bg-center filter blur-2xl scale-110 opacity-30 dark:opacity-40 pointer-events-none" />` behind the image, softly filling any letterbox areas with the banner's own color palette.
+  - **Single-Banner Mobile Sizing Adaptability**: When only a single PC banner is uploaded (`!s.mobileImage`), mobile automatically adapts to wide panoramic aspect ratio (`aspectRatio || '21/9'`) with contain fit, preventing mobile devices from forcing a 16:9 vertical crop that cuts off wide desktop banners.
+  - **Frame Stacking**: Base container uses `bg-neutral-950` with high-contrast text overlays and arrows raised to `z-30`.
+
+### 2. CMS Layout Controls & Mockup Visual Parity
+- **File**: `cafe-little-karachi/src/app/components/AdminPageBuilder.tsx`
+- **Features Implemented**:
+  - **Desktop & Mobile Image Fit Dropdowns**: Added explicit controls (`contain`, `cover`, `fill`) under both `Desktop Layout & Sizing` and `Mobile Layout & Sizing`.
+  - **Expanded Aspect Ratio Presets**: Added `auto` (Match PC Ratio for single banners), `21/8`, `21/9`, `16/9`, `2/1`, `3/1`, `4/1`, `4/3`, `1/1`.
+  - **Mockup Previews**: Updated PC browser mockup (`aspect-[21/9]`) and Mobile phone mockup (`aspect-[9/16]`) to display contained images with ambient blurred backdrops in real-time.
+
+### 3. TypeScript Schema Alignment
+- **File**: `cafe-little-karachi/src/models/PageConfig.ts`
+- **Change**: Added `'image-slider'` to `IPageSection.type` union and extended `BannerSlide` & `PageSection.props` interfaces with `imageFit?: 'contain' | 'cover' | 'fill'` and `mobileImageFit?: 'contain' | 'cover' | 'fill'`.
+
+---
 
 ## 0. Phase 4.30 Micro-Changes — Cart Backdrop Blur Overlay & "Popular with your order" Upsell Carousel (2026-09-17)
 

@@ -2,7 +2,7 @@ import mongoose, { Schema, Document, Model } from "mongoose";
 
 export interface IPageSection {
   id: string;
-  type: 'hero' | 'banner' | 'rich-content' | 'divider' | 'testimonials' | 'slider' | 'grid';
+  type: 'hero' | 'banner' | 'rich-content' | 'divider' | 'testimonials' | 'slider' | 'grid' | 'image-slider';
   title: string;
   isVisible: boolean;
   props: any; // Flexible schema to support diverse settings (columns, timers, layout settings)
