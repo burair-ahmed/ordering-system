@@ -10,6 +10,21 @@ last_updated: 2026-09-17
 
 # Living Project Memory & Task Tracker
 
+## 0. Phase 4.29 Micro-Changes — Add/Edit Menu & Platter Forms: Gallery Picker & Upload Dual-Choice (2026-09-17)
+
+### 1. Dual-Choice Image System (Gallery vs Upload)
+- **Files Modified**:
+  - `cafe-little-karachi/src/app/components/MenuItemForm.tsx` (Add Menu Item)
+  - `cafe-little-karachi/src/app/components/EditMenuItemForm.tsx` (Edit Menu Item)
+  - `cafe-little-karachi/src/app/components/AddPlatterForm.tsx` (Add Platter)
+  - `cafe-little-karachi/src/app/components/EditPlatterForm.tsx` (Edit Platter)
+- **Features Implemented**:
+  - **Dual Action Controls**: Two buttons side-by-side: `[ Choose Gallery ]` (launches `MediaGallery` in modal picker mode) and `[ Upload New ]` (triggers file picker for direct upload to Cloudinary in `cafe-little-karachi/menu_items` or `cafe-little-karachi/platters`).
+  - **Interactive Image Card Preview**: Once an image is attached (from gallery or upload), displays a thumbnail preview with path/URL, "Change from Gallery", "Upload Replacement", and a 1-click remove/trash button.
+  - **Embedded `MediaGallery` Picker Modal**: High-z-index (`z-[120]`) backdrop-blurred modal housing the `MediaGallery` component with `isPicker={true}`. Clicking "Select This Image" instantly binds the URL to the form state and closes the modal with a success toast.
+
+---
+
 ## 0. Phase 4.28 Micro-Changes — Media Gallery: Used-In Detail, Storage Stats & Overlay Fix (2026-09-17)
 
 ### 1. "Used In" Detail Panel in Image Popup

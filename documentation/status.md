@@ -6,8 +6,8 @@ tags:
   - #project/ordering-ecosystem
 created: 2026-09-04
 last_updated: 2026-09-17
-overall_completion: "Phase 4.28: Media Gallery Enhancements (100%)"
-current_sprint: "Media Gallery: Used-In Panel, Storage Stats & Overlay Fix"
+overall_completion: "Phase 4.29: Forms Gallery & Upload Dual-Choice (100%)"
+current_sprint: "Menu & Platter Forms: Gallery Picker & Direct Upload Integration"
 ---
 
 # Project Status Dashboard — Advanced Ordering Ecosystem
@@ -16,12 +16,19 @@ current_sprint: "Media Gallery: Used-In Panel, Storage Stats & Overlay Fix"
 
 | Sub-Project | Phase | Focus | Status |
 | :--- | :--- | :--- | :--- |
-| **Cafe Little Karachi (CLK)** | Phase 4.28 | Media Gallery Enhancements | **Completed** 🟢 |
+| **Cafe Little Karachi (CLK)** | Phase 4.29 | Forms Gallery Picker & Upload Dual-Choice | **Completed** 🟢 |
 | **The Chai Company (TCC)** | Base | Monorepo Structure | Ready for Next Cycle ⚪ |
 
 ---
 
-## Phase 4.28 Completion Summary — Media Gallery Enhancements
+## Phase 4.29 Completion Summary — Forms Gallery Picker & Upload Dual-Choice
+
+- [x] **Add Menu Item Form (`MenuItemForm.tsx`)**: Dual image action buttons `[ Choose Gallery ]` and `[ Upload New ]`, preview thumbnail card with change/remove controls, and `MediaGallery` modal picker (`isPicker={true}`).
+- [x] **Edit Menu Item Form (`EditMenuItemForm.tsx`)**: Image section with Gallery selection and direct file upload, compact current image card, and embedded `MediaGallery` modal picker.
+- [x] **Add Platter Form (`AddPlatterForm.tsx`)**: Dual action controls for picking from existing Media Gallery or uploading new image to `cafe-little-karachi/platters`, with image preview card and picker modal.
+- [x] **Edit Platter Form (`EditPlatterForm.tsx`)**: Seamless choice to select from gallery or upload new, with thumbnail preview, change triggers, and modal picker.
+
+---
 
 - [x] **"Used In" API (`media-usage.ts`)**: New `GET /api/media-usage?url=` endpoint scans MenuItem, Platter, and PageConfig in MongoDB, returning all usages (menu items, platters, banners, sliders, story sections) for a given Cloudinary image URL.
 - [x] **"Used In" Popup Panel (`MediaGallery.tsx`)**: Image detail popup right column now contains a color-coded "Used In" section with contextual icons, loading state, and "not used" empty state for easy orphan identification.

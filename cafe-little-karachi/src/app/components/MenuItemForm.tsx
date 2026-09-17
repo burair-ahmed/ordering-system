@@ -27,6 +27,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import CreateCategoryModal from "./CreateCategoryModal";
+import MediaGallery from "./MediaGallery";
 import { useEffect } from "react";
 
 const AddMenuItemForm = () => {
@@ -48,6 +49,7 @@ const AddMenuItemForm = () => {
   });
 
   const [imageUploading, setImageUploading] = useState(false);
+  const [showMediaGallery, setShowMediaGallery] = useState(false);
 
   // Computed properties for backward compatibility
   const enableVariations = variationConfig.simpleVariations && variationConfig.simpleVariations.length > 0;
@@ -370,31 +372,49 @@ const AddMenuItemForm = () => {
               />
             </div>
 
+            {/* Image Selection & Variations */}
             <div className="grid md:grid-cols-2 gap-6">
               <div className="space-y-2">
-                <Label htmlFor="image" className="text-sm font-semibold text-gray-700 flex items-center gap-2">
-                  <ImageIcon className="h-4 w-4" />
-                  Item Image
+                <Label className="text-sm font-semibold text-gray-700 flex items-center justify-between">
+                  <span className="flex items-center gap-2">
+                    <ImageIcon className="h-4 w-4 text-[#741052]" />
+                    Item Image
+                  </span>
+                  {formData.image && (
+                    <span className="text-xs text-emerald-600 font-medium">Image attached</span>
+                  )}
                 </Label>
-                <div className="relative">
-                  <Input
-                    id="image"
-                    type="file"
-                    accept="image/*"
-                    onChange={handleImageUpload}
-                    className="hidden"
-                  />
+
+                <input
+                  id="image-file-input"
+                  type="file"
+                  accept="image/*"
+                  onChange={handleImageUpload}
+                  className="hidden"
+                />
+
+                <div className="grid grid-cols-2 gap-2">
                   <Button
                     type="button"
                     variant="outline"
-                    onClick={() => document.getElementById('image')?.click()}
+                    onClick={() => setShowMediaGallery(true)}
+                    className="h-12 border-2 border-[#741052]/30 hover:border-[#741052] bg-[#741052]/5 hover:bg-[#741052]/10 text-[#741052] font-semibold transition-all flex items-center justify-center gap-2 rounded-xl text-xs"
+                  >
+                    <ImageIcon className="h-4 w-4 shrink-0" />
+                    <span>Choose Gallery</span>
+                  </Button>
+
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => document.getElementById('image-file-input')?.click()}
                     disabled={imageUploading}
-                    className="w-full h-12 border-2 border-dashed border-gray-300 hover:border-[#741052] transition-colors flex items-center gap-2"
+                    className="h-12 border-2 border-dashed border-gray-300 hover:border-[#741052] transition-all flex items-center justify-center gap-2 rounded-xl text-xs font-semibold text-gray-700 hover:text-[#741052]"
                   >
                     {imageUploading ? (
                       <><div className="animate-spin rounded-full h-4 w-4 border-2 border-t-transparent border-[#741052]" /> Uploading...</>
                     ) : (
-                      <><Upload className="h-4 w-4" />{formData.image ? 'Change Image' : 'Upload Image'}</>
+                      <><Upload className="h-4 w-4 shrink-0" /> Upload New</>
                     )}
                   </Button>
                 </div>
@@ -405,7 +425,7 @@ const AddMenuItemForm = () => {
                   <Settings className="h-4 w-4" />
                   Variations
                 </Label>
-                <div className="flex items-center space-x-3 p-3 border-2 border-gray-200 rounded-xl bg-gray-50">
+                <div className="flex items-center space-x-3 p-3 border-2 border-gray-200 rounded-xl bg-gray-50 h-12">
                   <input
                     type="checkbox"
                     id="enableVariations"
@@ -424,27 +444,49 @@ const AddMenuItemForm = () => {
             <AnimatePresence>
               {formData.image && typeof formData.image === 'string' && (
                 <motion.div
-                  initial={{ opacity: 0, scale: 0.9 }}
+                  initial={{ opacity: 0, scale: 0.95 }}
                   animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.9 }}
-                  className="flex justify-center"
+                  exit={{ opacity: 0, scale: 0.95 }}
+                  className="p-3 bg-gradient-to-r from-neutral-50 to-neutral-100 rounded-2xl border-2 border-[#741052]/20 flex items-center gap-4"
                 >
-                  <div className="relative">
+                  <div className="relative shrink-0">
                     <img
                       src={formData.image}
                       alt="Menu Item Preview"
-                      className="w-48 h-48 object-cover rounded-2xl shadow-lg border-4 border-white"
+                      className="w-20 h-20 object-cover rounded-xl shadow-md border-2 border-white"
                     />
-                    <Button
-                      type="button"
-                      size="icon"
-                      variant="destructive"
-                      className="absolute -top-2 -right-2 h-8 w-8 rounded-full"
-                      onClick={() => setFormData(prev => ({ ...prev, image: null }))}
-                    >
-                      <X className="h-4 w-4" />
-                    </Button>
                   </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-xs font-bold text-[#741052] uppercase tracking-wider">Selected Item Image</p>
+                    <p className="text-xs text-gray-500 truncate max-w-md mt-0.5">{formData.image}</p>
+                    <div className="flex items-center gap-2 mt-2">
+                      <button
+                        type="button"
+                        onClick={() => setShowMediaGallery(true)}
+                        className="text-[11px] font-semibold text-[#741052] hover:underline"
+                      >
+                        Change from Gallery
+                      </button>
+                      <span className="text-gray-300">•</span>
+                      <button
+                        type="button"
+                        onClick={() => document.getElementById('image-file-input')?.click()}
+                        className="text-[11px] font-semibold text-gray-600 hover:underline"
+                      >
+                        Upload Replacement
+                      </button>
+                    </div>
+                  </div>
+                  <Button
+                    type="button"
+                    size="icon"
+                    variant="ghost"
+                    className="h-8 w-8 rounded-full text-red-500 hover:bg-red-50"
+                    onClick={() => setFormData(prev => ({ ...prev, image: null }))}
+                    title="Remove image"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
                 </motion.div>
               )}
             </AnimatePresence>
@@ -569,6 +611,34 @@ const AddMenuItemForm = () => {
           </Button>
         </motion.div>
       </form>
+
+      {/* Media Gallery Picker Modal */}
+      {showMediaGallery && (
+        <div className="fixed inset-0 z-[120] bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-2xl w-full max-w-5xl h-[85vh] flex flex-col overflow-hidden shadow-2xl">
+            <div className="flex items-center justify-between px-6 py-4 border-b border-neutral-100 dark:border-neutral-800 shrink-0">
+              <h3 className="text-sm font-bold text-neutral-800 dark:text-neutral-100 flex items-center gap-2">
+                <ImageIcon className="h-4 w-4 text-[#741052] dark:text-fuchsia-400" />
+                Select Image from Media Gallery
+              </h3>
+              <Button variant="ghost" size="sm" onClick={() => setShowMediaGallery(false)} className="h-8 w-8 p-0 rounded-xl">
+                <X size={16} />
+              </Button>
+            </div>
+            <div className="flex-1 overflow-hidden">
+              <MediaGallery
+                isPicker={true}
+                onSelectImage={(url) => {
+                  setFormData(prev => ({ ...prev, image: url }));
+                  setShowMediaGallery(false);
+                  toast.success("Image selected from Media Gallery!");
+                }}
+                onClosePicker={() => setShowMediaGallery(false)}
+              />
+            </div>
+          </div>
+        </div>
+      )}
     </motion.div>
   );
 };

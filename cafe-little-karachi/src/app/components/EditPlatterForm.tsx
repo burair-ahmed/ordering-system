@@ -7,7 +7,8 @@ import { toast } from "sonner";
 import CreateCategoryModal from "./CreateCategoryModal";
 import CreatePlatterCategoryModal from "./CreatePlatterCategoryModal";
 import { v4 as uuidv4 } from "uuid";
-import { X, Plus, Trash2, Upload } from "lucide-react";
+import { X, Plus, Trash2, Upload, Image as ImageIcon } from "lucide-react";
+import MediaGallery from "./MediaGallery";
 
 interface Option {
   name: string;
@@ -153,6 +154,7 @@ const EditPlatterForm: React.FC<EditPlatterFormProps> = ({ item, onClose, onUpda
 
   const [loading, setLoading] = useState(false);
   const [imageUploading, setImageUploading] = useState(false);
+  const [showMediaGallery, setShowMediaGallery] = useState(false);
 
   // Computed properties for backward compatibility with existing UI
   const categories = useMemo(() =>
@@ -567,34 +569,84 @@ const EditPlatterForm: React.FC<EditPlatterFormProps> = ({ item, onClose, onUpda
                 </div>
 
                 <SectionHeading title="Image" />
-                {formData.image && (
-                  <div className="relative rounded-xl overflow-hidden border border-neutral-200 dark:border-neutral-700 bg-neutral-50 dark:bg-neutral-800">
-                    <img
-                      src={formData.image}
-                      alt="Current platter image"
-                      className="w-full h-28 object-cover"
-                    />
-                    <div className="absolute bottom-2 left-2">
-                      <span className="text-[10px] font-semibold bg-black/55 text-white px-2 py-0.5 rounded-full">Current image</span>
-                    </div>
-                  </div>
-                )}
-                <label className="flex items-center gap-2.5 cursor-pointer w-full border border-dashed border-neutral-300 dark:border-neutral-700 rounded-lg px-4 py-2.5 hover:border-[#741052]/60 hover:bg-[#741052]/[0.02] transition-colors group">
-                  <Upload size={13} className="text-neutral-400 group-hover:text-[#741052] transition-colors shrink-0" />
-                  <span className="text-xs text-neutral-500 group-hover:text-[#741052] transition-colors">
-                    {imageUploading ? "Uploading..." : formData.image ? "Replace image" : "Upload image"}
-                  </span>
+                <div className="space-y-3">
                   <input
+                    id="edit-platter-file-input"
                     type="file"
                     accept="image/*"
                     onChange={handleImageUpload}
                     disabled={imageUploading}
                     className="hidden"
                   />
-                  {imageUploading && (
-                    <span className="ml-auto animate-spin w-3 h-3 border-2 border-t-transparent border-[#741052] rounded-full inline-block" />
+
+                  {formData.image ? (
+                    <div className="p-3 bg-neutral-50 dark:bg-neutral-800/60 rounded-xl border border-neutral-200 dark:border-neutral-700 flex items-center gap-3">
+                      <div className="relative shrink-0 w-16 h-16 rounded-lg overflow-hidden border border-neutral-200 dark:border-neutral-700">
+                        <img
+                          src={formData.image}
+                          alt="Current platter image"
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-[11px] font-bold text-[#741052] dark:text-[#d0269b] uppercase tracking-wider">Current Image</p>
+                        <p className="text-[11px] text-neutral-400 truncate max-w-[200px] mt-0.5">{formData.image}</p>
+                        <div className="flex items-center gap-2 mt-1.5">
+                          <button
+                            type="button"
+                            onClick={() => setShowMediaGallery(true)}
+                            className="text-[11px] font-semibold text-[#741052] dark:text-fuchsia-400 hover:underline"
+                          >
+                            Choose Gallery
+                          </button>
+                          <span className="text-neutral-300 dark:text-neutral-700">•</span>
+                          <button
+                            type="button"
+                            onClick={() => document.getElementById('edit-platter-file-input')?.click()}
+                            disabled={imageUploading}
+                            className="text-[11px] font-semibold text-neutral-600 dark:text-neutral-400 hover:underline"
+                          >
+                            {imageUploading ? 'Uploading...' : 'Upload New'}
+                          </button>
+                        </div>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => setFormData(prev => ({ ...prev, image: "" }))}
+                        className="p-1.5 rounded-lg text-neutral-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors"
+                        title="Remove image"
+                      >
+                        <Trash2 size={14} />
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="grid grid-cols-2 gap-2">
+                      <button
+                        type="button"
+                        onClick={() => setShowMediaGallery(true)}
+                        className="flex items-center justify-center gap-2 py-3 px-3 rounded-xl border border-[#741052]/30 dark:border-[#d0269b]/40 bg-[#741052]/5 dark:bg-[#741052]/10 hover:bg-[#741052]/10 text-[#741052] dark:text-fuchsia-300 text-xs font-semibold transition-all"
+                      >
+                        <ImageIcon size={15} />
+                        <span>Select Gallery</span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => document.getElementById('edit-platter-file-input')?.click()}
+                        disabled={imageUploading}
+                        className="flex items-center justify-center gap-2 py-3 px-3 rounded-xl border border-dashed border-neutral-300 dark:border-neutral-700 hover:border-[#741052] text-neutral-600 dark:text-neutral-300 hover:text-[#741052] text-xs font-semibold transition-all bg-neutral-50/50 dark:bg-neutral-800/30"
+                      >
+                        {imageUploading ? (
+                          <span className="animate-pulse">Uploading...</span>
+                        ) : (
+                          <>
+                            <Upload size={14} />
+                            <span>Upload New</span>
+                          </>
+                        )}
+                      </button>
+                    </div>
                   )}
-                </label>
+                </div>
               </div>
 
               {/* ── RIGHT COLUMN ── */}
@@ -832,6 +884,38 @@ const EditPlatterForm: React.FC<EditPlatterFormProps> = ({ item, onClose, onUpda
           </button>
         </div>
       </div>
+
+      {/* Media Gallery Picker Modal */}
+      {showMediaGallery && (
+        <div className="fixed inset-0 z-[120] bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-2xl w-full max-w-5xl h-[85vh] flex flex-col overflow-hidden shadow-2xl">
+            <div className="flex items-center justify-between px-6 py-4 border-b border-neutral-100 dark:border-neutral-800 shrink-0">
+              <h3 className="text-sm font-bold text-neutral-800 dark:text-neutral-100 flex items-center gap-2">
+                <ImageIcon className="h-4 w-4 text-[#741052] dark:text-fuchsia-400" />
+                Select Platter Image from Media Gallery
+              </h3>
+              <button
+                type="button"
+                onClick={() => setShowMediaGallery(false)}
+                className="w-8 h-8 rounded-full flex items-center justify-center text-neutral-400 hover:text-neutral-700 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors"
+              >
+                <X size={16} />
+              </button>
+            </div>
+            <div className="flex-1 overflow-hidden">
+              <MediaGallery
+                isPicker={true}
+                onSelectImage={(url) => {
+                  setFormData(prev => ({ ...prev, image: url }));
+                  setShowMediaGallery(false);
+                  toast.success("Platter image selected from Media Gallery!");
+                }}
+                onClosePicker={() => setShowMediaGallery(false)}
+              />
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
