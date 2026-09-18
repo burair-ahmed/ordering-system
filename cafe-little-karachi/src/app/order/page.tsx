@@ -703,7 +703,10 @@ export default function MenuPage({
                               ease: "easeOut"
                             }}
                           >
-                            <PlatterItem platter={platter as any} />
+                            <PlatterItem
+                              platter={platter as any}
+                              initialOpen={!!(initialPlatterSlug && slugify((platter as any).title) === initialPlatterSlug)}
+                            />
                           </motion.div>
                         ))
                       )}
@@ -757,7 +760,10 @@ export default function MenuPage({
                             ease: "easeOut"
                           }}
                         >
-                          <MenuItem item={item as any} />
+                          <MenuItem
+                            item={item as any}
+                            initialOpen={!!(initialItemSlug && slugify((item as any).title) === initialItemSlug)}
+                          />
                         </motion.div>
                       ))
                     )}
@@ -872,7 +878,7 @@ export default function MenuPage({
                         items={displayedItems}
                         isLoading={isLoading}
                         onLastItemRef={(node) => handleLastItemRef(section.id, node)}
-                        initialOpenSlug={section.props.itemType === 'platter' ? initialPlatterSlug : undefined}
+                        initialOpenSlug={section.props.itemType === 'platter' ? initialPlatterSlug : initialItemSlug}
                       />
                     );
                   
@@ -882,6 +888,7 @@ export default function MenuPage({
                         section={section}
                         items={displayedItems}
                         isLoading={isLoading}
+                        initialOpenSlug={section.props.itemType === 'platter' ? initialPlatterSlug : initialItemSlug}
                       />
                     );
                   
@@ -1436,7 +1443,11 @@ const ItemGridSection = ({ section, items, isLoading, onLastItemRef, initialOpen
                       initialOpen={!!(initialOpenSlug && slugify(item.title) === initialOpenSlug)}
                     />
                   ) : (
-                    <MenuItem item={item as any} cardStyle={cardStyle} />
+                    <MenuItem
+                      item={item as any}
+                      cardStyle={cardStyle}
+                      initialOpen={!!(initialOpenSlug && slugify(item.title) === initialOpenSlug)}
+                    />
                   )}
                 </motion.div>
               ))
@@ -1472,7 +1483,7 @@ const ItemGridSection = ({ section, items, isLoading, onLastItemRef, initialOpen
 };
 
 // 7. Product Slider Section
-const ItemSliderSection = ({ section, items, isLoading }: ItemSectionProps) => {
+const ItemSliderSection = ({ section, items, isLoading, initialOpenSlug }: ItemSectionProps) => {
   const {
     cardStyle = 'gourmet',
     bgColor = 'default',
@@ -1547,9 +1558,17 @@ const ItemSliderSection = ({ section, items, isLoading }: ItemSectionProps) => {
               {items.map((item, index) => (
                 <div key={`${section.id}-${item.id || item._id}-${index}`} className="w-[280px] sm:w-[320px] shrink-0 snap-start">
                   {isPlatter(item) ? (
-                    <PlatterItem platter={item} cardStyle={cardStyle} />
+                    <PlatterItem
+                      platter={item}
+                      cardStyle={cardStyle}
+                      initialOpen={!!(initialOpenSlug && slugify(item.title) === initialOpenSlug)}
+                    />
                   ) : (
-                    <MenuItem item={item as any} cardStyle={cardStyle} />
+                    <MenuItem
+                      item={item as any}
+                      cardStyle={cardStyle}
+                      initialOpen={!!(initialOpenSlug && slugify(item.title) === initialOpenSlug)}
+                    />
                   )}
                 </div>
               ))}

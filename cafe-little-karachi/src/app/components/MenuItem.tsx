@@ -11,6 +11,9 @@ import { X, Check } from "lucide-react";
 import posthog from 'posthog-js';
 import { trackEvent } from '../lib/analytics';
 import { slugify } from '../lib/slugify';
+import { useOrder } from '../context/OrderContext';
+import { useCart } from '../context/CartContext';
+import { isOpenAt } from '../lib/restaurantStatus';
 
 interface Variation {
   name: string;
@@ -37,6 +40,8 @@ interface MenuItemProps {
 }
 
 const MenuItem: FC<MenuItemProps> = ({ item, cardStyle = 'gourmet', initialOpen = false }) => {
+  const { isLocationSet, setLocationModalOpen, setStatusModalOpen } = useOrder();
+  const { addToCart } = useCart();
   const [showModal, setShowModal] = useState(initialOpen);
   const [showAddedMessage, setShowAddedMessage] = useState(false);
 
@@ -57,7 +62,9 @@ const MenuItem: FC<MenuItemProps> = ({ item, cardStyle = 'gourmet', initialOpen 
     }
   }, [itemSlug]);
 
-  // Non-blocking smooth modal close with clean URL revert
+  // Non-blocking smooth modal close with clean URL revert.
+  // If before 6:30 (closed), shows the before 6:30 lock popup.
+  // If after 6:30 and location not set, shows location selector modal.
   const closeModal = useCallback(() => {
     setShowModal(false);
     if (typeof window !== 'undefined') {
@@ -67,7 +74,12 @@ const MenuItem: FC<MenuItemProps> = ({ item, cardStyle = 'gourmet', initialOpen 
         }
       });
     }
-  }, []);
+    if (!isOpenAt()) {
+      setStatusModalOpen(true);
+    } else if (!isLocationSet) {
+      setTimeout(() => setLocationModalOpen(true), 200);
+    }
+  }, [isLocationSet, setLocationModalOpen, setStatusModalOpen]);
 
   // Sync with browser back/forward buttons
   useEffect(() => {
@@ -135,7 +147,7 @@ const MenuItem: FC<MenuItemProps> = ({ item, cardStyle = 'gourmet', initialOpen 
     isValid
   } = useVariationSelector(variationConfig, basePrice);
 
-  const handleItemAdded = () => {
+  const handleItemAdded = useCallback(() => {
     posthog.capture('journey_add_to_cart', {
       item_id: itemId,
       item_name: item.title,
@@ -153,7 +165,32 @@ const MenuItem: FC<MenuItemProps> = ({ item, cardStyle = 'gourmet', initialOpen 
 
     setShowAddedMessage(true);
     setTimeout(() => setShowAddedMessage(false), 1500);
-  };
+  }, [itemId, item.title, totalPrice, selections.simple]);
+
+  const handleAddRequest = useCallback(() => {
+    if (!isOpenAt()) {
+      setShowModal(false);
+      if (typeof window !== 'undefined' && window.location.pathname.startsWith('/item/')) {
+        window.history.replaceState(null, '', '/');
+      }
+      setStatusModalOpen(true);
+      return;
+    }
+
+    addToCart({
+      id: itemId,
+      title: item.title,
+      price: totalPrice,
+      quantity: 1,
+      image: item.image,
+      variations: getFlattenedVariations(),
+    });
+    handleItemAdded();
+
+    if (!isLocationSet) {
+      setTimeout(() => setLocationModalOpen(true), 300);
+    }
+  }, [itemId, item.title, totalPrice, item.image, getFlattenedVariations, handleItemAdded, isLocationSet, setLocationModalOpen, setStatusModalOpen, addToCart]);
 
   const handleSimpleSelect = (variationId: string, option: SelectedVariation) => {
     selectSimpleVariation(variationId, option);
@@ -437,6 +474,7 @@ const MenuItem: FC<MenuItemProps> = ({ item, cardStyle = 'gourmet', initialOpen 
                     image={item.image}
                     selectedVariations={getFlattenedVariations()}
                     onClick={handleItemAdded}
+                    onAddRequest={handleAddRequest}
                     disabled={item.status === "out of stock" || !isValid}
                     className=""
                   />

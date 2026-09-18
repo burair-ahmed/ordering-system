@@ -8,6 +8,7 @@ interface AddToCartButtonProps {
   image: string;
   selectedVariations: string[] | undefined;
   onClick: () => void;
+  onAddRequest?: () => void;
   className: string;
   disabled: boolean;
 }
@@ -19,6 +20,7 @@ const AddToCartButton: FC<AddToCartButtonProps> = ({
   image,
   selectedVariations = [],
   onClick,
+  onAddRequest,
   className,
   disabled,
 }) => {
@@ -26,15 +28,19 @@ const AddToCartButton: FC<AddToCartButtonProps> = ({
 
   const handleAddToCart = () => {
     if (!disabled) {
-      addToCart({
-        id,
-        title,
-        price,
-        quantity: 1,
-        image, 
-        variations: selectedVariations,
-      });    
-      onClick();
+      if (onAddRequest) {
+        onAddRequest();
+      } else {
+        addToCart({
+          id,
+          title,
+          price,
+          quantity: 1,
+          image, 
+          variations: selectedVariations,
+        });    
+        onClick();
+      }
     }
   };
 

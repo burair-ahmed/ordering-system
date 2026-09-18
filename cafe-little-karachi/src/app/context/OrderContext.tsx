@@ -22,6 +22,7 @@ interface OrderState {
   tableId?: string;
   isCheckoutModalOpen?: boolean;
   isLocationModalOpen?: boolean;
+  isStatusModalOpen?: boolean;
 }
 
 interface OrderContextValue extends OrderState {
@@ -29,6 +30,7 @@ interface OrderContextValue extends OrderState {
   clearOrder: () => void;
   setCheckoutModalOpen: (isOpen: boolean) => void;
   setLocationModalOpen: (isOpen: boolean) => void;
+  setStatusModalOpen: (isOpen: boolean) => void;
   isLocationSet: boolean;
 }
 
@@ -188,8 +190,15 @@ export function OrderProvider({ children }: { children: ReactNode }) {
     });
   }, []);
 
+  const setStatusModalOpen = useCallback((isOpen: boolean) => {
+    setOrderState((prev) => {
+      if (prev.isStatusModalOpen === isOpen) return prev;
+      return { ...prev, isStatusModalOpen: isOpen };
+    });
+  }, []);
+
   const clearOrder = useCallback(() => {
-    setOrderState({ orderType: "", isLocationModalOpen: false });
+    setOrderState({ orderType: "", isLocationModalOpen: false, isStatusModalOpen: false });
     if (typeof window !== "undefined") {
       localStorage.removeItem("order-context");
     }
@@ -214,9 +223,10 @@ export function OrderProvider({ children }: { children: ReactNode }) {
       clearOrder,
       setCheckoutModalOpen,
       setLocationModalOpen,
+      setStatusModalOpen,
       isLocationSet,
     }),
-    [order, setOrder, clearOrder, setCheckoutModalOpen, setLocationModalOpen, isLocationSet]
+    [order, setOrder, clearOrder, setCheckoutModalOpen, setLocationModalOpen, setStatusModalOpen, isLocationSet]
   );
 
   return (
@@ -232,6 +242,7 @@ const defaultOrderContext: OrderContextValue = {
   clearOrder: () => {},
   setCheckoutModalOpen: () => {},
   setLocationModalOpen: () => {},
+  setStatusModalOpen: () => {},
   isLocationSet: false,
 };
 

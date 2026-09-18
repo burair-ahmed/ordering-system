@@ -7,6 +7,8 @@ import { motion } from "framer-motion";
 import { Clock, Eye, Lock } from "lucide-react";
 import { isOpenAt, toKarachi, getNextOpenAndLastClose } from "../lib/restaurantStatus";
 
+import { useOrder } from "../context/OrderContext";
+
 const BRAND_FROM = "#741052";
 const BRAND_TO = "#d0269b";
 const BRAND_TO1 = "#ff03afff";
@@ -34,6 +36,7 @@ function getLastOrderTime(karachiDate: Date) {
 
 export default function RestaurantStatusPopup() {
   const pathname = usePathname() || "";
+  const { isStatusModalOpen, setStatusModalOpen } = useOrder();
   const [now, setNow] = useState(() => toKarachi(new Date()));
   const [isBrowseMode, setIsBrowseMode] = useState<boolean>(false);
   const [isMounted, setIsMounted] = useState(false);
@@ -41,12 +44,20 @@ export default function RestaurantStatusPopup() {
   useEffect(() => {
     setIsMounted(true);
     if (typeof window !== "undefined") {
+      const isProductRoute = window.location.pathname.startsWith("/item/") || window.location.pathname.startsWith("/platter/");
       const storedMode = sessionStorage.getItem("clk_browse_only_mode");
-      if (storedMode === "true") {
+      if (storedMode === "true" || isProductRoute) {
         setIsBrowseMode(true);
       }
     }
   }, []);
+
+  // Synchronize when OrderContext requests the status popup to open
+  useEffect(() => {
+    if (isStatusModalOpen) {
+      setIsBrowseMode(false);
+    }
+  }, [isStatusModalOpen]);
 
   useEffect(() => {
     const t = setInterval(() => setNow(toKarachi(new Date())), 1000);
@@ -55,6 +66,7 @@ export default function RestaurantStatusPopup() {
 
   const handleEnableBrowseMode = () => {
     setIsBrowseMode(true);
+    setStatusModalOpen(false);
     if (typeof window !== "undefined") {
       sessionStorage.setItem("clk_browse_only_mode", "true");
     }
@@ -62,6 +74,7 @@ export default function RestaurantStatusPopup() {
 
   const handleOpenPopup = () => {
     setIsBrowseMode(false);
+    setStatusModalOpen(true);
   };
 
   if (!isMounted) return null;

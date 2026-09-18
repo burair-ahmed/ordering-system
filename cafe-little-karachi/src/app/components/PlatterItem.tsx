@@ -15,6 +15,7 @@ import { trackEvent } from '../lib/analytics';
 import { slugify } from '../lib/slugify';
 import { useOrder } from '../context/OrderContext';
 import { useCart } from '../context/CartContext';
+import { isOpenAt } from '../lib/restaurantStatus';
 
 interface CategoryOption {
   uuid: string;
@@ -56,7 +57,7 @@ interface PlatterItemProps {
 const platterCategoryCache = new Map<string, any[]>();
 
 const PlatterItem: FC<PlatterItemProps> = ({ platter, cardStyle = 'gourmet', initialOpen = false }) => {
-  const { isLocationSet, setLocationModalOpen } = useOrder();
+  const { isLocationSet, setLocationModalOpen, setStatusModalOpen } = useOrder();
   const { addToCart } = useCart();
 
   const [showModal, setShowModal] = useState(initialOpen);
@@ -91,9 +92,9 @@ const PlatterItem: FC<PlatterItemProps> = ({ platter, cardStyle = 'gourmet', ini
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [platterSlug]);
 
-  // Non-blocking smooth modal close with clean URL revert
-  // If the order type hasn't been set yet and the user closes without adding,
-  // we open the location modal so they can set their order type.
+  // Non-blocking smooth modal close with clean URL revert.
+  // If before 6:30 (closed), shows the before 6:30 lock popup.
+  // If after 6:30 and location not set, shows location selector modal.
   const closeModal = useCallback(() => {
     setShowModal(false);
     if (typeof window !== 'undefined') {
@@ -103,11 +104,12 @@ const PlatterItem: FC<PlatterItemProps> = ({ platter, cardStyle = 'gourmet', ini
         }
       });
     }
-    // Deferred so the platter modal closes first before the location modal appears
-    if (!isLocationSet) {
+    if (!isOpenAt()) {
+      setStatusModalOpen(true);
+    } else if (!isLocationSet) {
       setTimeout(() => setLocationModalOpen(true), 200);
     }
-  }, [isLocationSet, setLocationModalOpen]);
+  }, [isLocationSet, setLocationModalOpen, setStatusModalOpen]);
 
   // Sync with browser back/forward buttons
   useEffect(() => {
@@ -296,15 +298,22 @@ const PlatterItem: FC<PlatterItemProps> = ({ platter, cardStyle = 'gourmet', ini
   }, [addToCart, platter.id, platter.title, totalPrice, platter.image, getFlattenedVariations, handleItemAdded]);
 
   // Called when the "Add to Cart" button is pressed.
-  // Always adds to cart immediately (same behaviour as menu items).
-  // If the order type hasn't been set yet, the location modal is shown
-  // non-blockingly AFTER the item is already in the cart.
+  // If before 6:30 (closed), shows the before 6:30 lock popup.
+  // If after 6:30, adds to cart immediately and shows location modal if location is not set.
   const handleAddRequest = useCallback(() => {
+    if (!isOpenAt()) {
+      setShowModal(false);
+      if (typeof window !== 'undefined' && window.location.pathname.startsWith('/platter/')) {
+        window.history.replaceState(null, '', '/');
+      }
+      setStatusModalOpen(true);
+      return;
+    }
     performCartAdd();
     if (!isLocationSet) {
       setTimeout(() => setLocationModalOpen(true), 300);
     }
-  }, [isLocationSet, performCartAdd, setLocationModalOpen]);
+  }, [isLocationSet, performCartAdd, setLocationModalOpen, setStatusModalOpen]);
 
   const handleCategorySelect = (categoryId: string, option: SelectedVariation) => {
     selectCategoryVariation(categoryId, option);

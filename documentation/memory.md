@@ -5,7 +5,40 @@ tags:
   - #status/active
   - #project/ordering-ecosystem
 created: 2026-09-04
-last_updated: 2026-09-17
+last_updated: 2026-09-18
+---
+
+## 0. Phase 4.33 Micro-Changes — Direct Product Link Off-Hours Viewing & Lock / Location Check Coordination (2026-09-18)
+
+### 1. Off-Hours Direct Product URL Unblocked Viewing
+- **Files**:
+  - `cafe-little-karachi/src/app/components/RestaurantStatusPopup.tsx` (UPDATED)
+  - `cafe-little-karachi/src/app/context/OrderContext.tsx` (UPDATED)
+- **Context & Problem**: Previously, when a customer opened a direct product campaign URL (e.g. `https://www.littlekarachirestaurant.com/item/beef-white-biryani-1-kg-deg`) before 06:30 PM (when the restaurant is closed), the fullscreen `z-[9999]` "We are currently closed" modal would immediately take over the screen, blocking the customer from viewing the product popup, prices, and variations.
+- **Fix & Enhancements**:
+  - `RestaurantStatusPopup.tsx`: On initial mount, detects if the current URL starts with `/item/` or `/platter/`. If so, initializes in unblocked browse state so the full product customization modal renders cleanly without obstruction.
+  - `OrderContext.tsx`: Added `isStatusModalOpen: boolean` and `setStatusModalOpen: (isOpen: boolean) => void` to global state for coordinated status popup control across modals.
+
+### 2. Off-Hours vs On-Hours Product Dismiss ("Cut") & Add-to-Cart Workflow
+- **Files**:
+  - `cafe-little-karachi/src/app/components/MenuItem.tsx` (UPDATED)
+  - `cafe-little-karachi/src/app/components/PlatterItem.tsx` (UPDATED)
+  - `cafe-little-karachi/src/app/components/AddToCartButton.tsx` (UPDATED)
+- **Behavior Implemented**:
+  1. **Dismiss / Close Modal ("Cut")**:
+     - **Before 06:30 PM (`!isOpenAt()`)**: Closes the product modal and immediately triggers the before 06:30 lock popup (`setStatusModalOpen(true)`).
+     - **At or after 06:30 PM (`isOpenAt()`)**: If location/order type is not set (`!isLocationSet`), opens the location selector modal (`TableForm`).
+  2. **Add to Cart**:
+     - **Before 06:30 PM (`!isOpenAt()`)**: Closes the product modal and immediately triggers the before 06:30 lock popup (`setStatusModalOpen(true)`).
+     - **At or after 06:30 PM (`isOpenAt()`)**: Adds the item to cart, and if location is not set (`!isLocationSet`), opens the location selector modal (`TableForm`).
+  3. `AddToCartButton.tsx`: Added optional `onAddRequest?: () => void` prop to cleanly delegate add-to-cart orchestration to `MenuItem`.
+
+### 3. Immediate Slug Propagation in Classic & CMS Layouts
+- **File**:
+  - `cafe-little-karachi/src/app/order/page.tsx` (UPDATED)
+- **Changes**:
+  - Forwarded `initialItemSlug` and `initialPlatterSlug` to `MenuItem` and `PlatterItem` in Classic Layout mode and CMS mode (`ItemGridSection`, `ItemSliderSection`) with `initialOpen={!!(initialSlug && slugify(title) === initialSlug)}` for instant modal opening.
+
 ---
 
 ## 0. Phase 4.32 Micro-Changes — Centered Minimalist Modern Footer Revamp (2026-09-17)

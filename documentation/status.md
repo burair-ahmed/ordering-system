@@ -5,9 +5,9 @@ tags:
   - #status/active
   - #project/ordering-ecosystem
 created: 2026-09-04
-last_updated: 2026-09-17
-overall_completion: "Phase 4.32: Centered Minimalist Modern Footer Revamp (100%)"
-current_sprint: "Footer Revamp: Center-Aligned Modern Layout, Social & Contact Pills"
+last_updated: 2026-09-18
+overall_completion: "Phase 4.33: Direct Product URL Off-Hours Viewing & Lock / Location Check Coordination (100%)"
+current_sprint: "Direct Product Link UX: Off-Hours Popup Bypass, Closed Lock & Location Modals Coordination"
 ---
 
 # Project Status Dashboard — Advanced Ordering Ecosystem
@@ -16,8 +16,21 @@ current_sprint: "Footer Revamp: Center-Aligned Modern Layout, Social & Contact P
 
 | Sub-Project | Phase | Focus | Status |
 | :--- | :--- | :--- | :--- |
-| **Cafe Little Karachi (CLK)** | Phase 4.32 | Centered Minimalist Modern Footer Revamp | **Completed** 🟢 |
+| **Cafe Little Karachi (CLK)** | Phase 4.33 | Direct Product Link Off-Hours Viewing & Lock/Location Workflow | **Completed** 🟢 |
 | **The Chai Company (TCC)** | Phase 4.32 | Centered Modern Tea Lounge Footer | **Completed** 🟢 |
+
+---
+
+## Phase 4.33 Completion Summary — Direct Product Link Off-Hours Viewing & Lock / Location Check Coordination
+
+- [x] **Direct Product Link Off-Hours Unblocked View (`RestaurantStatusPopup.tsx`)**: When customers navigate directly to product or platter campaign URLs (e.g. `/item/beef-white-biryani-1-kg-deg`, `/platter/[slug]`), the fullscreen "currently closed" lock popup is suppressed on mount, allowing customers to view the full product card, prices, images, and portion variations without any blocking overlay before 06:30 PM.
+- [x] **Modal Cut / Dismiss Before 06:30 PM (`MenuItem.tsx`, `PlatterItem.tsx`)**: When a customer dismisses or closes the product/platter modal (`closeModal`) before 06:30 PM (`!isOpenAt()`), the before 06:30 lock popup (`RestaurantStatusPopup`) immediately takes over the screen with the live countdown and schedule.
+- [x] **Add to Cart Before 06:30 PM (`MenuItem.tsx`, `PlatterItem.tsx`, `AddToCartButton.tsx`)**: Clicking "Add to Cart" inside a product or platter modal before 06:30 PM (`!isOpenAt()`) immediately triggers and displays the before 06:30 lock popup.
+- [x] **Location Checks at or After 06:30 PM (`MenuItem.tsx`, `PlatterItem.tsx`)**:
+  - When the restaurant is open (`isOpenAt()`), closing the modal without selecting an order mode triggers the location selector modal (`TableForm`) if `!isLocationSet`.
+  - Clicking "Add to Cart" adds the item to the cart and triggers the location modal if `!isLocationSet`.
+- [x] **Global OrderContext Status State (`OrderContext.tsx`)**: Added `isStatusModalOpen` and `setStatusModalOpen(boolean)` to `OrderContext` for synchronized state control between product modals, platter modals, and the restaurant operating status popup.
+- [x] **Catalog Direct Slug Propagation (`order/page.tsx`)**: Forwarded `initialItemSlug` and `initialPlatterSlug` through `ItemGridSection`, `ItemSliderSection`, and Classic Layout category render loops with `initialOpen={...}` for instantaneous modal auto-opening.
 
 ---
 
