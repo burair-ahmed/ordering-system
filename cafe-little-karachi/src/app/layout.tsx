@@ -33,8 +33,13 @@ const poppins = localFont({
 });
 
 export const metadata: Metadata = {
-  title: "CLK Ordering System",
+  title: "Little Karachi Express",
   description: "Little Karachi Express Ordering System",
+  icons: {
+    icon: "/hd-logo.ico",
+    shortcut: "/hd-logo.ico",
+    apple: "/hd-logo.ico",
+  },
 };
 
 export default function RootLayout({

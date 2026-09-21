@@ -3,6 +3,9 @@ export function toKarachi(now = new Date()): Date {
 }
 
 export function isOpenAt(karachiDate: Date = toKarachi()): boolean {
+  // ── Dev bypass: set NEXT_PUBLIC_DISABLE_HOURS_LOCK=true in .env.local ───
+  if (process.env.NEXT_PUBLIC_DISABLE_HOURS_LOCK === "true") return true;
+
   // Allow test override via localStorage if present
   if (typeof window !== "undefined") {
     const override = localStorage.getItem("overrideRestaurantOpen");

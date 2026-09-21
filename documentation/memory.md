@@ -5,10 +5,58 @@ tags:
   - #status/active
   - #project/ordering-ecosystem
 created: 2026-09-04
-last_updated: 2026-09-18
+last_updated: 2026-09-21
+---
+
+## 0. Phase 4.36 Micro-Change — Cafe Little Karachi Website Title & HD Favicon Update (2026-09-21)
+
+### Website Title & Favicon Synchronization
+- **Files**:
+  - `cafe-little-karachi/src/app/layout.tsx` (UPDATED)
+  - `cafe-little-karachi/src/app/favicon.ico` (UPDATED)
+- **Context & Goal**: Updated the storefront brand title to "Little Karachi Express" and synchronized the browser tab favicon to use the high-definition brand icon (`hd-logo.ico`).
+- **Changes Applied**:
+  - Updated `metadata.title` to `"Little Karachi Express"` and added `metadata.icons` pointing to `icon: "/hd-logo.ico"`, `shortcut: "/hd-logo.ico"`, `apple: "/hd-logo.ico"` in `src/app/layout.tsx`.
+  - Replaced `src/app/favicon.ico` with `public/hd-logo.ico` to ensure Next.js App Router root favicon requests serve the exact HD logo.
+
+---
+
+## 0. Phase 4.35 Micro-Change — Cafe Little Karachi Launch Brag Video Creation (2026-09-18)
+
+### Launch Video Production via Brag Skill & Hyperframes
+- **Files**:
+  - `cafe-little-karachi/brag-output-2026-09-18-175800/brag-plan.md` (NEW)
+  - `cafe-little-karachi/brag-output-2026-09-18-175800/composition-brief.md` (NEW)
+  - `cafe-little-karachi/brag-output-2026-09-18-175800/composition/index.html` (NEW)
+  - `cafe-little-karachi/brag-output-2026-09-18-175800/share-copy.txt` (NEW)
+  - `cafe-little-karachi/brag-output-2026-09-18-175800/brag.jpg` (NEW)
+  - `cafe-little-karachi/brag-output-2026-09-18-175800/brag.mp4` (NEW)
+- **Context & Objectives**: Generated a launch video showcasing Cafe Little Karachi's dining and ordering features using the `brag` skill and Hyperframes.
+- **Workflow & Key Deliverables**:
+  - **Skill & Toolchain Setup**: Verified the `brag` skill (`.agents/skills/brag`), installed Hyperframes CLI (`v0.8.47`), and integrated FFmpeg (`9.0.1-full_build`).
+  - **4-Scene Storyboard & Audio-Synced Motion**:
+    - **Scene 1 (Hook & Brand, 0.0–3.7s)**: Bold hook ("Craving Authentic Karachi Spice?"), golden luxury badge, and staggered dining modes (Dine-In, Takeaway, Delivery) beat-locked to 1.60s.
+    - **Scene 2 (Granular Variation Engine, 3.7–9.5s)**: Interactive Special Chicken Biryani customization with Handi Portion toggle (Double), Spice Level (Karachi Spicy 🔥 locked to 5.80s cue), Add-ons (Shami Kebab), and live dynamic price calculation to Rs 1,450.
+    - **Scene 3 (Dine-In QR & Live Order Tracking, 9.5–14.5s)**: Table #07 confirmation, Socket.IO live order tracking stepper (Order Received → Kitchen Prepping → Serving to Table), and WhatsApp notification alert.
+    - **Scene 4 (Brand Outro & CTA, 14.5–19.5s)**: Saffron gold finale with brand seal, "The Art of Karachi Flavors", Order Now CTA button, and domain link.
+  - **Pre-Render Quality Gate**: Checked with `npx hyperframes check` passing 86/86 WCAG AA contrast checks, 0 runtime errors, 0 layout errors, and 0 motion warnings.
+  - **Render & Poster Bake**: Rendered 585 frames at 30fps (19.5s, 1920x1080) to `brag.mp4`, extracted settled poster frame `brag.jpg` at 17.5s, baked frame 0 as the universal video thumbnail, and wrote social `share-copy.txt`.
+
+---
+
+## 0. Phase 4.34 Micro-Change — Localhost Dev Bypass for 6:30 PM Restaurant Hours Lock (2026-09-18)
+
+### Dev Environment Hours Lock Bypass
+- **Files**:
+  - `cafe-little-karachi/.env.local` (UPDATED)
+  - `cafe-little-karachi/src/app/lib/restaurantStatus.ts` (UPDATED)
+- **Context & Problem**: During local development (before 6:30 PM), `isOpenAt()` returned `false`, triggering the restaurant-closed overlay and redirect-to-home guard on checkout — making it impossible to test ordering flows without waiting until 6:30 PM.
+- **Fix**: Added `NEXT_PUBLIC_DISABLE_HOURS_LOCK=true` to `.env.local`. The `isOpenAt()` function checks this env var **first** (before the `localStorage` override) and returns `true` immediately, bypassing all time-based gating. **Production is unaffected** — `.env.local` is `.gitignore`-d and the env var is absent in `.env.production`.
+
 ---
 
 ## 0. Phase 4.33 Micro-Changes — Direct Product Link Off-Hours Viewing & Lock / Location Check Coordination (2026-09-18)
+
 
 ### 1. Off-Hours Direct Product URL Unblocked Viewing
 - **Files**:

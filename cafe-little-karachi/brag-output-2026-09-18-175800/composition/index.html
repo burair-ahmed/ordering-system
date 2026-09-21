@@ -1,0 +1,411 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1920, height=1080" />
+    <title>Cafe Little Karachi — Launch Brag Video</title>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      html, body {
+        margin: 0;
+        width: 1920px;
+        height: 1080px;
+        overflow: hidden;
+        background: #0c0a09;
+        font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        color: #fafaf9;
+        -webkit-font-smoothing: antialiased;
+      }
+      .font-display {
+        font-family: 'Playfair Display', Georgia, serif;
+      }
+      .font-outfit {
+        font-family: 'Outfit', 'Inter', system-ui, sans-serif;
+      }
+      .gold-gradient-text {
+        background: linear-gradient(135deg, #fef08a 0%, #f59e0b 50%, #d97706 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+      }
+      .gold-border-glow {
+        box-shadow: 0 0 30px rgba(245, 158, 11, 0.25), inset 0 0 15px rgba(245, 158, 11, 0.1);
+      }
+      .gold-glow {
+        box-shadow: 0 10px 40px -10px rgba(245, 158, 11, 0.4);
+      }
+      .emerald-glow {
+        box-shadow: 0 0 25px rgba(16, 185, 129, 0.35);
+      }
+    </style>
+  </head>
+  <body>
+    <div
+      id="root"
+      data-composition-id="main"
+      data-start="0"
+      data-duration="19.5"
+      data-width="1920"
+      data-height="1080"
+      style="position: relative; width: 1920px; height: 1080px; overflow: hidden; background: #0c0a09;"
+    >
+      <!-- Audio Tracks -->
+      <audio id="bgm" data-start="0" data-duration="19.5" data-track-index="1" data-volume="0.85" src="assets/music/track.mp3"></audio>
+      <audio id="sfx-click1" data-start="4.23" data-duration="0.10" data-track-index="2" data-volume="0.6" src="assets/sfx/click_001.ogg"></audio>
+      <audio id="sfx-select" data-start="5.80" data-duration="0.05" data-track-index="3" data-volume="0.7" src="assets/sfx/select_008.ogg"></audio>
+      <audio id="sfx-switch" data-start="6.86" data-duration="0.08" data-track-index="4" data-volume="0.6" src="assets/sfx/switch_001.ogg"></audio>
+      <audio id="sfx-drop" data-start="9.50" data-duration="0.11" data-track-index="5" data-volume="0.75" src="assets/sfx/drop_001.ogg"></audio>
+      <audio id="sfx-order" data-start="12.00" data-duration="0.05" data-track-index="6" data-volume="0.7" src="assets/sfx/select_008.ogg"></audio>
+
+      <!-- Background Luxury Ambient Aura -->
+      <div id="bg-aura" style="position: absolute; inset: 0; background: radial-gradient(circle at 50% 50%, rgba(245, 158, 11, 0.18) 0%, rgba(217, 119, 6, 0.05) 50%, transparent 80%); pointer-events: none;"></div>
+      <div style="position: absolute; inset: 0; opacity: 0.07; background-image: radial-gradient(#d97706 1px, transparent 1px); background-size: 36px 36px;"></div>
+
+      <!-- ================= SCENE 1: HOOK & BRAND (0.0s - 3.7s) ================= -->
+      <div id="scene1" style="position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 0 100px;">
+        <!-- Hook Pre-header -->
+        <div id="s1-hook-tag" style="display: inline-flex; align-items: center; gap: 10px; padding: 8px 24px; border-radius: 9999px; background: rgba(245, 158, 11, 0.15); border: 1px solid rgba(245, 158, 11, 0.4); margin-bottom: 24px;">
+          <span style="display: inline-block; width: 10px; height: 10px; border-radius: 50%; background: #fbbf24; box-shadow: 0 0 10px #fbbf24;"></span>
+          <span class="font-outfit" style="color: #fef08a; font-size: 20px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;">The Next Evolution in Dining</span>
+        </div>
+
+        <!-- Hook Main Question -->
+        <h1 id="s1-hook-title" class="font-display" style="font-size: 76px; line-height: 1.15; font-weight: 900; margin-bottom: 36px; max-width: 1400px; color: #fafaf9;">
+          Craving Authentic <span class="gold-gradient-text">Karachi Spice?</span>
+        </h1>
+
+        <!-- Brand Reveal Card -->
+        <div id="s1-brand-card" style="background: rgba(28, 25, 23, 0.95); backdrop-filter: blur(20px); border: 1px solid rgba(245, 158, 11, 0.45); border-radius: 28px; padding: 36px 64px; display: flex; flex-direction: column; align-items: center; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);" class="gold-border-glow">
+          <div style="display: flex; align-items: center; gap: 20px; margin-bottom: 12px;">
+            <div style="width: 56px; height: 56px; border-radius: 16px; background: #291e10; border: 1px solid #f59e0b; display: flex; align-items: center; justify-content: center; font-size: 30px; box-shadow: 0 0 20px rgba(245, 158, 11, 0.5);">🍲</div>
+            <h2 class="font-outfit gold-gradient-text" style="font-size: 48px; font-weight: 800; letter-spacing: 0.04em;">CAFE LITTLE KARACHI</h2>
+          </div>
+          <p style="color: #f5f5f4; font-size: 22px; font-weight: 500; letter-spacing: 0.02em;">Handcrafted Biryani & Karahi • Seamless Modern Ordering</p>
+        </div>
+
+        <!-- 3 Dining Modes Badges -->
+        <div id="s1-modes-container" style="display: flex; gap: 24px; margin-top: 40px;">
+          <div id="s1-mode-1" style="background: #1c1917; border: 1px solid rgba(245, 158, 11, 0.4); border-radius: 18px; padding: 14px 32px; display: flex; align-items: center; gap: 14px; box-shadow: 0 10px 25px rgba(0,0,0,0.5);">
+            <span style="font-size: 26px;">🍽️</span>
+            <span class="font-outfit" style="font-size: 22px; font-weight: 700; color: #fafaf9;">Dine-In Table QR</span>
+          </div>
+          <div id="s1-mode-2" style="background: #1c1917; border: 1px solid rgba(245, 158, 11, 0.4); border-radius: 18px; padding: 14px 32px; display: flex; align-items: center; gap: 14px; box-shadow: 0 10px 25px rgba(0,0,0,0.5);">
+            <span style="font-size: 26px;">🛍️</span>
+            <span class="font-outfit" style="font-size: 22px; font-weight: 700; color: #fafaf9;">Instant Takeaway</span>
+          </div>
+          <div id="s1-mode-3" style="background: #1c1917; border: 1px solid rgba(245, 158, 11, 0.4); border-radius: 18px; padding: 14px 32px; display: flex; align-items: center; gap: 14px; box-shadow: 0 10px 25px rgba(0,0,0,0.5);">
+            <span style="font-size: 26px;">🛵</span>
+            <span class="font-outfit" style="font-size: 22px; font-weight: 700; color: #fafaf9;">Swift Delivery</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- ================= SCENE 2: GRANULAR VARIATION ENGINE (3.7s - 9.5s) ================= -->
+      <div id="scene2" style="position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; padding: 0 120px; gap: 60px; opacity: 0;">
+        <!-- Left: Product Showcase Card -->
+        <div id="s2-product-card" style="flex: 0 0 560px; background: #1c1917; border: 1px solid rgba(245, 158, 11, 0.35); border-radius: 28px; overflow: hidden; box-shadow: 0 25px 50px rgba(0,0,0,0.8);">
+          <div style="height: 320px; background: linear-gradient(to bottom, rgba(0,0,0,0.4), #1c1917), url('assets/images/platter.jpeg') center/cover; position: relative; display: flex; align-items: flex-end; padding: 28px;">
+            <div style="position: absolute; top: 20px; right: 20px; background: rgba(0,0,0,0.85); border: 1px solid #f59e0b; border-radius: 12px; padding: 6px 16px; display: flex; align-items: center; gap: 6px;">
+              <span style="color: #fbbf24; font-size: 16px; font-weight: 700;">★ 4.9</span>
+              <span style="color: #e7e5e4; font-size: 14px;">(1.2k+ Reviews)</span>
+            </div>
+            <div style="position: absolute; top: 20px; left: 20px; background: #c2410c; border: 1px solid #ea580c; color: #ffffff; font-weight: 800; font-size: 14px; letter-spacing: 0.05em; text-transform: uppercase; padding: 6px 14px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.5);">
+              Chef's Special
+            </div>
+            <div>
+              <h3 class="font-display" style="font-size: 38px; font-weight: 700; color: #fafaf9; margin-bottom: 6px;">Special Chicken Biryani</h3>
+              <p style="color: #e7e5e4; font-size: 18px;">Aromatic aged basmati, tender spiced chicken, Karachi masala.</p>
+            </div>
+          </div>
+          <div style="padding: 24px 28px; display: flex; justify-content: space-between; align-items: center; background: #171412; border-top: 1px solid rgba(255,255,255,0.08);">
+            <div>
+              <span style="color: #d6d3d1; font-size: 16px;">Starting from</span>
+              <div class="font-outfit gold-gradient-text" style="font-size: 32px; font-weight: 800;">Rs 850</div>
+            </div>
+            <div style="padding: 10px 20px; border-radius: 12px; background: rgba(245, 158, 11, 0.15); border: 1px solid rgba(245, 158, 11, 0.4); color: #fbbf24; font-weight: 700; font-size: 16px;">
+              Granular Engine Active
+            </div>
+          </div>
+        </div>
+
+        <!-- Right: Interactive Granular Customizer -->
+        <div id="s2-customizer-panel" style="flex: 1; background: #1c1917; border: 1px solid rgba(245, 158, 11, 0.4); border-radius: 28px; padding: 36px 44px; box-shadow: 0 25px 50px rgba(0,0,0,0.8);" class="gold-border-glow">
+          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 28px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 18px;">
+            <div>
+              <span class="font-outfit" style="color: #fbbf24; font-size: 16px; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase;">Granular Variation Engine</span>
+              <h2 class="font-outfit" style="font-size: 34px; font-weight: 800; color: #fafaf9;">Customize Your Handi</h2>
+            </div>
+            <span style="font-size: 28px; background: #291e10; width: 50px; height: 50px; border-radius: 14px; display: flex; align-items: center; justify-content: center; border: 1px solid #f59e0b;">⚙️</span>
+          </div>
+
+          <!-- Section 1: Portion Size -->
+          <div style="margin-bottom: 24px;">
+            <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+              <span style="font-size: 18px; font-weight: 700; color: #fafaf9;">1. Portion Size</span>
+              <span style="color: #d6d3d1; font-size: 15px;">Required</span>
+            </div>
+            <div style="display: flex; gap: 16px;">
+              <div id="s2-portion-single" style="flex: 1; padding: 14px 20px; border-radius: 16px; background: #141210; border: 1px solid rgba(255,255,255,0.15); display: flex; justify-content: space-between; align-items: center;">
+                <span style="font-weight: 600; font-size: 18px; color: #e7e5e4;">Single (Half)</span>
+                <span style="color: #d6d3d1; font-size: 16px;">Rs 850</span>
+              </div>
+              <div id="s2-portion-double" style="flex: 1; padding: 14px 20px; border-radius: 16px; background: #141210; border: 1px solid rgba(255,255,255,0.15); display: flex; justify-content: space-between; align-items: center;">
+                <div style="display: flex; align-items: center; gap: 8px;">
+                  <span id="s2-portion-check" style="color: #fbbf24; font-weight: 900; opacity: 0;">✓</span>
+                  <span style="font-weight: 600; font-size: 18px; color: #fafaf9;">Double (Full Handi)</span>
+                </div>
+                <span style="color: #fbbf24; font-weight: 700; font-size: 16px;">+Rs 450</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Section 2: Spice Level -->
+          <div style="margin-bottom: 24px;">
+            <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+              <span style="font-size: 18px; font-weight: 700; color: #fafaf9;">2. Spice Level Preference</span>
+              <span style="color: #fbbf24; font-size: 15px; font-weight: 600;">Authentic Karachi Masala</span>
+            </div>
+            <div style="display: flex; gap: 14px;">
+              <div id="s2-spice-mild" style="flex: 1; padding: 12px 16px; border-radius: 14px; background: #141210; border: 1px solid rgba(255,255,255,0.15); text-align: center; font-size: 17px; font-weight: 600; color: #d6d3d1;">
+                Mild 🌱
+              </div>
+              <div id="s2-spice-medium" style="flex: 1; padding: 12px 16px; border-radius: 14px; background: #141210; border: 1px solid rgba(255,255,255,0.15); text-align: center; font-size: 17px; font-weight: 600; color: #d6d3d1;">
+                Medium 🌶️
+              </div>
+              <div id="s2-spice-karachi" style="flex: 1.2; padding: 12px 16px; border-radius: 14px; background: #141210; border: 1px solid rgba(255,255,255,0.15); text-align: center; font-size: 17px; font-weight: 700; color: #fafaf9;">
+                Karachi Spicy 🔥
+              </div>
+            </div>
+          </div>
+
+          <!-- Section 3: Add-on & Live Price -->
+          <div style="margin-bottom: 26px;">
+            <div id="s2-addon-card" style="padding: 14px 20px; border-radius: 16px; background: #141210; border: 1px solid rgba(255,255,255,0.15); display: flex; justify-content: space-between; align-items: center;">
+              <div style="display: flex; align-items: center; gap: 12px;">
+                <div id="s2-addon-box" style="width: 24px; height: 24px; border-radius: 6px; border: 2px solid #fbbf24; background: #291e10; display: flex; align-items: center; justify-content: center; font-size: 16px; font-weight: 900; color: #fbbf24;"></div>
+                <span style="font-weight: 600; font-size: 18px; color: #fafaf9;">Extra Shami Kebab & Fresh Raita</span>
+              </div>
+              <span style="color: #fbbf24; font-weight: 700; font-size: 17px;">+Rs 150</span>
+            </div>
+          </div>
+
+          <!-- Bottom Action Bar -->
+          <div style="display: flex; align-items: center; justify-content: space-between; background: #141210; border: 1px solid rgba(245, 158, 11, 0.35); border-radius: 20px; padding: 16px 24px;">
+            <div>
+              <span style="color: #d6d3d1; font-size: 15px;">Live Calculated Total</span>
+              <div id="s2-total-price" class="font-outfit gold-gradient-text" style="font-size: 38px; font-weight: 900; line-height: 1;">Rs 850</div>
+            </div>
+            <div id="s2-add-btn" style="background: linear-gradient(135deg, #f59e0b, #d97706); color: #0c0a09; font-weight: 800; font-size: 20px; padding: 16px 36px; border-radius: 16px; display: flex; align-items: center; gap: 10px; box-shadow: 0 10px 25px rgba(245, 158, 11, 0.4); cursor: pointer;">
+              <span>🛒</span>
+              <span>Add to Cart</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ================= SCENE 3: DINE-IN TABLE & LIVE ORDER TRACKER (9.5s - 14.5s) ================= -->
+      <div id="scene3" style="position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; padding: 0 120px; gap: 60px; opacity: 0;">
+        <!-- Left: Table Selection & Notification -->
+        <div style="flex: 0 0 540px; display: flex; flex-direction: column; gap: 24px;">
+          <!-- Table Selection Card -->
+          <div id="s3-table-card" style="background: #1c1917; border: 1px solid rgba(245, 158, 11, 0.4); border-radius: 24px; padding: 32px; box-shadow: 0 25px 50px rgba(0,0,0,0.8);" class="gold-border-glow">
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px;">
+              <span class="font-outfit" style="color: #fbbf24; font-size: 16px; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase;">Dine-In QR Verified</span>
+              <span style="background: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.4); padding: 4px 14px; border-radius: 9999px; font-weight: 700; font-size: 14px;">Connected</span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 20px;">
+              <div style="width: 72px; height: 72px; border-radius: 20px; background: #291e10; border: 2px solid #f59e0b; display: flex; align-items: center; justify-content: center; font-size: 36px;">
+                🪑
+              </div>
+              <div>
+                <h3 class="font-outfit" style="font-size: 32px; font-weight: 800; color: #fafaf9;">Table #07</h3>
+                <p style="color: #d6d3d1; font-size: 18px;">Indoor Lounge • 4 Seats</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- WhatsApp Twilio Notification Alert -->
+          <div id="s3-whatsapp-alert" style="background: #14281e; border: 1px solid rgba(16, 185, 129, 0.5); border-radius: 24px; padding: 24px 28px; display: flex; align-items: center; gap: 20px; box-shadow: 0 20px 40px rgba(0,0,0,0.6);" class="emerald-glow">
+            <div style="width: 52px; height: 52px; border-radius: 16px; background: #15803d; border: 1px solid #22c55e; display: flex; align-items: center; justify-content: center; font-size: 30px; color: #ffffff; flex-shrink: 0;">
+              💬
+            </div>
+            <div>
+              <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px;">
+                <span style="font-weight: 700; font-size: 17px; color: #34d399;">WhatsApp Order Updates</span>
+                <span style="color: #d1d5db; font-size: 13px;">Just now</span>
+              </div>
+              <p style="color: #f3f4f6; font-size: 16px; font-weight: 500; line-height: 1.4;">"Your Biryani is sizzling in the wok! Kitchen ETA: 12 mins."</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right: Socket.IO Live Status Tracker -->
+        <div id="s3-tracker-card" style="flex: 1; background: #1c1917; border: 1px solid rgba(245, 158, 11, 0.4); border-radius: 28px; padding: 40px 48px; box-shadow: 0 25px 50px rgba(0,0,0,0.8);" class="gold-border-glow">
+          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 36px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 20px;">
+            <div>
+              <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 4px;">
+                <span style="display: inline-block; width: 12px; height: 12px; border-radius: 50%; background: #10b981; box-shadow: 0 0 12px #10b981;"></span>
+                <span class="font-outfit" style="color: #34d399; font-weight: 800; font-size: 16px; letter-spacing: 0.1em; text-transform: uppercase;">Real-Time Socket.IO</span>
+              </div>
+              <h2 class="font-outfit" style="font-size: 36px; font-weight: 800; color: #fafaf9;">Order #CLK-8492</h2>
+            </div>
+            <div style="background: rgba(245, 158, 11, 0.15); border: 1px solid rgba(245, 158, 11, 0.35); border-radius: 14px; padding: 8px 18px; text-align: right;">
+              <span style="color: #d6d3d1; font-size: 14px; display: block;">Est. Prep Time</span>
+              <span class="gold-gradient-text font-outfit" style="font-size: 24px; font-weight: 800;">12-15 Mins</span>
+            </div>
+          </div>
+
+          <!-- Progress Stepper -->
+          <div style="display: flex; flex-direction: column; gap: 24px; position: relative;">
+            <!-- Step 1 -->
+            <div id="s3-step-1" style="display: flex; align-items: center; gap: 24px; background: #141210; border: 1px solid rgba(16, 185, 129, 0.4); border-radius: 20px; padding: 18px 24px;">
+              <div style="width: 48px; height: 48px; border-radius: 50%; background: #15803d; border: 2px solid #22c55e; color: #ffffff; display: flex; align-items: center; justify-content: center; font-size: 24px; font-weight: 900; box-shadow: 0 0 15px rgba(16,185,129,0.5);">
+                ✓
+              </div>
+              <div style="flex: 1;">
+                <h4 style="font-size: 20px; font-weight: 700; color: #fafaf9;">Order Confirmed</h4>
+                <p style="color: #d6d3d1; font-size: 15px;">Received by front desk & sent to kitchen</p>
+              </div>
+              <span style="color: #34d399; font-size: 15px; font-weight: 700;">Completed</span>
+            </div>
+
+            <!-- Step 2 -->
+            <div id="s3-step-2" style="display: flex; align-items: center; gap: 24px; background: #141210; border: 1px solid rgba(245, 158, 11, 0.5); border-radius: 20px; padding: 18px 24px;" class="gold-border-glow">
+              <div id="s3-step-2-icon" style="width: 48px; height: 48px; border-radius: 50%; background: #291e10; border: 2px solid #f59e0b; display: flex; align-items: center; justify-content: center; font-size: 24px; box-shadow: 0 0 20px rgba(245,158,11,0.6);">
+                👨‍🍳
+              </div>
+              <div style="flex: 1;">
+                <h4 style="font-size: 20px; font-weight: 700; color: #fafaf9;">Kitchen Prepping Special Biryani</h4>
+                <p style="color: #fef08a; font-size: 15px; font-weight: 500;">Simmering handi over live flames</p>
+              </div>
+              <span style="background: rgba(245, 158, 11, 0.25); color: #fef08a; border: 1px solid rgba(245, 158, 11, 0.5); padding: 4px 12px; border-radius: 9999px; font-size: 14px; font-weight: 700;">In Progress</span>
+            </div>
+
+            <!-- Step 3 -->
+            <div id="s3-step-3" style="display: flex; align-items: center; gap: 24px; background: #141210; border: 1px solid rgba(255,255,255,0.12); border-radius: 20px; padding: 18px 24px;">
+              <div style="width: 48px; height: 48px; border-radius: 50%; background: #262626; border: 1px solid #525252; display: flex; align-items: center; justify-content: center; font-size: 24px;">
+                🍽️
+              </div>
+              <div style="flex: 1;">
+                <h4 style="font-size: 20px; font-weight: 700; color: #e7e5e4;">Serving to Table #07</h4>
+                <p style="color: #d6d3d1; font-size: 15px;">Hot & fresh delivery to your seat</p>
+              </div>
+              <span style="color: #d6d3d1; font-size: 15px; font-weight: 600;">Upcoming</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ================= SCENE 4: BRAND OUTRO & CTA (14.5s - 19.5s) ================= -->
+      <div id="scene4" style="position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 0 100px; opacity: 0;">
+        <!-- Glowing Seal / Badge -->
+        <div id="s4-logo-badge" style="width: 110px; height: 110px; border-radius: 32px; background: #291e10; border: 3px solid #f59e0b; display: flex; align-items: center; justify-content: center; font-size: 56px; box-shadow: 0 0 50px rgba(245, 158, 11, 0.6); margin-bottom: 28px;">
+          🍲
+        </div>
+
+        <h1 id="s4-title" class="font-display" style="font-size: 80px; font-weight: 900; line-height: 1.15; margin-bottom: 16px; color: #fafaf9;">
+          The Art of <span class="gold-gradient-text">Karachi Flavors.</span>
+        </h1>
+
+        <p id="s4-subtitle" style="color: #f5f5f4; font-size: 28px; font-weight: 500; margin-bottom: 40px; max-width: 900px; line-height: 1.4;">
+          Granular Variations • Table QR Dine-In • Real-Time Order Tracking
+        </p>
+
+        <!-- Golden CTA Button -->
+        <div id="s4-cta-btn" style="background: linear-gradient(135deg, #f59e0b, #d97706); border: 2px solid #fef08a; border-radius: 24px; padding: 22px 64px; display: inline-flex; align-items: center; gap: 16px; box-shadow: 0 20px 50px rgba(245, 158, 11, 0.5); margin-bottom: 36px; cursor: pointer;">
+          <span class="font-outfit" style="color: #0c0a09; font-size: 28px; font-weight: 900; letter-spacing: 0.04em;">ORDER ONLINE NOW</span>
+          <span style="color: #0c0a09; font-size: 28px; font-weight: 900;">→</span>
+        </div>
+
+        <!-- Footer Link & Stack -->
+        <div id="s4-footer" style="display: flex; align-items: center; gap: 32px; color: #d6d3d1; font-size: 20px; font-weight: 600;">
+          <span class="gold-gradient-text font-outfit" style="font-size: 24px; font-weight: 800; letter-spacing: 0.05em;">cafelittlekarachi.com</span>
+          <span>•</span>
+          <span>Next.js 15 & Socket.IO Powered</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Animation Timeline Controller -->
+    <script>
+      window.__timelines = window.__timelines || {};
+      const tl = gsap.timeline({ paused: true });
+
+      // Ambient Aura Breathing (finite repeat 9 = 18s)
+      tl.to("#bg-aura", { scale: 1.25, opacity: 0.9, duration: 2, repeat: 9, yoyo: true, ease: "sine.inOut" }, 0);
+
+      // --- SCENE 1 (0.0s - 3.7s) ---
+      tl.fromTo("#s1-hook-tag", { opacity: 0, y: -20 }, { opacity: 1, y: 0, duration: 0.5, ease: "power2.out" }, 0.2);
+      tl.fromTo("#s1-hook-title", { opacity: 0, scale: 0.92, y: 20 }, { opacity: 1, scale: 1, y: 0, duration: 0.7, ease: "back.out(1.4)" }, 0.4);
+
+      // 1.60s (beat-locked: 1.60s strong cue)
+      tl.fromTo("#s1-brand-card", { opacity: 0, scale: 0.85, y: 30 }, { opacity: 1, scale: 1, y: 0, duration: 0.55, ease: "back.out(1.5)" }, 1.60);
+      
+      // Sequential dining modes on beat grid: 1.60s, 2.12s, 2.65s
+      tl.fromTo("#s1-mode-1", { opacity: 0, y: 24, scale: 0.9 }, { opacity: 1, y: 0, scale: 1, duration: 0.4, ease: "back.out(1.4)" }, 1.60);
+      tl.fromTo("#s1-mode-2", { opacity: 0, y: 24, scale: 0.9 }, { opacity: 1, y: 0, scale: 1, duration: 0.4, ease: "back.out(1.4)" }, 2.12);
+      tl.fromTo("#s1-mode-3", { opacity: 0, y: 24, scale: 0.9 }, { opacity: 1, y: 0, scale: 1, duration: 0.4, ease: "back.out(1.4)" }, 2.65);
+
+      // Outro of Scene 1
+      tl.to("#scene1", { opacity: 0, scale: 0.95, filter: "blur(8px)", duration: 0.4, ease: "power2.in" }, 3.30);
+
+      // --- SCENE 2 (3.7s - 9.5s) ---
+      // 3.70s (beat-locked: 3.70s strong cue)
+      tl.fromTo("#scene2", { opacity: 0, scale: 1.05 }, { opacity: 1, scale: 1, duration: 0.5, ease: "power2.out" }, 3.70);
+      tl.fromTo("#s2-product-card", { opacity: 0, x: -60 }, { opacity: 1, x: 0, duration: 0.6, ease: "power3.out" }, 3.70);
+      tl.fromTo("#s2-customizer-panel", { opacity: 0, x: 60 }, { opacity: 1, x: 0, duration: 0.6, ease: "power3.out" }, 3.70);
+
+      // Step 1: Portion Selection (4.23s)
+      tl.to("#s2-portion-double", { borderColor: "#f59e0b", backgroundColor: "#261e14", duration: 0.3, ease: "power2.out" }, 4.23);
+      tl.to("#s2-portion-check", { opacity: 1, scale: 1.2, duration: 0.25, ease: "back.out(2)" }, 4.23);
+
+      // Step 2: Spice Level Selection (beat-locked: 5.80s strong cue)
+      tl.to("#s2-spice-karachi", { borderColor: "#ea580c", backgroundColor: "#33160a", scale: 1.05, boxShadow: "0 0 20px rgba(234, 88, 12, 0.4)", duration: 0.3, ease: "back.out(1.5)" }, 5.80);
+
+      // Step 3: Add-on Checkbox (6.86s)
+      tl.to("#s2-addon-card", { borderColor: "#f59e0b", backgroundColor: "#261e14", duration: 0.3, ease: "power2.out" }, 6.86);
+      tl.to("#s2-addon-box", { backgroundColor: "#f59e0b", borderColor: "#f59e0b", color: "#0c0a09", innerHTML: "✓", duration: 0.25 }, 6.86);
+
+      // Step 4: Live Price Counter & Add to Cart button pulse (7.38s - 8.0s)
+      tl.to("#s2-total-price", { innerHTML: "Rs 1,450", scale: 1.15, duration: 0.4, yoyo: true, repeat: 1, ease: "power2.out" }, 7.38);
+      tl.to("#s2-add-btn", { scale: 0.95, duration: 0.15, yoyo: true, repeat: 1, ease: "power2.inOut" }, 8.00);
+
+      // Outro of Scene 2
+      tl.to("#scene2", { opacity: 0, scale: 0.95, filter: "blur(8px)", duration: 0.4, ease: "power2.in" }, 9.10);
+
+      // --- SCENE 3 (9.5s - 14.5s) ---
+      // 9.50s (beat-locked: 9.50s strong cue)
+      tl.fromTo("#scene3", { opacity: 0, scale: 1.04 }, { opacity: 1, scale: 1, duration: 0.5, ease: "power2.out" }, 9.50);
+      tl.fromTo("#s3-table-card", { opacity: 0, y: 40 }, { opacity: 1, y: 0, duration: 0.55, ease: "back.out(1.4)" }, 9.50);
+      tl.fromTo("#s3-tracker-card", { opacity: 0, y: 40 }, { opacity: 1, y: 0, duration: 0.6, ease: "back.out(1.4)" }, 9.65);
+
+      // WhatsApp Twilio Alert Toast pops in (11.5s)
+      tl.fromTo("#s3-whatsapp-alert", { opacity: 0, y: 30, scale: 0.9 }, { opacity: 1, y: 0, scale: 1, duration: 0.5, ease: "back.out(1.6)" }, 11.50);
+
+      // Kitchen prep icon pulsation
+      tl.to("#s3-step-2-icon", { scale: 1.18, duration: 0.5, repeat: 3, yoyo: true, ease: "sine.inOut" }, 10.50);
+
+      // Outro of Scene 3
+      tl.to("#scene3", { opacity: 0, scale: 0.92, filter: "blur(8px)", duration: 0.4, ease: "power2.in" }, 14.10);
+
+      // --- SCENE 4: BRAND OUTRO & CTA (14.5s - 19.5s) ---
+      // 14.50s (beat-locked: 14.50s strong cue)
+      tl.fromTo("#scene4", { opacity: 0, scale: 0.88 }, { opacity: 1, scale: 1, duration: 0.7, ease: "back.out(1.5)" }, 14.50);
+      tl.fromTo("#s4-logo-badge", { scale: 0, rotation: -15 }, { scale: 1, rotation: 0, duration: 0.6, ease: "back.out(1.8)" }, 14.50);
+      tl.fromTo("#s4-title", { opacity: 0, y: 25 }, { opacity: 1, y: 0, duration: 0.6, ease: "power3.out" }, 14.80);
+      tl.fromTo("#s4-subtitle", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.6, ease: "power3.out" }, 15.10);
+      tl.fromTo("#s4-cta-btn", { opacity: 0, scale: 0.85 }, { opacity: 1, scale: 1, duration: 0.6, ease: "back.out(1.6)" }, 15.40);
+      tl.fromTo("#s4-footer", { opacity: 0 }, { opacity: 1, duration: 0.5 }, 15.80);
+
+      // Gentle button breathing glow during outro (finite repeat 3)
+      tl.to("#s4-cta-btn", { scale: 1.04, boxShadow: "0 25px 60px rgba(245, 158, 11, 0.7)", duration: 0.9, repeat: 3, yoyo: true, ease: "sine.inOut" }, 16.00);
+
+      window.__timelines["main"] = tl;
+      tl.seek(0);
+    </script>
+  </body>
+</html>

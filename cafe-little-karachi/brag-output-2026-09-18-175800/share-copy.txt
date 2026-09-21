@@ -1,0 +1,1 @@
+Introducing Cafe Little Karachi: where authentic culinary heritage meets an ultra-fast modern ordering platform. Customize your handi portion and spice levels, scan table QR codes for instant dine-in service, and watch your biryani simmer live with real-time Socket.IO tracking.

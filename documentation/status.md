@@ -5,9 +5,9 @@ tags:
   - #status/active
   - #project/ordering-ecosystem
 created: 2026-09-04
-last_updated: 2026-09-18
-overall_completion: "Phase 4.33: Direct Product URL Off-Hours Viewing & Lock / Location Check Coordination (100%)"
-current_sprint: "Direct Product Link UX: Off-Hours Popup Bypass, Closed Lock & Location Modals Coordination"
+last_updated: 2026-09-21
+overall_completion: "Phase 4.36: Website Title & Favicon Update to Little Karachi Express (100%)"
+current_sprint: "Brand Polish: Website Title & HD Favicon Update for Cafe Little Karachi"
 ---
 
 # Project Status Dashboard — Advanced Ordering Ecosystem
@@ -16,12 +16,30 @@ current_sprint: "Direct Product Link UX: Off-Hours Popup Bypass, Closed Lock & L
 
 | Sub-Project | Phase | Focus | Status |
 | :--- | :--- | :--- | :--- |
-| **Cafe Little Karachi (CLK)** | Phase 4.33 | Direct Product Link Off-Hours Viewing & Lock/Location Workflow | **Completed** 🟢 |
+| **Cafe Little Karachi (CLK)** | Phase 4.36 | Website Title & HD Favicon (`hd-logo.ico`) | **Completed** 🟢 |
 | **The Chai Company (TCC)** | Phase 4.32 | Centered Modern Tea Lounge Footer | **Completed** 🟢 |
 
 ---
 
-## Phase 4.33 Completion Summary — Direct Product Link Off-Hours Viewing & Lock / Location Check Coordination
+## Phase 4.36 Completion Summary — Website Title & Favicon Update
+
+- [x] **Website Title Update (`layout.tsx`)**: Changed page title to **`Little Karachi Express`** in `export const metadata: Metadata`.
+- [x] **Favicon Update (`layout.tsx`, `favicon.ico`)**: Configured `icons` object with `/hd-logo.ico` (`icon`, `shortcut`, `apple`) and synchronized `public/hd-logo.ico` into `src/app/favicon.ico`.
+
+---
+
+## Phase 4.35 Completion Summary — Cafe Little Karachi Launch Brag Video
+
+- [x] **Brag Skill & Toolchain Deployment**: Installed and verified `.agents/skills/brag`, Hyperframes CLI `v0.8.47`, and FFmpeg `9.0.1-full_build`.
+- [x] **Brag Plan & Creative Brief (`brag-plan.md`, `composition-brief.md`)**: Designed a 19.5-second, 4-scene narrative showing authentic Karachi dining heritage, interactive Biryani customization, table QR ordering, and real-time Socket.IO tracking.
+- [x] **Hyperframes Composition (`composition/index.html`)**: Authored GSAP animations with exact audio cue locks (1.60s, 3.70s, 5.80s, 9.50s, 14.50s), tactile UI toggles, and live price counters.
+- [x] **Zero-Error Quality Gate (`npx hyperframes check`)**: Passed 86/86 WCAG AA contrast tests with zero runtime, layout, or motion issues.
+- [x] **Video Render & Universal Poster Frame Bake (`brag.mp4`, `brag.jpg`)**: Rendered 1080p video at 30fps with synchronized audio bed and SFX, extracted settled poster frame `brag.jpg`, and baked frame 0 as the universal thumbnail.
+- [x] **Social Share Copy (`share-copy.txt`)**: Prepared launch copy ready for posting on X/LinkedIn/Discord.
+
+---
+
+## Phase 4.34 Completion Summary — Localhost Dev Bypass for Hours Lock
 
 - [x] **Direct Product Link Off-Hours Unblocked View (`RestaurantStatusPopup.tsx`)**: When customers navigate directly to product or platter campaign URLs (e.g. `/item/beef-white-biryani-1-kg-deg`, `/platter/[slug]`), the fullscreen "currently closed" lock popup is suppressed on mount, allowing customers to view the full product card, prices, images, and portion variations without any blocking overlay before 06:30 PM.
 - [x] **Modal Cut / Dismiss Before 06:30 PM (`MenuItem.tsx`, `PlatterItem.tsx`)**: When a customer dismisses or closes the product/platter modal (`closeModal`) before 06:30 PM (`!isOpenAt()`), the before 06:30 lock popup (`RestaurantStatusPopup`) immediately takes over the screen with the live countdown and schedule.
