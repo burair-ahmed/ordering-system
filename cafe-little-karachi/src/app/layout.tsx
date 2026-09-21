@@ -9,7 +9,6 @@ import Footer from "./components/Footer";
 // import { Toaster } from "@/components/ui/toaster"
 import { ThemeProvider } from "next-themes";
 import { Toaster } from "sonner";
-import { CSPostHogProvider } from './providers/PostHogProvider';
 import { GoogleAnalytics } from "@next/third-parties/google";
 import { ClarityProvider } from "./providers/ClarityProvider";
 import { MetaPixelProvider } from "./providers/MetaPixelProvider";
@@ -54,7 +53,6 @@ export default function RootLayout({
            <MaintenanceScreen />
         ) : (
           <div className="flex flex-col min-h-screen">
-          <CSPostHogProvider>
             <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
               <TableProvider>
                 <OrderProvider>
@@ -71,7 +69,6 @@ export default function RootLayout({
               </TableProvider>
               <Toaster richColors />
             </ThemeProvider>
-          </CSPostHogProvider>
           <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GOOGLE_ANALYTICS_ID || ""} />
           <ClarityProvider />
           <MetaPixelProvider />

@@ -1,3 +1,5 @@
+import Image from 'next/image';
+
 interface HeroProps {
   backgroundImage?: string;
   mobileBackgroundImage?: string;
@@ -57,8 +59,30 @@ export default function Hero({
     if (bannerSize === 'freesize') {
       return (
         <div className="w-full relative select-none">
-          <img src={bg} alt={displayTitle} className="w-full h-auto hidden md:block" />
-          <img src={mobileBg} alt={displayTitle} className="w-full h-auto md:hidden" />
+          {/* Desktop */}
+          <div className="w-full hidden md:block relative">
+            <Image
+              src={bg}
+              alt={displayTitle}
+              width={0}
+              height={0}
+              sizes="100vw"
+              priority
+              className="w-full h-auto"
+            />
+          </div>
+          {/* Mobile */}
+          <div className="w-full md:hidden relative">
+            <Image
+              src={mobileBg}
+              alt={displayTitle}
+              width={0}
+              height={0}
+              sizes="100vw"
+              priority
+              className="w-full h-auto"
+            />
+          </div>
         </div>
       );
     }
@@ -66,14 +90,22 @@ export default function Hero({
     return (
       <div className={`relative flex items-center justify-center overflow-hidden w-full select-none ${getContainerHeightClass()}`}>
         {/* Background Image - PC */}
-        <div 
-          className="absolute inset-0 bg-cover bg-center hidden md:block"
-          style={{ backgroundImage: `url(${bg})` }}
+        <Image
+          src={bg}
+          alt={displayTitle}
+          fill
+          priority
+          sizes="100vw"
+          className="object-cover hidden md:block"
         />
         {/* Background Image - Mobile */}
-        <div 
-          className="absolute inset-0 bg-cover bg-center md:hidden"
-          style={{ backgroundImage: `url(${mobileBg})` }}
+        <Image
+          src={mobileBg}
+          alt={displayTitle}
+          fill
+          priority
+          sizes="100vw"
+          className="object-cover md:hidden"
         />
       </div>
     );
@@ -97,8 +129,26 @@ export default function Hero({
   if (bannerSize === 'freesize') {
     return (
       <div className="relative w-full overflow-hidden select-none">
-        <img src={bg} alt="Desktop Background" className="w-full h-auto hidden md:block z-0" />
-        <img src={mobileBg} alt="Mobile Background" className="w-full h-auto md:hidden z-0" />
+        {/* Desktop Background */}
+        <Image
+          src={bg}
+          alt="Desktop Background"
+          width={0}
+          height={0}
+          sizes="100vw"
+          priority
+          className="w-full h-auto hidden md:block z-0"
+        />
+        {/* Mobile Background */}
+        <Image
+          src={mobileBg}
+          alt="Mobile Background"
+          width={0}
+          height={0}
+          sizes="100vw"
+          priority
+          className="w-full h-auto md:hidden z-0"
+        />
 
         {/* Overlay */}
         <div 
@@ -117,19 +167,27 @@ export default function Hero({
   return (
     <div className={`relative flex items-center justify-center overflow-hidden w-full select-none ${getContainerHeightClass()}`}>
       {/* Background Image - PC */}
-      <div 
-        className="absolute inset-0 bg-cover bg-center hidden md:block"
-        style={{ backgroundImage: `url(${bg})` }}
+      <Image
+        src={bg}
+        alt={displayTitle}
+        fill
+        priority
+        sizes="100vw"
+        className="object-cover hidden md:block"
       />
       {/* Background Image - Mobile */}
-      <div 
-        className="absolute inset-0 bg-cover bg-center md:hidden"
-        style={{ backgroundImage: `url(${mobileBg})` }}
+      <Image
+        src={mobileBg}
+        alt={displayTitle}
+        fill
+        priority
+        sizes="100vw"
+        className="object-cover md:hidden"
       />
       
       {/* Overlay */}
       <div 
-        className="absolute inset-0 bg-black" 
+        className="absolute inset-0 bg-black z-[5]" 
         style={{ opacity: overlayOpacity }}
       />
 

@@ -76,7 +76,7 @@ classDiagram
 - **⚡ Real-Time Engine**: Built with **Socket.IO** for instantaneous updates across the Customer UI and Admin Dashboard.
 - **📱 Hybrid Routing**: Seamless transition between **Next.js App Router** (modern UI) and **Pages Router** (robust API endpoints).
 - **🎨 Glassmorphism UI**: High-end visual design using **Tailwind CSS**, **Framer Motion**, and **GSAP** for a premium feel.
-- **📊 Behavioral Analytics**: Integrated **PostHog** and **Google Analytics** to track conversion and optimize user flows.
+- **📊 Behavioral Analytics**: Integrated **Google Analytics**, **Microsoft Clarity**, and **Meta Pixel** to track conversion and optimize user flows.
 - **🛡️ Secure Data**: Strict schema validation with **Zod** and **Mongoose** for data consistency.
 
 ---

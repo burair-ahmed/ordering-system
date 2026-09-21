@@ -38,7 +38,6 @@ import {
   Mail,
   Lock,
 } from "lucide-react";
-import posthog from 'posthog-js';
 import { trackEvent, trackClarityFunnelStep, CLK_FUNNEL_CHECKOUT_STARTED } from "../lib/analytics";
 import { clarityUpgrade } from "../providers/ClarityProvider";
 import { isOpenAt } from "../lib/restaurantStatus";
@@ -514,23 +513,6 @@ const CheckoutPageContent: FC = () => {
       totalAmount: finalAmount,
       status: "Received",
     };
-
-    // Identify the user to link this session to their email/phone
-    const userId = formData.email || formData.phone || `user_${Date.now()}`;
-    posthog.identify(userId, {
-      email: formData.email,
-      name: formData.name,
-      phone: formData.phone
-    });
-
-    // Track Order Submission (Stage 8 — Order Placed)
-    posthog.capture('journey_submit_order', {
-      order_type: finalOrderType,
-      payment_method: formData.paymentMethod,
-      item_count: cartItems.length,
-      total_amount: finalAmount,
-      delivery_charge: deliveryCharge
-    });
 
     trackEvent('journey_order_placed', {
       order_type: finalOrderType,

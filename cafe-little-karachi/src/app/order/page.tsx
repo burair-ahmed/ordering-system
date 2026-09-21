@@ -968,16 +968,30 @@ const HeroSection = ({ section }: { section: PageSection }) => {
     if (bannerSize === 'freesize') {
       return (
         <div className="w-full relative select-none">
-          <img 
-            src={backgroundImage} 
-            alt={section.title || "Banner"} 
-            className="w-full h-auto hidden md:block" 
-          />
-          <img 
-            src={mobileBackgroundImage || backgroundImage} 
-            alt={section.title || "Banner"} 
-            className="w-full h-auto md:hidden" 
-          />
+          {/* Desktop */}
+          <div className="w-full hidden md:block relative">
+            <Image
+              src={backgroundImage}
+              alt={section.title || "Banner"}
+              width={0}
+              height={0}
+              sizes="100vw"
+              priority
+              className="w-full h-auto"
+            />
+          </div>
+          {/* Mobile */}
+          <div className="w-full md:hidden relative">
+            <Image
+              src={mobileBackgroundImage || backgroundImage}
+              alt={section.title || "Banner"}
+              width={0}
+              height={0}
+              sizes="100vw"
+              priority
+              className="w-full h-auto"
+            />
+          </div>
         </div>
       );
     }
@@ -985,14 +999,22 @@ const HeroSection = ({ section }: { section: PageSection }) => {
     return (
       <div className={`relative flex items-center justify-center overflow-hidden w-full select-none ${getContainerHeightClass()}`}>
         {/* Background Image - PC */}
-        <div 
-          className="absolute inset-0 bg-cover bg-center hidden md:block"
-          style={{ backgroundImage: `url(${backgroundImage})` }}
+        <Image
+          src={backgroundImage}
+          alt={section.title || "Banner"}
+          fill
+          priority
+          sizes="100vw"
+          className="object-cover hidden md:block"
         />
         {/* Background Image - Mobile */}
-        <div 
-          className="absolute inset-0 bg-cover bg-center md:hidden"
-          style={{ backgroundImage: `url(${mobileBackgroundImage || backgroundImage})` }}
+        <Image
+          src={mobileBackgroundImage || backgroundImage}
+          alt={section.title || "Banner"}
+          fill
+          priority
+          sizes="100vw"
+          className="object-cover md:hidden"
         />
       </div>
     );
@@ -1051,17 +1073,25 @@ const HeroSection = ({ section }: { section: PageSection }) => {
   if (bannerSize === 'freesize') {
     return (
       <div className="relative w-full overflow-hidden select-none">
-        {/* Desktop Image */}
-        <img 
-          src={backgroundImage} 
-          alt="Desktop Background" 
-          className="w-full h-auto hidden md:block z-0" 
+        {/* Desktop Background */}
+        <Image
+          src={backgroundImage}
+          alt="Desktop Background"
+          width={0}
+          height={0}
+          sizes="100vw"
+          priority
+          className="w-full h-auto hidden md:block z-0"
         />
-        {/* Mobile Image */}
-        <img 
-          src={mobileBackgroundImage || backgroundImage} 
-          alt="Mobile Background" 
-          className="w-full h-auto md:hidden z-0" 
+        {/* Mobile Background */}
+        <Image
+          src={mobileBackgroundImage || backgroundImage}
+          alt="Mobile Background"
+          width={0}
+          height={0}
+          sizes="100vw"
+          priority
+          className="w-full h-auto md:hidden z-0"
         />
 
         {/* Dark overlay */}
@@ -1083,19 +1113,27 @@ const HeroSection = ({ section }: { section: PageSection }) => {
       className={`relative flex items-center justify-center overflow-hidden w-full select-none ${getContainerHeightClass()}`}
     >
       {/* Background Image - PC */}
-      <div 
-        className="absolute inset-0 bg-cover bg-center hidden md:block"
-        style={{ backgroundImage: `url(${backgroundImage})` }}
+      <Image
+        src={backgroundImage}
+        alt={section.title || "Little Karachi Express"}
+        fill
+        priority
+        sizes="100vw"
+        className="object-cover hidden md:block"
       />
       {/* Background Image - Mobile */}
-      <div 
-        className="absolute inset-0 bg-cover bg-center md:hidden"
-        style={{ backgroundImage: `url(${mobileBackgroundImage || backgroundImage})` }}
+      <Image
+        src={mobileBackgroundImage || backgroundImage}
+        alt={section.title || "Little Karachi Express"}
+        fill
+        priority
+        sizes="100vw"
+        className="object-cover md:hidden"
       />
       
       {/* Dark overlay */}
       <div 
-        className="absolute inset-0 bg-black" 
+        className="absolute inset-0 bg-black z-[5]" 
         style={{ opacity: overlayOpacity }}
       />
       

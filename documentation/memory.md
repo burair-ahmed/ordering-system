@@ -8,7 +8,46 @@ created: 2026-09-04
 last_updated: 2026-09-21
 ---
 
-## 0. Phase 4.36 Micro-Change — Cafe Little Karachi Website Title & HD Favicon Update (2026-09-21)
+## 0. Phase 4.38 Micro-Change — CLK PostHog Complete Removal (2026-09-21)
+
+### PostHog Configuration & Dependency Complete Removal
+- **Files**:
+  - `cafe-little-karachi/src/app/providers/PostHogProvider.tsx` (DELETED)
+  - `cafe-little-karachi/src/app/layout.tsx` (UPDATED)
+  - `cafe-little-karachi/src/app/thank-you/page.tsx` (UPDATED)
+  - `cafe-little-karachi/src/app/checkout/page.tsx` (UPDATED)
+  - `cafe-little-karachi/src/app/components/CartSidebar.tsx` (UPDATED)
+  - `cafe-little-karachi/src/app/components/MenuItem.tsx` (UPDATED)
+  - `cafe-little-karachi/src/app/components/PlatterItem.tsx` (UPDATED)
+  - `cafe-little-karachi/README.md` (UPDATED)
+  - `cafe-little-karachi/package.json` (UPDATED - `posthog-js` uninstalled)
+- **Context & Goal**: Completely removed all PostHog tracking, providers, direct capture calls, user identity resets/identification, and dependencies from Cafe Little Karachi (CLK).
+- **Changes Applied**:
+  - **Provider & Layout**: Deleted `src/app/providers/PostHogProvider.tsx` and removed `CSPostHogProvider` wrapping from `src/app/layout.tsx`.
+  - **Funnel & Component Tracking**: Removed `posthog.capture` calls and `posthog` imports from `thank-you/page.tsx`, `checkout/page.tsx`, `CartSidebar.tsx`, `MenuItem.tsx`, and `PlatterItem.tsx`. All analytics event tracking remains reliably handled by `trackEvent` (Google Analytics, Clarity, Meta Pixel).
+  - **Package & Dependency**: Uninstalled `posthog-js` from `cafe-little-karachi/package.json`.
+  - **Documentation**: Updated `cafe-little-karachi/README.md` to reflect Google Analytics, Microsoft Clarity, and Meta Pixel analytics stack.
+
+---
+
+## 0. Phase 4.37 Micro-Change — CLK Hero LCP Fix: Replace raw `<img>` / CSS `background-image` with `next/image` (2026-09-21)
+
+### Hero LCP Performance Fix
+- **Files**:
+  - `cafe-little-karachi/src/app/components/Hero.tsx` (UPDATED)
+  - `cafe-little-karachi/src/app/order/page.tsx` — `HeroSection` component (UPDATED)
+- **Context & Goal**: The audit report (`clk_web_quality_audit.md`) identified that all hero render branches used either raw `<img>` tags or CSS `background-image` on `<div>` elements. Neither is discoverable by the browser preload scanner, causing estimated LCP of 3–5 s on mobile.
+- **Root Cause**: 4 raw `<img>` occurrences in freesize branches and 4 CSS `style={{ backgroundImage: ... }}` divs in sized/overlay branches across both `Hero.tsx` and `HeroSection` in `order/page.tsx`.
+- **Changes Applied**:
+  - Added `import Image from 'next/image'` to `Hero.tsx` (was missing entirely).
+  - **Freesize branches** (`bannerSize === 'freesize'`): replaced raw `<img src=...>` with `<Image width={0} height={0} sizes="100vw" priority className="w-full h-auto">` — enables natural intrinsic sizing while being preloaded.
+  - **Sized/overlay branches**: replaced CSS `<div style={{ backgroundImage: ... }}>` with `<Image fill priority sizes="100vw" className="object-cover">` — `fill` positions the image absolutely within the relative container (same visual result), `priority` injects `fetchpriority="high"` and a `<link rel="preload">` tag.
+  - Added `z-[5]` to overlay div in the main overlay return path of `Hero.tsx` and `HeroSection` to maintain correct stacking after removing background divs.
+  - `Image` was already imported in `order/page.tsx` (line 16) — no import change needed there.
+- **Expected Impact**: Browser preload scanner can now discover `/bg-hero.webp` immediately; LCP should drop from ~3–5 s to well under 2.5 s (LCP target). Also eliminates all `next/image` lint warnings for unoptimized images.
+
+---
+
 
 ### Website Title & Favicon Synchronization
 - **Files**:

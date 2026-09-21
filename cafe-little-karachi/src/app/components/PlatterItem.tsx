@@ -10,7 +10,6 @@ import { VariationSelector } from "../../components/variations/VariationSelector
 import { useVariationSelector } from "../../hooks/useVariationSelector";
 import { VariationConfig, SelectedVariation } from "../../types/variations";
 import { X, Check } from "lucide-react";
-import posthog from 'posthog-js';
 import { trackEvent } from '../lib/analytics';
 import { slugify } from '../lib/slugify';
 import { useOrder } from '../context/OrderContext';
@@ -265,13 +264,6 @@ const PlatterItem: FC<PlatterItemProps> = ({ platter, cardStyle = 'gourmet', ini
 
   // Fires after the item is confirmed added (analytics + UI feedback)
   const handleItemAdded = useCallback(() => {
-    posthog.capture('journey_add_platter_to_cart', {
-      platter_id: platter.id,
-      platter_name: platter.title,
-      price: totalPrice,
-      has_variations: Object.keys(selections.categories).length > 0
-    });
-
     trackEvent('journey_add_platter_to_cart', {
       platter_id: platter.id,
       platter_name: platter.title,
@@ -334,11 +326,6 @@ const PlatterItem: FC<PlatterItemProps> = ({ platter, cardStyle = 'gourmet', ini
         whileHover={{ scale: 1.02, y: -2 }}
         whileTap={{ scale: 0.98 }}
         onClick={() => {
-          posthog.capture('journey_view_platter_details', {
-            platter_id: platter.id,
-            platter_name: platter.title,
-            price: basePrice
-          });
           trackEvent('journey_view_platter_details', {
             platter_id: platter.id,
             platter_name: platter.title,

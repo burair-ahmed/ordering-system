@@ -8,7 +8,6 @@ import { VariationSelector } from "../../components/variations/VariationSelector
 import { useVariationSelector } from "../../hooks/useVariationSelector";
 import { VariationConfig, SelectedVariation } from "../../types/variations";
 import { X, Check } from "lucide-react";
-import posthog from 'posthog-js';
 import { trackEvent } from '../lib/analytics';
 import { slugify } from '../lib/slugify';
 import { useOrder } from '../context/OrderContext';
@@ -148,13 +147,6 @@ const MenuItem: FC<MenuItemProps> = ({ item, cardStyle = 'gourmet', initialOpen 
   } = useVariationSelector(variationConfig, basePrice);
 
   const handleItemAdded = useCallback(() => {
-    posthog.capture('journey_add_to_cart', {
-      item_id: itemId,
-      item_name: item.title,
-      price: totalPrice,
-      has_variations: selections.simple.length > 0
-    });
-
     trackEvent('journey_add_to_cart', {
       item_id: itemId,
       item_name: item.title,
@@ -209,16 +201,6 @@ const MenuItem: FC<MenuItemProps> = ({ item, cardStyle = 'gourmet', initialOpen 
         whileHover={{ scale: 1.02, y: -2 }}
         whileTap={{ scale: 0.98 }}
         onClick={() => {
-          posthog.capture('journey_variation_opened', {
-            item_name: item.title,
-            price: basePrice,
-            category: item.category
-          });
-          posthog.capture('journey_view_item_details', {
-            item_name: item.title,
-            price: basePrice,
-            category: item.category
-          });
           trackEvent('journey_variation_opened', {
             item_id: itemId,
             item_name: item.title,

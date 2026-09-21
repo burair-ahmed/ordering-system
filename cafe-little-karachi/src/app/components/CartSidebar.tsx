@@ -8,7 +8,6 @@ import Image from "next/image";
 import Link from "next/link";
 import { useCart } from "../context/CartContext";
 import { useOrder } from "../context/OrderContext";
-import posthog from "posthog-js";
 import { isOpenAt } from "../lib/restaurantStatus";
 import { toast } from "sonner";
 import { trackEvent } from "../lib/analytics";
@@ -654,11 +653,6 @@ export default function CartSidebar({
                     <Link
                       href={checkoutUrl}
                       onClick={() => {
-                        posthog.capture("journey_start_checkout", {
-                          cart_value: totalAmount,
-                          item_count: itemCount,
-                          order_type: orderType,
-                        });
                         handleClose();
                       }}
                       className="w-full py-3.5 px-6 rounded-xl text-white font-bold text-base shadow-lg shadow-[#741052]/20 bg-gradient-to-r from-[#741052] to-[#d0269b] hover:from-[#5c0d40] hover:to-[#b81f88] flex items-center justify-center gap-2 transition-all duration-200 active:scale-[0.99]"
