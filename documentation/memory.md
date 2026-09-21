@@ -8,6 +8,36 @@ created: 2026-09-04
 last_updated: 2026-09-21
 ---
 
+## 0. Phase 4.40 Micro-Change — CLK Live Orders Exact AM/PM Placement Time (2026-09-21)
+
+### Exact 12-Hour AM/PM Placement Time Display in Live Orders
+- **Files**:
+  - `cafe-little-karachi/src/app/components/OrdersList.tsx` (UPDATED)
+- **Context & Goal**: In the admin panel Live Orders tab, orders previously only displayed a relative time (e.g. `20m ago`, `1h ago`, `2h ago`), making it difficult for kitchen and dispatch managers to know the exact clock time (e.g. `08:45 PM`) when the order was placed.
+- **Changes Applied**:
+  - **`formatExactTime` helper**: Added helper function formatting `createdAt` ISO string into 12-hour AM/PM format (e.g. `8:45 PM`, `12:15 AM`) via `Intl.DateTimeFormat` / `toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit", hour12: true })`.
+  - **Grid View Card Header**: Displayed `formatExactTime(order.createdAt)` with `text-[11px] font-medium opacity-85 block mt-0.5` directly beneath `timeAgo(order.createdAt)` in the card status top banner.
+  - **Kanban View Board**: Added exact time beneath the relative time in card headers across both Received and Delivered columns.
+  - **Table View List**: Formatted the Time column with relative time (`font-bold text-xs`) and exact time (`text-[11px] font-medium text-neutral-400 mt-0.5`).
+  - **POS Ticket Inspector Modal**: Enhanced header with combined relative time and exact time (e.g. `1h ago (8:45 PM)`).
+
+---
+
+## 0. Phase 4.39 Micro-Change — CLK robots.txt and Dynamic sitemap.xml (2026-09-21)
+
+### Native Next.js 15 robots.txt and Dynamic Sitemap Implementation
+- **Files**:
+  - `cafe-little-karachi/src/app/robots.ts` (NEW)
+  - `cafe-little-karachi/src/app/sitemap.ts` (NEW)
+  - `cafe-little-karachi/src/app/layout.tsx` (UPDATED)
+- **Context & Goal**: Implemented native Next.js 15 App Router SEO crawling rules (`/robots.txt`) and a dynamic XML sitemap (`/sitemap.xml`) for search engines, crawlers, and ad campaigns.
+- **Changes Applied**:
+  - **`robots.ts`**: Configured `MetadataRoute.Robots` defining crawl rules allowing `/`, disallowing private/admin/checkout surfaces (`/admin`, `/admin/`, `/api/`, `/checkout`, `/thank-you`), and linking to `${baseUrl}/sitemap.xml`.
+  - **`sitemap.ts`**: Configured dynamic `MetadataRoute.Sitemap` resolving live catalog dishes (`MenuItem`) and combo platters (`Platter`) from MongoDB to generate clean campaign URLs (`/item/[slug]` & `/platter/[slug]`) with item modification timestamps, paired with core static endpoints (`/`, `/order`). Includes resilient error handling.
+  - **`layout.tsx`**: Added `metadataBase: new URL(BASE_URL)` to metadata exports for standardized URL resolution across metadata, OpenGraph, and sitemaps.
+
+---
+
 ## 0. Phase 4.38 Micro-Change — CLK PostHog Complete Removal (2026-09-21)
 
 ### PostHog Configuration & Dependency Complete Removal

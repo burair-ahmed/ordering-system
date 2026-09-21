@@ -6,8 +6,8 @@ tags:
   - #project/ordering-ecosystem
 created: 2026-09-04
 last_updated: 2026-09-21
-overall_completion: "Phase 4.38: Complete Removal of PostHog from Cafe Little Karachi (100%)"
-current_sprint: "Analytics Cleanup: PostHog Complete Removal for Cafe Little Karachi"
+overall_completion: "Phase 4.40: Live Orders Exact AM/PM Placement Time for Cafe Little Karachi (100%)"
+current_sprint: "Admin Dashboard UX: Exact order placement time display in Live Orders"
 ---
 
 # Project Status Dashboard — Advanced Ordering Ecosystem
@@ -16,8 +16,26 @@ current_sprint: "Analytics Cleanup: PostHog Complete Removal for Cafe Little Kar
 
 | Sub-Project | Phase | Focus | Status |
 | :--- | :--- | :--- | :--- |
-| **Cafe Little Karachi (CLK)** | Phase 4.38 | PostHog Complete Removal & Cleanup | **Completed** 🟢 |
+| **Cafe Little Karachi (CLK)** | Phase 4.40 | Live Orders Exact AM/PM Time | **Completed** 🟢 |
 | **The Chai Company (TCC)** | Phase 4.32 | Centered Modern Tea Lounge Footer | **Completed** 🟢 |
+
+---
+
+## Phase 4.40 Completion Summary — Live Orders Exact AM/PM Placement Time
+
+- [x] **Exact 12-Hour AM/PM Time Helper (`OrdersList.tsx`)**: Added `formatExactTime` helper to format order creation timestamps into readable 12-hour AM/PM format (e.g., `8:45 PM`, `12:30 AM`).
+- [x] **Grid View Time Sub-Label (`OrdersList.tsx`)**: Displayed exact placement time directly beneath relative duration (`1h ago`, `15m ago`) in the order card top status banner.
+- [x] **Kanban View Time Alignment (`OrdersList.tsx`)**: Displayed exact placement time beneath relative duration in both Received and Delivered column card headers.
+- [x] **Table View List Sub-Label (`OrdersList.tsx`)**: Displayed exact placement time in the Time column beneath relative time.
+- [x] **Ticket Inspector Modal Header (`OrdersList.tsx`)**: Included relative time and exact placement time in the POS ticket inspector header.
+
+---
+
+## Phase 4.39 Completion Summary — Native Next.js 15 robots.txt and Dynamic Sitemap
+
+- [x] **Native `robots.ts` (`src/app/robots.ts`)**: Built App Router `robots.ts` defining crawl rules for search bots (allowing `/`, disallowing `/admin`, `/api/`, `/checkout`, `/thank-you`), and linking sitemap URL (`/sitemap.xml`).
+- [x] **Dynamic `sitemap.ts` (`src/app/sitemap.ts`)**: Built App Router `sitemap.ts` querying live MongoDB catalog items (`MenuItem`) and platters (`Platter`), dynamically generating clean canonical routes (`/item/[slug]` & `/platter/[slug]`) alongside core static pages (`/`, `/order`) with priorities and update timestamps.
+- [x] **SEO `metadataBase` (`src/app/layout.tsx`)**: Configured `metadataBase` in root layout metadata for canonical URL and OpenGraph resolution.
 
 ---
 

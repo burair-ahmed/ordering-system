@@ -31,7 +31,14 @@ const poppins = localFont({
   display: "swap",
 });
 
+const BASE_URL = (
+  process.env.NEXT_PUBLIC_BASE_URL ||
+  process.env.NEXT_PUBLIC_API_URL ||
+  'https://cafelittlekarachi.com'
+).replace(/\/+$/, '');
+
 export const metadata: Metadata = {
+  metadataBase: new URL(BASE_URL),
   title: "Little Karachi Express",
   description: "Little Karachi Express Ordering System",
   icons: {

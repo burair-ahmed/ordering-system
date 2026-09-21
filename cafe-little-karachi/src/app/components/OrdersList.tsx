@@ -126,6 +126,17 @@ const timeAgo = (dateStr: string) => {
   return `${days}d ago`;
 };
 
+const formatExactTime = (dateStr: string) => {
+  if (!dateStr) return "";
+  const date = new Date(dateStr);
+  if (isNaN(date.getTime())) return "";
+  return date.toLocaleTimeString("en-US", {
+    hour: "numeric",
+    minute: "2-digit",
+    hour12: true,
+  });
+};
+
 const formatPrice = (amount: number) => {
   return new Intl.NumberFormat("en-PK", {
     style: "currency",
@@ -677,9 +688,14 @@ const OrdersList: FC<OrdersListProps> = ({
                       </span>
                     </div>
 
-                    <span className="text-xs font-semibold opacity-90">
-                      {timeAgo(order.createdAt)}
-                    </span>
+                    <div className="text-right">
+                      <span className="text-xs font-bold leading-tight block">
+                        {timeAgo(order.createdAt)}
+                      </span>
+                      <span className="text-[11px] font-medium opacity-85 leading-tight block mt-0.5">
+                        {formatExactTime(order.createdAt)}
+                      </span>
+                    </div>
                   </div>
 
                   <div className="p-5 flex-1 flex flex-col justify-between space-y-4">
@@ -904,9 +920,14 @@ const OrdersList: FC<OrdersListProps> = ({
                       <span className="font-black text-base text-neutral-900 dark:text-white">
                         #{order.orderNumber}
                       </span>
-                      <span className="text-xs font-bold text-neutral-400">
-                        {timeAgo(order.createdAt)}
-                      </span>
+                      <div className="text-right">
+                        <span className="text-xs font-bold text-neutral-400 block leading-tight">
+                          {timeAgo(order.createdAt)}
+                        </span>
+                        <span className="text-[11px] font-medium text-neutral-500 dark:text-neutral-400 block leading-tight mt-0.5">
+                          {formatExactTime(order.createdAt)}
+                        </span>
+                      </div>
                     </div>
 
                     <div className="text-xs">
@@ -978,9 +999,19 @@ const OrdersList: FC<OrdersListProps> = ({
                       <span className="font-black text-base text-neutral-900 dark:text-white">
                         #{order.orderNumber}
                       </span>
-                      <Badge className="bg-[#3d0a2b]/10 dark:bg-[#3d0a2b]/40 text-[#5c0d40] dark:text-pink-300 border border-[#3d0a2b]/20 text-[10px] font-black">
-                        DELIVERED
-                      </Badge>
+                      <div className="flex items-center gap-2">
+                        <div className="text-right">
+                          <span className="text-xs font-bold text-neutral-400 block leading-tight">
+                            {timeAgo(order.createdAt)}
+                          </span>
+                          <span className="text-[11px] font-medium text-neutral-500 dark:text-neutral-400 block leading-tight mt-0.5">
+                            {formatExactTime(order.createdAt)}
+                          </span>
+                        </div>
+                        <Badge className="bg-[#3d0a2b]/10 dark:bg-[#3d0a2b]/40 text-[#5c0d40] dark:text-pink-300 border border-[#3d0a2b]/20 text-[10px] font-black">
+                          DELIVERED
+                        </Badge>
+                      </div>
                     </div>
 
                     <div className="text-xs">
@@ -1050,8 +1081,13 @@ const OrdersList: FC<OrdersListProps> = ({
                       <td className="py-3.5 px-4 font-black text-sm text-[#741052] dark:text-pink-400">
                         #{order.orderNumber}
                       </td>
-                      <td className="py-3.5 px-4 text-neutral-500 whitespace-nowrap">
-                        {timeAgo(order.createdAt)}
+                      <td className="py-3.5 px-4 whitespace-nowrap">
+                        <div className="font-bold text-neutral-700 dark:text-neutral-300 text-xs leading-tight">
+                          {timeAgo(order.createdAt)}
+                        </div>
+                        <div className="text-[11px] font-medium text-neutral-400 leading-tight mt-0.5">
+                          {formatExactTime(order.createdAt)}
+                        </div>
                       </td>
                       <td className="py-3.5 px-4">
                         <div className="font-bold text-neutral-900 dark:text-white">
@@ -1147,6 +1183,12 @@ const OrdersList: FC<OrdersListProps> = ({
                   <h2 className="text-2xl font-black">
                     #{selectedOrder.orderNumber}
                   </h2>
+                  <div className="flex items-center gap-1.5 text-xs font-semibold opacity-90 mt-0.5">
+                    <Clock className="h-3.5 w-3.5" />
+                    <span>
+                      {timeAgo(selectedOrder.createdAt)} ({formatExactTime(selectedOrder.createdAt)})
+                    </span>
+                  </div>
                 </div>
 
                 <button
