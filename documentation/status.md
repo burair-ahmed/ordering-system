@@ -5,9 +5,9 @@ tags:
   - #status/active
   - #project/ordering-ecosystem
 created: 2026-09-04
-last_updated: 2026-09-21
-overall_completion: "Phase 4.40: Live Orders Exact AM/PM Placement Time for Cafe Little Karachi (100%)"
-current_sprint: "Admin Dashboard UX: Exact order placement time display in Live Orders"
+last_updated: 2026-09-23
+overall_completion: "Phase 4.41: Live Orders Cancel Order Section for Cafe Little Karachi (100%)"
+current_sprint: "Admin Dashboard UX: Cancel Order Section and Void Management in Live Orders"
 ---
 
 # Project Status Dashboard — Advanced Ordering Ecosystem
@@ -16,8 +16,20 @@ current_sprint: "Admin Dashboard UX: Exact order placement time display in Live 
 
 | Sub-Project | Phase | Focus | Status |
 | :--- | :--- | :--- | :--- |
-| **Cafe Little Karachi (CLK)** | Phase 4.40 | Live Orders Exact AM/PM Time | **Completed** 🟢 |
+| **Cafe Little Karachi (CLK)** | Phase 4.41 | Live Orders Cancel Order Section | **Completed** 🟢 |
 | **The Chai Company (TCC)** | Phase 4.32 | Centered Modern Tea Lounge Footer | **Completed** 🟢 |
+
+---
+
+## Phase 4.41 Completion Summary — Live Orders Cancel Order Section
+
+- [x] **Cancelled Status Engine (`OrdersList.tsx`)**: Added `isOrderCancelled` helper detecting cancelled/voided statuses and `isOrderActive` ensuring clean separation between active Received orders, Delivered orders, and Cancelled orders.
+- [x] **HUD 4-Button Action Dashboard (`OrdersList.tsx`)**: Upgraded top metric filter bar to 4-column responsive grid (`Received`, `Delivered`, `Cancelled`, `All Orders`) featuring dedicated Rose/Crimson `CANCELLED (Voided)` trigger with real-time cancelled order count badge.
+- [x] **Grid View Order Cards (`OrdersList.tsx`)**: Added crimson top banner (`bg-gradient-to-r from-rose-700 to-red-900`) with `Ban` icon for cancelled cards, strikethrough price formatting, 1-click `[ Cancel Order ]` action on active cards, and `[ Restore ]` button to seamlessly uncancel / return voided orders to the active Received queue.
+- [x] **Kanban 3-Column Board (`OrdersList.tsx`)**: Expanded Kanban board into 3 distinct stages: `RECEIVED (Pending)`, `DELIVERED (Fulfilled)`, and `CANCELLED (Voided)` with dedicated count badges and 1-tap Restore controls.
+- [x] **Table View List (`OrdersList.tsx`)**: Added red `CANCELLED` status badge and contextual actions (`Deliver` & `Cancel` on active, `Undo` on delivered, `Restore` on cancelled).
+- [x] **POS Ticket Inspector Modal (`OrdersList.tsx`)**: Digital ticket inspector header and status control block now clearly support `CANCELLED (VOIDED)` with 1-click status mutation and restore capability.
+- [x] **Receipt Downloader Status Parity (`OrdersList.tsx`)**: Slip download reflects accurate `Order Status: CANCELLED` when voided.
 
 ---
 

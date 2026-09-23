@@ -5,7 +5,30 @@ tags:
   - #status/active
   - #project/ordering-ecosystem
 created: 2026-09-04
-last_updated: 2026-09-21
+last_updated: 2026-09-23
+---
+
+## 0. Phase 4.41 Micro-Change — CLK Live Orders Cancel Order Section (2026-09-23)
+
+### Cancel Order Section & Void Management in Live Orders Tab
+- **Files**:
+  - `cafe-little-karachi/src/app/components/OrdersList.tsx` (UPDATED)
+- **Context & Goal**: In the admin panel Live Orders tab (`OrdersList`), administrators needed the ability to cancel / void orders, filter specifically by cancelled orders, view them in dedicated sections across Grid, Kanban, and Table views, and easily restore cancelled orders back to the active Received queue if needed.
+- **Changes Applied**:
+  - **Status Logic & Helpers**: Added `isOrderCancelled` (matches `cancelled`, `canceled`, `rejected`), and `isOrderActive` (`!delivered && !cancelled`) to cleanly isolate the 3 order states.
+  - **HUD Metric Filter Cards**: Converted top status HUD from 3 to 4 cards (`grid-cols-1 sm:grid-cols-2 xl:grid-cols-4`) adding a dedicated Rose/Crimson `CANCELLED` card with `Ban` icon, live voided order counter, and status filter trigger (`statusFilter: "received" | "delivered" | "cancelled" | "all"`).
+  - **Status Mutator (`setOrderStatus`)**: Updated mutation handler to support `"Received" | "Delivered" | "Cancelled"`, with error toast on cancel, success toast on deliver, and info toast on restore/revert to Received.
+  - **Grid View Order Cards**:
+    - Header banner renders crimson gradient (`from-rose-700 via-rose-800 to-red-900`) with `Ban` icon and `CANCELLED` label when voided.
+    - Card total price rendered with line-through styling for cancelled orders.
+    - Active cards feature a clean `[ ✕ Cancel Order ]` action button beneath `[ ✓ MARK AS DELIVERED ]`.
+    - Delivered cards feature an inline `[ Cancel ]` button alongside `[ Undo ]`.
+    - Cancelled cards feature a `[ ↺ Restore ]` action button to instantly revive the order back to the active Received queue.
+  - **Kanban Board**: Upgraded from 2 columns to a 3-column stage board: `RECEIVED (Pending)`, `DELIVERED (Fulfilled)`, and `CANCELLED (Voided)` with count badges and direct action buttons.
+  - **Table View List**: Formatted status badge with red styling for cancelled orders and provided contextual actions (`Deliver` / `Cancel` for active, `Undo` / `Cancel` for delivered, and `Restore` for cancelled).
+  - **POS Ticket Inspector Modal**: Enhanced header with crimson theme for cancelled tickets and updated status control section with `Cancel Order` and `Restore to Received` action buttons.
+  - **Receipt Downloader**: Downloaded `.txt` receipt reflects `Order Status: CANCELLED` when voided.
+
 ---
 
 ## 0. Phase 4.40 Micro-Change — CLK Live Orders Exact AM/PM Placement Time (2026-09-21)

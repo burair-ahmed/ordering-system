@@ -11,6 +11,12 @@ last_updated: 2026-09-11
 # Next Steps & Handoff Guide — Advanced Ordering Ecosystem
 
 ## Completed in Current Sprint
+- [x] **Live Orders Cancel Order Section & Void Management (CLK)**:
+  - Added dedicated `CANCELLED (Voided)` filter section and top HUD trigger card with real-time count.
+  - Implemented 1-click `[ ✕ Cancel Order ]` controls for active orders in Grid, Kanban, Table, and POS Ticket modal views.
+  - Implemented `[ ↺ Restore ]` action to seamlessly return voided/cancelled orders back into the active `Received` queue.
+  - Expanded Kanban board to 3 distinct columns: `RECEIVED (Pending)`, `DELIVERED (Fulfilled)`, and `CANCELLED (Voided)`.
+  - Formatted red `CANCELLED` status badges and line-through price styling for voided orders.
 - [x] **Centered Minimalist Modern Footer Revamp (CLK & TCC)**:
   - Removed multi-column grid layout and legacy quick links.
   - Built a centered, luxury modern footer layout with circular brand emblem, halo glow, and concise authentic brand tagline.

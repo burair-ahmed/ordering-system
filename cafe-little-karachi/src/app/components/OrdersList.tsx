@@ -37,6 +37,8 @@ import {
   RotateCcw,
   Sparkles,
   ArrowUpRight,
+  Ban,
+  XCircle,
 } from "lucide-react";
 import Preloader from "../components/Preloader";
 import { Button } from "@/components/ui/button";
@@ -81,10 +83,19 @@ interface ConsentEntry {
 
 type ViewMode = "grid" | "kanban" | "table";
 
-// Helper to normalize status into 2 main states: "Received" (active) and "Delivered" (completed)
+// Helper to normalize status into 3 main states: "Received" (active), "Delivered" (completed), and "Cancelled"
 const isOrderDelivered = (status: string) => {
   const s = (status || "").toLowerCase().trim();
   return s === "delivered" || s === "completed";
+};
+
+const isOrderCancelled = (status: string) => {
+  const s = (status || "").toLowerCase().trim();
+  return s === "cancelled" || s === "canceled" || s === "rejected";
+};
+
+const isOrderActive = (status: string) => {
+  return !isOrderDelivered(status) && !isOrderCancelled(status);
 };
 
 const ORDER_TYPE_CONFIG: Record<
@@ -166,8 +177,8 @@ const OrdersList: FC<OrdersListProps> = ({
   const audioBufferRef = useRef<AudioBuffer | null>(null);
   const previousOrdersRef = useRef<Order[]>([]);
 
-  // Simple Filters (Received vs Delivered vs All)
-  const [statusFilter, setStatusFilter] = useState<"received" | "delivered" | "all">("received");
+  // Filter states (Received vs Delivered vs Cancelled vs All)
+  const [statusFilter, setStatusFilter] = useState<"received" | "delivered" | "cancelled" | "all">("received");
   const [typeFilter, setTypeFilter] = useState<OrderType | "all">("all");
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [viewMode, setViewMode] = useState<ViewMode>("grid");
@@ -250,8 +261,11 @@ const OrdersList: FC<OrdersListProps> = ({
     return () => clearInterval(interval);
   }, []);
 
-  // Update Status (Only Received <-> Delivered)
-  const setOrderStatus = async (orderNumber: string, newStatus: "Received" | "Delivered") => {
+  // Update Status (Received <-> Delivered <-> Cancelled)
+  const setOrderStatus = async (
+    orderNumber: string,
+    newStatus: "Received" | "Delivered" | "Cancelled"
+  ) => {
     setLoadingOrders((prev) => new Set(prev.add(orderNumber)));
     try {
       const res = await fetch("/api/updateorderstatus", {
@@ -262,8 +276,10 @@ const OrdersList: FC<OrdersListProps> = ({
       if (res.ok) {
         if (newStatus === "Delivered") {
           toast.success(`✓ Order #${orderNumber} Marked as DELIVERED!`);
+        } else if (newStatus === "Cancelled") {
+          toast.error(`✕ Order #${orderNumber} Marked as CANCELLED!`);
         } else {
-          toast.info(`Order #${orderNumber} moved back to RECEIVED`);
+          toast.info(`Order #${orderNumber} moved back to RECEIVED queue`);
         }
         fetchOrders();
         if (selectedOrder && selectedOrder.orderNumber === orderNumber) {
@@ -292,26 +308,37 @@ const OrdersList: FC<OrdersListProps> = ({
     setTimeout(() => setCopiedOrderId(null), 2000);
   };
 
-  // Counts for Received vs Delivered
+  // Counts for Received vs Delivered vs Cancelled
   const counts = useMemo(() => {
     let receivedCount = 0;
     let deliveredCount = 0;
+    let cancelledCount = 0;
     let receivedRevenue = 0;
+    let deliveredRevenue = 0;
+    let cancelledRevenue = 0;
 
     for (const o of orders) {
+      const amount = Number(o.totalAmount) || 0;
       if (isOrderDelivered(o.status)) {
         deliveredCount++;
+        deliveredRevenue += amount;
+      } else if (isOrderCancelled(o.status)) {
+        cancelledCount++;
+        cancelledRevenue += amount;
       } else {
         receivedCount++;
-        receivedRevenue += Number(o.totalAmount) || 0;
+        receivedRevenue += amount;
       }
     }
 
     return {
       receivedCount,
       deliveredCount,
+      cancelledCount,
       totalCount: orders.length,
       receivedRevenue,
+      deliveredRevenue,
+      cancelledRevenue,
     };
   }, [orders]);
 
@@ -319,10 +346,13 @@ const OrdersList: FC<OrdersListProps> = ({
   const filteredOrders = useMemo(() => {
     return orders.filter((order) => {
       const delivered = isOrderDelivered(order.status);
+      const cancelled = isOrderCancelled(order.status);
+      const active = !delivered && !cancelled;
 
       // Status Filter
-      if (statusFilter === "received" && delivered) return false;
+      if (statusFilter === "received" && !active) return false;
       if (statusFilter === "delivered" && !delivered) return false;
+      if (statusFilter === "cancelled" && !cancelled) return false;
 
       // Type Filter
       if (typeFilter !== "all" && order.ordertype !== typeFilter) return false;
@@ -382,6 +412,13 @@ const OrdersList: FC<OrdersListProps> = ({
 
   const downloadReceipt = (order: Order) => {
     const isDelivered = isOrderDelivered(order.status);
+    const isCancelled = isOrderCancelled(order.status);
+    const statusLabel = isCancelled
+      ? "CANCELLED"
+      : isDelivered
+      ? "DELIVERED"
+      : "RECEIVED";
+
     const lines = [
       `========================================`,
       `       CAFE LITTLE KARACHI (CLK)        `,
@@ -396,7 +433,7 @@ const OrdersList: FC<OrdersListProps> = ({
       order.phone ? `Phone:          ${order.phone}` : "",
       order.email ? `Email:          ${order.email}` : "",
       `Payment Method: ${order.paymentMethod?.toUpperCase()}`,
-      `Order Status:   ${isDelivered ? "DELIVERED" : "RECEIVED"}`,
+      `Order Status:   ${statusLabel}`,
       `----------------------------------------`,
       `ITEMS:`,
       ...order.items.map((it, idx) => {
@@ -427,18 +464,17 @@ const OrdersList: FC<OrdersListProps> = ({
     URL.revokeObjectURL(url);
     toast.success(`Receipt downloaded for #${order.orderNumber}`);
   };
-
   return (
     <div className="space-y-5">
       {/* ─────────────────────────────────────────────────────────────
-          1. HARMONIOUS LUXURY 2-STATUS ACTION DASHBOARD
+          1. HARMONIOUS LUXURY 3-STATUS + ALL ACTION DASHBOARD
       ───────────────────────────────────────────────────────────── */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3">
         {/* BUTTON 1: RECEIVED (PENDING / NEED TO DELIVER) - CLK Royal Plum Theme */}
         <button
           type="button"
           onClick={() => setStatusFilter("received")}
-          className={`flex items-center justify-between p-4 sm:p-5 rounded-2xl sm:rounded-3xl border-2 transition-all text-left shadow-sm ${
+          className={`flex items-center justify-between p-4 sm:p-5 rounded-2xl sm:rounded-3xl border-2 transition-all text-left shadow-sm cursor-pointer ${
             statusFilter === "received"
               ? "bg-[#741052]/10 dark:bg-[#741052]/25 border-[#741052] ring-4 ring-[#741052]/20 shadow-[0_4px_24px_rgba(116,16,82,0.18)]"
               : "bg-white dark:bg-neutral-900 border-neutral-200/90 dark:border-neutral-800 hover:border-[#741052]/50"
@@ -452,7 +488,7 @@ const OrdersList: FC<OrdersListProps> = ({
               <span className="text-[11px] uppercase font-extrabold tracking-wider text-[#741052] dark:text-pink-400 block">
                 Pending Queue
               </span>
-              <span className="text-2xl sm:text-3xl font-black text-neutral-900 dark:text-white">
+              <span className="text-xl sm:text-2xl font-black text-neutral-900 dark:text-white">
                 RECEIVED
               </span>
             </div>
@@ -471,7 +507,7 @@ const OrdersList: FC<OrdersListProps> = ({
         <button
           type="button"
           onClick={() => setStatusFilter("delivered")}
-          className={`flex items-center justify-between p-4 sm:p-5 rounded-2xl sm:rounded-3xl border-2 transition-all text-left shadow-sm ${
+          className={`flex items-center justify-between p-4 sm:p-5 rounded-2xl sm:rounded-3xl border-2 transition-all text-left shadow-sm cursor-pointer ${
             statusFilter === "delivered"
               ? "bg-[#3d0a2b]/10 dark:bg-[#3d0a2b]/50 border-[#3d0a2b] dark:border-[#741052]/60 ring-4 ring-[#3d0a2b]/15 shadow-[0_4px_24px_rgba(61,10,43,0.15)]"
               : "bg-white dark:bg-neutral-900 border-neutral-200/90 dark:border-neutral-800 hover:border-[#3d0a2b]/40"
@@ -485,7 +521,7 @@ const OrdersList: FC<OrdersListProps> = ({
               <span className="text-[11px] uppercase font-extrabold tracking-wider text-[#5c0d40] dark:text-pink-300 block">
                 Fulfilled Orders
               </span>
-              <span className="text-2xl sm:text-3xl font-black text-neutral-900 dark:text-white">
+              <span className="text-xl sm:text-2xl font-black text-neutral-900 dark:text-white">
                 DELIVERED
               </span>
             </div>
@@ -500,11 +536,44 @@ const OrdersList: FC<OrdersListProps> = ({
           </div>
         </button>
 
-        {/* BUTTON 3: ALL ORDERS - Muted Rose-Plum Theme */}
+        {/* BUTTON 3: CANCELLED (VOIDED) - Bold Rose / Red Theme */}
+        <button
+          type="button"
+          onClick={() => setStatusFilter("cancelled")}
+          className={`flex items-center justify-between p-4 sm:p-5 rounded-2xl sm:rounded-3xl border-2 transition-all text-left shadow-sm cursor-pointer ${
+            statusFilter === "cancelled"
+              ? "bg-rose-500/10 dark:bg-rose-950/40 border-rose-600 dark:border-rose-500 ring-4 ring-rose-500/20 shadow-[0_4px_24px_rgba(225,29,72,0.18)]"
+              : "bg-white dark:bg-neutral-900 border-neutral-200/90 dark:border-neutral-800 hover:border-rose-500/40"
+          }`}
+        >
+          <div className="flex items-center gap-3.5">
+            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-rose-600 to-red-700 text-white flex items-center justify-center font-black text-xl shadow-md shrink-0">
+              <Ban className="h-6 w-6 text-white" />
+            </div>
+            <div>
+              <span className="text-[11px] uppercase font-extrabold tracking-wider text-rose-600 dark:text-rose-400 block">
+                Voided Orders
+              </span>
+              <span className="text-xl sm:text-2xl font-black text-neutral-900 dark:text-white">
+                CANCELLED
+              </span>
+            </div>
+          </div>
+          <div className="text-right">
+            <span className="text-3xl sm:text-4xl font-black text-rose-600 dark:text-rose-400 block">
+              {counts.cancelledCount}
+            </span>
+            <span className="text-[11px] font-bold text-rose-600/70 dark:text-rose-400/70 uppercase">
+              Voided
+            </span>
+          </div>
+        </button>
+
+        {/* BUTTON 4: ALL ORDERS - Muted Rose-Plum Theme */}
         <button
           type="button"
           onClick={() => setStatusFilter("all")}
-          className={`flex items-center justify-between p-4 sm:p-5 rounded-2xl sm:rounded-3xl border-2 transition-all text-left shadow-sm ${
+          className={`flex items-center justify-between p-4 sm:p-5 rounded-2xl sm:rounded-3xl border-2 transition-all text-left shadow-sm cursor-pointer ${
             statusFilter === "all"
               ? "bg-[#741052]/8 dark:bg-[#741052]/20 border-[#741052]/50 dark:border-[#741052]/50 ring-4 ring-[#741052]/10"
               : "bg-white dark:bg-neutral-900 border-neutral-200/90 dark:border-neutral-800 hover:border-[#741052]/30"
@@ -518,7 +587,7 @@ const OrdersList: FC<OrdersListProps> = ({
               <span className="text-[11px] uppercase font-extrabold tracking-wider text-[#741052]/70 dark:text-pink-300/80 block">
                 Total History
               </span>
-              <span className="text-2xl sm:text-3xl font-black text-neutral-900 dark:text-white">
+              <span className="text-xl sm:text-2xl font-black text-neutral-900 dark:text-white">
                 ALL ORDERS
               </span>
             </div>
@@ -550,7 +619,7 @@ const OrdersList: FC<OrdersListProps> = ({
           {searchTerm && (
             <button
               onClick={() => setSearchTerm("")}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-neutral-600"
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-neutral-600 cursor-pointer"
             >
               <X className="h-4 w-4" />
             </button>
@@ -578,7 +647,7 @@ const OrdersList: FC<OrdersListProps> = ({
           <div className="inline-flex items-center bg-neutral-100 dark:bg-neutral-800/80 p-1 rounded-xl border border-neutral-200 dark:border-neutral-700">
             <button
               onClick={() => setViewMode("grid")}
-              className={`p-2 rounded-lg transition-all ${
+              className={`p-2 rounded-lg transition-all cursor-pointer ${
                 viewMode === "grid"
                   ? "bg-white dark:bg-neutral-700 text-[#741052] dark:text-pink-300 shadow-sm"
                   : "text-neutral-500"
@@ -589,18 +658,18 @@ const OrdersList: FC<OrdersListProps> = ({
             </button>
             <button
               onClick={() => setViewMode("kanban")}
-              className={`p-2 rounded-lg transition-all ${
+              className={`p-2 rounded-lg transition-all cursor-pointer ${
                 viewMode === "kanban"
                   ? "bg-white dark:bg-neutral-700 text-[#741052] dark:text-pink-300 shadow-sm"
                   : "text-neutral-500"
               }`}
-              title="2-Column Board"
+              title="3-Column Board"
             >
               <Kanban className="h-4 w-4" />
             </button>
             <button
               onClick={() => setViewMode("table")}
-              className={`p-2 rounded-lg transition-all ${
+              className={`p-2 rounded-lg transition-all cursor-pointer ${
                 viewMode === "table"
                   ? "bg-white dark:bg-neutral-700 text-[#741052] dark:text-pink-300 shadow-sm"
                   : "text-neutral-500"
@@ -616,7 +685,7 @@ const OrdersList: FC<OrdersListProps> = ({
             onClick={() => fetchOrders(true)}
             variant="outline"
             disabled={isRefreshing}
-            className="h-11 px-3.5 rounded-xl border-neutral-200 dark:border-neutral-700 font-bold text-xs hover:border-[#741052] hover:text-[#741052]"
+            className="h-11 px-3.5 rounded-xl border-neutral-200 dark:border-neutral-700 font-bold text-xs hover:border-[#741052] hover:text-[#741052] cursor-pointer"
           >
             <RefreshCw
               className={`h-4 w-4 ${isRefreshing ? "animate-spin text-[#741052]" : ""}`}
@@ -626,7 +695,7 @@ const OrdersList: FC<OrdersListProps> = ({
       </div>
 
       {/* ─────────────────────────────────────────────────────────────
-          3. ORDERS LIST (Grid / 2-Column Board / Table)
+          3. ORDERS LIST (Grid / 3-Column Board / Table)
       ───────────────────────────────────────────────────────────── */}
       {filteredOrders.length === 0 ? (
         <div className="bg-white dark:bg-neutral-900 rounded-3xl border border-neutral-200/90 dark:border-neutral-800 p-12 text-center flex flex-col items-center justify-center">
@@ -636,22 +705,31 @@ const OrdersList: FC<OrdersListProps> = ({
           <h3 className="text-xl font-black text-neutral-900 dark:text-white">
             {statusFilter === "received"
               ? "All caught up! No pending orders right now."
+              : statusFilter === "delivered"
+              ? "No delivered orders found in this view."
+              : statusFilter === "cancelled"
+              ? "No cancelled orders. All customer orders are active or fulfilled!"
               : "No orders found."}
           </h3>
           <p className="text-xs text-neutral-500 mt-1 max-w-sm">
             {statusFilter === "received"
               ? "When customers place orders, they will appear here in the RECEIVED queue."
-              : "Try switching filters to view all or pending orders."}
+              : statusFilter === "cancelled"
+              ? "Voided or cancelled orders will be archived here for your records."
+              : "Try switching filters to view other order queues."}
           </p>
         </div>
       ) : viewMode === "grid" ? (
         /* ═══════════════════════════════════════════════════════════════
-           GRID VIEW: Luxury CLK Plum & Slate Design
+           GRID VIEW: Luxury CLK Plum, Slate & Crimson Design
         ═══════════════════════════════════════════════════════════════ */
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-5">
           <AnimatePresence mode="popLayout">
             {filteredOrders.map((order) => {
               const delivered = isOrderDelivered(order.status);
+              const cancelled = isOrderCancelled(order.status);
+              const active = !delivered && !cancelled;
+
               const typeCfg =
                 ORDER_TYPE_CONFIG[order.ordertype] || ORDER_TYPE_CONFIG.dinein;
               const TypeIcon = typeCfg.icon;
@@ -664,7 +742,9 @@ const OrdersList: FC<OrdersListProps> = ({
                   animate={{ opacity: 1, scale: 1 }}
                   exit={{ opacity: 0, scale: 0.95 }}
                   className={`relative flex flex-col bg-white dark:bg-neutral-900 rounded-3xl border-2 shadow-sm transition-all overflow-hidden ${
-                    delivered
+                    cancelled
+                      ? "border-rose-500/30 dark:border-rose-500/40 opacity-90"
+                      : delivered
                       ? "border-[#3d0a2b]/25 dark:border-[#5c0d40]/35 opacity-90"
                       : "border-[#741052]/30 dark:border-[#741052]/40 shadow-[0_4px_20px_rgba(116,16,82,0.08)] ring-1 ring-[#741052]/10"
                   }`}
@@ -672,19 +752,23 @@ const OrdersList: FC<OrdersListProps> = ({
                   {/* Top Status Header Banner */}
                   <div
                     className={`px-5 py-3 flex items-center justify-between text-white ${
-                      delivered
+                      cancelled
+                        ? "bg-gradient-to-r from-rose-700 via-rose-800 to-red-900"
+                        : delivered
                         ? "bg-gradient-to-r from-[#3d0a2b] to-[#5c0d40]"
                         : "bg-gradient-to-r from-[#741052] via-[#8d1664] to-[#a01a72]"
                     }`}
                   >
                     <div className="flex items-center gap-2">
-                      {delivered ? (
+                      {cancelled ? (
+                        <Ban className="h-5 w-5 text-white" />
+                      ) : delivered ? (
                         <CheckCircle2 className="h-5 w-5 text-pink-200" />
                       ) : (
                         <AlertCircle className="h-5 w-5 animate-pulse text-pink-200" />
                       )}
                       <span className="font-black text-sm uppercase tracking-wider">
-                        {delivered ? "DELIVERED" : "RECEIVED"}
+                        {cancelled ? "CANCELLED" : delivered ? "DELIVERED" : "RECEIVED"}
                       </span>
                     </div>
 
@@ -704,7 +788,7 @@ const OrdersList: FC<OrdersListProps> = ({
                       <div className="flex items-center justify-between gap-2">
                         <button
                           onClick={() => handleCopyOrderId(order.orderNumber)}
-                          className="flex items-center gap-1.5 text-lg font-black text-neutral-900 dark:text-white hover:text-[#741052] transition-colors"
+                          className="flex items-center gap-1.5 text-lg font-black text-neutral-900 dark:text-white hover:text-[#741052] transition-colors cursor-pointer"
                           title="Copy Order ID"
                         >
                           <span>#{order.orderNumber}</span>
@@ -826,7 +910,7 @@ const OrdersList: FC<OrdersListProps> = ({
                         <span className="text-[10px] font-bold text-neutral-400 block uppercase">
                           Total Payable ({order.paymentMethod?.toUpperCase()})
                         </span>
-                        <span className="text-xl font-black text-[#741052] dark:text-pink-400">
+                        <span className={`text-xl font-black ${cancelled ? "text-rose-600 dark:text-rose-400 line-through opacity-80" : "text-[#741052] dark:text-pink-400"}`}>
                           {formatPrice(order.totalAmount)}
                         </span>
                       </div>
@@ -835,7 +919,7 @@ const OrdersList: FC<OrdersListProps> = ({
                         variant="ghost"
                         size="sm"
                         onClick={() => openDetail(order)}
-                        className="text-xs font-bold text-neutral-600 dark:text-neutral-300 flex items-center gap-1 hover:text-[#741052]"
+                        className="text-xs font-bold text-neutral-600 dark:text-neutral-300 flex items-center gap-1 hover:text-[#741052] cursor-pointer"
                       >
                         <Eye className="h-4 w-4" />
                         Details
@@ -843,20 +927,32 @@ const OrdersList: FC<OrdersListProps> = ({
                     </div>
 
                     {/* ─────────────────────────────────────────────────────────────
-                        MAIN LUXURY ACTION BUTTON (1 Click: Mark Delivered / Undo)
+                        MAIN ACTION BUTTONS (Deliver / Cancel / Restore / Undo)
                     ───────────────────────────────────────────────────────────── */}
                     <div className="pt-1">
-                      {!delivered ? (
-                        <button
-                          type="button"
-                          onClick={() => setOrderStatus(order.orderNumber, "Delivered")}
-                          disabled={loadingOrders.has(order.orderNumber)}
-                          className="w-full h-12 rounded-2xl bg-gradient-to-r from-[#741052] via-[#8a1361] to-[#a01671] hover:from-[#5c0d40] hover:to-[#741052] active:scale-[0.98] text-white font-black text-sm flex items-center justify-center gap-2 shadow-lg shadow-[#741052]/25 transition-all cursor-pointer"
-                        >
-                          <Check className="h-5 w-5 stroke-[3]" />
-                          <span>MARK AS DELIVERED</span>
-                        </button>
-                      ) : (
+                      {active ? (
+                        <div className="space-y-2">
+                          <button
+                            type="button"
+                            onClick={() => setOrderStatus(order.orderNumber, "Delivered")}
+                            disabled={loadingOrders.has(order.orderNumber)}
+                            className="w-full h-12 rounded-2xl bg-gradient-to-r from-[#741052] via-[#8a1361] to-[#a01671] hover:from-[#5c0d40] hover:to-[#741052] active:scale-[0.98] text-white font-black text-sm flex items-center justify-center gap-2 shadow-lg shadow-[#741052]/25 transition-all cursor-pointer"
+                          >
+                            <Check className="h-5 w-5 stroke-[3]" />
+                            <span>MARK AS DELIVERED</span>
+                          </button>
+
+                          <button
+                            type="button"
+                            onClick={() => setOrderStatus(order.orderNumber, "Cancelled")}
+                            disabled={loadingOrders.has(order.orderNumber)}
+                            className="w-full h-9 rounded-xl border border-rose-200 dark:border-rose-900/50 hover:bg-rose-50 dark:hover:bg-rose-950/30 text-rose-600 dark:text-rose-400 font-bold text-xs flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
+                          >
+                            <Ban className="h-3.5 w-3.5" />
+                            <span>Cancel Order</span>
+                          </button>
+                        </div>
+                      ) : delivered ? (
                         <div className="flex items-center gap-2">
                           <div className="flex-1 h-11 rounded-2xl bg-[#3d0a2b]/10 dark:bg-[#3d0a2b]/30 border border-[#3d0a2b]/20 dark:border-[#5c0d40]/40 text-[#5c0d40] dark:text-pink-300 font-black text-xs flex items-center justify-center gap-1.5">
                             <CheckCircle2 className="h-4 w-4" />
@@ -867,11 +963,41 @@ const OrdersList: FC<OrdersListProps> = ({
                             type="button"
                             onClick={() => setOrderStatus(order.orderNumber, "Received")}
                             disabled={loadingOrders.has(order.orderNumber)}
-                            className="px-3 h-11 rounded-2xl bg-[#741052]/10 dark:bg-[#741052]/20 hover:bg-[#741052]/20 text-[#741052] dark:text-pink-300 font-bold text-xs flex items-center gap-1 transition-colors border border-[#741052]/20"
+                            className="px-3 h-11 rounded-2xl bg-[#741052]/10 dark:bg-[#741052]/20 hover:bg-[#741052]/20 text-[#741052] dark:text-pink-300 font-bold text-xs flex items-center gap-1 transition-colors border border-[#741052]/20 cursor-pointer"
                             title="Move back to Received"
                           >
                             <RotateCcw className="h-3.5 w-3.5" />
                             <span>Undo</span>
+                          </button>
+
+                          <button
+                            type="button"
+                            onClick={() => setOrderStatus(order.orderNumber, "Cancelled")}
+                            disabled={loadingOrders.has(order.orderNumber)}
+                            className="px-3 h-11 rounded-2xl bg-rose-500/10 dark:bg-rose-950/30 hover:bg-rose-500/20 text-rose-600 dark:text-rose-400 font-bold text-xs flex items-center gap-1 transition-colors border border-rose-500/20 cursor-pointer"
+                            title="Cancel Order"
+                          >
+                            <Ban className="h-3.5 w-3.5" />
+                            <span>Cancel</span>
+                          </button>
+                        </div>
+                      ) : (
+                        /* Cancelled State */
+                        <div className="flex items-center gap-2">
+                          <div className="flex-1 h-11 rounded-2xl bg-rose-500/10 dark:bg-rose-950/30 border border-rose-500/20 text-rose-600 dark:text-rose-400 font-black text-xs flex items-center justify-center gap-1.5">
+                            <Ban className="h-4 w-4" />
+                            <span>CANCELLED</span>
+                          </div>
+
+                          <button
+                            type="button"
+                            onClick={() => setOrderStatus(order.orderNumber, "Received")}
+                            disabled={loadingOrders.has(order.orderNumber)}
+                            className="px-4 h-11 rounded-2xl bg-[#741052] hover:bg-[#5c0d40] text-white font-bold text-xs flex items-center gap-1.5 transition-colors shadow-sm cursor-pointer"
+                            title="Restore order to Received queue"
+                          >
+                            <RotateCcw className="h-3.5 w-3.5" />
+                            <span>Restore</span>
                           </button>
                         </div>
                       )}
@@ -891,16 +1017,16 @@ const OrdersList: FC<OrdersListProps> = ({
         </div>
       ) : viewMode === "kanban" ? (
         /* ═══════════════════════════════════════════════════════════════
-           KANBAN / 2-COLUMN STAGE BOARD (Received vs Delivered)
+           KANBAN / 3-COLUMN STAGE BOARD (Received vs Delivered vs Cancelled)
         ═══════════════════════════════════════════════════════════════ */
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-5 items-start">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-start">
           {/* COLUMN 1: RECEIVED */}
           <div className="bg-[#741052]/[0.04] dark:bg-[#741052]/[0.10] rounded-3xl p-4 border-2 border-[#741052]/30 dark:border-[#741052]/40 space-y-4">
             <div className="flex items-center justify-between pb-3 border-b border-[#741052]/20">
               <div className="flex items-center gap-2">
                 <AlertCircle className="h-5 w-5 text-[#741052] dark:text-pink-400" />
                 <h3 className="font-black text-base text-neutral-900 dark:text-white uppercase">
-                  RECEIVED (Need to Deliver)
+                  RECEIVED (Pending)
                 </h3>
               </div>
               <Badge className="bg-[#741052] text-white font-black text-xs px-2.5 py-0.5 rounded-full">
@@ -910,7 +1036,7 @@ const OrdersList: FC<OrdersListProps> = ({
 
             <div className="space-y-3 max-h-[650px] overflow-y-auto pr-1">
               {orders
-                .filter((o) => !isOrderDelivered(o.status))
+                .filter((o) => isOrderActive(o.status))
                 .map((order) => (
                   <div
                     key={order.orderNumber}
@@ -959,14 +1085,24 @@ const OrdersList: FC<OrdersListProps> = ({
                         {formatPrice(order.totalAmount)}
                       </span>
 
-                      <button
-                        type="button"
-                        onClick={() => setOrderStatus(order.orderNumber, "Delivered")}
-                        className="px-4 py-2 bg-[#741052] hover:bg-[#5c0d40] text-white font-black text-xs rounded-xl shadow-md flex items-center gap-1.5"
-                      >
-                        <Check className="h-4 w-4" />
-                        <span>Deliver</span>
-                      </button>
+                      <div className="flex items-center gap-1.5">
+                        <button
+                          type="button"
+                          onClick={() => setOrderStatus(order.orderNumber, "Delivered")}
+                          className="px-3 py-1.5 bg-[#741052] hover:bg-[#5c0d40] text-white font-black text-xs rounded-xl shadow-md flex items-center gap-1 cursor-pointer"
+                        >
+                          <Check className="h-3.5 w-3.5" />
+                          <span>Deliver</span>
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setOrderStatus(order.orderNumber, "Cancelled")}
+                          className="p-1.5 text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 rounded-lg border border-rose-200 dark:border-rose-900/40 cursor-pointer"
+                          title="Cancel Order"
+                        >
+                          <Ban className="h-3.5 w-3.5" />
+                        </button>
+                      </div>
                     </div>
                   </div>
                 ))}
@@ -979,7 +1115,7 @@ const OrdersList: FC<OrdersListProps> = ({
               <div className="flex items-center gap-2">
                 <CheckCircle2 className="h-5 w-5 text-[#5c0d40] dark:text-pink-300" />
                 <h3 className="font-black text-base text-neutral-900 dark:text-white uppercase">
-                  DELIVERED (Completed)
+                  DELIVERED (Fulfilled)
                 </h3>
               </div>
               <Badge className="bg-gradient-to-r from-[#3d0a2b] to-[#5c0d40] text-white font-black text-xs px-2.5 py-0.5 rounded-full">
@@ -1028,7 +1164,7 @@ const OrdersList: FC<OrdersListProps> = ({
                         variant="ghost"
                         size="sm"
                         onClick={() => openDetail(order)}
-                        className="text-xs font-bold"
+                        className="text-xs font-bold cursor-pointer"
                       >
                         <Eye className="h-3.5 w-3.5 mr-1" />
                         View
@@ -1037,7 +1173,7 @@ const OrdersList: FC<OrdersListProps> = ({
                       <button
                         type="button"
                         onClick={() => setOrderStatus(order.orderNumber, "Received")}
-                        className="px-3 py-1.5 bg-[#741052]/10 dark:bg-[#741052]/20 hover:bg-[#741052]/20 text-[#741052] dark:text-pink-300 border border-[#741052]/20 font-bold text-xs rounded-xl flex items-center gap-1"
+                        className="px-3 py-1.5 bg-[#741052]/10 dark:bg-[#741052]/20 hover:bg-[#741052]/20 text-[#741052] dark:text-pink-300 border border-[#741052]/20 font-bold text-xs rounded-xl flex items-center gap-1 cursor-pointer"
                       >
                         <RotateCcw className="h-3 w-3" />
                         <span>Undo</span>
@@ -1047,10 +1183,85 @@ const OrdersList: FC<OrdersListProps> = ({
                 ))}
             </div>
           </div>
+
+          {/* COLUMN 3: CANCELLED */}
+          <div className="bg-rose-500/[0.04] dark:bg-rose-950/[0.15] rounded-3xl p-4 border-2 border-rose-500/25 dark:border-rose-500/40 space-y-4">
+            <div className="flex items-center justify-between pb-3 border-b border-rose-500/20">
+              <div className="flex items-center gap-2">
+                <Ban className="h-5 w-5 text-rose-600 dark:text-rose-400" />
+                <h3 className="font-black text-base text-neutral-900 dark:text-white uppercase">
+                  CANCELLED (Voided)
+                </h3>
+              </div>
+              <Badge className="bg-gradient-to-r from-rose-600 to-red-700 text-white font-black text-xs px-2.5 py-0.5 rounded-full">
+                {counts.cancelledCount}
+              </Badge>
+            </div>
+
+            <div className="space-y-3 max-h-[650px] overflow-y-auto pr-1">
+              {orders
+                .filter((o) => isOrderCancelled(o.status))
+                .map((order) => (
+                  <div
+                    key={order.orderNumber}
+                    className="bg-white dark:bg-neutral-900/80 rounded-2xl p-4 border border-rose-500/20 shadow-sm space-y-3 opacity-90"
+                  >
+                    <div className="flex items-center justify-between">
+                      <span className="font-black text-base text-neutral-900 dark:text-white">
+                        #{order.orderNumber}
+                      </span>
+                      <div className="flex items-center gap-2">
+                        <div className="text-right">
+                          <span className="text-xs font-bold text-neutral-400 block leading-tight">
+                            {timeAgo(order.createdAt)}
+                          </span>
+                          <span className="text-[11px] font-medium text-neutral-500 dark:text-neutral-400 block leading-tight mt-0.5">
+                            {formatExactTime(order.createdAt)}
+                          </span>
+                        </div>
+                        <Badge className="bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/30 text-[10px] font-black">
+                          CANCELLED
+                        </Badge>
+                      </div>
+                    </div>
+
+                    <div className="text-xs">
+                      <p className="font-bold text-sm text-neutral-900 dark:text-neutral-100">
+                        {order.customerName}
+                      </p>
+                      <p className="text-neutral-500 font-medium">
+                        {order.ordertype.toUpperCase()} · {formatPrice(order.totalAmount)}
+                      </p>
+                    </div>
+
+                    <div className="flex items-center justify-between pt-1">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => openDetail(order)}
+                        className="text-xs font-bold cursor-pointer"
+                      >
+                        <Eye className="h-3.5 w-3.5 mr-1" />
+                        View
+                      </Button>
+
+                      <button
+                        type="button"
+                        onClick={() => setOrderStatus(order.orderNumber, "Received")}
+                        className="px-3 py-1.5 bg-[#741052] hover:bg-[#5c0d40] text-white font-bold text-xs rounded-xl flex items-center gap-1 shadow-sm cursor-pointer"
+                      >
+                        <RotateCcw className="h-3 w-3" />
+                        <span>Restore</span>
+                      </button>
+                    </div>
+                  </div>
+                ))}
+            </div>
+          </div>
         </div>
       ) : (
         /* ═══════════════════════════════════════════════════════════════
-           TABLE LIST VIEW: Simple 2-Status Scanner
+           TABLE LIST VIEW: Comprehensive Status Scanner
         ═══════════════════════════════════════════════════════════════ */
         <div className="bg-white dark:bg-neutral-900 rounded-3xl border border-neutral-200 dark:border-neutral-800 overflow-hidden shadow-sm">
           <div className="overflow-x-auto">
@@ -1070,6 +1281,9 @@ const OrdersList: FC<OrdersListProps> = ({
               <tbody className="divide-y divide-neutral-100 dark:divide-neutral-800 font-medium">
                 {filteredOrders.map((order) => {
                   const delivered = isOrderDelivered(order.status);
+                  const cancelled = isOrderCancelled(order.status);
+                  const active = !delivered && !cancelled;
+
                   const typeCfg =
                     ORDER_TYPE_CONFIG[order.ordertype] || ORDER_TYPE_CONFIG.dinein;
 
@@ -1109,36 +1323,66 @@ const OrdersList: FC<OrdersListProps> = ({
                           .map((i) => `${i.quantity}x ${i.title}`)
                           .join(", ")}
                       </td>
-                      <td className="py-3.5 px-4 font-black text-sm text-neutral-900 dark:text-white whitespace-nowrap">
+                      <td className={`py-3.5 px-4 font-black text-sm whitespace-nowrap ${cancelled ? "text-rose-600 dark:text-rose-400 line-through opacity-75" : "text-neutral-900 dark:text-white"}`}>
                         {formatPrice(order.totalAmount)}
                       </td>
                       <td className="py-3.5 px-4">
                         <Badge
                           className={`font-black text-xs px-3 py-1 rounded-full ${
-                            delivered
+                            cancelled
+                              ? "bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/30"
+                              : delivered
                               ? "bg-[#3d0a2b]/10 dark:bg-[#3d0a2b]/30 text-[#5c0d40] dark:text-pink-300 border border-[#3d0a2b]/20 dark:border-[#5c0d40]/30"
                               : "bg-[#741052]/10 text-[#741052] dark:text-pink-300 border border-[#741052]/30"
                           }`}
                         >
-                          {delivered ? "DELIVERED" : "RECEIVED"}
+                          {cancelled ? "CANCELLED" : delivered ? "DELIVERED" : "RECEIVED"}
                         </Badge>
                       </td>
                       <td className="py-3.5 px-4 text-right">
-                        {!delivered ? (
-                          <button
-                            type="button"
-                            onClick={() => setOrderStatus(order.orderNumber, "Delivered")}
-                            className="px-3 py-1.5 bg-[#741052] hover:bg-[#5c0d40] text-white font-black text-xs rounded-xl shadow-sm"
-                          >
-                            ✓ Deliver
-                          </button>
+                        {active ? (
+                          <div className="flex items-center justify-end gap-1.5">
+                            <button
+                              type="button"
+                              onClick={() => setOrderStatus(order.orderNumber, "Delivered")}
+                              className="px-3 py-1.5 bg-[#741052] hover:bg-[#5c0d40] text-white font-black text-xs rounded-xl shadow-sm cursor-pointer"
+                            >
+                              ✓ Deliver
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => setOrderStatus(order.orderNumber, "Cancelled")}
+                              className="px-2 py-1.5 text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 border border-rose-200 dark:border-rose-900/40 font-bold text-xs rounded-xl cursor-pointer"
+                              title="Cancel Order"
+                            >
+                              ✕ Cancel
+                            </button>
+                          </div>
+                        ) : delivered ? (
+                          <div className="flex items-center justify-end gap-1.5">
+                            <button
+                              type="button"
+                              onClick={() => setOrderStatus(order.orderNumber, "Received")}
+                              className="px-2.5 py-1 bg-[#741052]/10 dark:bg-[#741052]/20 hover:bg-[#741052]/20 text-[#741052] dark:text-pink-300 border border-[#741052]/20 font-bold text-xs rounded-lg cursor-pointer"
+                            >
+                              Undo
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => setOrderStatus(order.orderNumber, "Cancelled")}
+                              className="px-2 py-1 text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 border border-rose-200 dark:border-rose-900/40 font-bold text-xs rounded-lg cursor-pointer"
+                              title="Cancel Order"
+                            >
+                              Cancel
+                            </button>
+                          </div>
                         ) : (
                           <button
                             type="button"
                             onClick={() => setOrderStatus(order.orderNumber, "Received")}
-                            className="px-2.5 py-1 bg-[#741052]/10 dark:bg-[#741052]/20 hover:bg-[#741052]/20 text-[#741052] dark:text-pink-300 border border-[#741052]/20 font-bold text-xs rounded-lg"
+                            className="px-3 py-1.5 bg-[#741052] hover:bg-[#5c0d40] text-white font-bold text-xs rounded-xl shadow-sm cursor-pointer"
                           >
-                            Undo
+                            ↺ Restore
                           </button>
                         )}
                       </td>
@@ -1171,7 +1415,9 @@ const OrdersList: FC<OrdersListProps> = ({
               {/* Header */}
               <div
                 className={`p-5 text-white flex items-center justify-between ${
-                  isOrderDelivered(selectedOrder.status)
+                  isOrderCancelled(selectedOrder.status)
+                    ? "bg-gradient-to-r from-rose-700 to-red-900"
+                    : isOrderDelivered(selectedOrder.status)
                     ? "bg-gradient-to-r from-[#3d0a2b] to-[#5c0d40]"
                     : "bg-gradient-to-r from-[#741052] to-[#96156a]"
                 }`}
@@ -1193,7 +1439,7 @@ const OrdersList: FC<OrdersListProps> = ({
 
                 <button
                   onClick={closeDetail}
-                  className="p-2 rounded-full bg-white/20 hover:bg-white/30 text-white"
+                  className="p-2 rounded-full bg-white/20 hover:bg-white/30 text-white cursor-pointer"
                 >
                   <X className="h-5 w-5" />
                 </button>
@@ -1207,36 +1453,82 @@ const OrdersList: FC<OrdersListProps> = ({
                     <span className="text-neutral-400 font-bold block uppercase text-[10px]">
                       Current Order Status
                     </span>
-                    <span className="text-lg font-black text-neutral-900 dark:text-white">
-                      {isOrderDelivered(selectedOrder.status)
+                    <span className={`text-lg font-black ${
+                      isOrderCancelled(selectedOrder.status)
+                        ? "text-rose-600 dark:text-rose-400"
+                        : isOrderDelivered(selectedOrder.status)
+                        ? "text-[#5c0d40] dark:text-pink-300"
+                        : "text-[#741052] dark:text-pink-400"
+                    }`}>
+                      {isOrderCancelled(selectedOrder.status)
+                        ? "CANCELLED (VOIDED)"
+                        : isOrderDelivered(selectedOrder.status)
                         ? "DELIVERED ✓"
                         : "RECEIVED (PENDING)"}
                     </span>
                   </div>
 
-                  {!isOrderDelivered(selectedOrder.status) ? (
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setOrderStatus(selectedOrder.orderNumber, "Delivered");
-                        closeDetail();
-                      }}
-                      className="px-4 py-2 bg-[#741052] hover:bg-[#5c0d40] text-white font-black text-xs rounded-xl shadow-md"
-                    >
-                      ✓ Mark as Delivered
-                    </button>
-                  ) : (
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setOrderStatus(selectedOrder.orderNumber, "Received");
-                        closeDetail();
-                      }}
-                      className="px-3 py-1.5 bg-[#741052]/10 dark:bg-[#741052]/20 hover:bg-[#741052]/20 text-[#741052] dark:text-pink-300 border border-[#741052]/20 font-bold text-xs rounded-xl"
-                    >
-                      Move to Received
-                    </button>
-                  )}
+                  <div className="flex items-center gap-2">
+                    {isOrderActive(selectedOrder.status) ? (
+                      <>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setOrderStatus(selectedOrder.orderNumber, "Delivered");
+                            closeDetail();
+                          }}
+                          className="px-4 py-2 bg-[#741052] hover:bg-[#5c0d40] text-white font-black text-xs rounded-xl shadow-md cursor-pointer"
+                        >
+                          ✓ Mark as Delivered
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setOrderStatus(selectedOrder.orderNumber, "Cancelled");
+                            closeDetail();
+                          }}
+                          className="px-3 py-2 bg-rose-500/10 hover:bg-rose-500/20 text-rose-600 dark:text-rose-400 border border-rose-500/30 font-bold text-xs rounded-xl cursor-pointer"
+                        >
+                          ✕ Cancel Order
+                        </button>
+                      </>
+                    ) : isOrderDelivered(selectedOrder.status) ? (
+                      <>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setOrderStatus(selectedOrder.orderNumber, "Received");
+                            closeDetail();
+                          }}
+                          className="px-3 py-1.5 bg-[#741052]/10 dark:bg-[#741052]/20 hover:bg-[#741052]/20 text-[#741052] dark:text-pink-300 border border-[#741052]/20 font-bold text-xs rounded-xl cursor-pointer"
+                        >
+                          Move to Received
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setOrderStatus(selectedOrder.orderNumber, "Cancelled");
+                            closeDetail();
+                          }}
+                          className="px-3 py-1.5 bg-rose-500/10 hover:bg-rose-500/20 text-rose-600 dark:text-rose-400 border border-rose-500/30 font-bold text-xs rounded-xl cursor-pointer"
+                        >
+                          Cancel Order
+                        </button>
+                      </>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setOrderStatus(selectedOrder.orderNumber, "Received");
+                          closeDetail();
+                        }}
+                        className="px-4 py-2 bg-[#741052] hover:bg-[#5c0d40] text-white font-black text-xs rounded-xl shadow-md cursor-pointer flex items-center gap-1.5"
+                      >
+                        <RotateCcw className="h-3.5 w-3.5" />
+                        <span>Restore to Received</span>
+                      </button>
+                    )}
+                  </div>
                 </div>
 
                 {/* Customer details */}
@@ -1313,7 +1605,7 @@ const OrdersList: FC<OrdersListProps> = ({
 
                   <div className="pt-3 border-t-2 border-dashed flex justify-between items-center text-sm font-black text-neutral-900 dark:text-white">
                     <span>Total ({selectedOrder.paymentMethod?.toUpperCase()})</span>
-                    <span className="text-lg text-[#741052] dark:text-pink-400">
+                    <span className={`text-lg ${isOrderCancelled(selectedOrder.status) ? "text-rose-600 dark:text-rose-400 line-through opacity-80" : "text-[#741052] dark:text-pink-400"}`}>
                       {formatPrice(selectedOrder.totalAmount)}
                     </span>
                   </div>
@@ -1326,7 +1618,7 @@ const OrdersList: FC<OrdersListProps> = ({
                   onClick={() => downloadReceipt(selectedOrder)}
                   variant="outline"
                   size="sm"
-                  className="font-bold text-xs hover:border-[#741052]"
+                  className="font-bold text-xs hover:border-[#741052] cursor-pointer"
                 >
                   <Download className="h-4 w-4 mr-1" />
                   Download Receipt
@@ -1334,7 +1626,7 @@ const OrdersList: FC<OrdersListProps> = ({
 
                 <Button
                   onClick={closeDetail}
-                  className="bg-[#741052] hover:bg-[#5c0d40] text-white font-bold text-xs px-6"
+                  className="bg-[#741052] hover:bg-[#5c0d40] text-white font-bold text-xs px-6 cursor-pointer"
                 >
                   Close
                 </Button>
