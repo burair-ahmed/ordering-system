@@ -70,6 +70,7 @@ const ordersHandler = async (req: NextApiRequest, res: NextApiResponse) => {
       ordertype,
       area,
       phone,
+      orderSource,
     } = req.body;
 
     const missingFields: string[] = [];
@@ -127,6 +128,21 @@ const ordersHandler = async (req: NextApiRequest, res: NextApiResponse) => {
               )
             : [],
         })),
+        orderSource: orderSource ? {
+          source: orderSource.source || "direct",
+          medium: orderSource.medium || null,
+          campaign: orderSource.campaign || null,
+          content: orderSource.content || null,
+          term: orderSource.term || null,
+          referrer: orderSource.referrer || null,
+          landingPage: orderSource.landingPage || null,
+          label: orderSource.label || "Direct / Organic",
+          capturedAt: orderSource.capturedAt ? new Date(orderSource.capturedAt) : new Date(),
+        } : {
+          source: "direct",
+          label: "Direct / Organic",
+          capturedAt: new Date(),
+        },
         totalAmount,
         status: status || "Received",
         createdAt: new Date(),

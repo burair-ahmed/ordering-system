@@ -15,6 +15,7 @@ import { MetaPixelProvider } from "./providers/MetaPixelProvider";
 import dynamic from "next/dynamic";
 import RestaurantStatusPopup from "./components/RestaurantStatusPopup";
 import WhatsAppButton from "./components/WhatsAppButton";
+import OrderSourceCapture from "./components/OrderSourceCapture";
 
 const MaintenanceScreen = dynamic(() => import("./components/MaintenanceScreen"));
 
@@ -79,6 +80,7 @@ export default function RootLayout({
           <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GOOGLE_ANALYTICS_ID || ""} />
           <ClarityProvider />
           <MetaPixelProvider />
+          <OrderSourceCapture />
           </div>
         )}
       </body>

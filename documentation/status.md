@@ -6,8 +6,8 @@ tags:
   - #project/ordering-ecosystem
 created: 2026-09-04
 last_updated: 2026-09-23
-overall_completion: "Phase 4.41: Live Orders Cancel Order Section for Cafe Little Karachi (100%)"
-current_sprint: "Admin Dashboard UX: Cancel Order Section and Void Management in Live Orders"
+overall_completion: "Phase 4.42: Order Sources & Marketing Attribution for Cafe Little Karachi (100%)"
+current_sprint: "Admin Dashboard: Order Sources Attribution Tab, UTM Tracking, and Microsoft Clarity Session Tagging"
 ---
 
 # Project Status Dashboard — Advanced Ordering Ecosystem
@@ -16,8 +16,20 @@ current_sprint: "Admin Dashboard UX: Cancel Order Section and Void Management in
 
 | Sub-Project | Phase | Focus | Status |
 | :--- | :--- | :--- | :--- |
-| **Cafe Little Karachi (CLK)** | Phase 4.41 | Live Orders Cancel Order Section | **Completed** 🟢 |
+| **Cafe Little Karachi (CLK)** | Phase 4.42 | Order Sources & Marketing Attribution | **Completed** 🟢 |
 | **The Chai Company (TCC)** | Phase 4.32 | Centered Modern Tea Lounge Footer | **Completed** 🟢 |
+
+---
+
+## Phase 4.42 Completion Summary — Order Sources & Marketing Attribution
+
+- [x] **Attribution Engine (`src/app/lib/orderSource.ts`)**: Built UTM parameter parsing and attribution engine capturing `utm_source`, `utm_medium`, `utm_campaign`, `utm_content`, `utm_term`, landing page, and external referrer with sessionStorage persistence and Microsoft Clarity session metadata tagging (`order_source`, `campaign`, `utm_medium`).
+- [x] **Universal Visitor Capture (`OrderSourceCapture.tsx`, `layout.tsx`)**: Mounted invisible capture client component in RootLayout ensuring attribution is captured immediately upon customer landing on any page.
+- [x] **Database Schema & Persistence (`Order.ts`, `orders.ts`)**: Added `orderSource` subdocument to Mongoose schema with fallback defaults; updated order creation POST API to persist attribution payload.
+- [x] **Checkout Integration (`checkout/page.tsx`)**: Injected `orderSource: getOrderSource()` into order submission payload.
+- [x] **Attribution Analytics API (`/api/order-source-analytics`)**: Built aggregation endpoint supporting time ranges (`today`, `7d`, `30d`, `90d`, `all`), calculating total orders, revenue, paid ads vs organic metrics, top converting channels, campaign breakdowns, and daily timeline trends.
+- [x] **Order Sources Admin Dashboard Tab (`OrderSourceAnalytics.tsx`, `admin/page.tsx`)**: Created dedicated "Order Sources" tab with 4 summary KPI cards, channel share breakdown with color-coded badges, active ad campaigns table, daily orders bar chart, campaign UTM link generator tool, and recent orders attribution feed.
+- [x] **Live Orders Source Badges (`OrdersList.tsx`)**: Rendered source badges (e.g. `Facebook Ads`, `Instagram Ads`, `Google Ads`) directly on live order cards across Grid and Kanban views.
 
 ---
 

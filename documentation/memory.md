@@ -8,6 +8,41 @@ created: 2026-09-04
 last_updated: 2026-09-23
 ---
 
+## 0. Phase 4.42 Micro-Change — CLK Order Sources & Marketing Attribution (2026-09-23)
+
+### Marketing Order Attribution, Ad Source Tracking & Microsoft Clarity Tagging
+- **Files**:
+  - `cafe-little-karachi/src/app/lib/orderSource.ts` (NEW)
+  - `cafe-little-karachi/src/app/components/OrderSourceCapture.tsx` (NEW)
+  - `cafe-little-karachi/src/app/layout.tsx` (UPDATED)
+  - `cafe-little-karachi/src/models/Order.ts` (UPDATED)
+  - `cafe-little-karachi/src/pages/api/orders.ts` (UPDATED)
+  - `cafe-little-karachi/src/app/checkout/page.tsx` (UPDATED)
+  - `cafe-little-karachi/src/pages/api/order-source-analytics.ts` (NEW)
+  - `cafe-little-karachi/src/app/components/OrderSourceAnalytics.tsx` (NEW)
+  - `cafe-little-karachi/src/app/admin/page.tsx` (UPDATED)
+  - `cafe-little-karachi/src/app/components/OrdersList.tsx` (UPDATED)
+- **Context & Goal**: Administrators and marketers running social media ads (Facebook Ads, Instagram Ads, TikTok, Google, etc.) needed visibility into where orders originate, which campaigns generate the highest conversion rates and revenue, and wanted Clarity session recordings segmented by ad source.
+- **Changes Applied**:
+  - **Attribution Capture Engine (`src/app/lib/orderSource.ts`)**: Implemented `captureOrderSource()`, `getOrderSource()`, and `resolveSourceLabel()`. Parses `utm_source`, `utm_medium`, `utm_campaign`, `utm_content`, `utm_term`, landing path, and `document.referrer`. Saves to `sessionStorage` (`clk_order_source`) to prevent cross-session contamination. Tags Microsoft Clarity with `clarity('set', 'order_source', label)` and `clarity('set', 'campaign', name)`.
+  - **Capture Client Component (`OrderSourceCapture.tsx`)**: Created `'use client'` invisible component invoking `captureOrderSource()` on mount.
+  - **Root Layout (`layout.tsx`)**: Mounted `<OrderSourceCapture />` inside RootLayout alongside `ClarityProvider` and `MetaPixelProvider`.
+  - **Order Model Schema (`src/models/Order.ts`)**: Added `orderSource` subdocument with `source`, `medium`, `campaign`, `content`, `term`, `referrer`, `landingPage`, `label` (defaults to `"Direct / Organic"`), and `capturedAt`.
+  - **Orders API Handler (`src/pages/api/orders.ts`)**: Destructures `orderSource` from `req.body` and stores it on the newly created MongoDB order document.
+  - **Checkout Submission (`checkout/page.tsx`)**: Injected `orderSource: getOrderSource()` into the `newOrder` payload sent to `/api/orders`.
+  - **Analytics API (`src/pages/api/order-source-analytics.ts`)**: Implemented GET endpoint with date filtering (`today`, `7d`, `30d`, `90d`, `all`). Aggregates total orders, total revenue, average order value, paid ads vs direct/organic breakdown, active campaign metrics, daily timelines, and recent order feeds.
+  - **Admin Tab Component (`OrderSourceAnalytics.tsx`)**: Created comprehensive dashboard with:
+    - 4 KPI summary cards (Total Orders, Paid Ads Revenue & Share %, Organic Orders & AOV, Top Converting Channel).
+    - Channel Breakdown progress bars with color-coded badges for Facebook (blue), Instagram (pink/purple), Google (amber/emerald), TikTok (cyan), WhatsApp (emerald), and Direct/Organic (slate).
+    - Recharts Daily Attributed Orders timeline bar chart.
+    - Active Ad Campaigns performance table.
+    - Interactive Campaign UTM URL Builder tool for the marketing team.
+    - Recent attributed orders feed.
+  - **Admin Workspace Integration (`admin/page.tsx`)**: Added `Megaphone` icon import, updated `TabKey` union and `TABS` array with `{ key: 'orderSources', label: 'Order Sources', icon: Megaphone }`, and added the active tab render block.
+  - **Live Orders Source Badges (`OrdersList.tsx`)**: Updated `Order` interface with optional `orderSource` field, and displayed source badges on order cards in Grid and Kanban views for instant recognition.
+
+---
+
 ## 0. Phase 4.41 Micro-Change — CLK Live Orders Cancel Order Section (2026-09-23)
 
 ### Cancel Order Section & Void Management in Live Orders Tab

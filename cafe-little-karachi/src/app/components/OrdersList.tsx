@@ -39,6 +39,7 @@ import {
   ArrowUpRight,
   Ban,
   XCircle,
+  Megaphone,
 } from "lucide-react";
 import Preloader from "../components/Preloader";
 import { Button } from "@/components/ui/button";
@@ -67,6 +68,12 @@ interface Order {
   items: Item[];
   totalAmount: number;
   createdAt: string;
+  orderSource?: {
+    source?: string;
+    medium?: string;
+    campaign?: string;
+    label?: string;
+  };
 }
 
 interface FeedbackEntry {
@@ -808,22 +815,27 @@ const OrdersList: FC<OrdersListProps> = ({
                         </div>
                       </div>
 
-                      {/* Location Chip */}
-                      {(order.tableNumber || order.area) && (
-                        <div className="mt-2 text-xs font-bold text-neutral-700 dark:text-neutral-300 flex items-center gap-1.5">
-                          {order.ordertype === "dinein" && order.tableNumber && (
-                            <span className="px-2.5 py-1 bg-[#741052] text-white rounded-lg font-black text-xs">
-                              Table #{order.tableNumber}
-                            </span>
-                          )}
-                          {order.ordertype === "delivery" && order.area && (
-                            <span className="px-2.5 py-1 bg-[#741052]/10 text-[#741052] dark:text-pink-300 rounded-lg font-black text-xs flex items-center gap-1 border border-[#741052]/20">
-                              <MapPin className="h-3.5 w-3.5" />
-                              {order.area}
-                            </span>
-                          )}
-                        </div>
-                      )}
+                      {/* Location Chip & Order Source Tag */}
+                      <div className="mt-2 flex flex-wrap items-center gap-1.5">
+                        {order.ordertype === "dinein" && order.tableNumber && (
+                          <span className="px-2.5 py-1 bg-[#741052] text-white rounded-lg font-black text-xs">
+                            Table #{order.tableNumber}
+                          </span>
+                        )}
+                        {order.ordertype === "delivery" && order.area && (
+                          <span className="px-2.5 py-1 bg-[#741052]/10 text-[#741052] dark:text-pink-300 rounded-lg font-black text-xs flex items-center gap-1 border border-[#741052]/20">
+                            <MapPin className="h-3.5 w-3.5" />
+                            {order.area}
+                          </span>
+                        )}
+                        {order.orderSource?.label && order.orderSource.label !== "Direct / Organic" && (
+                          <span className="px-2.5 py-1 bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20 rounded-lg font-black text-[11px] flex items-center gap-1">
+                            <Megaphone className="h-3 w-3" />
+                            {order.orderSource.label}
+                            {order.orderSource.campaign ? ` (${order.orderSource.campaign})` : ''}
+                          </span>
+                        )}
+                      </div>
                     </div>
 
                     {/* Customer Info & 1-Click WhatsApp / Call Buttons */}
@@ -1065,6 +1077,15 @@ const OrdersList: FC<OrdersListProps> = ({
                         {order.tableNumber ? `· Table #${order.tableNumber}` : ""}{" "}
                         {order.area ? `· ${order.area}` : ""}
                       </p>
+                      {order.orderSource?.label && order.orderSource.label !== "Direct / Organic" && (
+                        <div className="mt-1">
+                          <span className="px-2 py-0.5 bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20 rounded-md font-bold text-[10px] inline-flex items-center gap-1">
+                            <Megaphone className="h-2.5 w-2.5" />
+                            {order.orderSource.label}
+                            {order.orderSource.campaign ? ` (${order.orderSource.campaign})` : ''}
+                          </span>
+                        </div>
+                      )}
                     </div>
 
                     <div className="text-xs bg-neutral-50 dark:bg-neutral-900/60 p-2.5 rounded-xl font-medium">

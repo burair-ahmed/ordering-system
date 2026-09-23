@@ -21,6 +21,7 @@ import {
   Image as ImageIcon,
   ArrowUpDown,
   Flame,
+  Megaphone,
 } from 'lucide-react';
 
 import OrdersList from '../components/OrdersList';
@@ -39,6 +40,7 @@ import AdminAuthDialog from '../components/AdminAuthDialog';
 import MenuManagement from '../components/MenuManagement';
 import PlatterManagement from '../components/PlatterManagement';
 import BehavioralAnalytics from '../components/BehavioralAnalytics';
+import OrderSourceAnalytics from '../components/OrderSourceAnalytics';
 import AdminPageBuilder from '../components/AdminPageBuilder';
 import AdminHeader from '../components/AdminHeader';
 import MediaGallery from '../components/MediaGallery';
@@ -114,6 +116,7 @@ type TabKey =
   | 'tables'
   | 'completedOrders'
   | 'analytics'
+  | 'orderSources'
   | 'behavioral'
   | 'layoutBuilder'
   | 'itemSorting'
@@ -132,6 +135,7 @@ const TABS: { key: TabKey; label: string; icon: any }[] = [
   { key: 'tables', label: 'Dine-in Tables', icon: Table2 },
   { key: 'completedOrders', label: 'Completed Orders', icon: Archive },
   { key: 'analytics', label: 'Analytics Panel', icon: BarChart3 },
+  { key: 'orderSources', label: 'Order Sources', icon: Megaphone },
   { key: 'behavioral', label: 'Behavioral Insights', icon: Activity },
   { key: 'layoutBuilder', label: 'Order Page CMS', icon: LayoutDashboard },
   { key: 'itemSorting', label: 'Item Order Sorting', icon: ArrowUpDown },
@@ -481,6 +485,11 @@ const AdminDashboard: FC = () => {
                   <AnalyticsPage />
                 </CardContent>
               </Card>
+            )}
+
+            {/* Order Sources & Marketing Attribution */}
+            {activeTab === 'orderSources' && (
+              <OrderSourceAnalytics />
             )}
 
             {/* Behavioral analytics */}

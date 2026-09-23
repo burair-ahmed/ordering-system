@@ -40,6 +40,7 @@ import {
 } from "lucide-react";
 import { trackEvent, trackClarityFunnelStep, CLK_FUNNEL_CHECKOUT_STARTED } from "../lib/analytics";
 import { clarityUpgrade } from "../providers/ClarityProvider";
+import { getOrderSource } from "../lib/orderSource";
 import { isOpenAt } from "../lib/restaurantStatus";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -512,6 +513,7 @@ const CheckoutPageContent: FC = () => {
       })),
       totalAmount: finalAmount,
       status: "Received",
+      orderSource: getOrderSource(),
     };
 
     trackEvent('journey_order_placed', {
