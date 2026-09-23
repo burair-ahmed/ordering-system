@@ -8,6 +8,32 @@ created: 2026-09-04
 last_updated: 2026-09-23
 ---
 
+## 0. Phase 4.43 Micro-Change — CLK Direct Link Frictionless Add-to-Cart & Deferred Checkout Location Selection (2026-09-23)
+
+### Direct Product Link Ad Campaign UX Optimization
+- **Files**:
+  - `cafe-little-karachi/src/app/context/OrderContext.tsx` (UPDATED)
+  - `cafe-little-karachi/src/app/layout.tsx` (UPDATED)
+  - `cafe-little-karachi/src/app/components/MenuItem.tsx` (UPDATED)
+  - `cafe-little-karachi/src/app/components/PlatterItem.tsx` (UPDATED)
+  - `cafe-little-karachi/src/app/checkout/page.tsx` (UPDATED)
+  - `cafe-little-karachi/src/app/platter/[slug]/page.tsx` (UPDATED)
+- **Context & Goal**: Customers arriving via Facebook/Instagram/TikTok ad direct product links (`/item/[slug]`, `/platter/[slug]`) were abandoning immediately because clicking "Add to Cart" triggered the "Select Order Mode" popup before they had a chance to explore the menu. Goal: suppress the popup during browsing; defer it to checkout only.
+- **Changes Applied**:
+  - **`OrderContext.tsx`**: Added `isDirectLinkCustomer` boolean state. On mount, detects if the entry path is `/item/*` or `/platter/*` (or `sessionStorage.clk_direct_product_entry === 'true'`). When `isDirectEntry` is true, keeps `isLocationModalOpen: false` instead of auto-opening. Exposes `isDirectLinkCustomer` in context value.
+  - **`layout.tsx`**: Mounted `<TableForm />` globally inside `<OrderProvider>` (inside `<CartProvider>`). This ensures the single modal instance is available on all routes including `/checkout`, `/item/*`, `/platter/*` without per-route duplicates.
+  - **`MenuItem.tsx`**: Removed `isLocationSet` and `setLocationModalOpen` from `useOrder()` destructure. `handleAddRequest` and `closeModal` no longer call `setLocationModalOpen(true)` — items are added instantly without popup interruption.
+  - **`PlatterItem.tsx`**: Same cleanup — removed `isLocationSet` and `setLocationModalOpen`. `handleAddRequest` adds to cart immediately via `performCartAdd()` without location check.
+  - **`checkout/page.tsx`**:
+    - Added `isLocationSet` and `setLocationModalOpen` to `useOrder()` destructure.
+    - Added `useEffect` on mount: if `!isLocationSet`, triggers `setLocationModalOpen(true)` after 300 ms delay for smooth UX.
+    - Added **Order Mode Switcher card** at the top of the form section: shows current mode icon + label + "Change" button when location is set; shows amber pulsing "Select Your Order Mode" CTA when not set.
+    - Added `!isLocationSet` guard at the top of `handleCheckout` — opens modal and blocks submission if mode not selected.
+  - **`platter/[slug]/page.tsx`**: Removed duplicate `<TableForm />` import and render (now handled globally in `layout.tsx`).
+- **Rationale**: Separates browsing from commitment. Direct-link ad customers are high-intent but can be easily spooked by premature friction. Deferring location to checkout ensures they first explore, fall in love with the menu, and commit — then the single focused prompt at checkout converts them.
+
+---
+
 ## 0. Phase 4.42 Micro-Change — CLK Order Sources & Marketing Attribution (2026-09-23)
 
 ### Marketing Order Attribution, Ad Source Tracking & Microsoft Clarity Tagging

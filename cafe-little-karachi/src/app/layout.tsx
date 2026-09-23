@@ -16,6 +16,7 @@ import dynamic from "next/dynamic";
 import RestaurantStatusPopup from "./components/RestaurantStatusPopup";
 import WhatsAppButton from "./components/WhatsAppButton";
 import OrderSourceCapture from "./components/OrderSourceCapture";
+import TableForm from "./components/TableForm";
 
 const MaintenanceScreen = dynamic(() => import("./components/MaintenanceScreen"));
 
@@ -66,6 +67,7 @@ export default function RootLayout({
                 <OrderProvider>
                   <CartProvider>
                     <RestaurantStatusPopup />
+                    <TableForm />
                     <Header />
                     <main className="flex-grow">
                       {children}

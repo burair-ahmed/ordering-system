@@ -6,8 +6,8 @@ tags:
   - #project/ordering-ecosystem
 created: 2026-09-04
 last_updated: 2026-09-23
-overall_completion: "Phase 4.42: Order Sources & Marketing Attribution for Cafe Little Karachi (100%)"
-current_sprint: "Admin Dashboard: Order Sources Attribution Tab, UTM Tracking, and Microsoft Clarity Session Tagging"
+overall_completion: "Phase 4.43: Direct Link Frictionless Add-to-Cart & Deferred Checkout Location (100%)"
+current_sprint: "CLK Ad Campaign Conversion Funnel UX: Suppress location popup on browsing, defer to checkout"
 ---
 
 # Project Status Dashboard — Advanced Ordering Ecosystem
@@ -16,12 +16,21 @@ current_sprint: "Admin Dashboard: Order Sources Attribution Tab, UTM Tracking, a
 
 | Sub-Project | Phase | Focus | Status |
 | :--- | :--- | :--- | :--- |
-| **Cafe Little Karachi (CLK)** | Phase 4.42 | Order Sources & Marketing Attribution | **Completed** 🟢 |
+| **Cafe Little Karachi (CLK)** | Phase 4.43 | Direct Link Frictionless Add-to-Cart & Deferred Checkout Location | **Completed** 🟢 |
 | **The Chai Company (TCC)** | Phase 4.32 | Centered Modern Tea Lounge Footer | **Completed** 🟢 |
 
 ---
 
-## Phase 4.42 Completion Summary — Order Sources & Marketing Attribution
+## Phase 4.43 Completion Summary — Direct Link Frictionless Add-to-Cart & Deferred Checkout Location Selection
+
+- [x] **`OrderContext.tsx`**: Added `isDirectLinkCustomer` detection via pathname (`/item/*`, `/platter/*`) and `sessionStorage`. Suppresses auto-open of `isLocationModalOpen` for direct-link visits. Exposes `isDirectLinkCustomer` in context.
+- [x] **`layout.tsx`**: Mounted `<TableForm />` globally inside `<OrderProvider>/<CartProvider>` so the single modal is accessible on all routes without per-route duplicates.
+- [x] **`MenuItem.tsx`**: Removed `isLocationSet` and `setLocationModalOpen` from `useOrder()` destructure. Add-to-cart is now instant with no location check popup.
+- [x] **`PlatterItem.tsx`**: Same cleanup — platter add-to-cart is now instant via `performCartAdd()` without location check popup.
+- [x] **`checkout/page.tsx`**: Added deferred location modal trigger (`useEffect` → `setLocationModalOpen(true)` at 300 ms if `!isLocationSet`). Added Order Mode Switcher card at top of form (confirmed mode shows mode icon + "Change" button; unset mode shows amber pulsing CTA). Added `!isLocationSet` guard in `handleCheckout` that reopens modal and blocks order submission.
+- [x] **`platter/[slug]/page.tsx`**: Removed duplicate `<TableForm />` render (now globally in `layout.tsx`).
+
+---
 
 - [x] **Attribution Engine (`src/app/lib/orderSource.ts`)**: Built UTM parameter parsing and attribution engine capturing `utm_source`, `utm_medium`, `utm_campaign`, `utm_content`, `utm_term`, landing page, and external referrer with sessionStorage persistence and Microsoft Clarity session metadata tagging (`order_source`, `campaign`, `utm_medium`).
 - [x] **Universal Visitor Capture (`OrderSourceCapture.tsx`, `layout.tsx`)**: Mounted invisible capture client component in RootLayout ensuring attribution is captured immediately upon customer landing on any page.

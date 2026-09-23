@@ -23,6 +23,7 @@ interface OrderState {
   isCheckoutModalOpen?: boolean;
   isLocationModalOpen?: boolean;
   isStatusModalOpen?: boolean;
+  isDirectLinkCustomer?: boolean;
 }
 
 interface OrderContextValue extends OrderState {
@@ -32,6 +33,7 @@ interface OrderContextValue extends OrderState {
   setLocationModalOpen: (isOpen: boolean) => void;
   setStatusModalOpen: (isOpen: boolean) => void;
   isLocationSet: boolean;
+  isDirectLinkCustomer: boolean;
 }
 
 // ─── Cookie Helpers ───────────────────────────────────────────────────────────
@@ -115,8 +117,25 @@ export function OrderProvider({ children }: { children: ReactNode }) {
     isLocationModalOpen: false,
   });
 
+  const [isDirectLinkCustomer, setIsDirectLinkCustomer] = useState(false);
+
   // ── 1. Load persisted state on mount ──────────────────────────────────────
   useEffect(() => {
+    // Detect direct product link entry (/item/* or /platter/* or stored in session)
+    let isDirectEntry = false;
+    if (typeof window !== "undefined") {
+      const path = window.location.pathname;
+      const isProductPath = path.startsWith("/item/") || path.startsWith("/platter/");
+      const storedDirect = sessionStorage.getItem("clk_direct_product_entry") === "true";
+      isDirectEntry = isProductPath || storedDirect;
+      if (isProductPath) {
+        try {
+          sessionStorage.setItem("clk_direct_product_entry", "true");
+        } catch {}
+      }
+      setIsDirectLinkCustomer(isDirectEntry);
+    }
+
     const persisted = loadPersistedOrder();
     if (persisted) {
       setOrderState((prev) => ({
@@ -125,15 +144,12 @@ export function OrderProvider({ children }: { children: ReactNode }) {
         isLocationModalOpen: false,
       }));
     } else {
-      // On product entrypoint URLs (/platter/* or /item/*), suppress the auto-open
-      // so the product modal is not blocked. PlatterItem/MenuItem will trigger it
-      // at the right moment (on Add to Cart click, or when the product modal is closed).
-      const suppressPaths = ['/platter/', '/item/'];
-      const currentPath = typeof window !== 'undefined' ? window.location.pathname : '';
-      const shouldSuppress = suppressPaths.some((p) => currentPath.startsWith(p));
+      // On product entrypoint URLs (/platter/* or /item/*) or direct link visits,
+      // suppress the auto-open so the product modal is not blocked and customer
+      // can freely browse the menu without location interruption.
       setOrderState((prev) => ({
         ...prev,
-        isLocationModalOpen: !shouldSuppress,
+        isLocationModalOpen: !isDirectEntry,
       }));
     }
   }, []);
@@ -225,8 +241,9 @@ export function OrderProvider({ children }: { children: ReactNode }) {
       setLocationModalOpen,
       setStatusModalOpen,
       isLocationSet,
+      isDirectLinkCustomer,
     }),
-    [order, setOrder, clearOrder, setCheckoutModalOpen, setLocationModalOpen, setStatusModalOpen, isLocationSet]
+    [order, setOrder, clearOrder, setCheckoutModalOpen, setLocationModalOpen, setStatusModalOpen, isLocationSet, isDirectLinkCustomer]
   );
 
   return (
@@ -244,6 +261,7 @@ const defaultOrderContext: OrderContextValue = {
   setLocationModalOpen: () => {},
   setStatusModalOpen: () => {},
   isLocationSet: false,
+  isDirectLinkCustomer: false,
 };
 
 export function useOrder() {

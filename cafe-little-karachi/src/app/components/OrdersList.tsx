@@ -226,10 +226,10 @@ const OrdersList: FC<OrdersListProps> = ({
         const newOrders: Order[] = Array.isArray(data)
           ? data
           : Array.isArray(data?.orders)
-          ? data.orders
-          : Array.isArray(data?.data)
-          ? data.data
-          : [];
+            ? data.orders
+            : Array.isArray(data?.data)
+              ? data.data
+              : [];
 
         const previousOrders = previousOrdersRef.current;
         const isNewOrder =
@@ -423,8 +423,8 @@ const OrdersList: FC<OrdersListProps> = ({
     const statusLabel = isCancelled
       ? "CANCELLED"
       : isDelivered
-      ? "DELIVERED"
-      : "RECEIVED";
+        ? "DELIVERED"
+        : "RECEIVED";
 
     const lines = [
       `========================================`,
@@ -446,12 +446,11 @@ const OrdersList: FC<OrdersListProps> = ({
       ...order.items.map((it, idx) => {
         const variations = it.variations
           ? ` (${it.variations
-              .map((v) => (typeof v === "string" ? v : `${v.name}: ${v.value}`))
-              .join(", ")})`
+            .map((v) => (typeof v === "string" ? v : `${v.name}: ${v.value}`))
+            .join(", ")})`
           : "";
-        return `${idx + 1}. [${it.quantity}x] ${it.title}${variations} - Rs. ${
-          it.price * it.quantity
-        }`;
+        return `${idx + 1}. [${it.quantity}x] ${it.title}${variations} - Rs. ${it.price * it.quantity
+          }`;
       }),
       `----------------------------------------`,
       `TOTAL AMOUNT:   Rs. ${order.totalAmount}`,
@@ -481,11 +480,10 @@ const OrdersList: FC<OrdersListProps> = ({
         <button
           type="button"
           onClick={() => setStatusFilter("received")}
-          className={`flex items-center justify-between p-4 sm:p-5 rounded-2xl sm:rounded-3xl border-2 transition-all text-left shadow-sm cursor-pointer ${
-            statusFilter === "received"
+          className={`flex items-center justify-between p-4 sm:p-5 rounded-2xl sm:rounded-3xl border-2 transition-all text-left shadow-sm cursor-pointer ${statusFilter === "received"
               ? "bg-[#741052]/10 dark:bg-[#741052]/25 border-[#741052] ring-4 ring-[#741052]/20 shadow-[0_4px_24px_rgba(116,16,82,0.18)]"
               : "bg-white dark:bg-neutral-900 border-neutral-200/90 dark:border-neutral-800 hover:border-[#741052]/50"
-          }`}
+            }`}
         >
           <div className="flex items-center gap-3.5">
             <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-[#741052] to-[#96156a] text-white flex items-center justify-center font-black text-xl shadow-md shrink-0">
@@ -514,11 +512,10 @@ const OrdersList: FC<OrdersListProps> = ({
         <button
           type="button"
           onClick={() => setStatusFilter("delivered")}
-          className={`flex items-center justify-between p-4 sm:p-5 rounded-2xl sm:rounded-3xl border-2 transition-all text-left shadow-sm cursor-pointer ${
-            statusFilter === "delivered"
+          className={`flex items-center justify-between p-4 sm:p-5 rounded-2xl sm:rounded-3xl border-2 transition-all text-left shadow-sm cursor-pointer ${statusFilter === "delivered"
               ? "bg-[#3d0a2b]/10 dark:bg-[#3d0a2b]/50 border-[#3d0a2b] dark:border-[#741052]/60 ring-4 ring-[#3d0a2b]/15 shadow-[0_4px_24px_rgba(61,10,43,0.15)]"
               : "bg-white dark:bg-neutral-900 border-neutral-200/90 dark:border-neutral-800 hover:border-[#3d0a2b]/40"
-          }`}
+            }`}
         >
           <div className="flex items-center gap-3.5">
             <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-[#3d0a2b] to-[#5c0d40] text-white flex items-center justify-center font-black text-xl shadow-md shrink-0">
@@ -547,11 +544,10 @@ const OrdersList: FC<OrdersListProps> = ({
         <button
           type="button"
           onClick={() => setStatusFilter("cancelled")}
-          className={`flex items-center justify-between p-4 sm:p-5 rounded-2xl sm:rounded-3xl border-2 transition-all text-left shadow-sm cursor-pointer ${
-            statusFilter === "cancelled"
+          className={`flex items-center justify-between p-4 sm:p-5 rounded-2xl sm:rounded-3xl border-2 transition-all text-left shadow-sm cursor-pointer ${statusFilter === "cancelled"
               ? "bg-rose-500/10 dark:bg-rose-950/40 border-rose-600 dark:border-rose-500 ring-4 ring-rose-500/20 shadow-[0_4px_24px_rgba(225,29,72,0.18)]"
               : "bg-white dark:bg-neutral-900 border-neutral-200/90 dark:border-neutral-800 hover:border-rose-500/40"
-          }`}
+            }`}
         >
           <div className="flex items-center gap-3.5">
             <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-rose-600 to-red-700 text-white flex items-center justify-center font-black text-xl shadow-md shrink-0">
@@ -580,11 +576,10 @@ const OrdersList: FC<OrdersListProps> = ({
         <button
           type="button"
           onClick={() => setStatusFilter("all")}
-          className={`flex items-center justify-between p-4 sm:p-5 rounded-2xl sm:rounded-3xl border-2 transition-all text-left shadow-sm cursor-pointer ${
-            statusFilter === "all"
+          className={`flex items-center justify-between p-4 sm:p-5 rounded-2xl sm:rounded-3xl border-2 transition-all text-left shadow-sm cursor-pointer ${statusFilter === "all"
               ? "bg-[#741052]/8 dark:bg-[#741052]/20 border-[#741052]/50 dark:border-[#741052]/50 ring-4 ring-[#741052]/10"
               : "bg-white dark:bg-neutral-900 border-neutral-200/90 dark:border-neutral-800 hover:border-[#741052]/30"
-          }`}
+            }`}
         >
           <div className="flex items-center gap-3.5">
             <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-[#741052]/80 to-[#3d0a2b] text-white flex items-center justify-center font-black text-xl shadow-md shrink-0">
@@ -644,9 +639,9 @@ const OrdersList: FC<OrdersListProps> = ({
             </SelectTrigger>
             <SelectContent className="rounded-xl">
               <SelectItem value="all">All Types</SelectItem>
-              <SelectItem value="dinein">🍽️ Dine-In</SelectItem>
-              <SelectItem value="delivery">🛵 Delivery</SelectItem>
-              <SelectItem value="pickup">🛍️ Pickup</SelectItem>
+              <SelectItem value="dinein">Dine-In</SelectItem>
+              <SelectItem value="delivery">Delivery</SelectItem>
+              <SelectItem value="pickup">Pickup</SelectItem>
             </SelectContent>
           </Select>
 
@@ -654,33 +649,30 @@ const OrdersList: FC<OrdersListProps> = ({
           <div className="inline-flex items-center bg-neutral-100 dark:bg-neutral-800/80 p-1 rounded-xl border border-neutral-200 dark:border-neutral-700">
             <button
               onClick={() => setViewMode("grid")}
-              className={`p-2 rounded-lg transition-all cursor-pointer ${
-                viewMode === "grid"
+              className={`p-2 rounded-lg transition-all cursor-pointer ${viewMode === "grid"
                   ? "bg-white dark:bg-neutral-700 text-[#741052] dark:text-pink-300 shadow-sm"
                   : "text-neutral-500"
-              }`}
+                }`}
               title="Grid Cards"
             >
               <LayoutGrid className="h-4 w-4" />
             </button>
             <button
               onClick={() => setViewMode("kanban")}
-              className={`p-2 rounded-lg transition-all cursor-pointer ${
-                viewMode === "kanban"
+              className={`p-2 rounded-lg transition-all cursor-pointer ${viewMode === "kanban"
                   ? "bg-white dark:bg-neutral-700 text-[#741052] dark:text-pink-300 shadow-sm"
                   : "text-neutral-500"
-              }`}
+                }`}
               title="3-Column Board"
             >
               <Kanban className="h-4 w-4" />
             </button>
             <button
               onClick={() => setViewMode("table")}
-              className={`p-2 rounded-lg transition-all cursor-pointer ${
-                viewMode === "table"
+              className={`p-2 rounded-lg transition-all cursor-pointer ${viewMode === "table"
                   ? "bg-white dark:bg-neutral-700 text-[#741052] dark:text-pink-300 shadow-sm"
                   : "text-neutral-500"
-              }`}
+                }`}
               title="List View"
             >
               <List className="h-4 w-4" />
@@ -713,17 +705,17 @@ const OrdersList: FC<OrdersListProps> = ({
             {statusFilter === "received"
               ? "All caught up! No pending orders right now."
               : statusFilter === "delivered"
-              ? "No delivered orders found in this view."
-              : statusFilter === "cancelled"
-              ? "No cancelled orders. All customer orders are active or fulfilled!"
-              : "No orders found."}
+                ? "No delivered orders found in this view."
+                : statusFilter === "cancelled"
+                  ? "No cancelled orders. All customer orders are active or fulfilled!"
+                  : "No orders found."}
           </h3>
           <p className="text-xs text-neutral-500 mt-1 max-w-sm">
             {statusFilter === "received"
               ? "When customers place orders, they will appear here in the RECEIVED queue."
               : statusFilter === "cancelled"
-              ? "Voided or cancelled orders will be archived here for your records."
-              : "Try switching filters to view other order queues."}
+                ? "Voided or cancelled orders will be archived here for your records."
+                : "Try switching filters to view other order queues."}
           </p>
         </div>
       ) : viewMode === "grid" ? (
@@ -748,23 +740,21 @@ const OrdersList: FC<OrdersListProps> = ({
                   initial={{ opacity: 0, scale: 0.97 }}
                   animate={{ opacity: 1, scale: 1 }}
                   exit={{ opacity: 0, scale: 0.95 }}
-                  className={`relative flex flex-col bg-white dark:bg-neutral-900 rounded-3xl border-2 shadow-sm transition-all overflow-hidden ${
-                    cancelled
+                  className={`relative flex flex-col bg-white dark:bg-neutral-900 rounded-3xl border-2 shadow-sm transition-all overflow-hidden ${cancelled
                       ? "border-rose-500/30 dark:border-rose-500/40 opacity-90"
                       : delivered
-                      ? "border-[#3d0a2b]/25 dark:border-[#5c0d40]/35 opacity-90"
-                      : "border-[#741052]/30 dark:border-[#741052]/40 shadow-[0_4px_20px_rgba(116,16,82,0.08)] ring-1 ring-[#741052]/10"
-                  }`}
+                        ? "border-[#3d0a2b]/25 dark:border-[#5c0d40]/35 opacity-90"
+                        : "border-[#741052]/30 dark:border-[#741052]/40 shadow-[0_4px_20px_rgba(116,16,82,0.08)] ring-1 ring-[#741052]/10"
+                    }`}
                 >
                   {/* Top Status Header Banner */}
                   <div
-                    className={`px-5 py-3 flex items-center justify-between text-white ${
-                      cancelled
+                    className={`px-5 py-3 flex items-center justify-between text-white ${cancelled
                         ? "bg-gradient-to-r from-rose-700 via-rose-800 to-red-900"
                         : delivered
-                        ? "bg-gradient-to-r from-[#3d0a2b] to-[#5c0d40]"
-                        : "bg-gradient-to-r from-[#741052] via-[#8d1664] to-[#a01a72]"
-                    }`}
+                          ? "bg-gradient-to-r from-[#3d0a2b] to-[#5c0d40]"
+                          : "bg-gradient-to-r from-[#741052] via-[#8d1664] to-[#a01a72]"
+                      }`}
                   >
                     <div className="flex items-center gap-2">
                       {cancelled ? (
@@ -1349,13 +1339,12 @@ const OrdersList: FC<OrdersListProps> = ({
                       </td>
                       <td className="py-3.5 px-4">
                         <Badge
-                          className={`font-black text-xs px-3 py-1 rounded-full ${
-                            cancelled
+                          className={`font-black text-xs px-3 py-1 rounded-full ${cancelled
                               ? "bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/30"
                               : delivered
-                              ? "bg-[#3d0a2b]/10 dark:bg-[#3d0a2b]/30 text-[#5c0d40] dark:text-pink-300 border border-[#3d0a2b]/20 dark:border-[#5c0d40]/30"
-                              : "bg-[#741052]/10 text-[#741052] dark:text-pink-300 border border-[#741052]/30"
-                          }`}
+                                ? "bg-[#3d0a2b]/10 dark:bg-[#3d0a2b]/30 text-[#5c0d40] dark:text-pink-300 border border-[#3d0a2b]/20 dark:border-[#5c0d40]/30"
+                                : "bg-[#741052]/10 text-[#741052] dark:text-pink-300 border border-[#741052]/30"
+                            }`}
                         >
                           {cancelled ? "CANCELLED" : delivered ? "DELIVERED" : "RECEIVED"}
                         </Badge>
@@ -1435,13 +1424,12 @@ const OrdersList: FC<OrdersListProps> = ({
             >
               {/* Header */}
               <div
-                className={`p-5 text-white flex items-center justify-between ${
-                  isOrderCancelled(selectedOrder.status)
+                className={`p-5 text-white flex items-center justify-between ${isOrderCancelled(selectedOrder.status)
                     ? "bg-gradient-to-r from-rose-700 to-red-900"
                     : isOrderDelivered(selectedOrder.status)
-                    ? "bg-gradient-to-r from-[#3d0a2b] to-[#5c0d40]"
-                    : "bg-gradient-to-r from-[#741052] to-[#96156a]"
-                }`}
+                      ? "bg-gradient-to-r from-[#3d0a2b] to-[#5c0d40]"
+                      : "bg-gradient-to-r from-[#741052] to-[#96156a]"
+                  }`}
               >
                 <div>
                   <span className="text-xs font-black uppercase tracking-wider block opacity-90">
@@ -1474,18 +1462,17 @@ const OrdersList: FC<OrdersListProps> = ({
                     <span className="text-neutral-400 font-bold block uppercase text-[10px]">
                       Current Order Status
                     </span>
-                    <span className={`text-lg font-black ${
-                      isOrderCancelled(selectedOrder.status)
+                    <span className={`text-lg font-black ${isOrderCancelled(selectedOrder.status)
                         ? "text-rose-600 dark:text-rose-400"
                         : isOrderDelivered(selectedOrder.status)
-                        ? "text-[#5c0d40] dark:text-pink-300"
-                        : "text-[#741052] dark:text-pink-400"
-                    }`}>
+                          ? "text-[#5c0d40] dark:text-pink-300"
+                          : "text-[#741052] dark:text-pink-400"
+                      }`}>
                       {isOrderCancelled(selectedOrder.status)
                         ? "CANCELLED (VOIDED)"
                         : isOrderDelivered(selectedOrder.status)
-                        ? "DELIVERED ✓"
-                        : "RECEIVED (PENDING)"}
+                          ? "DELIVERED ✓"
+                          : "RECEIVED (PENDING)"}
                     </span>
                   </div>
 

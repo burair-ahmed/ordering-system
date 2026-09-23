@@ -229,7 +229,7 @@ const CheckoutPageContent: FC = () => {
       setSelectedDeliveryArea(matched.name);
       setDetectedArea(matched.name);
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [deliveryAreas]);
 
   // refs for GSAP timeline (optional)
@@ -237,7 +237,7 @@ const CheckoutPageContent: FC = () => {
   const cartRef = useRef<HTMLDivElement | null>(null);
   const modalRef = useRef<HTMLDivElement | null>(null);
   const areaInputRef = useRef<HTMLInputElement | null>(null);
-  const { orderType, area, tableId, setCheckoutModalOpen, setOrder } = useOrder();
+  const { orderType, area, tableId, setCheckoutModalOpen, setOrder, isLocationSet, setLocationModalOpen } = useOrder();
   const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     let value = e.target.value.replace(/\D/g, ""); // remove non-digits
 
@@ -265,6 +265,20 @@ const CheckoutPageContent: FC = () => {
       router.replace("/");
     }
   }, [router]);
+  // ────────────────────────────────────────────────────────────────────────
+
+  // ── Deferred location selection for direct-link / ad customers ───────────
+  // When a customer arrives via a direct product link (/item/* or /platter/*)
+  // they bypass the homepage location popup and browse freely. Here at checkout
+  // we prompt them to pick their order mode before filling in the form.
+  useEffect(() => {
+    if (!isLocationSet) {
+      // Small delay so the checkout page renders first for a smooth UX
+      const timer = setTimeout(() => setLocationModalOpen(true), 300);
+      return () => clearTimeout(timer);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   // ────────────────────────────────────────────────────────────────────────
 
   // preserve order state from OrderContext
@@ -402,6 +416,16 @@ const CheckoutPageContent: FC = () => {
 
   // your original checkout handler (opens confirmation modal)
   const handleCheckout = () => {
+    // Guard: order mode must be selected before proceeding
+    if (!isLocationSet) {
+      toast.error("Please select your order mode.", {
+        description: "Choose Delivery, Pickup, or Dine-In to continue.",
+      });
+      setLocationModalOpen(true);
+      trackEvent('journey_checkout_validation_error', { field: 'orderMode', reason: 'not_set' });
+      return;
+    }
+
     if (!formData.name) {
       toast.error("Please enter your name.", {
         description: "Full name is required to proceed.",
@@ -507,8 +531,8 @@ const CheckoutPageContent: FC = () => {
         price: item.price,
         variations: Array.isArray(item.variations)
           ? item.variations.map((v: any) =>
-              typeof v === "string" ? v : v.name || v.optionName || JSON.stringify(v)
-            )
+            typeof v === "string" ? v : v.name || v.optionName || JSON.stringify(v)
+          )
           : [],
       })),
       totalAmount: finalAmount,
@@ -574,9 +598,8 @@ const CheckoutPageContent: FC = () => {
         const targetUrl =
           resolvedOrderType === "dinein" && finalTable
             ? `/thank-you?type=dinein&tableId=${encodeURIComponent(finalTable)}&order=${encodeURIComponent(orderNumber)}`
-            : `/thank-you?type=${resolvedOrderType}&order=${encodeURIComponent(orderNumber)}${
-                formData.phone ? `&phone=${encodeURIComponent(formData.phone)}` : ""
-              }${finalArea ? `&area=${encodeURIComponent(finalArea)}` : ""}`;
+            : `/thank-you?type=${resolvedOrderType}&order=${encodeURIComponent(orderNumber)}${formData.phone ? `&phone=${encodeURIComponent(formData.phone)}` : ""
+            }${finalArea ? `&area=${encodeURIComponent(finalArea)}` : ""}`;
 
         try {
           router.push(targetUrl);
@@ -639,8 +662,8 @@ const CheckoutPageContent: FC = () => {
     const destinationLine = ordertype === 'dinein'
       ? `- Table Number: ${tableNumber || 'N/A'}`
       : ordertype === 'delivery'
-      ? `- Delivery Address: ${orderArea || 'N/A'}\n- Contact Phone: ${orderPhone || 'N/A'}`
-      : `- Order Mode: Pickup\n- Contact Phone: ${orderPhone || 'N/A'}`;
+        ? `- Delivery Address: ${orderArea || 'N/A'}\n- Contact Phone: ${orderPhone || 'N/A'}`
+        : `- Order Mode: Pickup\n- Contact Phone: ${orderPhone || 'N/A'}`;
 
     const message = `
 New Order Received:
@@ -653,13 +676,12 @@ ${destinationLine}
 ${discountLine}${deliveryLine}- Total Amount: Rs. ${order.totalAmount.toFixed(2)}
 - Items:
 ${items
-  .map(
-    (it, idx) =>
-      `  ${idx + 1}. ${it.title} x${it.quantity} (Rs. ${
-        it.price * it.quantity
-      })`
-  )
-  .join("\n")}
+        .map(
+          (it, idx) =>
+            `  ${idx + 1}. ${it.title} x${it.quantity} (Rs. ${it.price * it.quantity
+            })`
+        )
+        .join("\n")}
 `;
 
     try {
@@ -747,6 +769,67 @@ ${items
           <div className="grid lg:grid-cols-3 gap-8">
             {/* Main Form Section */}
             <div className="lg:col-span-2 space-y-6">
+
+              {/* ── Order Mode Switcher Card ─────────────────────────────── */}
+              <motion.div
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.4, ease: "easeOut" }}
+              >
+                {isLocationSet ? (
+                  /* Mode confirmed — show summary + change button */
+                  <div className="flex items-center justify-between gap-4 px-5 py-4 rounded-2xl border-2 border-[#741052]/20 bg-gradient-to-r from-[#741052]/5 via-white to-[#d0269b]/5 shadow-md">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#741052] to-[#d0269b] flex items-center justify-center shrink-0 shadow">
+                        {formData.ordertype === "delivery" ? (
+                          <Truck className="w-5 h-5 text-white" />
+                        ) : formData.ordertype === "dinein" ? (
+                          <Utensils className="w-5 h-5 text-white" />
+                        ) : (
+                          <ShoppingCart className="w-5 h-5 text-white" />
+                        )}
+                      </div>
+                      <div>
+                        <p className="text-xs font-semibold text-[#741052] uppercase tracking-wide">Order Mode</p>
+                        <p className="text-sm font-bold text-gray-800">
+                          {formData.ordertype === "delivery"
+                            ? `Delivery${selectedDeliveryArea || detectedArea ? ` — ${selectedDeliveryArea || detectedArea}` : ""}`
+                            : formData.ordertype === "dinein"
+                              ? `Dine-In${formData.tableNumber ? ` — Table ${formData.tableNumber}` : ""}`
+                              : "Takeaway / Pickup"}
+                        </p>
+                      </div>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setLocationModalOpen(true)}
+                      className="shrink-0 text-xs font-semibold px-4 py-2 rounded-xl border-2 border-[#741052]/30 text-[#741052] hover:bg-[#741052] hover:text-white transition-all duration-200"
+                    >
+                      Change
+                    </button>
+                  </div>
+                ) : (
+                  /* Mode not set — show alert prompt */
+                  <button
+                    type="button"
+                    onClick={() => setLocationModalOpen(true)}
+                    className="w-full flex items-center justify-between gap-4 px-5 py-4 rounded-2xl border-2 border-amber-400 bg-gradient-to-r from-amber-50 to-orange-50 shadow-md hover:shadow-lg transition-all duration-200 group"
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-xl bg-amber-400 flex items-center justify-center shrink-0 shadow animate-pulse">
+                        <MapPin className="w-5 h-5 text-white" />
+                      </div>
+                      <div className="text-left">
+                        <p className="text-xs font-bold text-amber-700 uppercase tracking-wide">Select Your Order Mode</p>
+                        <p className="text-sm text-amber-600">Tap to choose Delivery, Pickup, or Dine-In before placing your order</p>
+                      </div>
+                    </div>
+                    <ArrowRight className="w-5 h-5 text-amber-500 group-hover:translate-x-1 transition-transform shrink-0" />
+                  </button>
+                )}
+              </motion.div>
+              {/* ────────────────────────────────────────────────────────── */}
+
               {/* Customer Information */}
               <Card className="border-0 shadow-xl bg-gradient-to-br from-white to-gray-50">
                 <CardHeader>
@@ -955,11 +1038,10 @@ ${items
                       type="button"
                       onClick={() => handlePaymentChange("cash")}
                       variant={formData.paymentMethod === "cash" ? "default" : "outline"}
-                      className={`h-16 flex items-center gap-3 text-lg font-semibold ${
-                        formData.paymentMethod === "cash"
+                      className={`h-16 flex items-center gap-3 text-lg font-semibold ${formData.paymentMethod === "cash"
                           ? "bg-gradient-to-r from-[#741052] to-[#d0269b] text-white border-0 shadow-lg"
                           : "border-2 border-gray-200 hover:border-[#741052] transition-colors"
-                      }`}
+                        }`}
                     >
                       <Banknote className="h-6 w-6" />
                       Cash Payment
@@ -972,11 +1054,10 @@ ${items
                         toast.error("Online payment is coming soon!");
                       }}
                       variant={formData.paymentMethod === "online" ? "default" : "outline"}
-                      className={`h-16 flex items-center gap-3 text-lg font-semibold ${
-                        formData.paymentMethod === "online"
+                      className={`h-16 flex items-center gap-3 text-lg font-semibold ${formData.paymentMethod === "online"
                           ? "bg-gradient-to-r from-[#741052] to-[#d0269b] text-white border-0 shadow-lg"
                           : "border-2 border-gray-200 hover:border-[#741052] transition-colors"
-                      }`}
+                        }`}
                       disabled={true}
                     >
                       <CreditCard className="h-6 w-6" />

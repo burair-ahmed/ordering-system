@@ -56,7 +56,7 @@ interface PlatterItemProps {
 const platterCategoryCache = new Map<string, any[]>();
 
 const PlatterItem: FC<PlatterItemProps> = ({ platter, cardStyle = 'gourmet', initialOpen = false }) => {
-  const { isLocationSet, setLocationModalOpen, setStatusModalOpen } = useOrder();
+  const { setStatusModalOpen } = useOrder();
   const { addToCart } = useCart();
 
   const [showModal, setShowModal] = useState(initialOpen);
@@ -93,7 +93,6 @@ const PlatterItem: FC<PlatterItemProps> = ({ platter, cardStyle = 'gourmet', ini
 
   // Non-blocking smooth modal close with clean URL revert.
   // If before 6:30 (closed), shows the before 6:30 lock popup.
-  // If after 6:30 and location not set, shows location selector modal.
   const closeModal = useCallback(() => {
     setShowModal(false);
     if (typeof window !== 'undefined') {
@@ -105,10 +104,8 @@ const PlatterItem: FC<PlatterItemProps> = ({ platter, cardStyle = 'gourmet', ini
     }
     if (!isOpenAt()) {
       setStatusModalOpen(true);
-    } else if (!isLocationSet) {
-      setTimeout(() => setLocationModalOpen(true), 200);
     }
-  }, [isLocationSet, setLocationModalOpen, setStatusModalOpen]);
+  }, [setStatusModalOpen]);
 
   // Sync with browser back/forward buttons
   useEffect(() => {
@@ -291,7 +288,7 @@ const PlatterItem: FC<PlatterItemProps> = ({ platter, cardStyle = 'gourmet', ini
 
   // Called when the "Add to Cart" button is pressed.
   // If before 6:30 (closed), shows the before 6:30 lock popup.
-  // If after 6:30, adds to cart immediately and shows location modal if location is not set.
+  // If after 6:30, adds to cart immediately.
   const handleAddRequest = useCallback(() => {
     if (!isOpenAt()) {
       setShowModal(false);
@@ -302,10 +299,7 @@ const PlatterItem: FC<PlatterItemProps> = ({ platter, cardStyle = 'gourmet', ini
       return;
     }
     performCartAdd();
-    if (!isLocationSet) {
-      setTimeout(() => setLocationModalOpen(true), 300);
-    }
-  }, [isLocationSet, performCartAdd, setLocationModalOpen, setStatusModalOpen]);
+  }, [performCartAdd, setStatusModalOpen]);
 
   const handleCategorySelect = (categoryId: string, option: SelectedVariation) => {
     selectCategoryVariation(categoryId, option);

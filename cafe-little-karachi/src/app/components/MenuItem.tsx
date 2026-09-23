@@ -39,7 +39,7 @@ interface MenuItemProps {
 }
 
 const MenuItem: FC<MenuItemProps> = ({ item, cardStyle = 'gourmet', initialOpen = false }) => {
-  const { isLocationSet, setLocationModalOpen, setStatusModalOpen } = useOrder();
+  const { setStatusModalOpen } = useOrder();
   const { addToCart } = useCart();
   const [showModal, setShowModal] = useState(initialOpen);
   const [showAddedMessage, setShowAddedMessage] = useState(false);
@@ -63,7 +63,6 @@ const MenuItem: FC<MenuItemProps> = ({ item, cardStyle = 'gourmet', initialOpen 
 
   // Non-blocking smooth modal close with clean URL revert.
   // If before 6:30 (closed), shows the before 6:30 lock popup.
-  // If after 6:30 and location not set, shows location selector modal.
   const closeModal = useCallback(() => {
     setShowModal(false);
     if (typeof window !== 'undefined') {
@@ -75,10 +74,8 @@ const MenuItem: FC<MenuItemProps> = ({ item, cardStyle = 'gourmet', initialOpen 
     }
     if (!isOpenAt()) {
       setStatusModalOpen(true);
-    } else if (!isLocationSet) {
-      setTimeout(() => setLocationModalOpen(true), 200);
     }
-  }, [isLocationSet, setLocationModalOpen, setStatusModalOpen]);
+  }, [setStatusModalOpen]);
 
   // Sync with browser back/forward buttons
   useEffect(() => {
@@ -178,11 +175,7 @@ const MenuItem: FC<MenuItemProps> = ({ item, cardStyle = 'gourmet', initialOpen 
       variations: getFlattenedVariations(),
     });
     handleItemAdded();
-
-    if (!isLocationSet) {
-      setTimeout(() => setLocationModalOpen(true), 300);
-    }
-  }, [itemId, item.title, totalPrice, item.image, getFlattenedVariations, handleItemAdded, isLocationSet, setLocationModalOpen, setStatusModalOpen, addToCart]);
+  }, [itemId, item.title, totalPrice, item.image, getFlattenedVariations, handleItemAdded, setStatusModalOpen, addToCart]);
 
   const handleSimpleSelect = (variationId: string, option: SelectedVariation) => {
     selectSimpleVariation(variationId, option);
