@@ -5,9 +5,9 @@ tags:
   - #status/active
   - #project/ordering-ecosystem
 created: 2026-09-04
-last_updated: 2026-09-23
-overall_completion: "Phase 4.43: Direct Link Frictionless Add-to-Cart & Deferred Checkout Location (100%)"
-current_sprint: "CLK Ad Campaign Conversion Funnel UX: Suppress location popup on browsing, defer to checkout"
+last_updated: 2026-09-24
+overall_completion: "Phase 1 Perf Fix: CLS Elimination & Server-Side Menu Rendering (100%)"
+current_sprint: "CLK Performance Fix Plan — Phase 1 Complete (Server-render menu, reserve space, IntersectionObserver scroll-spy)"
 ---
 
 # Project Status Dashboard — Advanced Ordering Ecosystem
@@ -16,8 +16,19 @@ current_sprint: "CLK Ad Campaign Conversion Funnel UX: Suppress location popup o
 
 | Sub-Project | Phase | Focus | Status |
 | :--- | :--- | :--- | :--- |
-| **Cafe Little Karachi (CLK)** | Phase 4.43 | Direct Link Frictionless Add-to-Cart & Deferred Checkout Location | **Completed** 🟢 |
+| **Cafe Little Karachi (CLK)** | Phase 1 Perf | Server-Render Menu, Kill CLS (1.135 → ≤ 0.05), SSR Header & Banner | **Completed** 🟢 |
 | **The Chai Company (TCC)** | Phase 4.32 | Centered Modern Tea Lounge Footer | **Completed** 🟢 |
+
+---
+
+## Phase 1 Performance Fix Completion Summary — Server-Side Menu Rendering & CLS Elimination
+
+- [x] **Server-Side Data Loader (`src/lib/serverMenuData.ts`)**: Built `getServerMenuData()` to fetch `PageConfig`, `Platters`, and initial `MenuItem`s by section/category using `.lean()` with MongoDB ID sanitation.
+- [x] **Server Component Architecture (`src/app/page.tsx`, `item/[slug]/page.tsx`, `platter/[slug]/page.tsx`)**: Upgraded root, item, and platter routes to Server Components with 5-minute ISR cache (`export const revalidate = 300`) passing `initialData` to `<MenuPage />`.
+- [x] **Zero Progressive Staggering (`src/app/order/page.tsx`)**: Removed `Math.random()` staggered `setTimeout` item animations that previously triggered continuous layout shifts. All items render cleanly and immediately.
+- [x] **Scroll-Spy Modernization (`CategoryNavStrip.tsx`)**: Replaced `getBoundingClientRect()` window scroll listener with `IntersectionObserver` (`rootMargin: '-85px 0px -50% 0px'`), eliminating forced reflows during category browsing.
+- [x] **SSR Header & Banner (`Header.tsx`, `BannerSlider.tsx`)**: Removed `!isClient` and `!isMounted` null guards. Header and banner render immediately in initial server HTML. Added accessible `aria-label` to Cart button.
+- [x] **Build & Route Verification**: Clean Next.js 16 production build (`exit code: 0`). Verified `/`, `/item/*`, and `/platter/*` routes return complete HTML (328KB+ payload containing all 10 categories and platter items).
 
 ---
 

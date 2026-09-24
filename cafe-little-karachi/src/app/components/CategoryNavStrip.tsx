@@ -87,46 +87,70 @@ export default function CategoryNavStrip({ categories, className = '' }: Categor
     }, 800);
   };
 
-  // Scroll-spy: Highlight active category based on viewport position
+  // Scroll-spy: Highlight active category based on viewport position using IntersectionObserver (zero forced reflow)
   useEffect(() => {
     if (!categories.length) return;
 
-    const handleWindowScroll = () => {
-      if (isClickingRef.current) return;
+    const visibleSections = new Map<string, number>();
 
-      const triggerPoint = 160;
-      let currentId = categories[0]?.id || '';
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (isClickingRef.current) return;
 
-      for (let i = 0; i < categories.length; i++) {
-        const cat = categories[i];
-        const targetElement =
-          document.getElementById(`category-${cat.id}`) ||
-          document.getElementById(`category-${slugify(cat.id)}`) ||
-          document.getElementById(cat.id);
+        entries.forEach((entry) => {
+          const catId = entry.target.getAttribute('data-cat-id');
+          if (!catId) return;
 
-        if (targetElement) {
-          const rect = targetElement.getBoundingClientRect();
-          if (rect.top <= triggerPoint) {
-            currentId = cat.id;
+          if (entry.isIntersecting) {
+            visibleSections.set(catId, entry.boundingClientRect.top);
+          } else {
+            visibleSections.delete(catId);
+          }
+        });
+
+        if (visibleSections.size > 0) {
+          let topCatId = '';
+          let minTop = Infinity;
+
+          visibleSections.forEach((top, id) => {
+            if (top < minTop) {
+              minTop = top;
+              topCatId = id;
+            }
+          });
+
+          if (!topCatId) {
+            topCatId = visibleSections.keys().next().value || '';
+          }
+
+          if (topCatId && topCatId !== activeCategoryId) {
+            setActiveCategoryId(topCatId);
+            const activeBtn = document.getElementById(`nav-cat-btn-${topCatId}`);
+            if (activeBtn && scrollContainerRef.current) {
+              activeBtn.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+            }
           }
         }
+      },
+      {
+        rootMargin: '-85px 0px -50% 0px',
+        threshold: [0, 0.1, 0.25],
       }
+    );
 
-      if (currentId && currentId !== activeCategoryId) {
-        setActiveCategoryId(currentId);
-        // Gently bring active pill into view in the horizontal strip
-        const activeBtn = document.getElementById(`nav-cat-btn-${currentId}`);
-        if (activeBtn && scrollContainerRef.current) {
-          activeBtn.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
-        }
+    categories.forEach((cat) => {
+      const targetElement =
+        document.getElementById(`category-${cat.id}`) ||
+        document.getElementById(`category-${slugify(cat.id)}`) ||
+        document.getElementById(cat.id);
+
+      if (targetElement) {
+        targetElement.setAttribute('data-cat-id', cat.id);
+        observer.observe(targetElement);
       }
-    };
+    });
 
-    window.addEventListener('scroll', handleWindowScroll, { passive: true });
-    // Initial check
-    handleWindowScroll();
-
-    return () => window.removeEventListener('scroll', handleWindowScroll);
+    return () => observer.disconnect();
   }, [categories, activeCategoryId]);
 
   if (!categories || categories.length === 0) return null;

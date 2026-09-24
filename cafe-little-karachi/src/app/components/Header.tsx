@@ -18,7 +18,6 @@ import { trackEvent } from '../lib/analytics';
 export default function Header() {
   const pathname = usePathname();
   const [isCartOpen, setIsCartOpen] = useState(false);
-  const [isClient, setIsClient] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { cartItems } = useCart();
   const {
@@ -29,15 +28,10 @@ export default function Header() {
     setLocationModalOpen
   } = useOrder();
 
-  useEffect(() => {
-    setIsClient(true);
-  }, []);
-
   const toggleCartSidebar = () => {
     setIsCartOpen((prev) => !prev);
   };
 
-  if (!isClient) return null;
   if (pathname?.startsWith('/admin')) return null;
 
   const totalItems = cartItems.reduce((total, item) => total + item.quantity, 0);
@@ -174,6 +168,7 @@ export default function Header() {
               <motion.button
                 whileTap={{ scale: 0.95 }}
                 onClick={toggleCartSidebar}
+                aria-label={`View Cart (${totalItems} items)`}
                 className="group relative flex items-center h-10 md:h-12 px-2 md:pl-5 md:pr-2 rounded-full bg-[#ff9824] hover:bg-[#ff7b00] text-white transition-all duration-300 shadow-md"
               >
                 <span className="hidden md:block text-[10px] font-black uppercase tracking-widest mr-3">My Order</span>

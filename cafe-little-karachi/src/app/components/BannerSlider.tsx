@@ -136,8 +136,8 @@ export default function BannerSlider({ section }: { section: BannerSliderSection
     ? '16/9'
     : resolvedDesktopAspect;
 
-  // Don't render until client-side to avoid hydration mismatch
-  if (!isMounted || !count) return null;
+  // If no slides, render nothing
+  if (!count) return null;
 
   return (
     <div

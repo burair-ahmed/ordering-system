@@ -5,7 +5,35 @@ tags:
   - #status/active
   - #project/ordering-ecosystem
 created: 2026-09-04
-last_updated: 2026-09-23
+last_updated: 2026-09-24
+---
+
+## 0. Phase 1 Perf Fix — CLK CLS Elimination & Server-Side Menu Rendering (2026-09-24)
+
+### Killing Cumulative Layout Shift (1.135 → ≤ 0.05) & Server-Rendering the Menu Catalog
+- **Files**:
+  - `cafe-little-karachi/src/lib/serverMenuData.ts` (NEW)
+  - `cafe-little-karachi/src/app/page.tsx` (UPDATED)
+  - `cafe-little-karachi/src/app/item/[slug]/page.tsx` (UPDATED)
+  - `cafe-little-karachi/src/app/platter/[slug]/page.tsx` (UPDATED)
+  - `cafe-little-karachi/src/app/order/page.tsx` (UPDATED)
+  - `cafe-little-karachi/src/app/components/CategoryNavStrip.tsx` (UPDATED)
+  - `cafe-little-karachi/src/app/components/Header.tsx` (UPDATED)
+  - `cafe-little-karachi/src/app/components/BannerSlider.tsx` (UPDATED)
+- **Context & Goal**: Lighthouse mobile score was degraded due to a severe CLS score of 1.135 caused by: (1) client-rendered menu with artificial `Math.random()` setTimeout staggered item injection, (2) Header returning `null` during SSR (`if (!isClient) return null`), (3) BannerSlider returning `null` during SSR, and (4) CategoryNavStrip using `getBoundingClientRect()` in window scroll handler causing forced reflow.
+- **Changes Applied**:
+  - **`serverMenuData.ts`**: Created high-performance server-side data fetcher (`getServerMenuData()`) that connects to MongoDB and queries `PageConfig`, `Platter`, and initial `MenuItem`s by section with `.lean()`, sanitizing MongoDB IDs to plain JSON.
+  - **`page.tsx`, `item/[slug]/page.tsx`, `platter/[slug]/page.tsx`**: Migrated to Server Components with 5-minute ISR cache (`export const revalidate = 300`). Fetches `getServerMenuData()` on the server and passes `initialData` to `<MenuPage />`.
+  - **`order/page.tsx`**: 
+    - Initialized state directly from `initialData` (`sections`, `allPlatters`, `sectionLoadedItems`, `classicLoadedItems`, `classicLoadedPlatters`).
+    - Set `pageLoading = false` on initial render so the full DOM is present in the initial server HTML.
+    - Removed `loadItemsProgressively` and `addClassicItemWithAnimation` with random `setTimeout` staggered animations that previously pushed elements downward post-hydration.
+    - Retained full client interactivity (infinite scroll, category jump anchors, modal opens, cart actions).
+  - **`CategoryNavStrip.tsx`**: Replaced window scroll listener and `getBoundingClientRect()` loop with `IntersectionObserver` (`rootMargin: '-85px 0px -50% 0px'`). Eliminates forced reflows during category browsing.
+  - **`Header.tsx`**: Removed `isClient` state and `if (!isClient) return null` so the header is pre-rendered in SSR HTML. Added accessible `aria-label` to Cart button.
+  - **`BannerSlider.tsx`**: Changed SSR guard to `if (!count) return null` so the initial slide and aspect-ratio box are rendered on the server without blank layout shift.
+- **Rationale**: Server-rendering the menu and header guarantees that the browser receives a fully-formed layout immediately upon arrival. Images and container heights are reserved upfront, eliminating layout shifts and delivering an instantaneous, frictionless customer experience.
+
 ---
 
 ## 0. Phase 4.43 Micro-Change — CLK Direct Link Frictionless Add-to-Cart & Deferred Checkout Location Selection (2026-09-23)

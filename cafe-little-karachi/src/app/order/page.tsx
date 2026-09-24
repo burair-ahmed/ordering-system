@@ -16,6 +16,7 @@ import { useRouter, usePathname } from "next/navigation";
 import Image from "next/image";
 import { trackEvent, trackClarityFunnelStep, CLK_FUNNEL_MENU_VIEWED } from "../lib/analytics";
 import { slugify } from "../lib/slugify";
+import type { ServerMenuData } from "@/lib/serverMenuData";
 
 // --- Types ---
 interface MenuItemData {
@@ -199,9 +200,11 @@ const DEFAULT_CLASSIC_CATEGORIES: ClassicCategoryConfig[] = [
 export default function MenuPage({
   initialItemSlug,
   initialPlatterSlug,
+  initialData,
 }: {
   initialItemSlug?: string;
   initialPlatterSlug?: string;
+  initialData?: ServerMenuData;
 } = {}) {
   const router = useRouter();
   const pathname = usePathname();
@@ -212,133 +215,66 @@ export default function MenuPage({
     }
   }, [pathname, router]);
 
-  const [sections, setSections] = useState<PageSection[]>([]);
-  const [allPlatters, setAllPlatters] = useState<Platter[]>([]);
-  const [pageLoading, setPageLoading] = useState<boolean>(true);
-  const [useCmsLayout, setUseCmsLayout] = useState<boolean>(true);
-  const [classicBannerType, setClassicBannerType] = useState<'hero' | 'image-slider'>('hero');
-  const [classicCategories, setClassicCategories] = useState<ClassicCategoryConfig[]>(DEFAULT_CLASSIC_CATEGORIES);
+  // Derive initial platters grouped for classic mode
+  const initialGroupedPlatters = (() => {
+    if (!initialData?.platters) return {};
+    const grouped: { [key: string]: Platter[] } = {};
+    initialData.platters.forEach((p: any) => {
+      if (!grouped[p.platterCategory]) grouped[p.platterCategory] = [];
+      grouped[p.platterCategory].push(p);
+    });
+    return grouped;
+  })();
+
+  const [sections, setSections] = useState<PageSection[]>(
+    initialData?.pageConfig?.sections || []
+  );
+  const [allPlatters, setAllPlatters] = useState<Platter[]>(
+    (initialData?.platters as Platter[]) || []
+  );
+  const [pageLoading, setPageLoading] = useState<boolean>(!initialData);
+  const [useCmsLayout, setUseCmsLayout] = useState<boolean>(
+    initialData?.pageConfig?.useCmsLayout !== undefined
+      ? initialData.pageConfig.useCmsLayout
+      : true
+  );
+  const [classicBannerType, setClassicBannerType] = useState<'hero' | 'image-slider'>(
+    initialData?.pageConfig?.classicBannerType || 'hero'
+  );
+  const [classicCategories, setClassicCategories] = useState<ClassicCategoryConfig[]>(
+    initialData?.pageConfig?.classicCategories || DEFAULT_CLASSIC_CATEGORIES
+  );
 
   // Items loading state for each section ID
-  const [sectionAllItems, setSectionAllItems] = useState<{ [sectionId: string]: any[] }>({});
-  const [sectionLoadedItems, setSectionLoadedItems] = useState<{ [sectionId: string]: any[] }>({});
+  const [sectionAllItems, setSectionAllItems] = useState<{ [sectionId: string]: any[] }>(
+    initialData?.itemsBySectionOrCategory || {}
+  );
+  const [sectionLoadedItems, setSectionLoadedItems] = useState<{ [sectionId: string]: any[] }>(
+    initialData?.itemsBySectionOrCategory || {}
+  );
   const [sectionLoading, setSectionLoading] = useState<{ [sectionId: string]: boolean }>({});
   const [sectionPages, setSectionPages] = useState<{ [sectionId: string]: number }>({});
   const [sectionHasMore, setSectionHasMore] = useState<{ [sectionId: string]: boolean }>({});
 
-  const [animatingItems, setAnimatingItems] = useState<Set<string>>(new Set());
-
   const observers = useRef<{ [key: string]: IntersectionObserver }>({});
-  const loadingTimeouts = useRef<{ [key: string]: NodeJS.Timeout }>({});
 
   // --- Classic/Normal Layout States ---
-  const [classicMenu, setClassicMenu] = useState<{ [key: string]: MenuItemData[] }>({});
-  const [classicPlatters, setClassicPlatters] = useState<{ [key: string]: Platter[] }>({});
+  const [classicMenu, setClassicMenu] = useState<{ [key: string]: MenuItemData[] }>(
+    (initialData?.itemsBySectionOrCategory as any) || {}
+  );
+  const [classicPlatters, setClassicPlatters] = useState<{ [key: string]: Platter[] }>(
+    initialGroupedPlatters
+  );
   const [classicMenuLoading, setClassicMenuLoading] = useState<{ [key: string]: boolean }>({});
-  const [classicPlatterLoading, setClassicPlatterLoading] = useState<boolean>(true);
+  const [classicPlatterLoading, setClassicPlatterLoading] = useState<boolean>(false);
   const [classicPage, setClassicPage] = useState<{ [key: string]: number }>({});
   const [classicHasMore, setClassicHasMore] = useState<{ [key: string]: boolean }>({});
-  const [classicLoadedItems, setClassicLoadedItems] = useState<{ [key: string]: MenuItemData[] }>({});
-  const [classicLoadedPlatters, setClassicLoadedPlatters] = useState<{ [key: string]: Platter[] }>({});
-
-  // Progressive loading functions
-  const addItemWithAnimation = (item: any, sectionId: string) => {
-    const itemId = item.id || item._id;
-    const itemKey = `${sectionId}-${itemId}`;
-
-    if (animatingItems.has(itemKey)) return;
-
-    setAnimatingItems(prev => {
-      const next = new Set(prev);
-      next.add(itemKey);
-      return next;
-    });
-
-    const timeoutId = setTimeout(() => {
-      setSectionLoadedItems(prev => {
-        const currentItems = prev[sectionId] || [];
-        if (currentItems.some(existing => (existing.id || existing._id) === itemId)) {
-          return prev;
-        }
-        return {
-          ...prev,
-          [sectionId]: [...currentItems, item]
-        };
-      });
-
-      setAnimatingItems(prev => {
-        const newSet = new Set(prev);
-        newSet.delete(itemKey);
-        return newSet;
-      });
-    }, Math.random() * 300 + 100);
-
-    loadingTimeouts.current[itemKey] = timeoutId;
-  };
-
-  const loadItemsProgressively = (items: any[], sectionId: string) => {
-    items.forEach((item, index) => {
-      setTimeout(() => {
-        addItemWithAnimation(item, sectionId);
-      }, index * (Math.random() * 150 + 100));
-    });
-  };
-
-  // --- Classic Layout progressive loading & animations ---
-  const addClassicItemWithAnimation = (item: any, category: string, isPlatter: boolean = false) => {
-    const itemId = item.id || item._id;
-    const itemKey = `classic-${isPlatter ? 'platter' : 'menu'}-${category}-${itemId}`;
-
-    if (animatingItems.has(itemKey)) return;
-
-    setAnimatingItems(prev => {
-      const next = new Set(prev);
-      next.add(itemKey);
-      return next;
-    });
-
-    const timeoutId = setTimeout(() => {
-      if (isPlatter) {
-        setClassicLoadedPlatters(prev => {
-          const currentCategoryItems = prev[category] || [];
-          if (currentCategoryItems.some(existing => (existing.id || (existing as any)._id) === itemId)) {
-            return prev;
-          }
-          return {
-            ...prev,
-            [category]: [...currentCategoryItems, item as Platter]
-          };
-        });
-      } else {
-        setClassicLoadedItems(prev => {
-          const currentCategoryItems = prev[category] || [];
-          if (currentCategoryItems.some(existing => (existing.id || (existing as any)._id) === itemId)) {
-            return prev;
-          }
-          return {
-            ...prev,
-            [category]: [...currentCategoryItems, item as MenuItemData]
-          };
-        });
-      }
-
-      setAnimatingItems(prev => {
-        const newSet = new Set(prev);
-        newSet.delete(itemKey);
-        return newSet;
-      });
-    }, Math.random() * 300 + 100);
-
-    loadingTimeouts.current[itemKey] = timeoutId;
-  };
-
-  const loadClassicItemsProgressively = (items: any[], category: string, isPlatter: boolean = false) => {
-    items.forEach((item, index) => {
-      setTimeout(() => {
-        addClassicItemWithAnimation(item, category, isPlatter);
-      }, index * (Math.random() * 200 + 150));
-    });
-  };
+  const [classicLoadedItems, setClassicLoadedItems] = useState<{ [key: string]: MenuItemData[] }>(
+    (initialData?.itemsBySectionOrCategory as any) || {}
+  );
+  const [classicLoadedPlatters, setClassicLoadedPlatters] = useState<{ [key: string]: Platter[] }>(
+    initialGroupedPlatters
+  );
 
   const fetchClassicData = async (categoriesToFetch?: ClassicCategoryConfig[]) => {
     const cats = categoriesToFetch || classicCategories;
@@ -358,11 +294,7 @@ export default function MenuPage({
         });
 
         setClassicPlatters(grouped);
-        activePlatterCats.forEach((category) => {
-          if (grouped[category]) {
-            loadClassicItemsProgressively(grouped[category], category, true);
-          }
-        });
+        setClassicLoadedPlatters(grouped);
       } catch (err) {
         console.error("Failed to fetch classic platters:", err);
       } finally {
@@ -378,10 +310,9 @@ export default function MenuPage({
         const data = await res.json();
         
         setClassicMenu((prev) => ({ ...prev, [category]: data }));
+        setClassicLoadedItems((prev) => ({ ...prev, [category]: data }));
         setClassicPage((prev) => ({ ...prev, [category]: 2 }));
         setClassicHasMore((prev) => ({ ...prev, [category]: data.length === 10 }));
-
-        loadClassicItemsProgressively(data, category, false);
       } catch (err) {
         console.error(`Failed to fetch classic menu category ${category}:`, err);
       } finally {
@@ -404,10 +335,12 @@ export default function MenuPage({
           ...prev,
           [category]: [...(prev[category] || []), ...data]
         }));
+        setClassicLoadedItems((prev) => ({
+          ...prev,
+          [category]: [...(prev[category] || []), ...data]
+        }));
         setClassicPage((prev) => ({ ...prev, [category]: nextPage + 1 }));
         setClassicHasMore((prev) => ({ ...prev, [category]: data.length === 10 }));
-
-        loadClassicItemsProgressively(data, category, false);
       } else {
         setClassicHasMore((prev) => ({ ...prev, [category]: false }));
       }
@@ -435,11 +368,17 @@ export default function MenuPage({
     if (node) observers.current[observerKey].observe(node);
   };
 
-  // Load layout configuration and platter items on mount
+  // Load layout configuration and platter items on mount if not provided from server
   useEffect(() => {
     // Stage 4: Menu Viewed
     trackClarityFunnelStep(CLK_FUNNEL_MENU_VIEWED);
     trackEvent('journey_menu_viewed');
+
+    if (initialData) {
+      return () => {
+        Object.values(observers.current).forEach(obs => obs.disconnect());
+      };
+    }
 
     const loadPageData = async () => {
       setPageLoading(true);
@@ -496,13 +435,10 @@ export default function MenuPage({
 
     return () => {
       Object.values(observers.current).forEach(obs => obs.disconnect());
-      Object.values(loadingTimeouts.current).forEach(timeoutId => {
-        clearTimeout(timeoutId);
-      });
     };
-  }, []);
+  }, [initialData]);
 
-  // Fetch data for sections dynamically when layout changes
+  // Fetch data for sections dynamically when layout changes (only when missing from initialData)
   useEffect(() => {
     if (sections.length === 0) return;
 
@@ -510,7 +446,7 @@ export default function MenuPage({
       if (!section.isVisible) return;
       if (section.type !== 'grid' && section.type !== 'slider') return;
 
-      // Skip if already loading or loaded
+      // Skip if already loaded or loading
       if (sectionAllItems[section.id] !== undefined || sectionLoading[section.id]) return;
 
       const loadSectionData = async () => {
@@ -518,26 +454,23 @@ export default function MenuPage({
         try {
           if (section.props.sourceType === 'category') {
             if (section.props.itemType === 'platter') {
-              // Platter Category: filter from preloaded allPlatters
               const filtered = allPlatters.filter(
                 (p: any) => p.platterCategory === section.props.categoryId
               );
               setSectionAllItems(prev => ({ ...prev, [section.id]: filtered }));
+              setSectionLoadedItems(prev => ({ ...prev, [section.id]: filtered }));
               setSectionHasMore(prev => ({ ...prev, [section.id]: false }));
-              loadItemsProgressively(filtered, section.id);
             } else {
-              // Menu Category: fetch via API with limit 12
               const res = await fetch(
                 `/api/getitems?category=${encodeURIComponent(section.props.categoryId || '')}&page=1&limit=12`
               );
               const data = await res.json();
               setSectionAllItems(prev => ({ ...prev, [section.id]: data }));
+              setSectionLoadedItems(prev => ({ ...prev, [section.id]: data }));
               setSectionPages(prev => ({ ...prev, [section.id]: 2 }));
               setSectionHasMore(prev => ({ ...prev, [section.id]: data.length === 12 }));
-              loadItemsProgressively(data, section.id);
             }
           } else if (section.props.sourceType === 'manual' && section.props.itemIds && section.props.itemIds.length > 0) {
-            // Manual Items: POST to new get-items-by-ids API
             const res = await fetch("/api/get-items-by-ids", {
               method: "POST",
               headers: { "Content-Type": "application/json" },
@@ -545,21 +478,21 @@ export default function MenuPage({
             });
             if (res.ok) {
               const data = await res.json();
-              // Keep original sorting from selection
               const sorted = (section.props.itemIds || [])
                 .map(id => data.find((item: any) => (item._id === id || item.id === id)))
                 .filter(Boolean);
 
               setSectionAllItems(prev => ({ ...prev, [section.id]: sorted }));
+              setSectionLoadedItems(prev => ({ ...prev, [section.id]: sorted }));
               setSectionHasMore(prev => ({ ...prev, [section.id]: false }));
-              loadItemsProgressively(sorted, section.id);
             } else {
               setSectionAllItems(prev => ({ ...prev, [section.id]: [] }));
+              setSectionLoadedItems(prev => ({ ...prev, [section.id]: [] }));
               setSectionHasMore(prev => ({ ...prev, [section.id]: false }));
             }
           } else {
-            // No valid settings
             setSectionAllItems(prev => ({ ...prev, [section.id]: [] }));
+            setSectionLoadedItems(prev => ({ ...prev, [section.id]: [] }));
             setSectionHasMore(prev => ({ ...prev, [section.id]: false }));
           }
         } catch (error) {
@@ -571,7 +504,7 @@ export default function MenuPage({
 
       loadSectionData();
     });
-  }, [sections, allPlatters]);
+  }, [sections, allPlatters, sectionAllItems, sectionLoading]);
 
   // Infinite scroll load more
   const loadMoreForSection = async (sectionId: string) => {
@@ -582,7 +515,7 @@ export default function MenuPage({
 
     setSectionLoading(prev => ({ ...prev, [sectionId]: true }));
     try {
-      const nextPage = sectionPages[sectionId] || 1;
+      const nextPage = sectionPages[sectionId] || 2;
       const res = await fetch(
         `/api/getitems?category=${encodeURIComponent(section.props.categoryId || '')}&page=${nextPage}&limit=12`
       );
@@ -593,9 +526,12 @@ export default function MenuPage({
           ...prev,
           [sectionId]: [...(prev[sectionId] || []), ...data]
         }));
+        setSectionLoadedItems(prev => ({
+          ...prev,
+          [sectionId]: [...(prev[sectionId] || []), ...data]
+        }));
         setSectionPages(prev => ({ ...prev, [sectionId]: nextPage + 1 }));
         setSectionHasMore(prev => ({ ...prev, [sectionId]: data.length === 12 }));
-        loadItemsProgressively(data, sectionId);
       } else {
         setSectionHasMore(prev => ({ ...prev, [sectionId]: false }));
       }
