@@ -6,8 +6,8 @@ tags:
   - #project/ordering-ecosystem
 created: 2026-09-04
 last_updated: 2026-09-24
-overall_completion: "Phase 1 Perf Fix: CLS Elimination & Server-Side Menu Rendering (100%)"
-current_sprint: "CLK Performance Fix Plan — Phase 1 Complete (Server-render menu, reserve space, IntersectionObserver scroll-spy)"
+overall_completion: "Phase 2 Perf Fix: LCP & Image Delivery Optimization (100%)"
+current_sprint: "CLK Performance Fix Plan — Phase 2 Complete (LCP priority, responsive sizes, AVIF/WebP formats)"
 ---
 
 # Project Status Dashboard — Advanced Ordering Ecosystem
@@ -16,8 +16,19 @@ current_sprint: "CLK Performance Fix Plan — Phase 1 Complete (Server-render me
 
 | Sub-Project | Phase | Focus | Status |
 | :--- | :--- | :--- | :--- |
-| **Cafe Little Karachi (CLK)** | Phase 1 Perf | Server-Render Menu, Kill CLS (1.135 → ≤ 0.05), SSR Header & Banner | **Completed** 🟢 |
+| **Cafe Little Karachi (CLK)** | Phase 2 Perf | LCP Optimization (≤ 2.2s), AVIF/WebP, Responsive Sizes & Priority Preload Cleanup | **Completed** 🟢 |
 | **The Chai Company (TCC)** | Phase 4.32 | Centered Modern Tea Lounge Footer | **Completed** 🟢 |
+
+---
+
+## Phase 2 Performance Fix Completion Summary — LCP & Image Delivery Optimization
+
+- [x] **Next.js Image Config (`next.config.ts`)**: Enabled `['image/avif', 'image/webp']` formats, 1-year cache TTL (`minimumCacheTTL: 31536000`), device sizes `[360, 480, 640, 750, 828, 1080, 1200, 1920]`, and image sizes `[64, 96, 128, 160, 256, 384]`.
+- [x] **Preload Bandwidth Cleanup (`MenuItem.tsx`, `PlatterItem.tsx`)**: Removed `priority` from modal images across all items — modal images now load on-demand with `loading="lazy"`, preventing network saturation on initial load.
+- [x] **Responsive Grid Sizes (`MenuItem.tsx`, `PlatterItem.tsx`)**: Corrected card image `sizes` from `100vw` to `(max-width: 640px) 48vw, (max-width: 1024px) 33vw, 25vw`, eliminating oversized image downloads.
+- [x] **Compression Enforcement (`MenuItem.tsx`, `PlatterItem.tsx`, `order/page.tsx`)**: Removed `unoptimized={true}` on list card images and `ChefStoryRow` to enable automatic WebP/AVIF generation.
+- [x] **Banner Slider LCP (`BannerSlider.tsx`)**: Added `fetchPriority="high"` and `loading="eager"` exclusively to the initial slide (`idx === 0`).
+- [x] **Build & Route Verification**: Clean Next.js 16 production build (`exit code: 0`).
 
 ---
 

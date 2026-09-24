@@ -361,7 +361,7 @@ const PlatterItem: FC<PlatterItemProps> = ({ platter, cardStyle = 'gourmet', ini
                 className="rounded-xl object-cover w-full h-full"
                 width={150}
                 height={150}
-                unoptimized={true}
+                sizes="(max-width: 640px) 96px, 128px"
               />
             </div>
 
@@ -424,7 +424,7 @@ const PlatterItem: FC<PlatterItemProps> = ({ platter, cardStyle = 'gourmet', ini
                 }`}
                 width={450}
                 height={160}
-                sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                sizes="(max-width: 640px) 48vw, (max-width: 1024px) 33vw, 25vw"
               />
             </div>
 
@@ -521,7 +521,7 @@ const PlatterItem: FC<PlatterItemProps> = ({ platter, cardStyle = 'gourmet', ini
                   width={356}
                   height={320}
                   sizes="(max-width: 768px) 100vw, 50vw"
-                  priority
+                  loading="lazy"
                 />
               </div>
 

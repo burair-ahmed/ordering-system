@@ -188,11 +188,12 @@ export default function BannerSlider({ section }: { section: BannerSliderSection
           className="flex transition-transform duration-500 ease-out"
           style={{ transform: `translateX(-${current * 100}%)` }}
         >
-          {slides.map((s) => {
+          {slides.map((s, idx) => {
             const desktopImg = s.image || '/bg-hero.webp';
             const mobileImg = s.mobileImage || s.image || '/bg-hero.webp';
             const effectiveFit = s.imageFit || imageFit || 'contain';
             const effectiveMobileFit = s.mobileImageFit || s.imageFit || mobileImageFit || 'contain';
+            const isFirst = idx === 0;
 
             return (
               <div
@@ -215,6 +216,8 @@ export default function BannerSlider({ section }: { section: BannerSliderSection
                 <img
                   src={desktopImg}
                   alt={s.title || 'Promotion Banner'}
+                  loading={isFirst ? 'eager' : 'lazy'}
+                  fetchPriority={isFirst ? 'high' : 'auto'}
                   className={`relative z-10 w-full h-full hidden md:block ${
                     effectiveFit === 'contain'
                       ? 'object-contain'
@@ -229,6 +232,8 @@ export default function BannerSlider({ section }: { section: BannerSliderSection
                 <img
                   src={mobileImg}
                   alt={s.title || 'Promotion Banner'}
+                  loading={isFirst ? 'eager' : 'lazy'}
+                  fetchPriority={isFirst ? 'high' : 'auto'}
                   className={`relative z-10 w-full h-full md:hidden ${
                     effectiveMobileFit === 'contain'
                       ? 'object-contain'

@@ -8,6 +8,28 @@ created: 2026-09-04
 last_updated: 2026-09-24
 ---
 
+## 0. Phase 2 Perf Fix — CLK LCP & Image Delivery Optimization (2026-09-24)
+
+### Optimizing Largest Contentful Paint (10.3s → ≤ 2.2s) & Image Payload Delivery
+- **Files**:
+  - `cafe-little-karachi/next.config.ts` (UPDATED)
+  - `cafe-little-karachi/src/app/components/MenuItem.tsx` (UPDATED)
+  - `cafe-little-karachi/src/app/components/PlatterItem.tsx` (UPDATED)
+  - `cafe-little-karachi/src/app/components/BannerSlider.tsx` (UPDATED)
+  - `cafe-little-karachi/src/app/order/page.tsx` (UPDATED)
+- **Context & Goal**: Large images and misconfigured priority preloads were choking bandwidth on mobile devices. Every menu item and platter card rendered a hidden modal with `priority`, creating dozens of simultaneous image preloads on initial load, while cards rendered at full-width source sizes (`100vw`) and unoptimized formats.
+- **Changes Applied**:
+  - **`next.config.ts`**: Enabled modern image formats `['image/avif', 'image/webp']`, configured 1-year cache TTL (`minimumCacheTTL: 31536000`), and optimized `deviceSizes` (`[360, 480, 640, 750, 828, 1080, 1200, 1920]`) and `imageSizes` (`[64, 96, 128, 160, 256, 384]`).
+  - **`MenuItem.tsx` & `PlatterItem.tsx`**:
+    - Removed `priority` from modal images — modal images now load on-demand with `loading="lazy"` when opened, freeing critical initial network bandwidth for the LCP hero image.
+    - Updated card image responsive `sizes` from `100vw` to `(max-width: 640px) 48vw, (max-width: 1024px) 33vw, 25vw` matching actual 2-column mobile and 4-column desktop grid layouts.
+    - Removed `unoptimized={true}` on list card images so Next.js AVIF/WebP compression is applied.
+  - **`BannerSlider.tsx`**: Set `fetchPriority="high"` and `loading="eager"` exclusively on the initial slide (`idx === 0`), keeping secondary slides lazy.
+  - **`order/page.tsx`**: Removed `unoptimized={true}` and added responsive `sizes` to `ChefStoryRow`.
+- **Rationale**: Prioritizing exclusively the first visible viewport image while eliminating background modal preloads ensures fast, unblocked LCP discovery and minimal total image payload.
+
+---
+
 ## 0. Phase 1 Perf Fix — CLK CLS Elimination & Server-Side Menu Rendering (2026-09-24)
 
 ### Killing Cumulative Layout Shift (1.135 → ≤ 0.05) & Server-Rendering the Menu Catalog
