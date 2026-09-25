@@ -5,7 +5,62 @@ tags:
   - #status/active
   - #project/ordering-ecosystem
 created: 2026-09-04
-last_updated: 2026-09-24
+last_updated: 2026-09-25
+---
+
+## 0. SEO Phase — Full-Spectrum SEO Optimization (CLK) (2026-09-25)
+
+### Complete SEO Infrastructure Implementation
+- **Files**:
+  - `cafe-little-karachi/src/app/layout.tsx` (UPDATED — full metadata overhaul)
+  - `cafe-little-karachi/src/lib/seoHelpers.ts` (NEW)
+  - `cafe-little-karachi/src/app/item/[slug]/page.tsx` (UPDATED — generateMetadata)
+  - `cafe-little-karachi/src/app/platter/[slug]/page.tsx` (UPDATED — generateMetadata)
+  - `cafe-little-karachi/src/app/components/RestaurantJsonLd.tsx` (NEW)
+  - `cafe-little-karachi/src/app/components/ProductJsonLd.tsx` (NEW)
+  - `cafe-little-karachi/src/app/manifest.ts` (NEW)
+  - `cafe-little-karachi/src/app/sitemap.ts` (UPDATED — image sitemap extensions)
+  - `cafe-little-karachi/src/app/robots.ts` (UPDATED — granular bot rules)
+  - `cafe-little-karachi/public/og-banner.jpg` (NEW — 1200×630 OG social share image)
+- **Context & Goal**: Implement enterprise-grade, full-spectrum SEO covering all tag types: title templates, meta description, keywords, OpenGraph, Twitter Cards, canonical URLs, geo/local targeting, robots directives, googleBot controls, schema.org JSON-LD structured data, PWA manifest, and enhanced image sitemap.
+- **Changes Applied**:
+  - **`layout.tsx`**: Title template (`default` + `%s | Little Karachi Express`). Description targets key Karachi food search queries. 14 keywords. `authors`, `creator`, `publisher`. `alternates.canonical` and `languages.en-PK`. Full `openGraph` block with `type: website`, `locale: en_PK`, `alternateLocale: ur_PK`, branded 1200×630 OG image + logo image. `twitter: summary_large_image` card. `robots` with googleBot `max-snippet: 160`, `max-image-preview: large`. Extended `icons` array (ICO + 192px + 512px + Apple 180px). `manifest: /manifest.webmanifest`. `other` block: `geo.region: PK-SD`, `geo.placename: Karachi`, `geo.position: 24.8607;67.0011`, `ICBM`, Apple PWA tags, `theme-color: #741052`, `msapplication-TileColor`, `format-detection: telephone=yes`. `html lang` → `en-PK`. `RestaurantJsonLd` injected in `<head>`.
+  - **`seoHelpers.ts`**: `generateItemMetadata(slug)` — connects to MongoDB, finds item by slug, builds metadata with price-aware description, Cloudinary image OG, Twitter card, 7-keyword array, canonical. `generatePlatterMetadata(slug)` — same for platters with platter-specific keywords.
+  - **`item/[slug]/page.tsx`**: Added `export async function generateMetadata({ params })` calling `generateItemMetadata(slug)`.
+  - **`platter/[slug]/page.tsx`**: Added `export async function generateMetadata({ params })` calling `generatePlatterMetadata(slug)`.
+  - **`RestaurantJsonLd.tsx`**: Server component (no `use client`). Injects 3 JSON-LD blocks: (1) `Restaurant + FoodEstablishment` — name, alternateName, logo, image, telephone, priceRange (PKR 200-3000), servesCuisine ×7, PostalAddress Karachi, GeoCoordinates (24.8607, 67.0011), OpeningHoursSpecification (18:30–03:00 daily), hasMenu, `OrderAction` + `ReserveAction`, sameAs Facebook+Instagram, contactPoint. (2) `WebSite` with `SearchAction` query-input for Sitelinks Searchbox. (3) Root `BreadcrumbList` Home→Menu.
+  - **`ProductJsonLd.tsx`**: Server component. Props: type, slug, name, description, image, price, inStock, category, variations. `@type: ["Product","MenuItem"]`. `AggregateOffer` when variationPrices.length > 1, else `Offer`. priceCurrency: PKR. `suitableForDiet: HalalDiet`. Per-page `BreadcrumbList` with category breadcrumb path. Ready for injection on `/item/[slug]` and `/platter/[slug]`.
+  - **`manifest.ts`**: `MetadataRoute.Manifest`. name, short_name, description, start_url /, standalone, portrait, background_color #25041a, theme_color #741052, categories food+lifestyle+shopping, lang en-PK, ltr. Icons: ICO any + 192px + 512px maskable. Shortcut: Order Now → /.
+  - **`sitemap.ts`**: Image sitemap extensions per entry — `images[]` with Cloudinary `loc`, branded `title`, descriptive `caption`. `updatedAt`-based `lastModified` with `createdAt` fallback.
+  - **`robots.ts`**: Separate rules for: search crawlers (full catalog), link scrapers/WhatsApp/Facebook (OG access), AI Search Bots (citation), AI training scrapers blocked (GPTBot, ClaudeBot, CCBot).
+  - **`public/og-banner.jpg`**: Generated 16:9 branded social share banner with food photography and branding.
+- **Rationale**: Comprehensive SEO ensures every share on WhatsApp/Facebook/Instagram shows the dish photo and price (boosting click-through), Google indexes the food catalog with rich snippets (restaurant knowledge panel, product prices), and AI search bots can cite the restaurant for local food queries.
+
+---
+
+## 0. Delivery Areas & Charges Revisions (CLK) (2026-09-24)
+- **Files**:
+  - `cafe-little-karachi/scripts/seed-delivery-areas.ts` (UPDATED & EXECUTED)
+- **Context & Goal**: Store management updated delivery pricing for Gulshan-e-Iqbal blocks, Johor Block 10, Scheme 33, Saadi Town, modified Bhitaiabad delivery policy from fully blocked to partially open (Rs. 300, blocked after 6:00 PM), and added Gulshan-e-Jamal + 8 new service regions.
+- **Changes Applied**:
+  - **Gulshan-e-Iqbal Blocks (1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 10A, 11, 13–19)**: Delivery charge updated from Rs. 250 to Rs. 280.
+  - **Johor Block 10**: Delivery charge updated from Rs. 250 to Rs. 280.
+  - **Scheme 33**: Delivery charge updated from Rs. 380 to Rs. 400.
+  - **Saadi Town / Societies on Saadi Town Road**: Delivery charge updated from Rs. 400 to Rs. 450.
+  - **Gulshan-e-Jamal**: Added as available delivery region with charge of Rs. 220.
+  - **Bhitaiabad**: Updated from `charge: 0, isAvailable: false, note: "Delivery not possible"` to `charge: 300, isAvailable: true, note: "Delivery not possible after 6:00 PM"`.
+  - **New Regions Added**:
+    - `AOHS` — Rs. 300
+    - `DOHS` — Rs. 300
+    - `KDA Officers Colony A, B` — Rs. 300
+    - `Gulistan Society` — Rs. 550
+    - `Teacher Sector 19-A` — Rs. 550
+    - `Halari Memon` — Rs. 550
+    - `Musalmanane Punjabi Saudagran` — Rs. 550
+    - `Tariq Road / SMCHS` — Rs. 500
+  - **Database Synchronization**: Executed `npx tsx scripts/seed-delivery-areas.ts` to sync the updated 55 delivery areas into the live MongoDB `deliveryareas` collection used by `/api/delivery-areas`, Checkout, and Cart components.
+- **Rationale**: Keeps storefront delivery fees and availability aligned with restaurant logistics.
+
 ---
 
 ## 0. Phase 2 Perf Fix — CLK LCP & Image Delivery Optimization (2026-09-24)

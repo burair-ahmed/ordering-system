@@ -5,9 +5,9 @@ tags:
   - #status/active
   - #project/ordering-ecosystem
 created: 2026-09-04
-last_updated: 2026-09-24
-overall_completion: "Phase 2 Perf Fix: LCP & Image Delivery Optimization (100%)"
-current_sprint: "CLK Performance Fix Plan — Phase 2 Complete (LCP priority, responsive sizes, AVIF/WebP formats)"
+last_updated: 2026-09-25
+overall_completion: "Phase SEO: Full-Spectrum SEO Optimization (100%)"
+current_sprint: "CLK SEO Phase — layout metadata, dynamic generateMetadata, JSON-LD schemas, PWA manifest, enhanced sitemap & robots.txt"
 ---
 
 # Project Status Dashboard — Advanced Ordering Ecosystem
@@ -16,8 +16,48 @@ current_sprint: "CLK Performance Fix Plan — Phase 2 Complete (LCP priority, re
 
 | Sub-Project | Phase | Focus | Status |
 | :--- | :--- | :--- | :--- |
+| **Cafe Little Karachi (CLK)** | SEO Phase | Full-Spectrum SEO: Global metadata, OG/Twitter cards, generateMetadata, JSON-LD schemas, PWA manifest, sitemap image extensions, robots.txt | **Completed** 🟢 |
+| **Cafe Little Karachi (CLK)** | Operations / Logistics | Delivery Areas & Charges Update (Gulshan-e-Iqbal Rs. 280, Bhitaiabad Rs. 300 + 6PM rule, 8 New Regions Seeded) | **Completed** 🟢 |
 | **Cafe Little Karachi (CLK)** | Phase 2 Perf | LCP Optimization (≤ 2.2s), AVIF/WebP, Responsive Sizes & Priority Preload Cleanup | **Completed** 🟢 |
 | **The Chai Company (TCC)** | Phase 4.32 | Centered Modern Tea Lounge Footer | **Completed** 🟢 |
+
+---
+
+## SEO Phase Completion Summary — Full-Spectrum SEO Optimization (CLK)
+
+- [x] **Global Metadata Engine (`src/app/layout.tsx`)**: Title template system (`default` + `%s | Little Karachi Express`), rich SEO description, 14 Karachi-specific keywords, full OpenGraph with branded 1200×630 OG banner + logo fallback, Twitter `summary_large_image` card, canonical URL, `robots` config with googleBot controls, extended icon set, `manifest` reference, geo tags (`geo.region: PK-SD`, `geo.placename: Karachi`, `geo.position`, `ICBM`), Apple PWA meta, `msapplication-TileColor`.
+- [x] **HTML `lang` attribute**: Changed `<html lang="en">` → `<html lang="en-PK">` for regional SEO signal.
+- [x] **SEO Helpers Library (`src/lib/seoHelpers.ts`)**: `generateItemMetadata(slug)` and `generatePlatterMetadata(slug)` — server-side functions building per-dish/platter dynamic metadata with price-aware descriptions, dish photo OG images, Twitter cards, keyword arrays, and canonical URLs from live MongoDB data.
+- [x] **Dynamic `generateMetadata` — Item Route (`src/app/item/[slug]/page.tsx`)**: WhatsApp/Facebook/Google previews now show the dish photo, price, and dish-specific title.
+- [x] **Dynamic `generateMetadata` — Platter Route (`src/app/platter/[slug]/page.tsx`)**: Gourmet platter pages carry platter-specific OG/Twitter metadata.
+- [x] **Restaurant JSON-LD (`src/app/components/RestaurantJsonLd.tsx`)**: `@type: ["Restaurant","FoodEstablishment"]` with geo, opening hours (18:30–03:00 daily), `OrderAction`, `ReserveAction`, `sameAs` (Facebook + Instagram). Also injects `WebSite` + `SearchAction` (Sitelinks Searchbox) and root `BreadcrumbList`. Injected globally via `<head>` in `layout.tsx`.
+- [x] **Product JSON-LD (`src/app/components/ProductJsonLd.tsx`)**: `@type: ["Product","MenuItem"]` with `AggregateOffer`/single `Offer`, PKR pricing, `InStock` availability, Halal diet, and per-page `BreadcrumbList`. Ready for injection on item/platter pages.
+- [x] **PWA Web App Manifest (`src/app/manifest.ts`)**: Native Next.js App Router manifest — `standalone` display, `#741052` theme, multi-size icons, `Order Now` shortcut, `food` categories, `en-PK` lang.
+- [x] **Enhanced Sitemap (`src/app/sitemap.ts`)**: Google Image Sitemap entries for every dish and platter (Cloudinary image `loc`, `title`, `caption`). `updatedAt`-based `lastModified` timestamps.
+- [x] **Enhanced robots.txt (`src/app/robots.ts`)**: Granular per-user-agent rules — full catalog access for search bots and link scrapers; AI Search Bots allowed; AI training scrapers (GPTBot, ClaudeBot, CCBot) blocked.
+- [x] **OG Banner Image (`public/og-banner.jpg`)**: Generated branded 1200×630 social share image — biryani, karahi, BBQ spread on dark plum background. Used in OG + Twitter metadata.
+- [x] **TypeScript Validation**: `npx tsc --noEmit` exit code 0 — zero errors across all new/modified files.
+
+---
+
+## Delivery Areas & Charges Revision Completion Summary (CLK)
+
+- [x] **Gulshan-e-Iqbal Charges Revised (`scripts/seed-delivery-areas.ts`)**: Updated delivery charges from Rs. 250 to Rs. 280 across all 19 Gulshan-e-Iqbal blocks (Blocks 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 10A, 11, 13, 14, 15, 16, 17, 18, 19).
+- [x] **Johor Block 10 Revised (`scripts/seed-delivery-areas.ts`)**: Updated delivery charge from Rs. 250 to Rs. 280.
+- [x] **Scheme 33 Revised (`scripts/seed-delivery-areas.ts`)**: Updated delivery charge from Rs. 380 to Rs. 400.
+- [x] **Saadi Town / Societies on Saadi Town Road Revised (`scripts/seed-delivery-areas.ts`)**: Updated delivery charge from Rs. 400 to Rs. 450.
+- [x] **Gulshan-e-Jamal Added (`scripts/seed-delivery-areas.ts`)**: Added missing region `Gulshan-e-Jamal` (Rs. 220, Available).
+- [x] **Bhitaiabad Availability & Timing Update (`scripts/seed-delivery-areas.ts`)**: Changed status from fully blocked (`isAvailable: false, charge: 0`) to partially available (`isAvailable: true, charge: 300, note: "Delivery not possible after 6:00 PM"`).
+- [x] **New Delivery Regions Added (`scripts/seed-delivery-areas.ts`)**: Seeded new regions into the database:
+  - `AOHS` (Rs. 300)
+  - `DOHS` (Rs. 300)
+  - `KDA Officers Colony A, B` (Rs. 300)
+  - `Gulistan Society` (Rs. 550)
+  - `Teacher Sector 19-A` (Rs. 550)
+  - `Halari Memon` (Rs. 550)
+  - `Musalmanane Punjabi Saudagran` (Rs. 550)
+  - `Tariq Road / SMCHS` (Rs. 500)
+- [x] **Database Re-Seeding & Sync**: Executed `npx tsx scripts/seed-delivery-areas.ts` successfully; 55 delivery areas active and populated in MongoDB `deliveryareas` collection.
 
 ---
 
