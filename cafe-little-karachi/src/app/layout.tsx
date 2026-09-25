@@ -96,14 +96,14 @@ export const metadata: Metadata = {
       "Order authentic Karachi Biryani, gourmet platters, Karahi, BBQ, and fast food online. Premium dine-in, takeaway, and express delivery across Karachi.",
     images: [
       {
-        url: `${BASE_URL}/og-banner.jpg`,
+        url: "https://res.cloudinary.com/dubg6octv/image/upload/v1790323590/cafe-little-karachi/seo/clk_og_banner.jpg",
         width: 1200,
         height: 630,
         alt: "Little Karachi Express — Authentic Karachi Food & Fast Delivery",
         type: "image/jpeg",
       },
       {
-        url: `${BASE_URL}/hd-logo.webp`,
+        url: "https://res.cloudinary.com/dubg6octv/image/upload/v1790323622/cafe-little-karachi/seo/clk_hd_logo.webp",
         width: 512,
         height: 512,
         alt: "Little Karachi Express Logo",
@@ -120,7 +120,7 @@ export const metadata: Metadata = {
     title: "Little Karachi Express | Authentic Karachi Food & Fast Delivery",
     description:
       "Order authentic Karachi Biryani, gourmet platters, Karahi, BBQ, and fast food online. Premium dine-in, takeaway, and express delivery across Karachi.",
-    images: [`${BASE_URL}/og-banner.jpg`],
+    images: ["https://res.cloudinary.com/dubg6octv/image/upload/v1790323590/cafe-little-karachi/seo/clk_og_banner.jpg"],
   },
 
   // ── Robots ─────────────────────────────────────────────────────────────────

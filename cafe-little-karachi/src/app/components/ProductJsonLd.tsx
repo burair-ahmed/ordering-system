@@ -46,7 +46,9 @@ export default function ProductJsonLd({
   variations,
 }: ProductJsonLdProps) {
   const pageUrl = `${BASE_URL}/${type === 'item' ? 'item' : 'platter'}/${slug}`;
-  const imageUrl = image || `${BASE_URL}/og-banner.jpg`;
+  const imageUrl =
+    image ||
+    'https://res.cloudinary.com/dubg6octv/image/upload/v1790323590/cafe-little-karachi/seo/clk_og_banner.jpg';
 
   const availability = inStock
     ? 'https://schema.org/InStock'

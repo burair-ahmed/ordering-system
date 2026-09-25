@@ -15,6 +15,9 @@ const BASE_URL = (
   'https://cafelittlekarachi.com'
 ).replace(/\/+$/, '');
 
+const CLK_DEFAULT_OG_BANNER =
+  'https://res.cloudinary.com/dubg6octv/image/upload/v1790323590/cafe-little-karachi/seo/clk_og_banner.jpg';
+
 // ─── Item (MenuItem) Metadata ────────────────────────────────────────────────
 
 export async function generateItemMetadata(slug: string): Promise<Metadata> {
@@ -49,7 +52,7 @@ export async function generateItemMetadata(slug: string): Promise<Metadata> {
       : `Order ${item.title} starting from Rs. ${minPrice} at Little Karachi Express. Fast delivery across Karachi.`;
 
     const canonicalUrl = `${BASE_URL}/item/${slug}`;
-    const imageUrl = item.image || `${BASE_URL}/og-banner.jpg`;
+    const imageUrl = item.image || CLK_DEFAULT_OG_BANNER;
 
     return {
       title,
@@ -82,7 +85,7 @@ export async function generateItemMetadata(slug: string): Promise<Metadata> {
             type: 'image/jpeg',
           },
           {
-            url: `${BASE_URL}/og-banner.jpg`,
+            url: CLK_DEFAULT_OG_BANNER,
             width: 1200,
             height: 630,
             alt: 'Little Karachi Express — Authentic Karachi Food',
@@ -137,7 +140,7 @@ export async function generatePlatterMetadata(slug: string): Promise<Metadata> {
       : `Order ${platter.title} feast platter starting from Rs. ${price} at Little Karachi Express. Express delivery and dine-in available across Karachi.`;
 
     const canonicalUrl = `${BASE_URL}/platter/${slug}`;
-    const imageUrl = platter.image || `${BASE_URL}/og-banner.jpg`;
+    const imageUrl = platter.image || CLK_DEFAULT_OG_BANNER;
 
     return {
       title,
@@ -171,7 +174,7 @@ export async function generatePlatterMetadata(slug: string): Promise<Metadata> {
             type: 'image/jpeg',
           },
           {
-            url: `${BASE_URL}/og-banner.jpg`,
+            url: CLK_DEFAULT_OG_BANNER,
             width: 1200,
             height: 630,
             alt: 'Little Karachi Express — Authentic Karachi Food',

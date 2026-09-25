@@ -30,13 +30,13 @@ export default function RestaurantJsonLd() {
     url: BASE_URL,
     logo: {
       '@type': 'ImageObject',
-      url: `${BASE_URL}/hd-logo.webp`,
+      url: 'https://res.cloudinary.com/dubg6octv/image/upload/v1790323622/cafe-little-karachi/seo/clk_hd_logo.webp',
       width: 512,
       height: 512,
     },
     image: [
-      `${BASE_URL}/og-banner.jpg`,
-      `${BASE_URL}/hd-logo.webp`,
+      'https://res.cloudinary.com/dubg6octv/image/upload/v1790323590/cafe-little-karachi/seo/clk_og_banner.jpg',
+      'https://res.cloudinary.com/dubg6octv/image/upload/v1790323622/cafe-little-karachi/seo/clk_hd_logo.webp',
     ],
     telephone: '+923331702706',
     priceRange: 'PKR 200 – PKR 3000',
