@@ -11,6 +11,13 @@ last_updated: 2026-09-11
 # Next Steps & Handoff Guide — Advanced Ordering Ecosystem
 
 ## Completed in Current Sprint
+- [x] **Floating Cart Button with Radar Attention Ring (CLK)**:
+  - Created circular floating cart button positioned at `top-[10%] right-4 sm:right-6 md:right-8` in high z-index (`z-50`).
+  - Integrated `window.scrollY > 80` scroll detection with Framer Motion spring enter/exit transitions so button appears smoothly upon scrolling.
+  - Implemented `@keyframes cartRadarPing` radar/sonar pulse ring animation with low opacity (0.45-0.5) scaling from 100% to 175% over 2.2s loops behind the button.
+  - Activated the pulse ring strictly when cart has 1 or more items (`totalItems > 0`) as a subtle reminder.
+  - Added real-time item counter badge in red (`#ff3b30`) with white bold text.
+  - Connected `isCartOpen`, `openCart`, `closeCart`, and `toggleCart` across `CartContext`, `Header.tsx`, and `layout.tsx`.
 - [x] **Live Orders Cancel Order Section & Void Management (CLK)**:
   - Added dedicated `CANCELLED (Voided)` filter section and top HUD trigger card with real-time count.
   - Implemented 1-click `[ ✕ Cancel Order ]` controls for active orders in Grid, Kanban, Table, and POS Ticket modal views.

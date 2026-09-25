@@ -27,6 +27,11 @@ interface CartContextType {
   orderType: OrderType;
   orderIdentifier: string;
   setOrderContext: (type: OrderType, identifier?: string) => void;
+  isCartOpen: boolean;
+  setIsCartOpen: (isOpen: boolean | ((prev: boolean) => boolean)) => void;
+  openCart: () => void;
+  closeCart: () => void;
+  toggleCart: () => void;
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
@@ -53,7 +58,12 @@ function CartProviderInner({ children }: CartProviderProps) {
   }, [orderType, ctxTableId, ctxArea]);
 
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
+  const [isCartOpen, setIsCartOpen] = useState(false);
   const isLoaded = useRef(false);
+
+  const openCart = () => setIsCartOpen(true);
+  const closeCart = () => setIsCartOpen(false);
+  const toggleCart = () => setIsCartOpen((prev) => !prev);
 
   // Compute total amount derived directly from cart items
   const totalAmount = useMemo(
@@ -207,6 +217,11 @@ function CartProviderInner({ children }: CartProviderProps) {
         orderType,
         orderIdentifier,
         setOrderContext,
+        isCartOpen,
+        setIsCartOpen,
+        openCart,
+        closeCart,
+        toggleCart,
       }}
     >
       {children}

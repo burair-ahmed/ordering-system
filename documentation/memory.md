@@ -8,6 +8,27 @@ created: 2026-09-04
 last_updated: 2026-09-25
 ---
 
+## 0. Phase 4.44 Micro-Change — CLK Floating Cart Button with Radar Pulse Ring (2026-09-25)
+
+### Floating Cart Button Component & Sonar Ping Attention Effect
+- **Files**:
+  - `cafe-little-karachi/src/app/components/FloatingCartButton.tsx` (NEW)
+  - `cafe-little-karachi/src/app/context/CartContext.tsx` (UPDATED)
+  - `cafe-little-karachi/src/app/components/Header.tsx` (UPDATED)
+  - `cafe-little-karachi/src/app/layout.tsx` (UPDATED)
+  - `cafe-little-karachi/src/app/globals.css` (UPDATED)
+- **Context & Goal**: Implement a fixed floating cart trigger button at the top-right of the viewport (~10% down) that appears after scrolling down, showing the active item count in a red badge, opening the cart drawer on click, and featuring a gentle radar/sonar ping pulse ring animation when 1 or more items are in the cart.
+- **Changes Applied**:
+  - **`FloatingCartButton.tsx`**: Created circular floating cart button (56–64px diameter) with brand plum gradient (`bg-[#5c0d40] hover:bg-[#741052]`), high z-index (`z-50`), white `ShoppingBag` icon, and red counter badge (`bg-[#ff3b30]` with white text). Sits at `top-[10%] right-4 sm:right-6 md:right-8`.
+  - **Scroll-Reveal & Drawer Suppression Logic**: Added `window.scrollY > 80` scroll detection with Framer Motion spring enter/exit transitions (`scale: 0.6 -> 1`, `opacity: 0 -> 1`), ensuring smooth appearance only when scrolling down into the catalog. Button automatically hides when the cart drawer is open (`!isCartOpen`) to prevent duplicate cart visuals and clutter, and is hidden on `/admin*` routes.
+  - **Radar Pulse Ring Animation (`globals.css`)**: Defined `@keyframes cartRadarPing` scaling from 100% to 175% while fading opacity from 0.5 to 0 over a 2.2s loop. Rendered with `pointer-events: none` positioned behind the button (`-z-10` / `z-0`), active strictly when `totalItems > 0`.
+  - **`CartContext.tsx`**: Added `isCartOpen`, `setIsCartOpen`, `openCart`, `closeCart`, and `toggleCart` to the global `CartContext`, allowing any component to open the shared drawer.
+  - **`Header.tsx`**: Replaced local `isCartOpen` state with `useCart()`'s `isCartOpen` and `toggleCart()`, synchronizing the desktop/mobile header cart button with the floating cart button.
+  - **`layout.tsx`**: Mounted `<FloatingCartButton />` globally inside `<CartProvider>`.
+- **Rationale**: Provides high-intent shoppers with quick, persistent access to their order without blocking catalog browsing, while the subtle radar pulse acts as an intuitive visual nudge when items are waiting in their cart, disappearing automatically when the cart drawer is actively inspected.
+
+---
+
 ## 0. SEO Phase — Full-Spectrum SEO Optimization (CLK) (2026-09-25)
 
 ### Complete SEO Infrastructure Implementation

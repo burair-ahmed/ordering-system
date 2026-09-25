@@ -15,6 +15,7 @@ import { MetaPixelProvider } from "./providers/MetaPixelProvider";
 import dynamic from "next/dynamic";
 import RestaurantStatusPopup from "./components/RestaurantStatusPopup";
 import WhatsAppButton from "./components/WhatsAppButton";
+import FloatingCartButton from "./components/FloatingCartButton";
 import OrderSourceCapture from "./components/OrderSourceCapture";
 import TableForm from "./components/TableForm";
 import RestaurantJsonLd from "./components/RestaurantJsonLd";
@@ -207,6 +208,7 @@ export default function RootLayout({
                     </main>
                     <Footer />
                     <WhatsAppButton />
+                    <FloatingCartButton />
                   </CartProvider>
                 </OrderProvider>
               </TableProvider>

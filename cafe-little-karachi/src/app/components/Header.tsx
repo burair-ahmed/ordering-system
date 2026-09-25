@@ -17,9 +17,8 @@ import { trackEvent } from '../lib/analytics';
 
 export default function Header() {
   const pathname = usePathname();
-  const [isCartOpen, setIsCartOpen] = useState(false);
+  const { cartItems, isCartOpen, setIsCartOpen, toggleCart } = useCart();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const { cartItems } = useCart();
   const {
     orderType,
     area,
@@ -29,7 +28,7 @@ export default function Header() {
   } = useOrder();
 
   const toggleCartSidebar = () => {
-    setIsCartOpen((prev) => !prev);
+    toggleCart();
   };
 
   if (pathname?.startsWith('/admin')) return null;

@@ -6,8 +6,8 @@ tags:
   - #project/ordering-ecosystem
 created: 2026-09-04
 last_updated: 2026-09-25
-overall_completion: "Phase SEO: Full-Spectrum SEO Optimization (100%)"
-current_sprint: "CLK SEO Phase — layout metadata, dynamic generateMetadata, JSON-LD schemas, PWA manifest, enhanced sitemap & robots.txt"
+overall_completion: "Phase 4.44: Floating Cart Button with Animated Radar Attention Ring (100%)"
+current_sprint: "CLK Floating Cart Button — scroll-revealed top-right fixed cart trigger with reactive counter badge & radar sonar pulse ring"
 ---
 
 # Project Status Dashboard — Advanced Ordering Ecosystem
@@ -16,10 +16,21 @@ current_sprint: "CLK SEO Phase — layout metadata, dynamic generateMetadata, JS
 
 | Sub-Project | Phase | Focus | Status |
 | :--- | :--- | :--- | :--- |
+| **Cafe Little Karachi (CLK)** | Phase 4.44 | Floating Cart Button: Fixed top-right 10%, scroll-reveal, live count badge, and low-opacity radar sonar ping ring | **Completed** 🟢 |
 | **Cafe Little Karachi (CLK)** | SEO Phase | Full-Spectrum SEO: Global metadata, OG/Twitter cards, generateMetadata, JSON-LD schemas, PWA manifest, sitemap image extensions, robots.txt | **Completed** 🟢 |
 | **Cafe Little Karachi (CLK)** | Operations / Logistics | Delivery Areas & Charges Update (Gulshan-e-Iqbal Rs. 280, Bhitaiabad Rs. 300 + 6PM rule, 8 New Regions Seeded) | **Completed** 🟢 |
 | **Cafe Little Karachi (CLK)** | Phase 2 Perf | LCP Optimization (≤ 2.2s), AVIF/WebP, Responsive Sizes & Priority Preload Cleanup | **Completed** 🟢 |
 | **The Chai Company (TCC)** | Phase 4.32 | Centered Modern Tea Lounge Footer | **Completed** 🟢 |
+
+---
+
+## Phase 4.44 Completion Summary — Floating Cart Button with Radar Attention Ring (CLK)
+
+- [x] **Component Architecture (`src/app/components/FloatingCartButton.tsx`)**: Created circular floating cart button positioned at `fixed top-[10%] right-4 sm:right-6 md:right-8 z-50` with luxury brand plum background (`bg-[#5c0d40] hover:bg-[#741052]`), white shopping bag icon (`ShoppingBag`), and red cart counter badge (`bg-[#ff3b30]`).
+- [x] **Scroll-Driven Entrance & Exit (`FloatingCartButton.tsx`)**: Wired `window.scrollY > 80` scroll detection with Framer Motion spring enter/exit transitions (`scale: 0.6 -> 1`, `opacity: 0 -> 1`), ensuring the button appears only after scrolling down, automatically hides when the cart drawer is opened (`!isCartOpen`), and remains hidden on admin routes.
+- [x] **Low-Opacity Radar Pulse Ring Animation (`globals.css`, `FloatingCartButton.tsx`)**: Implemented `@keyframes cartRadarPing` scaling from 100% to 175% while fading opacity from 0.5 to 0 over 2.2s loops. Positioned visually behind the button (`pointer-events: none`, `z-0`) and activated strictly when `totalItems > 0` as a subtle reminder.
+- [x] **Universal Drawer Synchronization (`CartContext.tsx`, `Header.tsx`, `layout.tsx`)**: Added `isCartOpen`, `setIsCartOpen`, `openCart`, `closeCart`, and `toggleCart` to `CartContext`, keeping the Header cart button and floating cart button 100% in sync with the `CartSidebar` drawer.
+- [x] **TypeScript Validation**: Passed `npx tsc --noEmit` with exit code 0.
 
 ---
 
