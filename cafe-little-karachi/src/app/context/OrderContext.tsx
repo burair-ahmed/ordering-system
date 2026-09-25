@@ -24,6 +24,7 @@ interface OrderState {
   isLocationModalOpen?: boolean;
   isStatusModalOpen?: boolean;
   isDirectLinkCustomer?: boolean;
+  isProductModalOpen?: boolean;
 }
 
 interface OrderContextValue extends OrderState {
@@ -32,8 +33,10 @@ interface OrderContextValue extends OrderState {
   setCheckoutModalOpen: (isOpen: boolean) => void;
   setLocationModalOpen: (isOpen: boolean) => void;
   setStatusModalOpen: (isOpen: boolean) => void;
+  setProductModalOpen: (isOpen: boolean) => void;
   isLocationSet: boolean;
   isDirectLinkCustomer: boolean;
+  isProductModalOpen: boolean;
 }
 
 // ─── Cookie Helpers ───────────────────────────────────────────────────────────
@@ -206,6 +209,12 @@ export function OrderProvider({ children }: { children: ReactNode }) {
     });
   }, []);
 
+  const [isProductModalOpen, setProductModalOpenState] = useState(false);
+
+  const setProductModalOpen = useCallback((isOpen: boolean) => {
+    setProductModalOpenState(isOpen);
+  }, []);
+
   const setStatusModalOpen = useCallback((isOpen: boolean) => {
     setOrderState((prev) => {
       if (prev.isStatusModalOpen === isOpen) return prev;
@@ -240,10 +249,12 @@ export function OrderProvider({ children }: { children: ReactNode }) {
       setCheckoutModalOpen,
       setLocationModalOpen,
       setStatusModalOpen,
+      setProductModalOpen,
       isLocationSet,
       isDirectLinkCustomer,
+      isProductModalOpen,
     }),
-    [order, setOrder, clearOrder, setCheckoutModalOpen, setLocationModalOpen, setStatusModalOpen, isLocationSet, isDirectLinkCustomer]
+    [order, setOrder, clearOrder, setCheckoutModalOpen, setLocationModalOpen, setStatusModalOpen, setProductModalOpen, isLocationSet, isDirectLinkCustomer, isProductModalOpen]
   );
 
   return (
@@ -260,8 +271,10 @@ const defaultOrderContext: OrderContextValue = {
   setCheckoutModalOpen: () => {},
   setLocationModalOpen: () => {},
   setStatusModalOpen: () => {},
+  setProductModalOpen: () => {},
   isLocationSet: false,
   isDirectLinkCustomer: false,
+  isProductModalOpen: false,
 };
 
 export function useOrder() {

@@ -5,14 +5,19 @@ import { usePathname } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ShoppingBag } from 'lucide-react';
 import { useCart } from '../context/CartContext';
+import { useOrder } from '../context/OrderContext';
 
 export default function FloatingCartButton() {
   const pathname = usePathname();
   const { cartItems, isCartOpen, openCart } = useCart();
+  const { isProductModalOpen } = useOrder();
   const [isVisible, setIsVisible] = useState(false);
 
   // Total quantity of items in cart
   const totalItems = cartItems.reduce((total, item) => total + (item.quantity || 0), 0);
+
+  // Check if any product popup is active (state or direct product URL)
+  const isProductPopupActive = isProductModalOpen || pathname?.startsWith('/item/') || pathname?.startsWith('/platter/');
 
   // Show floating button only after scrolling down a bit
   useEffect(() => {
@@ -37,7 +42,7 @@ export default function FloatingCartButton() {
 
   return (
     <AnimatePresence>
-      {isVisible && !isCartOpen && (
+      {isVisible && !isCartOpen && !isProductPopupActive && (
         <motion.div
           initial={{ opacity: 0, scale: 0.6, y: -15 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}

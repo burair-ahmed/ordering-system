@@ -39,10 +39,20 @@ interface MenuItemProps {
 }
 
 const MenuItem: FC<MenuItemProps> = ({ item, cardStyle = 'gourmet', initialOpen = false }) => {
-  const { setStatusModalOpen } = useOrder();
+  const { setStatusModalOpen, setProductModalOpen } = useOrder();
   const { addToCart } = useCart();
   const [showModal, setShowModal] = useState(initialOpen);
   const [showAddedMessage, setShowAddedMessage] = useState(false);
+
+  // Synchronize global product modal state
+  useEffect(() => {
+    if (showModal) {
+      setProductModalOpen(true);
+      return () => {
+        setProductModalOpen(false);
+      };
+    }
+  }, [showModal, setProductModalOpen]);
 
   const itemId = item.id ? item.id.toString() : "0";
   const originalPrice = typeof item.price === "number" ? item.price : 0;

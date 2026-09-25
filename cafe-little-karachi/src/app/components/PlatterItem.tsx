@@ -56,11 +56,22 @@ interface PlatterItemProps {
 const platterCategoryCache = new Map<string, any[]>();
 
 const PlatterItem: FC<PlatterItemProps> = ({ platter, cardStyle = 'gourmet', initialOpen = false }) => {
-  const { setStatusModalOpen } = useOrder();
+  const { setStatusModalOpen, setProductModalOpen } = useOrder();
   const { addToCart } = useCart();
 
   const [showModal, setShowModal] = useState(initialOpen);
   const [showAddedMessage, setShowAddedMessage] = useState(false);
+
+  // Synchronize global product modal state
+  useEffect(() => {
+    if (showModal) {
+      setProductModalOpen(true);
+      return () => {
+        setProductModalOpen(false);
+      };
+    }
+  }, [showModal, setProductModalOpen]);
+
   const [categoryItems, setCategoryItems] = useState<{
     [key: string]: any[];
   }>({});
