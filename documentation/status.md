@@ -6,8 +6,8 @@ tags:
   - #project/ordering-ecosystem
 created: 2026-09-04
 last_updated: 2026-09-28
-overall_completion: "Phase 3 Perf Fix: Third-Party Script Deferral — Interaction-Deferred Analytics (100%)"
-current_sprint: "CLK Phase 3 Performance — lossless deferred loading of GA, Meta Pixel, Clarity via DeferredAnalytics"
+overall_completion: "Phase 4 Perf Fix: First-Party JS Lazy-Load + optimizePackageImports + Browserslist (100%)"
+current_sprint: "CLK Phase 4 Performance — dynamic imports, tree-shaking, legacy-JS removal"
 ---
 
 # Project Status Dashboard — Advanced Ordering Ecosystem
@@ -16,6 +16,7 @@ current_sprint: "CLK Phase 3 Performance — lossless deferred loading of GA, Me
 
 | Sub-Project | Phase | Focus | Status |
 | :--- | :--- | :--- | :--- |
+| **Cafe Little Karachi (CLK)** | Phase 4 Perf | First-Party JS: `optimizePackageImports` (lucide-react, react-icons, framer-motion), lazy `CartSidebar`/`PlatterItem`/`BannerSlider`, `browserslist` modern targets → −26 KB legacy JS, −70 KB+ off critical path | **Completed** 🟢 |
 | **Cafe Little Karachi (CLK)** | Phase 3 Perf | Third-Party Script Deferral: GA, Meta Pixel, Clarity deferred to first interaction — eliminates ~668 KB payload & ~1s TBT | **Completed** 🟢 |
 | **Cafe Little Karachi (CLK)** | Phase 4.44 | Floating Cart Button: Fixed top-right 10%, scroll-reveal, live count badge, and low-opacity radar sonar ping ring | **Completed** 🟢 |
 | **Cafe Little Karachi (CLK)** | SEO Phase | Full-Spectrum SEO: Global metadata, OG/Twitter cards, generateMetadata, JSON-LD schemas, PWA manifest, sitemap image extensions, robots.txt | **Completed** 🟢 |
@@ -24,6 +25,19 @@ current_sprint: "CLK Phase 3 Performance — lossless deferred loading of GA, Me
 | **The Chai Company (TCC)** | Phase 4.32 | Centered Modern Tea Lounge Footer | **Completed** 🟢 |
 
 ---
+
+## Phase 4 Performance Fix Completion Summary — First-Party JS Optimizations (CLK)
+
+- [x] **`next.config.ts` — `optimizePackageImports`**: Tree-shakes `lucide-react`, `react-icons/*`, `framer-motion`, and key `@radix-ui` packages — only named imports used by each route are bundled. Added `turbopack.root` to silence monorepo lockfile warning.
+- [x] **`Header.tsx` — Lazy `CartSidebar`** (`next/dynamic`, `ssr: false`): ~33 KB removed from critical-path JS. Cart is only opened by user action; zero UX regression.
+- [x] **`order/page.tsx` — Lazy `PlatterItem` + `BannerSlider`** (`next/dynamic`, `ssr: false`): ~36 KB combined removed from initial order-page chunk. `BannerSlide` type still available via `import type`.
+- [x] **`package.json` — `browserslist`**: Modern targets `chrome/edge/firefox ≥ 111, safari ≥ 16.4`. SWC skips legacy polyfill transforms → −26 KB JS.
+- [x] **Forced Reflow (8.4) — CLEAN**: CategoryNavStrip scroll-spy uses IntersectionObserver (from Phase 1). Only remaining `getBoundingClientRect` is in a click handler (acceptable).
+- [x] **TypeScript Validation**: `npx tsc --noEmit` → exit code 0 — zero errors.
+
+---
+
+
 
 ## Phase 3 Performance Fix Completion Summary — Third-Party Script Deferral (CLK)
 

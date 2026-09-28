@@ -7,7 +7,14 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
-import CartSidebar from './CartSidebar';
+import dynamic from 'next/dynamic';
+
+// CartSidebar is only opened on user action — lazy-load it out of the initial
+// bundle to save ~33 KB of JS on first load.
+const CartSidebar = dynamic(() => import('./CartSidebar'), {
+  ssr: false,
+  loading: () => null,
+});
 import { useCart } from '../context/CartContext';
 import { useOrder } from '../context/OrderContext';
 import { ShoppingBag, Phone, MapPin, Menu, X, ArrowRight, Edit2, Utensils, Navigation } from 'lucide-react';

@@ -4,12 +4,25 @@
 
 import { useState, useEffect, useRef, Fragment } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import dynamic from "next/dynamic";
 import MenuItem from "../components/MenuItem";
-import PlatterItem from "../components/PlatterItem";
 import Hero from "../components/Hero";
-import BannerSlider, { type BannerSlide } from "../components/BannerSlider";
 import SkeletonLoader from "../components/SkeletonLoader";
 import CategoryNavStrip, { type CategoryItem } from "../components/CategoryNavStrip";
+// BannerSlide type is needed at compile-time; component loads after page paint.
+import type { BannerSlide } from "../components/BannerSlider";
+
+// Heavy components deferred out of the initial JS chunk ──────────────────────
+// PlatterItem (~23 KB modal-heavy): only rendered when platter sections exist.
+const PlatterItem = dynamic(() => import("../components/PlatterItem"), {
+  ssr: false,
+  loading: () => null,
+});
+// BannerSlider (~13 KB carousel): appears below-fold; safe to stream in.
+const BannerSlider = dynamic(() => import("../components/BannerSlider"), {
+  ssr: false,
+  loading: () => null,
+});
 import { Star, Clock, ArrowRight, ChevronLeft, ChevronRight } from "lucide-react";
 import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";

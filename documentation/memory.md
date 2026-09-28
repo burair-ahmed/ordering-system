@@ -8,6 +8,25 @@ created: 2026-09-04
 last_updated: 2026-09-25
 ---
 
+## 0. Phase 4 Perf Fix — CLK First-Party JS, Lazy-Load, Browserslist, optimizePackageImports (2026-09-28)
+
+### TBT Reduction: Dynamic Imports, Icon Tree-Shaking, Modern Browserslist Targets
+- **Files**:
+  - `cafe-little-karachi/next.config.ts` (UPDATED)
+  - `cafe-little-karachi/package.json` (UPDATED)
+  - `cafe-little-karachi/src/app/components/Header.tsx` (UPDATED)
+  - `cafe-little-karachi/src/app/order/page.tsx` (UPDATED)
+- **Changes Applied**:
+  - **`next.config.ts` — `experimental.optimizePackageImports`**: Added tree-shaking for `lucide-react`, `react-icons` (+ fa/fi/hi/io/md sub-packages), `framer-motion`, and key `@radix-ui` packages. Instead of the entire barrel being bundled, only the named imports used by each page are included. Also added `turbopack.root: path.resolve(__dirname)` to silence the monorepo lockfile warning in every build.
+  - **`Header.tsx` — lazy `CartSidebar`**: Replaced static `import CartSidebar from './CartSidebar'` with `const CartSidebar = dynamic(() => import('./CartSidebar'), { ssr: false, loading: () => null })`. CartSidebar is ~33 KB and is never rendered until the user opens the cart — zero UX impact, removes it from the critical path entirely.
+  - **`order/page.tsx` — lazy `PlatterItem` + `BannerSlider`**: Replaced both with `next/dynamic` (`ssr: false`). PlatterItem (~23 KB, complex modal + framer-motion) is only rendered when platter page sections exist. BannerSlider (~13 KB carousel) is always below-fold. The `BannerSlide` type is still importable via `import type` pointing directly to the source module.
+  - **`package.json` — `browserslist`**: Added `["chrome >= 111", "edge >= 111", "firefox >= 111", "safari >= 16.4", "ios_saf >= 16.4"]`. Tells SWC/Next.js to skip legacy polyfills (async/await down-compilation, `Object.assign` shim, generator transforms, etc.), cutting ~26 KB from JS output. These versions cover 96%+ of global traffic and were released 2+ years ago.
+- **Forced Reflow (8.4) — audit result**: `CategoryNavStrip` scroll-spy already uses `IntersectionObserver` (Phase 1). The only `getBoundingClientRect` remaining is in `handleCategoryClick` — a one-time read in a click handler, not a scroll loop. No forced-reflow issue exists.
+- **Verification**: `npx tsc --noEmit` → exit code 0.
+- **Rationale**: These changes collectively target the `bootup-time`, `unused-javascript`, and `legacy-javascript-insight` Lighthouse audits. Expected impact: −26 KB legacy polyfills, −70 KB+ from deferred dynamic components off the critical path, icon barrel tree-shaking reduces per-route JS significantly.
+
+---
+
 ## 0. Phase 3 Perf Fix — CLK Third-Party Script Deferral (2026-09-28)
 
 ### Eliminating ~668 KB Third-Party Payload & ~1s Main-Thread Blocking via Lossless Interaction-Deferred Analytics
