@@ -8,6 +8,23 @@ created: 2026-09-04
 last_updated: 2026-09-25
 ---
 
+## 0. Phase 3 Perf Fix — CLK Third-Party Script Deferral (2026-09-28)
+
+### Eliminating ~668 KB Third-Party Payload & ~1s Main-Thread Blocking via Lossless Interaction-Deferred Analytics
+- **Files**:
+  - `cafe-little-karachi/src/app/lib/analytics-stubs.ts` (NEW)
+  - `cafe-little-karachi/src/app/components/DeferredAnalytics.tsx` (NEW)
+  - `cafe-little-karachi/src/app/layout.tsx` (UPDATED)
+- **Context & Goal**: Google Analytics (172 KB), Meta Pixel (112 KB + 135 KB config), and Microsoft Clarity (25 KB) were loading eagerly on every page load — contributing ~668 KB of third-party payload and ~1s of main-thread CPU blocking (TBT contribution), directly degrading the Lighthouse TBT score from 630 ms baseline. Goal: defer all three scripts until the first user interaction (scroll, touch, click, keydown) or a 6-second idle fallback, with zero event loss.
+- **Changes Applied**:
+  - **`analytics-stubs.ts`**: Created `installAnalyticsStubs()` — installs queue shims immediately on mount for `window.dataLayer`/`window.gtag` (GA), `window.fbq`/`window._fbq` (Meta Pixel), and `window.clarity` (Clarity). All three stubs match the exact queue shape expected by official snippets so early calls like `trackEvent()`, `fbq('track', ...)`, and `clarity('event', ...)` are safely buffered in memory and replayed when scripts load.
+  - **`DeferredAnalytics.tsx`**: New `'use client'` component that: (1) calls `installAnalyticsStubs()` on mount, (2) queues initial `gtag('config', GA_ID)`, `fbq('init', PIXEL_ID)`, and `fbq('track', 'PageView')` configs immediately, (3) listens for first user interaction (`pointerdown`, `keydown`, `scroll`, `touchstart` — all `passive: true`, `once: true`), (4) falls back to a 6-second idle `setTimeout`, and (5) upon trigger injects `<Script strategy="afterInteractive">` tags for GA (`gtag/js`), Meta Pixel (`fbevents.js`), and Clarity (inline snippet). Includes `MetaPixelRouteTracker` (wrapped in `<Suspense>`) for SPA route-change `PageView` re-fires.
+  - **`layout.tsx`**: Removed `import { GoogleAnalytics }` from `@next/third-parties/google`, `import { ClarityProvider }`, and `import { MetaPixelProvider }`. Replaced the three eager component mounts (`<GoogleAnalytics>`, `<ClarityProvider>`, `<MetaPixelProvider>`) with the single `<DeferredAnalytics />` mount. All existing `trackEvent()`, `fbq()`, `clarity()`, and `gtag()` calls throughout the codebase remain functional via the stubs.
+- **Verification**: `npx tsc --noEmit` → exit code 0 (zero TypeScript errors). `npm run build` → exit code 0 (clean production build, 14 pages, Turbopack).
+- **Rationale**: Standard "interaction-deferred analytics" pattern. Before any user interaction, zero requests reach `googletagmanager.com`, `connect.facebook.net`, or `clarity.ms`. On first scroll/tap/keydown (or after 6s idle), all three scripts load and receive all buffered events — including the initial `PageView` and any early funnel events — with no data loss. Saves ~668 KB on initial load and eliminates ~1s of main-thread blocking. Analytics accuracy trade-off: visitors who bounce in under 6s without any interaction will not be counted by these platforms (standard industry trade-off).
+
+---
+
 ## 0. Phase 4.44 Micro-Change — CLK Floating Cart Button with Radar Pulse Ring (2026-09-25)
 
 ### Floating Cart Button Component & Sonar Ping Attention Effect

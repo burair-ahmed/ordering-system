@@ -9,9 +9,6 @@ import Footer from "./components/Footer";
 // import { Toaster } from "@/components/ui/toaster"
 import { ThemeProvider } from "next-themes";
 import { Toaster } from "sonner";
-import { GoogleAnalytics } from "@next/third-parties/google";
-import { ClarityProvider } from "./providers/ClarityProvider";
-import { MetaPixelProvider } from "./providers/MetaPixelProvider";
 import dynamic from "next/dynamic";
 import RestaurantStatusPopup from "./components/RestaurantStatusPopup";
 import WhatsAppButton from "./components/WhatsAppButton";
@@ -19,6 +16,7 @@ import FloatingCartButton from "./components/FloatingCartButton";
 import OrderSourceCapture from "./components/OrderSourceCapture";
 import TableForm from "./components/TableForm";
 import RestaurantJsonLd from "./components/RestaurantJsonLd";
+import DeferredAnalytics from "./components/DeferredAnalytics";
 
 const MaintenanceScreen = dynamic(() => import("./components/MaintenanceScreen"));
 
@@ -214,9 +212,7 @@ export default function RootLayout({
               </TableProvider>
               <Toaster richColors />
             </ThemeProvider>
-          <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GOOGLE_ANALYTICS_ID || ""} />
-          <ClarityProvider />
-          <MetaPixelProvider />
+          <DeferredAnalytics />
           <OrderSourceCapture />
           </div>
         )}

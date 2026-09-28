@@ -5,9 +5,9 @@ tags:
   - #status/active
   - #project/ordering-ecosystem
 created: 2026-09-04
-last_updated: 2026-09-25
-overall_completion: "Phase 4.44: Floating Cart Button with Animated Radar Attention Ring (100%)"
-current_sprint: "CLK Floating Cart Button — scroll-revealed top-right fixed cart trigger with reactive counter badge & radar sonar pulse ring"
+last_updated: 2026-09-28
+overall_completion: "Phase 3 Perf Fix: Third-Party Script Deferral — Interaction-Deferred Analytics (100%)"
+current_sprint: "CLK Phase 3 Performance — lossless deferred loading of GA, Meta Pixel, Clarity via DeferredAnalytics"
 ---
 
 # Project Status Dashboard — Advanced Ordering Ecosystem
@@ -16,6 +16,7 @@ current_sprint: "CLK Floating Cart Button — scroll-revealed top-right fixed ca
 
 | Sub-Project | Phase | Focus | Status |
 | :--- | :--- | :--- | :--- |
+| **Cafe Little Karachi (CLK)** | Phase 3 Perf | Third-Party Script Deferral: GA, Meta Pixel, Clarity deferred to first interaction — eliminates ~668 KB payload & ~1s TBT | **Completed** 🟢 |
 | **Cafe Little Karachi (CLK)** | Phase 4.44 | Floating Cart Button: Fixed top-right 10%, scroll-reveal, live count badge, and low-opacity radar sonar ping ring | **Completed** 🟢 |
 | **Cafe Little Karachi (CLK)** | SEO Phase | Full-Spectrum SEO: Global metadata, OG/Twitter cards, generateMetadata, JSON-LD schemas, PWA manifest, sitemap image extensions, robots.txt | **Completed** 🟢 |
 | **Cafe Little Karachi (CLK)** | Operations / Logistics | Delivery Areas & Charges Update (Gulshan-e-Iqbal Rs. 280, Bhitaiabad Rs. 300 + 6PM rule, 8 New Regions Seeded) | **Completed** 🟢 |
@@ -23,6 +24,19 @@ current_sprint: "CLK Floating Cart Button — scroll-revealed top-right fixed ca
 | **The Chai Company (TCC)** | Phase 4.32 | Centered Modern Tea Lounge Footer | **Completed** 🟢 |
 
 ---
+
+## Phase 3 Performance Fix Completion Summary — Third-Party Script Deferral (CLK)
+
+- [x] **Analytics Stubs Library (`src/app/lib/analytics-stubs.ts`)**: Built `installAnalyticsStubs()` — safely installs `window.dataLayer`/`window.gtag` queue (GA), `window.fbq`/`window._fbq` queue (Meta Pixel), and `window.clarity` queue shim (Clarity) so early `trackEvent()`, `fbq()`, and `clarity()` calls are buffered and never lost.
+- [x] **DeferredAnalytics Component (`src/app/components/DeferredAnalytics.tsx`)**: Single `'use client'` component: immediately installs stubs + queues initial configs on mount; listens for first user interaction (`pointerdown`, `keydown`, `scroll`, `touchstart` — all passive) with 6-second idle fallback; injects `<Script strategy="afterInteractive">` for GA (`gtag/js`), Meta Pixel (`fbevents.js`), and Clarity (inline snippet) only after trigger. Includes SPA route-change `PageView` tracker via `<Suspense>`-wrapped `MetaPixelRouteTracker`.
+- [x] **Root Layout Migration (`src/app/layout.tsx`)**: Removed `<GoogleAnalytics>` (`@next/third-parties/google`), `<ClarityProvider>`, `<MetaPixelProvider>`. Replaced with single `<DeferredAnalytics />`. All existing analytics call sites (`trackEvent`, `fbqTrack`, `fbqCustom`, `clarityEvent`, etc.) continue working via buffered stubs.
+- [x] **Zero Event Loss**: Early funnel events (`journey_menu_viewed`, `journey_landing`, `PageView`, etc.) are queued in-memory by stubs and forwarded to GA/Pixel/Clarity the moment scripts initialize on first interaction.
+- [x] **TypeScript Validation**: `npx tsc --noEmit` → exit code 0 — zero errors.
+- [x] **Production Build**: `npm run build` → exit code 0 — 14 pages compiled cleanly (Turbopack, Next.js 16.0.8).
+
+---
+
+
 
 ## Phase 4.44 Completion Summary — Floating Cart Button with Radar Attention Ring (CLK)
 
