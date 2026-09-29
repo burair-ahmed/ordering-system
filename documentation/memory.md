@@ -8,6 +8,31 @@ created: 2026-09-04
 last_updated: 2026-09-25
 ---
 
+## 0. Phase 4.45 — CLK Expandable Animated Search Bar & Search Bar Items Admin Manager (2026-09-29)
+
+### Expandable Search Bar Component, Typewriter Rotating Placeholder & Admin Rotating Items Manager Tab
+- **Files**:
+  - `cafe-little-karachi/src/app/components/SearchBar.tsx` (NEW)
+  - `cafe-little-karachi/src/app/hooks/useRotatingPlaceholderDishes.ts` (NEW)
+  - `cafe-little-karachi/src/app/components/SearchBarManagement.tsx` (NEW)
+  - `cafe-little-karachi/src/models/PageConfig.ts` (UPDATED)
+  - `cafe-little-karachi/src/pages/api/page-config.ts` (UPDATED)
+  - `cafe-little-karachi/src/lib/serverMenuData.ts` (UPDATED)
+  - `cafe-little-karachi/src/app/order/page.tsx` (UPDATED)
+  - `cafe-little-karachi/src/app/admin/page.tsx` (UPDATED)
+- **Context & Goal**: Implement an expandable luxury search bar mounted below the horizontal `CategoryNavStrip` that cycles rotating dish names in the placeholder with a smooth type-and-delete typewriter animation while empty and unfocused, smoothly expands on click/focus without grey borders or width glitching on blur, and allows administrators to manage and customize the rotating phrases from a dedicated admin dashboard tab.
+- **Changes Applied**:
+  - **`SearchBar.tsx`**: Created borderless pill component (`bg-[#f6eff7] dark:bg-[#250a20]`) with docked circular search button (`bg-[#741052] dark:bg-[#d0269b] text-white`), contextual clear `✕` button, and active focus ring.
+  - **Glitch-Free Width Transition**: Fixed width expansion/contraction by using `w-full` with `transition-[max-width,box-shadow,ring-color] duration-300 ease-[cubic-bezier(0.4,0,0.2,1)]` interpolating smoothly between `max-w-[280px] sm:max-w-[320px]` (collapsed) and `max-w-[560px] sm:max-w-[620px]` (expanded), completely eliminating momentary 100% width jumps on blur.
+  - **Animated Type-and-Delete Rotating Placeholder (`SearchBar.tsx`, `useRotatingPlaceholderDishes.ts`)**: Built typewriter animation typing character-by-character (45ms), pausing at full name (2100ms), and deleting (25ms) across representative/admin dishes. Overlay uses `pointer-events: none` with explicit margin spacing (`mr-1.5`) between prefix ("Search for") and dish title. Stays active and rotating even when focused as long as input is empty, and hides cleanly as soon as the user types any text.
+  - **Admin "Search Bar Items" Manager Tab (`SearchBarManagement.tsx`, `admin/page.tsx`)**: Created comprehensive management panel with live storefront simulation preview, quick-add dropdown from catalog items & platters, custom phrase text input, reordering controls (▲ ▼), inline editing, deletion, and 1-click default restore.
+  - **Schema & API Persistence (`PageConfig.ts`, `page-config.ts`, `serverMenuData.ts`)**: Added `searchPlaceholderDishes: string[]` to Mongoose model, `/api/page-config` REST endpoint, and server-side menu data preloader.
+  - **Real-Time Live Search Results (`order/page.tsx`)**: Integrated case-insensitive multi-field search filtering (`title`, `description`, `category`) across dishes and platters with live count badge, clear search action, and empty state in both Classic and CMS layout modes.
+- **Verification**: `npx tsc --noEmit` exited with code 0 — zero errors.
+- **Rationale**: Elevates discovery UX for diners with frictionless search and engaging micro-interactions, while giving restaurant managers full CMS control over featured search terms.
+
+---
+
 ## 0. Phase 4 Perf Fix — CLK First-Party JS, Lazy-Load, Browserslist, optimizePackageImports (2026-09-28)
 
 ### TBT Reduction: Dynamic Imports, Icon Tree-Shaking, Modern Browserslist Targets

@@ -22,6 +22,7 @@ import {
   ArrowUpDown,
   Flame,
   Megaphone,
+  Search,
 } from 'lucide-react';
 
 import OrdersList from '../components/OrdersList';
@@ -46,6 +47,7 @@ import AdminHeader from '../components/AdminHeader';
 import MediaGallery from '../components/MediaGallery';
 import ItemOrderSorting from '../components/ItemOrderSorting';
 import CartUpsellManagement from '../components/CartUpsellManagement';
+import SearchBarManagement from '../components/SearchBarManagement';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -120,6 +122,7 @@ type TabKey =
   | 'behavioral'
   | 'layoutBuilder'
   | 'itemSorting'
+  | 'searchBarItems'
   | 'settings';
 
 const TABS: { key: TabKey; label: string; icon: any }[] = [
@@ -131,6 +134,7 @@ const TABS: { key: TabKey; label: string; icon: any }[] = [
   { key: 'media', label: 'Media Gallery', icon: ImageIcon },
   { key: 'bulkDiscounts', label: 'Bulk Discounts', icon: Tag },
   { key: 'cartUpsells', label: 'Cart Upsells', icon: Flame },
+  { key: 'searchBarItems', label: 'Search Bar Items', icon: Search },
   { key: 'deliveryCharges', label: 'Delivery Charges', icon: Truck },
   { key: 'tables', label: 'Dine-in Tables', icon: Table2 },
   { key: 'completedOrders', label: 'Completed Orders', icon: Archive },
@@ -550,6 +554,11 @@ const AdminDashboard: FC = () => {
                 menuItems={menuItems}
                 platterItems={platterItems}
               />
+            )}
+
+            {/* Search Bar Rotating Items tab */}
+            {activeTab === 'searchBarItems' && (
+              <SearchBarManagement />
             )}
 
             {/* Preferences settings tab */}

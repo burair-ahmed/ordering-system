@@ -16,6 +16,7 @@ export interface ServerMenuData {
     useCmsLayout: boolean;
     classicBannerType: 'hero' | 'image-slider';
     classicCategories: ClassicCategoryConfig[];
+    searchPlaceholderDishes?: string[];
   };
   platters: any[];
   itemsBySectionOrCategory: { [key: string]: any[] };
@@ -64,7 +65,8 @@ export async function getServerMenuData(): Promise<ServerMenuData> {
       sections: DEFAULT_SECTIONS,
       useCmsLayout: true,
       classicBannerType: 'hero',
-      classicCategories: DEFAULT_CLASSIC_CATEGORIES
+      classicCategories: DEFAULT_CLASSIC_CATEGORIES,
+      searchPlaceholderDishes: []
     };
 
     const sections = (pageConfig.sections && pageConfig.sections.length > 0)
@@ -75,6 +77,7 @@ export async function getServerMenuData(): Promise<ServerMenuData> {
       ? pageConfig.classicCategories
       : DEFAULT_CLASSIC_CATEGORIES;
     const classicBannerType = pageConfig.classicBannerType || 'hero';
+    const searchPlaceholderDishes = pageConfig.searchPlaceholderDishes || [];
 
     // 2. Fetch all visible platters
     const rawPlatters = await Platter.find({ isVisible: { $ne: false } })
@@ -170,6 +173,7 @@ export async function getServerMenuData(): Promise<ServerMenuData> {
         useCmsLayout,
         classicBannerType,
         classicCategories,
+        searchPlaceholderDishes,
       },
       platters,
       itemsBySectionOrCategory,

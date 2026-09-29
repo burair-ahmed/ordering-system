@@ -16,6 +16,7 @@ current_sprint: "CLK Phase 4 Performance — dynamic imports, tree-shaking, lega
 
 | Sub-Project | Phase | Focus | Status |
 | :--- | :--- | :--- | :--- |
+| **Cafe Little Karachi (CLK)** | Phase 4.45 | Expandable Search Bar: Smooth focus expansion (280px → 620px), borderless luxury pill, animated typewriter rotating placeholder, real-time live dish/platter filtering & Admin "Search Bar Items" manager tab | **Completed** 🟢 |
 | **Cafe Little Karachi (CLK)** | Phase 4 Perf | First-Party JS: `optimizePackageImports` (lucide-react, react-icons, framer-motion), lazy `CartSidebar`/`PlatterItem`/`BannerSlider`, `browserslist` modern targets → −26 KB legacy JS, −70 KB+ off critical path | **Completed** 🟢 |
 | **Cafe Little Karachi (CLK)** | Phase 3 Perf | Third-Party Script Deferral: GA, Meta Pixel, Clarity deferred to first interaction — eliminates ~668 KB payload & ~1s TBT | **Completed** 🟢 |
 | **Cafe Little Karachi (CLK)** | Phase 4.44 | Floating Cart Button: Fixed top-right 10%, scroll-reveal, live count badge, and low-opacity radar sonar ping ring | **Completed** 🟢 |
@@ -34,6 +35,19 @@ current_sprint: "CLK Phase 4 Performance — dynamic imports, tree-shaking, lega
 - [x] **`package.json` — `browserslist`**: Modern targets `chrome/edge/firefox ≥ 111, safari ≥ 16.4`. SWC skips legacy polyfill transforms → −26 KB JS.
 - [x] **Forced Reflow (8.4) — CLEAN**: CategoryNavStrip scroll-spy uses IntersectionObserver (from Phase 1). Only remaining `getBoundingClientRect` is in a click handler (acceptable).
 - [x] **TypeScript Validation**: `npx tsc --noEmit` → exit code 0 — zero errors.
+
+---
+
+## Phase 4.45 Completion Summary — Expandable Search Bar & Admin Rotating Items Manager (CLK)
+
+- [x] **Component Architecture (`src/app/components/SearchBar.tsx`)**: Built custom luxury pill search bar mounted beneath the horizontal `CategoryNavStrip`.
+- [x] **Borderless Luxury Aesthetics (`SearchBar.tsx`)**: Removed all grey borders, styling the shell in lavender/plum tint (`bg-[#f6eff7] dark:bg-[#250a20]`) with soft ambient shadow and docked circular brand plum search button (`bg-[#741052] dark:bg-[#d0269b] text-white`).
+- [x] **Glitch-Free 100% Smooth Focus/Blur Width Transition (`SearchBar.tsx`)**: Replaced asymmetric width classes with consistent `w-full` and `max-w-[280px] sm:max-w-[320px]` (collapsed) to `max-w-[560px] sm:max-w-[620px]` (expanded) with `transition-[max-width,box-shadow,ring-color] duration-300 ease-[cubic-bezier(0.4,0,0.2,1)]` — eliminating all resize jumps.
+- [x] **Animated Type-and-Delete Rotating Placeholder (`SearchBar.tsx`, `useRotatingPlaceholderDishes.ts`)**: Cycles through dish names with character typing (45ms), hold (2100ms), and deleting (25ms). Absolute overlay with `pointer-events: none` and explicit margin spacing (`mr-1.5`) between prefix ("Search for") and dish title. Stays active and rotating when focused as long as input is empty, and hides cleanly as soon as the customer types any search characters.
+- [x] **Admin "Search Bar Items" Manager Tab (`src/app/components/SearchBarManagement.tsx`, `src/app/admin/page.tsx`)**: Added dedicated admin workspace tab with live interactive customer search bar simulation, quick-add from catalog items/platters, custom phrase input, reorder controls (▲ ▼), inline editing, delete, and 1-click restore defaults.
+- [x] **Database Persistence & API Synchronization (`PageConfig.ts`, `page-config.ts`, `serverMenuData.ts`)**: Added `searchPlaceholderDishes: string[]` to Mongoose `PageConfig` model, `/api/page-config` handler, and SSR loader.
+- [x] **Real-Time Live Dish/Platter Search Filtering (`src/app/order/page.tsx`)**: Filters dishes and platters across titles, descriptions, and categories, rendering result count badges, clear search trigger, and empty state in both Classic and CMS layout modes.
+- [x] **TypeScript Validation**: `npx tsc --noEmit` exited with code 0 — zero errors.
 
 ---
 

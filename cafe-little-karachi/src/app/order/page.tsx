@@ -2,13 +2,14 @@
 
 'use client';
 
-import { useState, useEffect, useRef, Fragment } from "react";
+import { useState, useEffect, useMemo, useRef, Fragment } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import dynamic from "next/dynamic";
 import MenuItem from "../components/MenuItem";
 import Hero from "../components/Hero";
 import SkeletonLoader from "../components/SkeletonLoader";
 import CategoryNavStrip, { type CategoryItem } from "../components/CategoryNavStrip";
+import SearchBar from "../components/SearchBar";
 // BannerSlide type is needed at compile-time; component loads after page paint.
 import type { BannerSlide } from "../components/BannerSlider";
 
@@ -23,7 +24,7 @@ const BannerSlider = dynamic(() => import("../components/BannerSlider"), {
   ssr: false,
   loading: () => null,
 });
-import { Star, Clock, ArrowRight, ChevronLeft, ChevronRight } from "lucide-react";
+import { Star, Clock, ArrowRight, ChevronLeft, ChevronRight, Search, X } from "lucide-react";
 import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
 import Image from "next/image";
@@ -258,6 +259,12 @@ export default function MenuPage({
     initialData?.pageConfig?.classicCategories || DEFAULT_CLASSIC_CATEGORIES
   );
 
+  // --- Search Bar Query & Placeholder Configuration State ---
+  const [searchQuery, setSearchQuery] = useState<string>('');
+  const [searchPlaceholderDishes, setSearchPlaceholderDishes] = useState<string[]>(
+    initialData?.pageConfig?.searchPlaceholderDishes || []
+  );
+
   // Items loading state for each section ID
   const [sectionAllItems, setSectionAllItems] = useState<{ [sectionId: string]: any[] }>(
     initialData?.itemsBySectionOrCategory || {}
@@ -429,6 +436,11 @@ export default function MenuPage({
           : DEFAULT_CLASSIC_CATEGORIES;
         setClassicCategories(loadedClassicCategories);
 
+        const loadedSearchDishes = (configData && configData.searchPlaceholderDishes && Array.isArray(configData.searchPlaceholderDishes))
+          ? configData.searchPlaceholderDishes
+          : [];
+        setSearchPlaceholderDishes(loadedSearchDishes);
+
         // If classic layout mode is active, trigger the classic data fetch
         if (!cmsEnabled) {
           fetchClassicData(loadedClassicCategories);
@@ -586,6 +598,179 @@ export default function MenuPage({
     );
   }
 
+  // --- Memoized Catalog Data for Rotating Placeholder & Live Search ---
+  const allAvailableMenuItems: MenuItemData[] = useMemo(() => {
+    const itemMap = new Map<string, MenuItemData>();
+
+    // From classicLoadedItems
+    Object.values(classicLoadedItems).forEach((items) => {
+      (items || []).forEach((item) => {
+        if (item && item.id) itemMap.set(String(item.id), item);
+      });
+    });
+
+    // From sectionLoadedItems
+    Object.values(sectionLoadedItems).forEach((items) => {
+      (items || []).forEach((item) => {
+        if (item && item.id && !item.platterCategory && item.category) {
+          itemMap.set(String(item.id), item as MenuItemData);
+        }
+      });
+    });
+
+    // From initialData
+    if (initialData?.itemsBySectionOrCategory) {
+      Object.values(initialData.itemsBySectionOrCategory).forEach((items) => {
+        (items || []).forEach((item) => {
+          if (item && item.id && !item.platterCategory) {
+            itemMap.set(String(item.id), item as MenuItemData);
+          }
+        });
+      });
+    }
+
+    return Array.from(itemMap.values());
+  }, [classicLoadedItems, sectionLoadedItems, initialData]);
+
+  const allAvailablePlatters: Platter[] = useMemo(() => {
+    const platterMap = new Map<string, Platter>();
+
+    allPlatters.forEach((p) => {
+      if (p && p.id) platterMap.set(String(p.id), p);
+    });
+
+    Object.values(classicLoadedPlatters).forEach((plattersList) => {
+      (plattersList || []).forEach((p) => {
+        if (p && p.id) platterMap.set(String(p.id), p);
+      });
+    });
+
+    return Array.from(platterMap.values());
+  }, [allPlatters, classicLoadedPlatters]);
+
+  // Real-time search filter calculations
+  const normalizedSearchQuery = searchQuery.trim().toLowerCase();
+  const isSearchActive = normalizedSearchQuery.length > 0;
+
+  const filteredSearchResults = useMemo(() => {
+    if (!normalizedSearchQuery) return { menuItems: [], platters: [], total: 0 };
+
+    const matchedMenuItems = allAvailableMenuItems.filter((item) => {
+      const title = (item.title || '').toLowerCase();
+      const desc = (item.description || '').toLowerCase();
+      const cat = (item.category || '').toLowerCase();
+      return (
+        title.includes(normalizedSearchQuery) ||
+        desc.includes(normalizedSearchQuery) ||
+        cat.includes(normalizedSearchQuery)
+      );
+    });
+
+    const matchedPlatters = allAvailablePlatters.filter((platter) => {
+      const title = (platter.title || '').toLowerCase();
+      const desc = (platter.description || '').toLowerCase();
+      const cat = (platter.platterCategory || '').toLowerCase();
+      return (
+        title.includes(normalizedSearchQuery) ||
+        desc.includes(normalizedSearchQuery) ||
+        cat.includes(normalizedSearchQuery)
+      );
+    });
+
+    return {
+      menuItems: matchedMenuItems,
+      platters: matchedPlatters,
+      total: matchedMenuItems.length + matchedPlatters.length,
+    };
+  }, [normalizedSearchQuery, allAvailableMenuItems, allAvailablePlatters]);
+
+  // Reusable search results render block
+  const renderSearchResults = () => {
+    if (!isSearchActive) return null;
+
+    return (
+      <div className="w-full max-w-6xl mx-auto px-3 sm:px-6 lg:px-8 mt-4 mb-12">
+        {/* Search Header & Result Count Banner */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-6 pb-3 border-b border-[#741052]/10 dark:border-[#d0269b]/20">
+          <div>
+            <h2 className="text-xl sm:text-2xl font-bold text-[#330523] dark:text-neutral-100 flex items-center gap-2">
+              <span>Search Results</span>
+              <span className="text-xs sm:text-sm font-semibold px-2.5 py-0.5 rounded-full bg-[#741052]/10 text-[#741052] dark:bg-[#d0269b]/20 dark:text-[#d0269b]">
+                {filteredSearchResults.total} {filteredSearchResults.total === 1 ? 'item' : 'items'}
+              </span>
+            </h2>
+            <p className="text-xs sm:text-sm text-neutral-500 dark:text-neutral-400 mt-0.5">
+              Showing dishes and platters matching &ldquo;<span className="font-semibold text-[#741052] dark:text-[#d0269b]">{searchQuery}</span>&rdquo;
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={() => setSearchQuery('')}
+            className="self-start sm:self-auto text-xs font-semibold text-[#741052] dark:text-[#d0269b] hover:underline flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#741052]/5 dark:bg-[#d0269b]/10 hover:bg-[#741052]/10 dark:hover:bg-[#d0269b]/20 transition-colors"
+          >
+            <span>Clear search</span>
+            <X size={14} />
+          </button>
+        </div>
+
+        {filteredSearchResults.total === 0 ? (
+          /* Empty State */
+          <div className="flex flex-col items-center justify-center py-16 text-center px-4 bg-[#f6eff7]/60 dark:bg-[#250a20]/40 rounded-2xl border border-dashed border-[#741052]/20 dark:border-[#d0269b]/30">
+            <div className="w-14 h-14 rounded-full bg-[#741052]/10 dark:bg-[#d0269b]/20 flex items-center justify-center text-[#741052] dark:text-[#d0269b] mb-4">
+              <Search size={24} strokeWidth={2.2} />
+            </div>
+            <h3 className="text-lg font-bold text-[#330523] dark:text-neutral-100">
+              No matching dishes found
+            </h3>
+            <p className="text-sm text-neutral-500 dark:text-neutral-400 max-w-md mt-1.5 mb-5">
+              We couldn&apos;t find anything matching &ldquo;{searchQuery}&rdquo;. Try searching for Biryani, Karahi, Roll, Pizza, or Platters.
+            </p>
+            <button
+              type="button"
+              onClick={() => setSearchQuery('')}
+              className="px-5 py-2.5 rounded-xl bg-[#741052] dark:bg-[#d0269b] text-white text-xs font-bold shadow-md hover:scale-105 active:scale-95 transition-all"
+            >
+              View Full Menu
+            </button>
+          </div>
+        ) : (
+          /* Matching Items Grid */
+          <div className="grid grid-cols-2 gap-4 pr-6 pl-1 sm:px-6 lg:px-8 w-full max-w-6xl mx-auto sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+            {filteredSearchResults.platters.map((platter, idx) => (
+              <motion.div
+                key={`search-platter-${platter.id}-${idx}`}
+                initial={{ opacity: 0, y: 15 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.3, delay: idx * 0.04 }}
+              >
+                <PlatterItem
+                  platter={platter as any}
+                  initialOpen={!!(initialPlatterSlug && slugify((platter as any).title) === initialPlatterSlug)}
+                />
+              </motion.div>
+            ))}
+            {filteredSearchResults.menuItems.map((item, idx) => (
+              <motion.div
+                key={`search-item-${item.id}-${idx}`}
+                initial={{ opacity: 0, y: 15 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{
+                  duration: 0.3,
+                  delay: (filteredSearchResults.platters.length + idx) * 0.04,
+                }}
+              >
+                <MenuItem
+                  item={item as any}
+                  initialOpen={!!(initialItemSlug && slugify(item.title) === initialItemSlug)}
+                />
+              </motion.div>
+            ))}
+          </div>
+        )}
+      </div>
+    );
+  };
+
   // --- Classic Layout Conditional Render ---
   if (!useCmsLayout) {
     const heroSection = sections.find(s => s.type === 'hero' && s.isVisible);
@@ -602,7 +787,7 @@ export default function MenuPage({
     }));
 
     return (
-      <div className="bg-white text-black min-h-screen pb-20">
+      <div className="bg-white dark:bg-black text-black dark:text-white min-h-screen pb-20">
         {showSlider ? (
           <BannerSlider section={imageSliderSection as any} />
         ) : showHero ? (
@@ -615,13 +800,22 @@ export default function MenuPage({
         {/* Horizontal Category Navigation Strip sitting right below hero banner */}
         <CategoryNavStrip categories={navStripCategories} />
 
-        <div className="flex justify-center mt-4 gap-4">
-        </div>
+        {/* Expandable Animated Search Bar sitting right below category slider */}
+        <SearchBar
+          value={searchQuery}
+          onChange={setSearchQuery}
+          catalogItems={allAvailableMenuItems}
+          platters={allAvailablePlatters}
+          dishesList={searchPlaceholderDishes.length > 0 ? searchPlaceholderDishes : undefined}
+        />
 
-        {/* Categories rendered in exact configured order */}
-        <div>
-          {visibleClassicCategories.map((categoryConfig) => {
-            const category = categoryConfig.name;
+        {/* If Search is active, render search results; otherwise render normal categories */}
+        {isSearchActive ? (
+          renderSearchResults()
+        ) : (
+          <div>
+            {visibleClassicCategories.map((categoryConfig) => {
+              const category = categoryConfig.name;
 
             if (categoryConfig.isPlatter) {
               const allPlattersList = classicPlatters[category] || [];
@@ -745,9 +939,10 @@ export default function MenuPage({
             );
           })}
         </div>
-      </div>
-    );
-  }
+      )}
+    </div>
+  );
+}
 
   // In CMS Layout mode, identify visible product sections for category navigation
   const firstBannerIndex = sections.findIndex(
@@ -781,82 +976,150 @@ export default function MenuPage({
         }
       `}} />
 
-      {/* Fallback category nav if no banner section exists */}
+      {/* Fallback category nav and search bar if no banner section exists */}
       {firstBannerIndex === -1 && (
-        <CategoryNavStrip categories={cmsCategories} />
+        <>
+          <CategoryNavStrip categories={cmsCategories} />
+          <SearchBar
+            value={searchQuery}
+            onChange={setSearchQuery}
+            catalogItems={allAvailableMenuItems}
+            platters={allAvailablePlatters}
+            dishesList={searchPlaceholderDishes.length > 0 ? searchPlaceholderDishes : undefined}
+          />
+        </>
       )}
 
-      {sections.map((section, idx) => {
-        if (!section.isVisible) return null;
+      {/* When Search is active in CMS layout, render banner, nav strip, search bar, and search results */}
+      {isSearchActive ? (
+        <>
+          {sections.map((section, idx) => {
+            if (!section.isVisible) return null;
+            const isTargetBanner = idx === firstBannerIndex;
 
-        const displayedItems = sectionLoadedItems[section.id] || [];
-        const isLoading = sectionLoading[section.id] || false;
+            if (section.type === 'hero' || section.type === 'image-slider') {
+              return (
+                <Fragment key={section.id}>
+                  <div
+                    id={section.title ? `category-${slugify(section.title)}` : undefined}
+                    className="scroll-mt-24"
+                  >
+                    {section.type === 'hero' ? (
+                      <HeroSection section={section} />
+                    ) : (
+                      <BannerSlider section={section} />
+                    )}
+                  </div>
 
-        // Render target anchor just before the first non-hero visible section
-        const renderAnchor = idx > 0 && sections[idx - 1].type === 'hero';
-        const isTargetBanner = idx === firstBannerIndex;
-
-        return (
-          <Fragment key={section.id}>
-            <div 
-              id={section.title ? `category-${slugify(section.title)}` : undefined} 
-              className="scroll-mt-24"
-            >
-              {renderAnchor && <div id="menu-content" className="scroll-mt-20" />}
-              {(() => {
-                switch (section.type) {
-                  case 'hero':
-                    return <HeroSection section={section} />;
-                  
-                  case 'banner':
-                    return <PromoBanner section={section} />;
-                  
-                  case 'rich-content':
-                    return <ChefStoryRow section={section} />;
-                  
-                  case 'divider':
-                    return <SpacerDivider section={section} />;
-                  
-                  case 'testimonials':
-                    return <TestimonialsStrip section={section} />;
-                  
-                  case 'grid':
-                    return (
-                      <ItemGridSection
-                        section={section}
-                        items={displayedItems}
-                        isLoading={isLoading}
-                        onLastItemRef={(node) => handleLastItemRef(section.id, node)}
-                        initialOpenSlug={section.props.itemType === 'platter' ? initialPlatterSlug : initialItemSlug}
+                  {isTargetBanner && (
+                    <>
+                      <CategoryNavStrip categories={cmsCategories} />
+                      <SearchBar
+                        value={searchQuery}
+                        onChange={setSearchQuery}
+                        catalogItems={allAvailableMenuItems}
+                        platters={allAvailablePlatters}
+                        dishesList={searchPlaceholderDishes.length > 0 ? searchPlaceholderDishes : undefined}
                       />
-                    );
-                  
-                  case 'slider':
-                    return (
-                      <ItemSliderSection
-                        section={section}
-                        items={displayedItems}
-                        isLoading={isLoading}
-                        initialOpenSlug={section.props.itemType === 'platter' ? initialPlatterSlug : initialItemSlug}
-                      />
-                    );
-                  
-                  case 'image-slider':
-                    return <BannerSlider section={section} />;
-                  
-                  default:
-                    return null;
-                }
-              })()}
-            </div>
+                    </>
+                  )}
+                </Fragment>
+              );
+            }
+            return null;
+          })}
 
-            {/* Horizontal Category Navigation Strip sitting right below hero banner (Direct child of root container for full-page sticky) */}
-            {isTargetBanner && (
-              <CategoryNavStrip categories={cmsCategories} />
-            )}
-          </Fragment>
-        );
-      })}
+          {renderSearchResults()}
+        </>
+      ) : (
+        sections.map((section, idx) => {
+          if (!section.isVisible) return null;
+
+          const displayedItems = sectionLoadedItems[section.id] || [];
+          const isLoading = sectionLoading[section.id] || false;
+
+          // Render target anchor just before the first non-hero visible section
+          const renderAnchor = idx > 0 && sections[idx - 1].type === 'hero';
+          const isTargetBanner = idx === firstBannerIndex;
+
+          return (
+            <Fragment key={section.id}>
+              <div
+                id={section.title ? `category-${slugify(section.title)}` : undefined}
+                className="scroll-mt-24"
+              >
+                {renderAnchor && <div id="menu-content" className="scroll-mt-20" />}
+                {(() => {
+                  switch (section.type) {
+                    case 'hero':
+                      return <HeroSection section={section} />;
+
+                    case 'banner':
+                      return <PromoBanner section={section} />;
+
+                    case 'rich-content':
+                      return <ChefStoryRow section={section} />;
+
+                    case 'divider':
+                      return <SpacerDivider section={section} />;
+
+                    case 'testimonials':
+                      return <TestimonialsStrip section={section} />;
+
+                    case 'grid':
+                      return (
+                        <ItemGridSection
+                          section={section}
+                          items={displayedItems}
+                          isLoading={isLoading}
+                          onLastItemRef={(node) => handleLastItemRef(section.id, node)}
+                          initialOpenSlug={
+                            section.props.itemType === 'platter'
+                              ? initialPlatterSlug
+                              : initialItemSlug
+                          }
+                        />
+                      );
+
+                    case 'slider':
+                      return (
+                        <ItemSliderSection
+                          section={section}
+                          items={displayedItems}
+                          isLoading={isLoading}
+                          initialOpenSlug={
+                            section.props.itemType === 'platter'
+                              ? initialPlatterSlug
+                              : initialItemSlug
+                          }
+                        />
+                      );
+
+                    case 'image-slider':
+                      return <BannerSlider section={section} />;
+
+                    default:
+                      return null;
+                  }
+                })()}
+              </div>
+
+              {/* Horizontal Category Navigation Strip & Search Bar sitting right below hero banner */}
+              {isTargetBanner && (
+                <>
+                  <CategoryNavStrip categories={cmsCategories} />
+                  <SearchBar
+                    value={searchQuery}
+                    onChange={setSearchQuery}
+                    catalogItems={allAvailableMenuItems}
+                    platters={allAvailablePlatters}
+                  />
+                </>
+              )}
+            </Fragment>
+          );
+        })
+      )}
     </div>
   );
 }

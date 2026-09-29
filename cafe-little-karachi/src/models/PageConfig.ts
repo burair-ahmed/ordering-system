@@ -21,6 +21,7 @@ export interface IPageConfig extends Document {
   useCmsLayout: boolean;
   classicBannerType?: 'hero' | 'image-slider';
   classicCategories?: IClassicCategoryConfig[];
+  searchPlaceholderDishes?: string[];
 }
 
 const ClassicCategorySchema = new Schema({
@@ -48,7 +49,8 @@ const PageConfigSchema: Schema<IPageConfig> = new Schema(
     sections: [PageSectionSchema],
     useCmsLayout: { type: Boolean, default: true },
     classicBannerType: { type: String, enum: ['hero', 'image-slider'], default: 'hero' },
-    classicCategories: [ClassicCategorySchema]
+    classicCategories: [ClassicCategorySchema],
+    searchPlaceholderDishes: { type: [String], default: [] }
   },
   { timestamps: true }
 );

@@ -42,15 +42,20 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     }
   } else if (req.method === "POST") {
     try {
-      const { sections, useCmsLayout, classicBannerType, classicCategories } = req.body;
-      console.log("Saving PageConfig for Cafe Little Karachi:", JSON.stringify({ sections, useCmsLayout, classicBannerType, classicCategoriesCount: classicCategories?.length }, null, 2));
+      const { sections, useCmsLayout, classicBannerType, classicCategories, searchPlaceholderDishes } = req.body;
+      console.log("Saving PageConfig for Cafe Little Karachi:", JSON.stringify({ sections, useCmsLayout, classicBannerType, classicCategoriesCount: classicCategories?.length, searchPlaceholderDishesCount: searchPlaceholderDishes?.length }, null, 2));
 
-      const updateData: any = { sections, useCmsLayout };
+      const updateData: any = {};
+      if (sections !== undefined) updateData.sections = sections;
+      if (useCmsLayout !== undefined) updateData.useCmsLayout = useCmsLayout;
       if (classicBannerType) {
         updateData.classicBannerType = classicBannerType;
       }
       if (classicCategories !== undefined) {
         updateData.classicCategories = classicCategories;
+      }
+      if (searchPlaceholderDishes !== undefined) {
+        updateData.searchPlaceholderDishes = searchPlaceholderDishes;
       }
 
       const config = await PageConfig.findOneAndUpdate(
