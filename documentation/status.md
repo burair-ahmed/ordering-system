@@ -16,7 +16,7 @@ current_sprint: "CLK Phase 4 Performance — dynamic imports, tree-shaking, lega
 
 | Sub-Project | Phase | Focus | Status |
 | :--- | :--- | :--- | :--- |
-| **Cafe Little Karachi (CLK)** | Phase 4.45 | Expandable Search Bar: Smooth focus expansion (280px → 620px), borderless luxury pill, animated typewriter rotating placeholder, real-time live dish/platter filtering & Admin "Search Bar Items" manager tab | **Completed** 🟢 |
+| **Cafe Little Karachi (CLK)** | Phase 4.45 | Expandable Search Bar: Smooth focus expansion (280px → 620px), borderless luxury pill, animated typewriter rotating placeholder, inline floating results modal (thumbnail left, title top, price below, + button, popup trigger) & Admin "Search Bar Items" manager tab | **Completed** 🟢 |
 | **Cafe Little Karachi (CLK)** | Phase 4 Perf | First-Party JS: `optimizePackageImports` (lucide-react, react-icons, framer-motion), lazy `CartSidebar`/`PlatterItem`/`BannerSlider`, `browserslist` modern targets → −26 KB legacy JS, −70 KB+ off critical path | **Completed** 🟢 |
 | **Cafe Little Karachi (CLK)** | Phase 3 Perf | Third-Party Script Deferral: GA, Meta Pixel, Clarity deferred to first interaction — eliminates ~668 KB payload & ~1s TBT | **Completed** 🟢 |
 | **Cafe Little Karachi (CLK)** | Phase 4.44 | Floating Cart Button: Fixed top-right 10%, scroll-reveal, live count badge, and low-opacity radar sonar ping ring | **Completed** 🟢 |
@@ -47,6 +47,7 @@ current_sprint: "CLK Phase 4 Performance — dynamic imports, tree-shaking, lega
 - [x] **Admin "Search Bar Items" Manager Tab (`src/app/components/SearchBarManagement.tsx`, `src/app/admin/page.tsx`)**: Added dedicated admin workspace tab with live interactive customer search bar simulation, quick-add from catalog items/platters, custom phrase input, reorder controls (▲ ▼), inline editing, delete, and 1-click restore defaults.
 - [x] **Database Persistence & API Synchronization (`PageConfig.ts`, `page-config.ts`, `serverMenuData.ts`)**: Added `searchPlaceholderDishes: string[]` to Mongoose `PageConfig` model, `/api/page-config` handler, and SSR loader.
 - [x] **Real-Time Live Dish/Platter Search Filtering (`src/app/order/page.tsx`)**: Filters dishes and platters across titles, descriptions, and categories, rendering result count badges, clear search trigger, and empty state in both Classic and CMS layout modes.
+- [x] **Inline Floating Dropdown Results Modal (`src/app/components/SearchBar.tsx`, `src/app/order/page.tsx`)**: Renders matching dishes/platters in an inline floating modal directly under the search bar with thumbnail on left, title on top, price (with discounts) below, a circular `+` button on right, and full product modal trigger on click without displacing the menu layout.
 - [x] **TypeScript Validation**: `npx tsc --noEmit` exited with code 0 — zero errors.
 
 ---

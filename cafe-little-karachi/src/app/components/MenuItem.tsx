@@ -36,27 +36,35 @@ interface MenuItemProps {
   item: MenuItemData;
   cardStyle?: 'minimal' | 'compact' | 'gourmet' | 'list';
   initialOpen?: boolean;
+  modalOnly?: boolean;
+  onCloseModal?: () => void;
 }
 
-const MenuItem: FC<MenuItemProps> = ({ item, cardStyle = 'gourmet', initialOpen = false }) => {
+const MenuItem: FC<MenuItemProps> = ({ item, cardStyle = 'gourmet', initialOpen = false, modalOnly = false, onCloseModal }) => {
   const { setStatusModalOpen, setProductModalOpen } = useOrder();
   const { addToCart } = useCart();
   const [showModal, setShowModal] = useState(initialOpen);
   const [showAddedMessage, setShowAddedMessage] = useState(false);
 
-  // Synchronize global product modal state
+  const itemId = item.id ? item.id.toString() : "0";
+  const originalPrice = typeof item.price === "number" ? item.price : 0;
+  const itemSlug = useMemo(() => slugify(item.title), [item.title]);
+
+  // Synchronize global product modal state & URL
   useEffect(() => {
     if (showModal) {
       setProductModalOpen(true);
+      if (typeof window !== 'undefined') {
+        const targetPath = `/item/${itemSlug}`;
+        if (window.location.pathname !== targetPath) {
+          window.history.replaceState(null, '', targetPath);
+        }
+      }
       return () => {
         setProductModalOpen(false);
       };
     }
-  }, [showModal, setProductModalOpen]);
-
-  const itemId = item.id ? item.id.toString() : "0";
-  const originalPrice = typeof item.price === "number" ? item.price : 0;
-  const itemSlug = useMemo(() => slugify(item.title), [item.title]);
+  }, [showModal, setProductModalOpen, itemSlug]);
 
   // Non-blocking smooth modal open with clean URL sync
   const openModal = useCallback(() => {
@@ -75,6 +83,9 @@ const MenuItem: FC<MenuItemProps> = ({ item, cardStyle = 'gourmet', initialOpen 
   // If before 6:30 (closed), shows the before 6:30 lock popup.
   const closeModal = useCallback(() => {
     setShowModal(false);
+    if (onCloseModal) {
+      onCloseModal();
+    }
     if (typeof window !== 'undefined') {
       requestAnimationFrame(() => {
         if (window.location.pathname.startsWith('/item/')) {
@@ -85,7 +96,7 @@ const MenuItem: FC<MenuItemProps> = ({ item, cardStyle = 'gourmet', initialOpen 
     if (!isOpenAt()) {
       setStatusModalOpen(true);
     }
-  }, [setStatusModalOpen]);
+  }, [setStatusModalOpen, onCloseModal]);
 
   // Sync with browser back/forward buttons
   useEffect(() => {
@@ -200,6 +211,7 @@ const MenuItem: FC<MenuItemProps> = ({ item, cardStyle = 'gourmet', initialOpen 
   return (
     <>
       {/* Card */}
+      {!modalOnly && (
       <motion.div
         whileHover={{ scale: 1.02, y: -2 }}
         whileTap={{ scale: 0.98 }}
@@ -372,6 +384,7 @@ const MenuItem: FC<MenuItemProps> = ({ item, cardStyle = 'gourmet', initialOpen 
           </>
         )}
       </motion.div>
+      )}
 
       {/* Optimized High-Performance Modal */}
       <AnimatePresence>

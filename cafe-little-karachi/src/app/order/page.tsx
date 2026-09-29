@@ -2,14 +2,14 @@
 
 'use client';
 
-import { useState, useEffect, useMemo, useRef, Fragment } from "react";
+import { useState, useEffect, useMemo, useRef, Fragment, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import dynamic from "next/dynamic";
 import MenuItem from "../components/MenuItem";
 import Hero from "../components/Hero";
 import SkeletonLoader from "../components/SkeletonLoader";
 import CategoryNavStrip, { type CategoryItem } from "../components/CategoryNavStrip";
-import SearchBar from "../components/SearchBar";
+import SearchBar, { type SearchResults } from "../components/SearchBar";
 // BannerSlide type is needed at compile-time; component loads after page paint.
 import type { BannerSlide } from "../components/BannerSlider";
 
@@ -264,6 +264,11 @@ export default function MenuPage({
   const [searchPlaceholderDishes, setSearchPlaceholderDishes] = useState<string[]>(
     initialData?.pageConfig?.searchPlaceholderDishes || []
   );
+
+  // --- Search Dropdown Modal Trigger State ---
+  const [searchActiveItem, setSearchActiveItem] = useState<MenuItemData | null>(null);
+  const [searchActivePlatter, setSearchActivePlatter] = useState<Platter | null>(null);
+  const [searchModalKey, setSearchModalKey] = useState<number>(0);
 
   // Items loading state for each section ID
   const [sectionAllItems, setSectionAllItems] = useState<{ [sectionId: string]: any[] }>(
@@ -648,128 +653,72 @@ export default function MenuPage({
     return Array.from(platterMap.values());
   }, [allPlatters, classicLoadedPlatters]);
 
+  const handleSearchItemOpen = useCallback((id: string | number) => {
+    const targetIdStr = String(id);
+    const found = allAvailableMenuItems.find(item => 
+      String(item.id) === targetIdStr || 
+      String((item as any)._id) === targetIdStr || 
+      (item.title && slugify(item.title) === targetIdStr)
+    );
+    if (found) {
+      setSearchActiveItem(found);
+      setSearchActivePlatter(null);
+      setSearchModalKey(k => k + 1);
+    }
+  }, [allAvailableMenuItems]);
+
+  const handleSearchPlatterOpen = useCallback((id: string | number) => {
+    const targetIdStr = String(id);
+    const found = allAvailablePlatters.find(p => 
+      String(p.id) === targetIdStr || 
+      String((p as any)._id) === targetIdStr || 
+      (p.title && slugify(p.title) === targetIdStr)
+    );
+    if (found) {
+      setSearchActivePlatter(found);
+      setSearchActiveItem(null);
+      setSearchModalKey(k => k + 1);
+    }
+  }, [allAvailablePlatters]);
+
   // Real-time search filter calculations
   const normalizedSearchQuery = searchQuery.trim().toLowerCase();
-  const isSearchActive = normalizedSearchQuery.length > 0;
 
-  const filteredSearchResults = useMemo(() => {
+  const filteredSearchResults: SearchResults = useMemo(() => {
     if (!normalizedSearchQuery) return { menuItems: [], platters: [], total: 0 };
 
-    const matchedMenuItems = allAvailableMenuItems.filter((item) => {
-      const title = (item.title || '').toLowerCase();
-      const desc = (item.description || '').toLowerCase();
-      const cat = (item.category || '').toLowerCase();
-      return (
-        title.includes(normalizedSearchQuery) ||
-        desc.includes(normalizedSearchQuery) ||
-        cat.includes(normalizedSearchQuery)
-      );
-    });
+    const matchedMenuItems = allAvailableMenuItems
+      .filter((item) => {
+        const title = (item.title || '').toLowerCase();
+        const desc = (item.description || '').toLowerCase();
+        const cat = (item.category || '').toLowerCase();
+        return (
+          title.includes(normalizedSearchQuery) ||
+          desc.includes(normalizedSearchQuery) ||
+          cat.includes(normalizedSearchQuery)
+        );
+      })
+      .map((item) => ({ ...item, type: 'menu' as const }));
 
-    const matchedPlatters = allAvailablePlatters.filter((platter) => {
-      const title = (platter.title || '').toLowerCase();
-      const desc = (platter.description || '').toLowerCase();
-      const cat = (platter.platterCategory || '').toLowerCase();
-      return (
-        title.includes(normalizedSearchQuery) ||
-        desc.includes(normalizedSearchQuery) ||
-        cat.includes(normalizedSearchQuery)
-      );
-    });
+    const matchedPlatters = allAvailablePlatters
+      .filter((platter) => {
+        const title = (platter.title || '').toLowerCase();
+        const desc = (platter.description || '').toLowerCase();
+        const cat = (platter.platterCategory || '').toLowerCase();
+        return (
+          title.includes(normalizedSearchQuery) ||
+          desc.includes(normalizedSearchQuery) ||
+          cat.includes(normalizedSearchQuery)
+        );
+      })
+      .map((platter) => ({ ...platter, type: 'platter' as const }));
 
     return {
-      menuItems: matchedMenuItems,
-      platters: matchedPlatters,
+      menuItems: matchedMenuItems as any,
+      platters: matchedPlatters as any,
       total: matchedMenuItems.length + matchedPlatters.length,
     };
   }, [normalizedSearchQuery, allAvailableMenuItems, allAvailablePlatters]);
-
-  // Reusable search results render block
-  const renderSearchResults = () => {
-    if (!isSearchActive) return null;
-
-    return (
-      <div className="w-full max-w-6xl mx-auto px-3 sm:px-6 lg:px-8 mt-4 mb-12">
-        {/* Search Header & Result Count Banner */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-6 pb-3 border-b border-[#741052]/10 dark:border-[#d0269b]/20">
-          <div>
-            <h2 className="text-xl sm:text-2xl font-bold text-[#330523] dark:text-neutral-100 flex items-center gap-2">
-              <span>Search Results</span>
-              <span className="text-xs sm:text-sm font-semibold px-2.5 py-0.5 rounded-full bg-[#741052]/10 text-[#741052] dark:bg-[#d0269b]/20 dark:text-[#d0269b]">
-                {filteredSearchResults.total} {filteredSearchResults.total === 1 ? 'item' : 'items'}
-              </span>
-            </h2>
-            <p className="text-xs sm:text-sm text-neutral-500 dark:text-neutral-400 mt-0.5">
-              Showing dishes and platters matching &ldquo;<span className="font-semibold text-[#741052] dark:text-[#d0269b]">{searchQuery}</span>&rdquo;
-            </p>
-          </div>
-          <button
-            type="button"
-            onClick={() => setSearchQuery('')}
-            className="self-start sm:self-auto text-xs font-semibold text-[#741052] dark:text-[#d0269b] hover:underline flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#741052]/5 dark:bg-[#d0269b]/10 hover:bg-[#741052]/10 dark:hover:bg-[#d0269b]/20 transition-colors"
-          >
-            <span>Clear search</span>
-            <X size={14} />
-          </button>
-        </div>
-
-        {filteredSearchResults.total === 0 ? (
-          /* Empty State */
-          <div className="flex flex-col items-center justify-center py-16 text-center px-4 bg-[#f6eff7]/60 dark:bg-[#250a20]/40 rounded-2xl border border-dashed border-[#741052]/20 dark:border-[#d0269b]/30">
-            <div className="w-14 h-14 rounded-full bg-[#741052]/10 dark:bg-[#d0269b]/20 flex items-center justify-center text-[#741052] dark:text-[#d0269b] mb-4">
-              <Search size={24} strokeWidth={2.2} />
-            </div>
-            <h3 className="text-lg font-bold text-[#330523] dark:text-neutral-100">
-              No matching dishes found
-            </h3>
-            <p className="text-sm text-neutral-500 dark:text-neutral-400 max-w-md mt-1.5 mb-5">
-              We couldn&apos;t find anything matching &ldquo;{searchQuery}&rdquo;. Try searching for Biryani, Karahi, Roll, Pizza, or Platters.
-            </p>
-            <button
-              type="button"
-              onClick={() => setSearchQuery('')}
-              className="px-5 py-2.5 rounded-xl bg-[#741052] dark:bg-[#d0269b] text-white text-xs font-bold shadow-md hover:scale-105 active:scale-95 transition-all"
-            >
-              View Full Menu
-            </button>
-          </div>
-        ) : (
-          /* Matching Items Grid */
-          <div className="grid grid-cols-2 gap-4 pr-6 pl-1 sm:px-6 lg:px-8 w-full max-w-6xl mx-auto sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-            {filteredSearchResults.platters.map((platter, idx) => (
-              <motion.div
-                key={`search-platter-${platter.id}-${idx}`}
-                initial={{ opacity: 0, y: 15 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.3, delay: idx * 0.04 }}
-              >
-                <PlatterItem
-                  platter={platter as any}
-                  initialOpen={!!(initialPlatterSlug && slugify((platter as any).title) === initialPlatterSlug)}
-                />
-              </motion.div>
-            ))}
-            {filteredSearchResults.menuItems.map((item, idx) => (
-              <motion.div
-                key={`search-item-${item.id}-${idx}`}
-                initial={{ opacity: 0, y: 15 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{
-                  duration: 0.3,
-                  delay: (filteredSearchResults.platters.length + idx) * 0.04,
-                }}
-              >
-                <MenuItem
-                  item={item as any}
-                  initialOpen={!!(initialItemSlug && slugify(item.title) === initialItemSlug)}
-                />
-              </motion.div>
-            ))}
-          </div>
-        )}
-      </div>
-    );
-  };
 
   // --- Classic Layout Conditional Render ---
   if (!useCmsLayout) {
@@ -807,13 +756,13 @@ export default function MenuPage({
           catalogItems={allAvailableMenuItems}
           platters={allAvailablePlatters}
           dishesList={searchPlaceholderDishes.length > 0 ? searchPlaceholderDishes : undefined}
+          results={normalizedSearchQuery ? filteredSearchResults : undefined}
+          onItemOpen={handleSearchItemOpen}
+          onPlatterOpen={handleSearchPlatterOpen}
         />
 
-        {/* If Search is active, render search results; otherwise render normal categories */}
-        {isSearchActive ? (
-          renderSearchResults()
-        ) : (
-          <div>
+        {/* Always render all categories — search results now appear in the dropdown above */}
+        <div>
             {visibleClassicCategories.map((categoryConfig) => {
               const category = categoryConfig.name;
 
@@ -848,7 +797,9 @@ export default function MenuPage({
                           >
                             <PlatterItem
                               platter={platter as any}
-                              initialOpen={!!(initialPlatterSlug && slugify((platter as any).title) === initialPlatterSlug)}
+                              initialOpen={
+                                !!(initialPlatterSlug && slugify((platter as any).title) === initialPlatterSlug)
+                              }
                             />
                           </motion.div>
                         ))
@@ -939,10 +890,30 @@ export default function MenuPage({
             );
           })}
         </div>
-      )}
-    </div>
+
+        {/* Search Result Click Popups */}
+        {searchActiveItem && (
+          <MenuItem
+            key={`search-item-classic-${searchActiveItem.id || (searchActiveItem as any)._id}-${searchModalKey}`}
+            item={searchActiveItem as any}
+            initialOpen={true}
+            modalOnly={true}
+            onCloseModal={() => setSearchActiveItem(null)}
+          />
+        )}
+        {searchActivePlatter && (
+          <PlatterItem
+            key={`search-platter-classic-${searchActivePlatter.id || (searchActivePlatter as any)._id}-${searchModalKey}`}
+            platter={searchActivePlatter as any}
+            initialOpen={true}
+            modalOnly={true}
+            onCloseModal={() => setSearchActivePlatter(null)}
+          />
+        )}
+      </div>
   );
 }
+
 
   // In CMS Layout mode, identify visible product sections for category navigation
   const firstBannerIndex = sections.findIndex(
@@ -986,53 +957,15 @@ export default function MenuPage({
             catalogItems={allAvailableMenuItems}
             platters={allAvailablePlatters}
             dishesList={searchPlaceholderDishes.length > 0 ? searchPlaceholderDishes : undefined}
+            results={normalizedSearchQuery ? filteredSearchResults : undefined}
+            onItemOpen={handleSearchItemOpen}
+            onPlatterOpen={handleSearchPlatterOpen}
           />
         </>
       )}
 
-      {/* When Search is active in CMS layout, render banner, nav strip, search bar, and search results */}
-      {isSearchActive ? (
-        <>
-          {sections.map((section, idx) => {
-            if (!section.isVisible) return null;
-            const isTargetBanner = idx === firstBannerIndex;
-
-            if (section.type === 'hero' || section.type === 'image-slider') {
-              return (
-                <Fragment key={section.id}>
-                  <div
-                    id={section.title ? `category-${slugify(section.title)}` : undefined}
-                    className="scroll-mt-24"
-                  >
-                    {section.type === 'hero' ? (
-                      <HeroSection section={section} />
-                    ) : (
-                      <BannerSlider section={section} />
-                    )}
-                  </div>
-
-                  {isTargetBanner && (
-                    <>
-                      <CategoryNavStrip categories={cmsCategories} />
-                      <SearchBar
-                        value={searchQuery}
-                        onChange={setSearchQuery}
-                        catalogItems={allAvailableMenuItems}
-                        platters={allAvailablePlatters}
-                        dishesList={searchPlaceholderDishes.length > 0 ? searchPlaceholderDishes : undefined}
-                      />
-                    </>
-                  )}
-                </Fragment>
-              );
-            }
-            return null;
-          })}
-
-          {renderSearchResults()}
-        </>
-      ) : (
-        sections.map((section, idx) => {
+      {/* All sections render normally — search results appear in the floating dropdown above */}
+      {sections.map((section, idx) => {
           if (!section.isVisible) return null;
 
           const displayedItems = sectionLoadedItems[section.id] || [];
@@ -1113,12 +1046,35 @@ export default function MenuPage({
                     onChange={setSearchQuery}
                     catalogItems={allAvailableMenuItems}
                     platters={allAvailablePlatters}
+                    dishesList={searchPlaceholderDishes.length > 0 ? searchPlaceholderDishes : undefined}
+                    results={normalizedSearchQuery ? filteredSearchResults : undefined}
+                    onItemOpen={handleSearchItemOpen}
+                    onPlatterOpen={handleSearchPlatterOpen}
                   />
                 </>
               )}
             </Fragment>
           );
-        })
+        })}
+
+      {/* Search Result Click Popups */}
+      {searchActiveItem && (
+        <MenuItem
+          key={`search-item-cms-${searchActiveItem.id || (searchActiveItem as any)._id}-${searchModalKey}`}
+          item={searchActiveItem as any}
+          initialOpen={true}
+          modalOnly={true}
+          onCloseModal={() => setSearchActiveItem(null)}
+        />
+      )}
+      {searchActivePlatter && (
+        <PlatterItem
+          key={`search-platter-cms-${searchActivePlatter.id || (searchActivePlatter as any)._id}-${searchModalKey}`}
+          platter={searchActivePlatter as any}
+          initialOpen={true}
+          modalOnly={true}
+          onCloseModal={() => setSearchActivePlatter(null)}
+        />
       )}
     </div>
   );

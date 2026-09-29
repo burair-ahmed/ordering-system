@@ -50,33 +50,41 @@ interface PlatterItemProps {
   };
   cardStyle?: 'minimal' | 'compact' | 'gourmet' | 'list';
   initialOpen?: boolean;
+  modalOnly?: boolean;
+  onCloseModal?: () => void;
 }
 
 // Memory cache for category items to eliminate network latency on subsequent modal opens
 const platterCategoryCache = new Map<string, any[]>();
 
-const PlatterItem: FC<PlatterItemProps> = ({ platter, cardStyle = 'gourmet', initialOpen = false }) => {
+const PlatterItem: FC<PlatterItemProps> = ({ platter, cardStyle = 'gourmet', initialOpen = false, modalOnly = false, onCloseModal }) => {
   const { setStatusModalOpen, setProductModalOpen } = useOrder();
   const { addToCart } = useCart();
 
   const [showModal, setShowModal] = useState(initialOpen);
   const [showAddedMessage, setShowAddedMessage] = useState(false);
 
-  // Synchronize global product modal state
+  const platterSlug = useMemo(() => slugify(platter.title), [platter.title]);
+
+  // Synchronize global product modal state & URL
   useEffect(() => {
     if (showModal) {
       setProductModalOpen(true);
+      if (typeof window !== 'undefined') {
+        const targetPath = `/platter/${platterSlug}`;
+        if (window.location.pathname !== targetPath) {
+          window.history.replaceState(null, '', targetPath);
+        }
+      }
       return () => {
         setProductModalOpen(false);
       };
     }
-  }, [showModal, setProductModalOpen]);
+  }, [showModal, setProductModalOpen, platterSlug]);
 
   const [categoryItems, setCategoryItems] = useState<{
     [key: string]: any[];
   }>({});
-
-  const platterSlug = useMemo(() => slugify(platter.title), [platter.title]);
 
   // Non-blocking smooth modal open with clean URL sync
   const openModal = useCallback(() => {
@@ -106,6 +114,9 @@ const PlatterItem: FC<PlatterItemProps> = ({ platter, cardStyle = 'gourmet', ini
   // If before 6:30 (closed), shows the before 6:30 lock popup.
   const closeModal = useCallback(() => {
     setShowModal(false);
+    if (onCloseModal) {
+      onCloseModal();
+    }
     if (typeof window !== 'undefined') {
       requestAnimationFrame(() => {
         if (window.location.pathname.startsWith('/platter/')) {
@@ -116,7 +127,7 @@ const PlatterItem: FC<PlatterItemProps> = ({ platter, cardStyle = 'gourmet', ini
     if (!isOpenAt()) {
       setStatusModalOpen(true);
     }
-  }, [setStatusModalOpen]);
+  }, [setStatusModalOpen, onCloseModal]);
 
   // Sync with browser back/forward buttons
   useEffect(() => {
@@ -327,6 +338,7 @@ const PlatterItem: FC<PlatterItemProps> = ({ platter, cardStyle = 'gourmet', ini
   return (
     <>
       {/* Card */}
+      {!modalOnly && (
       <motion.div
         whileHover={{ scale: 1.02, y: -2 }}
         whileTap={{ scale: 0.98 }}
@@ -492,6 +504,7 @@ const PlatterItem: FC<PlatterItemProps> = ({ platter, cardStyle = 'gourmet', ini
           </>
         )}
       </motion.div>
+      )}
 
       {/* Optimized High-Performance Modal */}
       <AnimatePresence>
