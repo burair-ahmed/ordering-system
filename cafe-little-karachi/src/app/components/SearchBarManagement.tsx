@@ -352,9 +352,9 @@ export default function SearchBarManagement() {
       </Card>
 
       {/* Add Items Section */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 min-w-0">
         {/* Quick Add from Catalog */}
-        <Card className="border-neutral-200 dark:border-neutral-800 shadow-sm">
+        <Card className="border-neutral-200 dark:border-neutral-800 shadow-sm overflow-hidden min-w-0">
           <CardHeader className="pb-3">
             <CardTitle className="text-sm font-bold flex items-center gap-2">
               <UtensilsCrossed className="w-4 h-4 text-[#741052] dark:text-[#d0269b]" />
@@ -365,11 +365,11 @@ export default function SearchBarManagement() {
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-3">
-            <div className="flex gap-2">
+            <div className="flex items-center gap-2 min-w-0 w-full">
               <select
                 value={selectedCatalogItem}
                 onChange={(e) => setSelectedCatalogItem(e.target.value)}
-                className="flex-1 text-xs sm:text-sm px-3 py-2 rounded-xl bg-neutral-100 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 outline-none text-neutral-900 dark:text-neutral-100"
+                className="flex-1 min-w-0 w-full truncate text-xs sm:text-sm px-3 py-2 rounded-xl bg-neutral-100 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 outline-none text-neutral-900 dark:text-neutral-100"
               >
                 <option value="">-- Choose Menu Item or Platter --</option>
                 {catalogItems.map((item) => (
@@ -382,7 +382,7 @@ export default function SearchBarManagement() {
                 type="button"
                 onClick={handleAddFromCatalog}
                 disabled={!selectedCatalogItem}
-                className="bg-[#741052] hover:bg-[#5c0d40] text-white text-xs shrink-0"
+                className="bg-[#741052] hover:bg-[#5c0d40] text-white text-xs shrink-0 whitespace-nowrap"
               >
                 <Plus className="w-3.5 h-3.5 mr-1" />
                 Add
@@ -392,7 +392,7 @@ export default function SearchBarManagement() {
         </Card>
 
         {/* Add Custom Phrase */}
-        <Card className="border-neutral-200 dark:border-neutral-800 shadow-sm">
+        <Card className="border-neutral-200 dark:border-neutral-800 shadow-sm overflow-hidden min-w-0">
           <CardHeader className="pb-3">
             <CardTitle className="text-sm font-bold flex items-center gap-2">
               <Plus className="w-4 h-4 text-[#741052] dark:text-[#d0269b]" />
@@ -403,7 +403,7 @@ export default function SearchBarManagement() {
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-3">
-            <div className="flex gap-2">
+            <div className="flex items-center gap-2 min-w-0 w-full">
               <input
                 type="text"
                 placeholder="Enter custom dish name..."
@@ -416,13 +416,13 @@ export default function SearchBarManagement() {
                   }
                 }}
                 maxLength={30}
-                className="flex-1 text-xs sm:text-sm px-3 py-2 rounded-xl bg-neutral-100 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 outline-none text-neutral-900 dark:text-neutral-100 placeholder:text-neutral-400"
+                className="flex-1 min-w-0 w-full text-xs sm:text-sm px-3 py-2 rounded-xl bg-neutral-100 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 outline-none text-neutral-900 dark:text-neutral-100 placeholder:text-neutral-400"
               />
               <Button
                 type="button"
                 onClick={handleAddCustomDish}
                 disabled={!newDishInput.trim()}
-                className="bg-[#741052] hover:bg-[#5c0d40] text-white text-xs shrink-0"
+                className="bg-[#741052] hover:bg-[#5c0d40] text-white text-xs shrink-0 whitespace-nowrap"
               >
                 <Plus className="w-3.5 h-3.5 mr-1" />
                 Add
