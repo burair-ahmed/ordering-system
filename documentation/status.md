@@ -16,7 +16,7 @@ current_sprint: "CLK Storefront UX Polish"
 
 | Sub-Project | Phase | Focus | Status |
 | :--- | :--- | :--- | :--- |
-| **Cafe Little Karachi (CLK)** | Phase 4.47 | Quantity Selector in Product Popups: `−/+` stepper in both MenuItem and PlatterItem modals, quantity wired to `addToCart`, reset on close, analytics `quantity` field | **Completed** 🟢 |
+| **Cafe Little Karachi (CLK)** | Phase 4.47 | Quantity Selector & In-Button Cart Confirmation: Borderless `−/+` stepper in MenuItem & PlatterItem modals, quantity wired to `addToCart`, reset on close, in-button slide-out/in "✓ Added!" text animation with original brand gradient | **Completed** 🟢 |
 | **Cafe Little Karachi (CLK)** | Phase 4.46 | Admin Live Orders: 4 Top Metric Cards Zero-Overflow Responsive Sizing (`grid-cols-2 lg:grid-cols-4`), flexible truncate, rigid number counters & search bar responsiveness | **Completed** 🟢 |
 | **Cafe Little Karachi (CLK)** | Phase 4.45 | Expandable Search Bar: Smooth focus expansion (280px → 620px), borderless luxury pill, animated typewriter rotating placeholder, inline floating results modal (thumbnail left, title top, price below, + button, popup trigger) & Admin "Search Bar Items" manager tab | **Completed** 🟢 |
 | **Cafe Little Karachi (CLK)** | Phase 4 Perf | First-Party JS: `optimizePackageImports` (lucide-react, react-icons, framer-motion), lazy `CartSidebar`/`PlatterItem`/`BannerSlider`, `browserslist` modern targets → −26 KB legacy JS, −70 KB+ off critical path | **Completed** 🟢 |

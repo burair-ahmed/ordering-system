@@ -9,7 +9,7 @@ import AddToCartButtonForPlatters from "./AddToCartButtonForPlatters";
 import { VariationSelector } from "../../components/variations/VariationSelector";
 import { useVariationSelector } from "../../hooks/useVariationSelector";
 import { VariationConfig, SelectedVariation } from "../../types/variations";
-import { X, Check } from "lucide-react";
+import { X } from "lucide-react";
 import { trackEvent } from '../lib/analytics';
 import { slugify } from '../lib/slugify';
 import { useOrder } from '../context/OrderContext';
@@ -616,20 +616,11 @@ const PlatterItem: FC<PlatterItemProps> = ({ platter, cardStyle = 'gourmet', ini
                       selectedVariations={getFlattenedVariations()}
                       onAddRequest={handleAddRequest}
                       onClick={handleItemAdded}
+                      showAdded={showAddedMessage}
                       className="flex-1 !mt-0"
                       disabled={platter.status === "out of stock" || !isValid}
                     />
                   </div>
-                  {showAddedMessage && (
-                    <motion.div
-                      initial={{ opacity: 0, y: 6 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: 6 }}
-                      className="flex items-center gap-1 text-green-600 text-sm font-semibold mt-2"
-                    >
-                      <Check size={16} /> {quantity > 1 ? `${quantity}× ` : ''}Added to cart
-                    </motion.div>
-                  )}
                 </div>
               </div>
             </motion.div>

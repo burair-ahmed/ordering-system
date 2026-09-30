@@ -8,22 +8,24 @@ created: 2026-09-04
 last_updated: 2026-09-30
 ---
 
-## 0. Phase 4.47 — CLK Quantity Selector in Product Popups (2026-09-30)
+## 0. Phase 4.47 — CLK Quantity Selector & In-Button Cart Confirmation in Product Popups (2026-09-30)
 
-### Quantity Stepper in MenuItem & PlatterItem Modals
+### Quantity Stepper & In-Button Cart Confirmation in MenuItem & PlatterItem Modals
 - **Files**:
   - `cafe-little-karachi/src/app/components/MenuItem.tsx` (UPDATED)
   - `cafe-little-karachi/src/app/components/PlatterItem.tsx` (UPDATED)
-- **Context & Goal**: Customers had no way to add more than 1 unit of an item or platter directly from the product popup — they had to add once, then increment inside the cart sidebar. Adding a quantity stepper inside the modal eliminates that friction and enables bulk adding in one action.
+  - `cafe-little-karachi/src/app/components/AddToCartButton.tsx` (UPDATED)
+  - `cafe-little-karachi/src/app/components/AddToCartButtonForPlatters.tsx` (UPDATED)
+- **Context & Goal**: Customers had no way to add more than 1 unit of an item or platter directly from the product popup — they had to add once, then increment inside the cart sidebar. In addition, the popup's confirmation UX was refined to eliminate layout shifts by removing external floating green text and transforming the "Add to Cart" button itself on click.
 - **Changes Applied**:
   - **`quantity` state** (default `1`, max `20`): Added `const [quantity, setQuantity] = useState(1)` to both `MenuItem` and `PlatterItem`.
   - **Reset on close**: `closeModal` now calls `setQuantity(1)` before hiding the modal so reopening always starts fresh at 1.
-  - **Quantity Stepper UI**: Rendered a compact pill-shaped stepper (`rounded-full border border-[#741052]/30 bg-[#f6eff7]`) beside the "Add to Cart" button in the modal footer. Uses `−` / `+` buttons (36×36px) with hover tint, disabled states (`≤1` for minus, `≥20` for plus), and a centered bold count display.
+  - **Borderless Quantity Stepper UI**: Rendered a compact pill-shaped stepper (`rounded-full overflow-hidden bg-[#f6eff7]`) with no grey borders beside the "Add to Cart" button in the modal footer. Uses `−` / `+` buttons (36×36px) with hover tint, disabled states (`≤1` for minus, `≥20` for plus), and a centered bold count display.
   - **`addToCart` payload**: Replaced hardcoded `quantity: 1` with the stateful `quantity` in both `handleAddRequest` (MenuItem) and `performCartAdd` (PlatterItem) so the full selected quantity is forwarded to the cart in one action.
   - **Analytics**: Added `quantity` field to `journey_add_to_cart` and `journey_add_platter_to_cart` analytics events and updated dependency arrays in both `useCallback` hooks.
-  - **"Added to cart" confirmation**: Confirmation message now reads e.g. `3× Added to cart` when quantity > 1 for clear visual feedback.
+  - **In-Button Slide Animation & Original Brand Color**: In `AddToCartButton.tsx` and `AddToCartButtonForPlatters.tsx`, preserved the original brand plum gradient (`bg-gradient-to-r from-[#5c0d40] to-[#8a1c5a]`) rather than changing background color. Implemented smooth Framer Motion slide-out / slide-in text transitions (`AnimatePresence mode="wait"`, vertical translation `y: 14` / `y: -14` with opacity fade) between `"Add to Cart"` and `"✓ Added!"` on click.
 - **Verification**: `npx tsc --noEmit` exited with code 0 — zero errors.
-- **Rationale**: Single-step bulk ordering (e.g. "2 Biryani 1 kg") is a very common use-case for restaurant orders. Exposing quantity control at the point of configuration — rather than requiring a return trip to the cart — reduces cart friction and increases average order value.
+- **Rationale**: Keeps brand visual consistency with the signature plum gradient while giving tactile, animated feedback directly inside the button as "Add to Cart" slides out and "✓ Added!" slides into place.
 
 ---
 
