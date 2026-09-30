@@ -45,6 +45,7 @@ const MenuItem: FC<MenuItemProps> = ({ item, cardStyle = 'gourmet', initialOpen 
   const { addToCart } = useCart();
   const [showModal, setShowModal] = useState(initialOpen);
   const [showAddedMessage, setShowAddedMessage] = useState(false);
+  const [quantity, setQuantity] = useState(1);
 
   const itemId = item.id ? item.id.toString() : "0";
   const originalPrice = typeof item.price === "number" ? item.price : 0;
@@ -83,6 +84,7 @@ const MenuItem: FC<MenuItemProps> = ({ item, cardStyle = 'gourmet', initialOpen 
   // If before 6:30 (closed), shows the before 6:30 lock popup.
   const closeModal = useCallback(() => {
     setShowModal(false);
+    setQuantity(1);
     if (onCloseModal) {
       onCloseModal();
     }
@@ -169,13 +171,14 @@ const MenuItem: FC<MenuItemProps> = ({ item, cardStyle = 'gourmet', initialOpen 
       item_id: itemId,
       item_name: item.title,
       price: totalPrice,
+      quantity,
       has_variations: selections.simple.length > 0,
       variation: selections.simple.length > 0 ? selections.simple.map(s => s.optionName).join(', ') : null
     });
 
     setShowAddedMessage(true);
     setTimeout(() => setShowAddedMessage(false), 1500);
-  }, [itemId, item.title, totalPrice, selections.simple]);
+  }, [itemId, item.title, totalPrice, quantity, selections.simple]);
 
   const handleAddRequest = useCallback(() => {
     if (!isOpenAt()) {
@@ -191,12 +194,12 @@ const MenuItem: FC<MenuItemProps> = ({ item, cardStyle = 'gourmet', initialOpen 
       id: itemId,
       title: item.title,
       price: totalPrice,
-      quantity: 1,
+      quantity,
       image: item.image,
       variations: getFlattenedVariations(),
     });
     handleItemAdded();
-  }, [itemId, item.title, totalPrice, item.image, getFlattenedVariations, handleItemAdded, setStatusModalOpen, addToCart]);
+  }, [itemId, item.title, totalPrice, quantity, item.image, getFlattenedVariations, handleItemAdded, setStatusModalOpen, addToCart]);
 
   const handleSimpleSelect = (variationId: string, option: SelectedVariation) => {
     selectSimpleVariation(variationId, option);
@@ -464,26 +467,53 @@ const MenuItem: FC<MenuItemProps> = ({ item, cardStyle = 'gourmet', initialOpen 
                 </div>
 
                 {/* Add to Cart */}
-                <div className="mt-5 pt-3 border-t border-gray-100 flex items-center gap-4">
-                  <AddToCartButton
-                    id={itemId}
-                    title={item.title}
-                    price={totalPrice}
-                    image={item.image}
-                    selectedVariations={getFlattenedVariations()}
-                    onClick={handleItemAdded}
-                    onAddRequest={handleAddRequest}
-                    disabled={item.status === "out of stock" || !isValid}
-                    className=""
-                  />
+                <div className="mt-5 pt-3 border-t border-gray-100">
+                  <div className="flex items-center gap-3 flex-wrap">
+                    {/* Quantity Stepper */}
+                    <div className="flex items-center gap-0 rounded-full overflow-hidden bg-[#f6eff7] shrink-0">
+                      <button
+                        type="button"
+                        aria-label="Decrease quantity"
+                        onClick={() => setQuantity(q => Math.max(1, q - 1))}
+                        className="w-9 h-9 flex items-center justify-center text-[#741052] hover:bg-[#741052]/10 transition-colors text-lg font-bold disabled:opacity-40"
+                        disabled={quantity <= 1}
+                      >
+                        −
+                      </button>
+                      <span className="min-w-[2rem] text-center text-sm font-bold text-[#741052] select-none">
+                        {quantity}
+                      </span>
+                      <button
+                        type="button"
+                        aria-label="Increase quantity"
+                        onClick={() => setQuantity(q => Math.min(20, q + 1))}
+                        className="w-9 h-9 flex items-center justify-center text-[#741052] hover:bg-[#741052]/10 transition-colors text-lg font-bold disabled:opacity-40"
+                        disabled={quantity >= 20}
+                      >
+                        +
+                      </button>
+                    </div>
+
+                    <AddToCartButton
+                      id={itemId}
+                      title={item.title}
+                      price={totalPrice}
+                      image={item.image}
+                      selectedVariations={getFlattenedVariations()}
+                      onClick={handleItemAdded}
+                      onAddRequest={handleAddRequest}
+                      disabled={item.status === "out of stock" || !isValid}
+                      className="flex-1 !mt-0"
+                    />
+                  </div>
                   {showAddedMessage && (
                     <motion.div
-                      initial={{ opacity: 0, y: 10 }}
+                      initial={{ opacity: 0, y: 6 }}
                       animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: 10 }}
-                      className="flex items-center gap-1 text-green-600 text-sm font-semibold"
+                      exit={{ opacity: 0, y: 6 }}
+                      className="flex items-center gap-1 text-green-600 text-sm font-semibold mt-2"
                     >
-                      <Check size={16} /> Added to cart
+                      <Check size={16} /> {quantity > 1 ? `${quantity}× ` : ''}Added to cart
                     </motion.div>
                   )}
                 </div>

@@ -5,9 +5,9 @@ tags:
   - #status/active
   - #project/ordering-ecosystem
 created: 2026-09-04
-last_updated: 2026-09-28
-overall_completion: "Phase 4 Perf Fix: First-Party JS Lazy-Load + optimizePackageImports + Browserslist (100%)"
-current_sprint: "CLK Phase 4 Performance — dynamic imports, tree-shaking, legacy-JS removal"
+last_updated: 2026-09-30
+overall_completion: "Phase 4.47: Quantity Selector in Product Popups (100%)"
+current_sprint: "CLK Storefront UX Polish"
 ---
 
 # Project Status Dashboard — Advanced Ordering Ecosystem
@@ -16,6 +16,8 @@ current_sprint: "CLK Phase 4 Performance — dynamic imports, tree-shaking, lega
 
 | Sub-Project | Phase | Focus | Status |
 | :--- | :--- | :--- | :--- |
+| **Cafe Little Karachi (CLK)** | Phase 4.47 | Quantity Selector in Product Popups: `−/+` stepper in both MenuItem and PlatterItem modals, quantity wired to `addToCart`, reset on close, analytics `quantity` field | **Completed** 🟢 |
+| **Cafe Little Karachi (CLK)** | Phase 4.46 | Admin Live Orders: 4 Top Metric Cards Zero-Overflow Responsive Sizing (`grid-cols-2 lg:grid-cols-4`), flexible truncate, rigid number counters & search bar responsiveness | **Completed** 🟢 |
 | **Cafe Little Karachi (CLK)** | Phase 4.45 | Expandable Search Bar: Smooth focus expansion (280px → 620px), borderless luxury pill, animated typewriter rotating placeholder, inline floating results modal (thumbnail left, title top, price below, + button, popup trigger) & Admin "Search Bar Items" manager tab | **Completed** 🟢 |
 | **Cafe Little Karachi (CLK)** | Phase 4 Perf | First-Party JS: `optimizePackageImports` (lucide-react, react-icons, framer-motion), lazy `CartSidebar`/`PlatterItem`/`BannerSlider`, `browserslist` modern targets → −26 KB legacy JS, −70 KB+ off critical path | **Completed** 🟢 |
 | **Cafe Little Karachi (CLK)** | Phase 3 Perf | Third-Party Script Deferral: GA, Meta Pixel, Clarity deferred to first interaction — eliminates ~668 KB payload & ~1s TBT | **Completed** 🟢 |
@@ -35,6 +37,17 @@ current_sprint: "CLK Phase 4 Performance — dynamic imports, tree-shaking, lega
 - [x] **`package.json` — `browserslist`**: Modern targets `chrome/edge/firefox ≥ 111, safari ≥ 16.4`. SWC skips legacy polyfill transforms → −26 KB JS.
 - [x] **Forced Reflow (8.4) — CLEAN**: CategoryNavStrip scroll-spy uses IntersectionObserver (from Phase 1). Only remaining `getBoundingClientRect` is in a click handler (acceptable).
 - [x] **TypeScript Validation**: `npx tsc --noEmit` → exit code 0 — zero errors.
+
+---
+
+## Phase 4.46 Completion Summary — Admin Live Orders Metric Cards & Controls Responsiveness Fix (CLK)
+
+- [x] **Grid Breakpoint Optimization (`OrdersList.tsx`)**: Replaced `grid-cols-1 sm:grid-cols-2 xl:grid-cols-4` with `grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-3 xl:gap-4` to present a balanced 2x2 grid on mobile/tablet and clean 4-card spread on larger screens.
+- [x] **Zero-Overflow Card Shell (`OrdersList.tsx`)**: Bound all 4 status filter cards (`RECEIVED`, `DELIVERED`, `CANCELLED`, `ALL ORDERS`) with `overflow-hidden`, `gap-2 sm:gap-3`, and fluid padding (`p-3 sm:p-4 xl:p-4.5 2xl:p-5`).
+- [x] **Flexible Left Label Container (`OrdersList.tsx`)**: Enforced `min-w-0 flex-1` and `truncate` on queue subtitle and main status labels (`text-sm sm:text-base xl:text-lg 2xl:text-xl`), preventing long text labels from forcing the count numbers outward.
+- [x] **Rigid Right Metrics Container (`OrdersList.tsx`)**: Secured count and currency columns with `shrink-0 min-w-max pl-1 sm:pl-2`, `tabular-nums`, and fluid typography (`text-xl sm:text-2xl xl:text-3xl 2xl:text-4xl`), eliminating text and number clipping/spillover.
+- [x] **Search Bar & Controls Responsiveness (`OrdersList.tsx`)**: Formatted search and filter controls row with `min-w-0 flex-1`, `flex-wrap sm:flex-nowrap`, and `justify-between sm:justify-end`.
+- [x] **TypeScript Validation**: `npx tsc --noEmit` exited with code 0 — zero errors.
 
 ---
 

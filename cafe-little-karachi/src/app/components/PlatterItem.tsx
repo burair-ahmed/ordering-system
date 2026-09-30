@@ -63,6 +63,7 @@ const PlatterItem: FC<PlatterItemProps> = ({ platter, cardStyle = 'gourmet', ini
 
   const [showModal, setShowModal] = useState(initialOpen);
   const [showAddedMessage, setShowAddedMessage] = useState(false);
+  const [quantity, setQuantity] = useState(1);
 
   const platterSlug = useMemo(() => slugify(platter.title), [platter.title]);
 
@@ -114,6 +115,7 @@ const PlatterItem: FC<PlatterItemProps> = ({ platter, cardStyle = 'gourmet', ini
   // If before 6:30 (closed), shows the before 6:30 lock popup.
   const closeModal = useCallback(() => {
     setShowModal(false);
+    setQuantity(1);
     if (onCloseModal) {
       onCloseModal();
     }
@@ -287,12 +289,13 @@ const PlatterItem: FC<PlatterItemProps> = ({ platter, cardStyle = 'gourmet', ini
       platter_id: platter.id,
       platter_name: platter.title,
       price: totalPrice,
+      quantity,
       has_variations: Object.keys(selections.categories).length > 0,
     });
 
     setShowAddedMessage(true);
     setTimeout(() => setShowAddedMessage(false), 1500);
-  }, [platter.id, platter.title, totalPrice, selections.categories]);
+  }, [platter.id, platter.title, totalPrice, quantity, selections.categories]);
 
   // The actual cart add — called directly when order type is already set,
   // or deferred until order type is confirmed.
@@ -301,12 +304,12 @@ const PlatterItem: FC<PlatterItemProps> = ({ platter, cardStyle = 'gourmet', ini
       id: platter.id,
       title: platter.title,
       price: totalPrice,
-      quantity: 1,
+      quantity,
       image: platter.image,
       variations: getFlattenedVariations(),
     });
     handleItemAdded();
-  }, [addToCart, platter.id, platter.title, totalPrice, platter.image, getFlattenedVariations, handleItemAdded]);
+  }, [addToCart, platter.id, platter.title, totalPrice, quantity, platter.image, getFlattenedVariations, handleItemAdded]);
 
   // Called when the "Add to Cart" button is pressed.
   // If before 6:30 (closed), shows the before 6:30 lock popup.
@@ -581,23 +584,50 @@ const PlatterItem: FC<PlatterItemProps> = ({ platter, cardStyle = 'gourmet', ini
                 </div>
 
                 {/* Add to Cart */}
-                <div className="mt-5 pt-3 border-t border-gray-100 flex items-center gap-4">
-                  <AddToCartButtonForPlatters
-                    platter={platter}
-                    selectedVariations={getFlattenedVariations()}
-                    onAddRequest={handleAddRequest}
-                    onClick={handleItemAdded}
-                    className=""
-                    disabled={platter.status === "out of stock" || !isValid}
-                  />
+                <div className="mt-5 pt-3 border-t border-gray-100">
+                  <div className="flex items-center gap-3 flex-wrap">
+                    {/* Quantity Stepper */}
+                    <div className="flex items-center gap-0 rounded-full overflow-hidden bg-[#f6eff7] shrink-0">
+                      <button
+                        type="button"
+                        aria-label="Decrease quantity"
+                        onClick={() => setQuantity(q => Math.max(1, q - 1))}
+                        className="w-9 h-9 flex items-center justify-center text-[#741052] hover:bg-[#741052]/10 transition-colors text-lg font-bold disabled:opacity-40"
+                        disabled={quantity <= 1}
+                      >
+                        −
+                      </button>
+                      <span className="min-w-[2rem] text-center text-sm font-bold text-[#741052] select-none">
+                        {quantity}
+                      </span>
+                      <button
+                        type="button"
+                        aria-label="Increase quantity"
+                        onClick={() => setQuantity(q => Math.min(20, q + 1))}
+                        className="w-9 h-9 flex items-center justify-center text-[#741052] hover:bg-[#741052]/10 transition-colors text-lg font-bold disabled:opacity-40"
+                        disabled={quantity >= 20}
+                      >
+                        +
+                      </button>
+                    </div>
+
+                    <AddToCartButtonForPlatters
+                      platter={platter}
+                      selectedVariations={getFlattenedVariations()}
+                      onAddRequest={handleAddRequest}
+                      onClick={handleItemAdded}
+                      className="flex-1 !mt-0"
+                      disabled={platter.status === "out of stock" || !isValid}
+                    />
+                  </div>
                   {showAddedMessage && (
                     <motion.div
-                      initial={{ opacity: 0, y: 10 }}
+                      initial={{ opacity: 0, y: 6 }}
                       animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: 10 }}
-                      className="flex items-center gap-1 text-green-600 text-sm font-semibold"
+                      exit={{ opacity: 0, y: 6 }}
+                      className="flex items-center gap-1 text-green-600 text-sm font-semibold mt-2"
                     >
-                      <Check size={16} /> Added to cart
+                      <Check size={16} /> {quantity > 1 ? `${quantity}× ` : ''}Added to cart
                     </motion.div>
                   )}
                 </div>

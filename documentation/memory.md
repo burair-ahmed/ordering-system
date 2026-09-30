@@ -5,7 +5,44 @@ tags:
   - #status/active
   - #project/ordering-ecosystem
 created: 2026-09-04
-last_updated: 2026-09-25
+last_updated: 2026-09-30
+---
+
+## 0. Phase 4.47 — CLK Quantity Selector in Product Popups (2026-09-30)
+
+### Quantity Stepper in MenuItem & PlatterItem Modals
+- **Files**:
+  - `cafe-little-karachi/src/app/components/MenuItem.tsx` (UPDATED)
+  - `cafe-little-karachi/src/app/components/PlatterItem.tsx` (UPDATED)
+- **Context & Goal**: Customers had no way to add more than 1 unit of an item or platter directly from the product popup — they had to add once, then increment inside the cart sidebar. Adding a quantity stepper inside the modal eliminates that friction and enables bulk adding in one action.
+- **Changes Applied**:
+  - **`quantity` state** (default `1`, max `20`): Added `const [quantity, setQuantity] = useState(1)` to both `MenuItem` and `PlatterItem`.
+  - **Reset on close**: `closeModal` now calls `setQuantity(1)` before hiding the modal so reopening always starts fresh at 1.
+  - **Quantity Stepper UI**: Rendered a compact pill-shaped stepper (`rounded-full border border-[#741052]/30 bg-[#f6eff7]`) beside the "Add to Cart" button in the modal footer. Uses `−` / `+` buttons (36×36px) with hover tint, disabled states (`≤1` for minus, `≥20` for plus), and a centered bold count display.
+  - **`addToCart` payload**: Replaced hardcoded `quantity: 1` with the stateful `quantity` in both `handleAddRequest` (MenuItem) and `performCartAdd` (PlatterItem) so the full selected quantity is forwarded to the cart in one action.
+  - **Analytics**: Added `quantity` field to `journey_add_to_cart` and `journey_add_platter_to_cart` analytics events and updated dependency arrays in both `useCallback` hooks.
+  - **"Added to cart" confirmation**: Confirmation message now reads e.g. `3× Added to cart` when quantity > 1 for clear visual feedback.
+- **Verification**: `npx tsc --noEmit` exited with code 0 — zero errors.
+- **Rationale**: Single-step bulk ordering (e.g. "2 Biryani 1 kg") is a very common use-case for restaurant orders. Exposing quantity control at the point of configuration — rather than requiring a return trip to the cart — reduces cart friction and increases average order value.
+
+---
+
+## 0. Phase 4.46 — CLK Admin Live Orders Metric Cards & Controls Responsiveness Fix (2026-09-30)
+
+### Top Metric Status Cards & Controls Overflow Elimination
+- **Files**:
+  - `cafe-little-karachi/src/app/components/OrdersList.tsx` (UPDATED)
+- **Context & Goal**: In the Admin Panel's Live Orders tab, on screens such as laptops (~1280px–1440px with sidebar open) and smaller devices, the 4 top metric filter cards (`RECEIVED`, `DELIVERED`, `CANCELLED`, `ALL ORDERS`) experienced horizontal squishing where order counts and labels (e.g., `1` and `VOIDED` in the Cancelled card) spilled out beyond the right card border into adjacent cards. The search and filter controls row also needed adaptive layout wrapping.
+- **Changes Applied**:
+  - **Grid System Upgrade (`OrdersList.tsx`)**: Changed metric card grid layout from `grid-cols-1 sm:grid-cols-2 xl:grid-cols-4` to `grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-3 xl:gap-4`, rendering an organized 2x2 grid on compact/medium screens and 4 columns on large screens.
+  - **Zero-Overflow Card Geometry (`OrdersList.tsx`)**: Added `overflow-hidden`, `gap-2 sm:gap-3`, and responsive padding `p-3 sm:p-4 xl:p-4.5 2xl:p-5` to all 4 metric cards.
+  - **Flexible Left Label Container (`OrdersList.tsx`)**: Applied `min-w-0 flex-1` and `truncate` to the icon, queue sub-title, and main status heading (`RECEIVED`, `DELIVERED`, `CANCELLED`, `ALL ORDERS`) with responsive typography (`text-sm sm:text-base xl:text-lg 2xl:text-xl`), preventing label text from pushing right-side elements outward.
+  - **Rigid Right-Side Metrics Column (`OrdersList.tsx`)**: Configured the count and currency container with `shrink-0 min-w-max pl-1 sm:pl-2`, `tabular-nums`, and fluid font sizing (`text-xl sm:text-2xl xl:text-3xl 2xl:text-4xl font-black`) guaranteeing that number counters and status/currency sub-labels are 100% contained within the card on any screen size.
+  - **Search & Filter Bar Responsiveness (`OrdersList.tsx`)**: Enhanced search input container with `min-w-0 flex-1`, padding `pr-9`, and filter dropdown/buttons row with `flex-wrap sm:flex-nowrap` and `justify-between sm:justify-end`.
+  - **Grid Card Customer Info Wrapper (`OrdersList.tsx`)**: Added `min-w-0 flex-1` to customer name/phone container inside order cards to prevent text overflow when action buttons (WhatsApp, Call) are rendered.
+- **Verification**: `npx tsc --noEmit` exited with code 0 — zero errors.
+- **Rationale**: Guarantees a clean, glitch-free administrator HUD across all screen widths (mobiles, tablets, 1366px laptops, and desktop monitors) with no overlapping or overflowing numbers.
+
 ---
 
 ## 0. Phase 4.45 — CLK Expandable Animated Search Bar & Search Bar Items Admin Manager (2026-09-29)

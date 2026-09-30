@@ -475,34 +475,35 @@ const OrdersList: FC<OrdersListProps> = ({
       {/* ─────────────────────────────────────────────────────────────
           1. HARMONIOUS LUXURY 3-STATUS + ALL ACTION DASHBOARD
       ───────────────────────────────────────────────────────────── */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-3 xl:gap-4">
         {/* BUTTON 1: RECEIVED (PENDING / NEED TO DELIVER) - CLK Royal Plum Theme */}
         <button
           type="button"
           onClick={() => setStatusFilter("received")}
-          className={`flex items-center justify-between p-4 sm:p-5 rounded-2xl sm:rounded-3xl border-2 transition-all text-left shadow-sm cursor-pointer ${statusFilter === "received"
+          className={`flex items-center justify-between p-3 sm:p-4 xl:p-4.5 2xl:p-5 rounded-2xl sm:rounded-3xl border-2 transition-all text-left shadow-sm cursor-pointer overflow-hidden gap-2 sm:gap-3 ${
+            statusFilter === "received"
               ? "bg-[#741052]/10 dark:bg-[#741052]/25 border-[#741052] ring-4 ring-[#741052]/20 shadow-[0_4px_24px_rgba(116,16,82,0.18)]"
               : "bg-white dark:bg-neutral-900 border-neutral-200/90 dark:border-neutral-800 hover:border-[#741052]/50"
-            }`}
+          }`}
         >
-          <div className="flex items-center gap-3.5">
-            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-[#741052] to-[#96156a] text-white flex items-center justify-center font-black text-xl shadow-md shrink-0">
-              <AlertCircle className="h-6 w-6" />
+          <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
+            <div className="w-9 h-9 sm:w-11 sm:h-11 xl:w-12 xl:h-12 rounded-xl sm:rounded-2xl bg-gradient-to-br from-[#741052] to-[#96156a] text-white flex items-center justify-center font-black shadow-md shrink-0">
+              <AlertCircle className="h-4.5 w-4.5 sm:h-5 sm:w-5 xl:h-6 xl:w-6" />
             </div>
-            <div>
-              <span className="text-[11px] uppercase font-extrabold tracking-wider text-[#741052] dark:text-pink-400 block">
+            <div className="min-w-0 flex-1">
+              <span className="text-[9px] sm:text-[10px] xl:text-[11px] uppercase font-extrabold tracking-wider text-[#741052] dark:text-pink-400 block truncate">
                 Pending Queue
               </span>
-              <span className="text-xl sm:text-2xl font-black text-neutral-900 dark:text-white">
+              <span className="text-sm sm:text-base xl:text-lg 2xl:text-xl font-black text-neutral-900 dark:text-white truncate block leading-tight">
                 RECEIVED
               </span>
             </div>
           </div>
-          <div className="text-right">
-            <span className="text-3xl sm:text-4xl font-black text-[#741052] dark:text-pink-400 block">
+          <div className="text-right shrink-0 min-w-max pl-1 sm:pl-2">
+            <span className="text-xl sm:text-2xl xl:text-3xl 2xl:text-4xl font-black text-[#741052] dark:text-pink-400 block leading-none tabular-nums">
               {counts.receivedCount}
             </span>
-            <span className="text-[11px] font-bold text-neutral-500">
+            <span className="text-[9px] sm:text-[10px] xl:text-[11px] font-bold text-neutral-500 uppercase truncate block mt-0.5 sm:mt-1">
               {formatPrice(counts.receivedRevenue)}
             </span>
           </div>
@@ -512,29 +513,30 @@ const OrdersList: FC<OrdersListProps> = ({
         <button
           type="button"
           onClick={() => setStatusFilter("delivered")}
-          className={`flex items-center justify-between p-4 sm:p-5 rounded-2xl sm:rounded-3xl border-2 transition-all text-left shadow-sm cursor-pointer ${statusFilter === "delivered"
+          className={`flex items-center justify-between p-3 sm:p-4 xl:p-4.5 2xl:p-5 rounded-2xl sm:rounded-3xl border-2 transition-all text-left shadow-sm cursor-pointer overflow-hidden gap-2 sm:gap-3 ${
+            statusFilter === "delivered"
               ? "bg-[#3d0a2b]/10 dark:bg-[#3d0a2b]/50 border-[#3d0a2b] dark:border-[#741052]/60 ring-4 ring-[#3d0a2b]/15 shadow-[0_4px_24px_rgba(61,10,43,0.15)]"
               : "bg-white dark:bg-neutral-900 border-neutral-200/90 dark:border-neutral-800 hover:border-[#3d0a2b]/40"
-            }`}
+          }`}
         >
-          <div className="flex items-center gap-3.5">
-            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-[#3d0a2b] to-[#5c0d40] text-white flex items-center justify-center font-black text-xl shadow-md shrink-0">
-              <CheckCircle2 className="h-6 w-6 text-pink-200" />
+          <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
+            <div className="w-9 h-9 sm:w-11 sm:h-11 xl:w-12 xl:h-12 rounded-xl sm:rounded-2xl bg-gradient-to-br from-[#3d0a2b] to-[#5c0d40] text-white flex items-center justify-center font-black shadow-md shrink-0">
+              <CheckCircle2 className="h-4.5 w-4.5 sm:h-5 sm:w-5 xl:h-6 xl:w-6 text-pink-200" />
             </div>
-            <div>
-              <span className="text-[11px] uppercase font-extrabold tracking-wider text-[#5c0d40] dark:text-pink-300 block">
+            <div className="min-w-0 flex-1">
+              <span className="text-[9px] sm:text-[10px] xl:text-[11px] uppercase font-extrabold tracking-wider text-[#5c0d40] dark:text-pink-300 block truncate">
                 Fulfilled Orders
               </span>
-              <span className="text-xl sm:text-2xl font-black text-neutral-900 dark:text-white">
+              <span className="text-sm sm:text-base xl:text-lg 2xl:text-xl font-black text-neutral-900 dark:text-white truncate block leading-tight">
                 DELIVERED
               </span>
             </div>
           </div>
-          <div className="text-right">
-            <span className="text-3xl sm:text-4xl font-black text-[#5c0d40] dark:text-pink-300 block">
+          <div className="text-right shrink-0 min-w-max pl-1 sm:pl-2">
+            <span className="text-xl sm:text-2xl xl:text-3xl 2xl:text-4xl font-black text-[#5c0d40] dark:text-pink-300 block leading-none tabular-nums">
               {counts.deliveredCount}
             </span>
-            <span className="text-[11px] font-bold text-[#741052]/60 dark:text-pink-400/60 uppercase">
+            <span className="text-[9px] sm:text-[10px] xl:text-[11px] font-bold text-[#741052]/60 dark:text-pink-400/60 uppercase truncate block mt-0.5 sm:mt-1">
               Settled
             </span>
           </div>
@@ -544,29 +546,30 @@ const OrdersList: FC<OrdersListProps> = ({
         <button
           type="button"
           onClick={() => setStatusFilter("cancelled")}
-          className={`flex items-center justify-between p-4 sm:p-5 rounded-2xl sm:rounded-3xl border-2 transition-all text-left shadow-sm cursor-pointer ${statusFilter === "cancelled"
+          className={`flex items-center justify-between p-3 sm:p-4 xl:p-4.5 2xl:p-5 rounded-2xl sm:rounded-3xl border-2 transition-all text-left shadow-sm cursor-pointer overflow-hidden gap-2 sm:gap-3 ${
+            statusFilter === "cancelled"
               ? "bg-rose-500/10 dark:bg-rose-950/40 border-rose-600 dark:border-rose-500 ring-4 ring-rose-500/20 shadow-[0_4px_24px_rgba(225,29,72,0.18)]"
               : "bg-white dark:bg-neutral-900 border-neutral-200/90 dark:border-neutral-800 hover:border-rose-500/40"
-            }`}
+          }`}
         >
-          <div className="flex items-center gap-3.5">
-            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-rose-600 to-red-700 text-white flex items-center justify-center font-black text-xl shadow-md shrink-0">
-              <Ban className="h-6 w-6 text-white" />
+          <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
+            <div className="w-9 h-9 sm:w-11 sm:h-11 xl:w-12 xl:h-12 rounded-xl sm:rounded-2xl bg-gradient-to-br from-rose-600 to-red-700 text-white flex items-center justify-center font-black shadow-md shrink-0">
+              <Ban className="h-4.5 w-4.5 sm:h-5 sm:w-5 xl:h-6 xl:w-6 text-white" />
             </div>
-            <div>
-              <span className="text-[11px] uppercase font-extrabold tracking-wider text-rose-600 dark:text-rose-400 block">
+            <div className="min-w-0 flex-1">
+              <span className="text-[9px] sm:text-[10px] xl:text-[11px] uppercase font-extrabold tracking-wider text-rose-600 dark:text-rose-400 block truncate">
                 Voided Orders
               </span>
-              <span className="text-xl sm:text-2xl font-black text-neutral-900 dark:text-white">
+              <span className="text-sm sm:text-base xl:text-lg 2xl:text-xl font-black text-neutral-900 dark:text-white truncate block leading-tight">
                 CANCELLED
               </span>
             </div>
           </div>
-          <div className="text-right">
-            <span className="text-3xl sm:text-4xl font-black text-rose-600 dark:text-rose-400 block">
+          <div className="text-right shrink-0 min-w-max pl-1 sm:pl-2">
+            <span className="text-xl sm:text-2xl xl:text-3xl 2xl:text-4xl font-black text-rose-600 dark:text-rose-400 block leading-none tabular-nums">
               {counts.cancelledCount}
             </span>
-            <span className="text-[11px] font-bold text-rose-600/70 dark:text-rose-400/70 uppercase">
+            <span className="text-[9px] sm:text-[10px] xl:text-[11px] font-bold text-rose-600/70 dark:text-rose-400/70 uppercase truncate block mt-0.5 sm:mt-1">
               Voided
             </span>
           </div>
@@ -576,29 +579,30 @@ const OrdersList: FC<OrdersListProps> = ({
         <button
           type="button"
           onClick={() => setStatusFilter("all")}
-          className={`flex items-center justify-between p-4 sm:p-5 rounded-2xl sm:rounded-3xl border-2 transition-all text-left shadow-sm cursor-pointer ${statusFilter === "all"
+          className={`flex items-center justify-between p-3 sm:p-4 xl:p-4.5 2xl:p-5 rounded-2xl sm:rounded-3xl border-2 transition-all text-left shadow-sm cursor-pointer overflow-hidden gap-2 sm:gap-3 ${
+            statusFilter === "all"
               ? "bg-[#741052]/8 dark:bg-[#741052]/20 border-[#741052]/50 dark:border-[#741052]/50 ring-4 ring-[#741052]/10"
               : "bg-white dark:bg-neutral-900 border-neutral-200/90 dark:border-neutral-800 hover:border-[#741052]/30"
-            }`}
+          }`}
         >
-          <div className="flex items-center gap-3.5">
-            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-[#741052]/80 to-[#3d0a2b] text-white flex items-center justify-center font-black text-xl shadow-md shrink-0">
-              <Tag className="h-6 w-6" />
+          <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
+            <div className="w-9 h-9 sm:w-11 sm:h-11 xl:w-12 xl:h-12 rounded-xl sm:rounded-2xl bg-gradient-to-br from-[#741052]/80 to-[#3d0a2b] text-white flex items-center justify-center font-black shadow-md shrink-0">
+              <Tag className="h-4.5 w-4.5 sm:h-5 sm:w-5 xl:h-6 xl:w-6" />
             </div>
-            <div>
-              <span className="text-[11px] uppercase font-extrabold tracking-wider text-[#741052]/70 dark:text-pink-300/80 block">
+            <div className="min-w-0 flex-1">
+              <span className="text-[9px] sm:text-[10px] xl:text-[11px] uppercase font-extrabold tracking-wider text-[#741052]/70 dark:text-pink-300/80 block truncate">
                 Total History
               </span>
-              <span className="text-xl sm:text-2xl font-black text-neutral-900 dark:text-white">
+              <span className="text-sm sm:text-base xl:text-lg 2xl:text-xl font-black text-neutral-900 dark:text-white truncate block leading-tight">
                 ALL ORDERS
               </span>
             </div>
           </div>
-          <div className="text-right">
-            <span className="text-3xl sm:text-4xl font-black text-[#741052] dark:text-pink-300 block">
+          <div className="text-right shrink-0 min-w-max pl-1 sm:pl-2">
+            <span className="text-xl sm:text-2xl xl:text-3xl 2xl:text-4xl font-black text-[#741052] dark:text-pink-300 block leading-none tabular-nums">
               {counts.totalCount}
             </span>
-            <span className="text-[11px] font-bold text-[#741052]/50 dark:text-pink-400/50 uppercase">
+            <span className="text-[9px] sm:text-[10px] xl:text-[11px] font-bold text-[#741052]/50 dark:text-pink-400/50 uppercase truncate block mt-0.5 sm:mt-1">
               Total
             </span>
           </div>
@@ -608,33 +612,33 @@ const OrdersList: FC<OrdersListProps> = ({
       {/* ─────────────────────────────────────────────────────────────
           2. SIMPLE SEARCH & FILTER CONTROLS
       ───────────────────────────────────────────────────────────── */}
-      <div className="bg-white dark:bg-neutral-900 rounded-2xl p-3 sm:p-4 border border-neutral-200/90 dark:border-neutral-800 shadow-sm flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+      <div className="bg-white dark:bg-neutral-900 rounded-2xl p-3 sm:p-4 border border-neutral-200/90 dark:border-neutral-800 shadow-sm flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3">
         {/* Search */}
-        <div className="relative flex-1">
+        <div className="relative flex-1 min-w-0">
           <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-neutral-400" />
           <Input
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             placeholder="Search Order #, customer name, phone, table..."
-            className="pl-10 h-11 bg-neutral-50 dark:bg-neutral-800/70 border-neutral-200 dark:border-neutral-700 rounded-xl text-sm font-semibold focus-visible:ring-[#741052]"
+            className="pl-10 pr-9 h-11 bg-neutral-50 dark:bg-neutral-800/70 border-neutral-200 dark:border-neutral-700 rounded-xl text-xs sm:text-sm font-semibold focus-visible:ring-[#741052]"
           />
           {searchTerm && (
             <button
               onClick={() => setSearchTerm("")}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-neutral-600 cursor-pointer"
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-neutral-600 cursor-pointer p-1"
             >
               <X className="h-4 w-4" />
             </button>
           )}
         </div>
 
-        {/* Order Type Dropdown */}
-        <div className="flex items-center gap-2">
+        {/* Order Type Dropdown & Controls */}
+        <div className="flex items-center gap-2 flex-wrap sm:flex-nowrap justify-between sm:justify-end shrink-0">
           <Select
             value={typeFilter}
             onValueChange={(v) => setTypeFilter(v as OrderType | "all")}
           >
-            <SelectTrigger className="h-11 w-[140px] sm:w-[160px] bg-neutral-50 dark:bg-neutral-800/70 border-neutral-200 dark:border-neutral-700 rounded-xl text-xs font-bold focus:ring-[#741052]">
+            <SelectTrigger className="h-11 w-full sm:w-[150px] bg-neutral-50 dark:bg-neutral-800/70 border-neutral-200 dark:border-neutral-700 rounded-xl text-xs font-bold focus:ring-[#741052]">
               <SelectValue placeholder="All Types" />
             </SelectTrigger>
             <SelectContent className="rounded-xl">
@@ -646,33 +650,36 @@ const OrdersList: FC<OrdersListProps> = ({
           </Select>
 
           {/* View Mode Toggle */}
-          <div className="inline-flex items-center bg-neutral-100 dark:bg-neutral-800/80 p-1 rounded-xl border border-neutral-200 dark:border-neutral-700">
+          <div className="inline-flex items-center bg-neutral-100 dark:bg-neutral-800/80 p-1 rounded-xl border border-neutral-200 dark:border-neutral-700 shrink-0">
             <button
               onClick={() => setViewMode("grid")}
-              className={`p-2 rounded-lg transition-all cursor-pointer ${viewMode === "grid"
+              className={`p-2 rounded-lg transition-all cursor-pointer ${
+                viewMode === "grid"
                   ? "bg-white dark:bg-neutral-700 text-[#741052] dark:text-pink-300 shadow-sm"
-                  : "text-neutral-500"
-                }`}
+                  : "text-neutral-500 hover:text-neutral-700 dark:hover:text-neutral-300"
+              }`}
               title="Grid Cards"
             >
               <LayoutGrid className="h-4 w-4" />
             </button>
             <button
               onClick={() => setViewMode("kanban")}
-              className={`p-2 rounded-lg transition-all cursor-pointer ${viewMode === "kanban"
+              className={`p-2 rounded-lg transition-all cursor-pointer ${
+                viewMode === "kanban"
                   ? "bg-white dark:bg-neutral-700 text-[#741052] dark:text-pink-300 shadow-sm"
-                  : "text-neutral-500"
-                }`}
+                  : "text-neutral-500 hover:text-neutral-700 dark:hover:text-neutral-300"
+              }`}
               title="3-Column Board"
             >
               <Kanban className="h-4 w-4" />
             </button>
             <button
               onClick={() => setViewMode("table")}
-              className={`p-2 rounded-lg transition-all cursor-pointer ${viewMode === "table"
+              className={`p-2 rounded-lg transition-all cursor-pointer ${
+                viewMode === "table"
                   ? "bg-white dark:bg-neutral-700 text-[#741052] dark:text-pink-300 shadow-sm"
-                  : "text-neutral-500"
-                }`}
+                  : "text-neutral-500 hover:text-neutral-700 dark:hover:text-neutral-300"
+              }`}
               title="List View"
             >
               <List className="h-4 w-4" />
@@ -684,7 +691,7 @@ const OrdersList: FC<OrdersListProps> = ({
             onClick={() => fetchOrders(true)}
             variant="outline"
             disabled={isRefreshing}
-            className="h-11 px-3.5 rounded-xl border-neutral-200 dark:border-neutral-700 font-bold text-xs hover:border-[#741052] hover:text-[#741052] cursor-pointer"
+            className="h-11 px-3.5 rounded-xl border-neutral-200 dark:border-neutral-700 font-bold text-xs hover:border-[#741052] hover:text-[#741052] cursor-pointer shrink-0"
           >
             <RefreshCw
               className={`h-4 w-4 ${isRefreshing ? "animate-spin text-[#741052]" : ""}`}
@@ -829,8 +836,8 @@ const OrdersList: FC<OrdersListProps> = ({
                     </div>
 
                     {/* Customer Info & 1-Click WhatsApp / Call Buttons */}
-                    <div className="bg-neutral-50 dark:bg-neutral-800/60 rounded-2xl p-3.5 border border-neutral-200/80 dark:border-neutral-700/80 flex items-center justify-between gap-3">
-                      <div className="min-w-0">
+                    <div className="bg-neutral-50 dark:bg-neutral-800/60 rounded-2xl p-3.5 border border-neutral-200/80 dark:border-neutral-700/80 flex items-center justify-between gap-2.5">
+                      <div className="min-w-0 flex-1">
                         <p className="text-sm font-black text-neutral-900 dark:text-white truncate">
                           {order.customerName}
                         </p>
