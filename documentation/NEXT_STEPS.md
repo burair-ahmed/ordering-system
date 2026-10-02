@@ -11,6 +11,10 @@ last_updated: 2026-10-02
 # Next Steps & Handoff Guide — Advanced Ordering Ecosystem
 
 ## Completed in Current Sprint
+- [x] **Monorepo Tooling — Node.js 24.x Runtime & Engine Upgrade**:
+  - Pinned `"engines": { "node": "24.x" }` in both `cafe-little-karachi/package.json` and `the-chai-company/package.json`.
+  - Added `.nvmrc` and `.node-version` (`24`) to root, `cafe-little-karachi/`, and `the-chai-company/` for automated Node 24 runtime targeting across Vercel, Netlify, NVM, and CI/CD pipelines.
+  - Verified clean TypeScript compilation (`npx tsc --noEmit`) across both subprojects.
 - [x] **Analytics Overhaul Phase 4 — Multi-Format Report Export Engine & Production Hardening (CLK)**:
   - Built multi-format export engine in `src/lib/exportAnalytics.ts` generating multi-sheet Excel (.xlsx), CSV (.csv), and branded executive PDF (.pdf) reports.
   - Formatted luxury dropdown export trigger in `Analytics.tsx` allowing 1-click downloads for any selected timeframe.

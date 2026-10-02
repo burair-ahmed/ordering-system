@@ -8,6 +8,27 @@ created: 2026-09-04
 last_updated: 2026-10-02
 ---
 
+## 0. Phase 4.55 — Monorepo Tooling: Node.js 24.x Runtime & Engine Upgrade (2026-10-02)
+
+### Node.js 24.x Engine Specification, .nvmrc & .node-version Tooling
+- **Files**:
+  - `cafe-little-karachi/package.json` (UPDATED — added `"engines": { "node": "24.x" }`)
+  - `the-chai-company/package.json` (UPDATED — added `"engines": { "node": "24.x" }`)
+  - `.nvmrc` (NEW — `24`)
+  - `.node-version` (NEW — `24`)
+  - `cafe-little-karachi/.nvmrc` (NEW — `24`)
+  - `cafe-little-karachi/.node-version` (NEW — `24`)
+  - `the-chai-company/.nvmrc` (NEW — `24`)
+  - `the-chai-company/.node-version` (NEW — `24`)
+- **Context & Goal**: Node.js 20.x is being discontinued on deployment platforms (such as Vercel). To ensure long-term stability, performance, and seamless deployments, the runtime environment and package configuration across the monorepo were upgraded to Node.js 24.x.
+- **Changes Applied**:
+  - Added `"engines": { "node": "24.x" }` to `package.json` in both `cafe-little-karachi` and `the-chai-company`.
+  - Created `.nvmrc` and `.node-version` containing `24` across root and both subprojects to ensure automatic version switching for local development (nvm, fnm, volta) and CI/CD pipelines.
+- **Verification**: Executed `npx tsc --noEmit` across both `cafe-little-karachi` and `the-chai-company` — both passed with code 0 (zero errors).
+- **Rationale**: Guarantees deployment platforms (Vercel, etc.) and local environments automatically build and run using Node.js 24.x without runtime version mismatch.
+
+---
+
 ## 0. Phase 4.54 — CLK Analytics Overhaul Phase 4: Multi-Format Report Export Engine & Production Hardening (2026-10-02)
 
 ### Multi-Format Report Exporter (XLSX, CSV, PDF), Safe Purge Workflow & Production Hardening

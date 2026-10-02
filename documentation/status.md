@@ -6,8 +6,8 @@ tags:
   - #project/ordering-ecosystem
 created: 2026-09-04
 last_updated: 2026-10-02
-overall_completion: "Phase 4.54: Multi-Format Export Engine & Hardening (100%)"
-current_sprint: "CLK Advanced Analytics & Intelligence Overhaul"
+overall_completion: "Phase 4.55: Node.js 24.x Runtime & Engine Upgrade (100%)"
+current_sprint: "Ecosystem Tooling & Production Hardening"
 ---
 
 # Project Status Dashboard — Advanced Ordering Ecosystem
@@ -16,6 +16,7 @@ current_sprint: "CLK Advanced Analytics & Intelligence Overhaul"
 
 | Sub-Project | Phase | Focus | Status |
 | :--- | :--- | :--- | :--- |
+| **Monorepo Ecosystem** | Phase 4.55 | Node.js 24.x Runtime & Engine Upgrade: `package.json` `engines` (`node: "24.x"`), `.nvmrc` (`24`), `.node-version` (`24`) across root, CLK, and TCC | **Completed** 🟢 |
 | **Cafe Little Karachi (CLK)** | Phase 4.54 | Analytics Phase 4: Multi-Format Report Exporter (`exportAnalytics.ts` — Excel XLSX, CSV, Branded PDF), Safe Purge UI Workflow Modal (`purge-completed.ts`), Package Integrations & Production Hardening | **Completed** 🟢 |
 | **Cafe Little Karachi (CLK)** | Phase 4.53 | Analytics Phase 3: Luxury UI Cockpit (`Analytics.tsx`), Interactive Recharts Suite (Revenue Timeline, Rush Hours, Day-of-Week, Channels Split), Searchable Product Leaderboard, Low-Velocity Alerts, Delivery Rankings & Historical Order Drawer | **Completed** 🟢 |
 | **Cafe Little Karachi (CLK)** | Phase 4.52 | Analytics Phase 2: Complete Backend Aggregation Engine (`analytics.ts`), Product Leaderboard & Frequencies, Area Rankings, Channels Split, Peak Rush Hours, Basket Affinity, Repeat Customer Metrics & Ledger Search API (`analytics/ledger.ts`) | **Completed** 🟢 |
@@ -33,6 +34,14 @@ current_sprint: "CLK Advanced Analytics & Intelligence Overhaul"
 | **Cafe Little Karachi (CLK)** | Operations / Logistics | Delivery Areas & Charges Update (Gulshan-e-Iqbal Rs. 280, Bhitaiabad Rs. 300 + 6PM rule, 8 New Regions Seeded) | **Completed** 🟢 |
 | **Cafe Little Karachi (CLK)** | Phase 2 Perf | LCP Optimization (≤ 2.2s), AVIF/WebP, Responsive Sizes & Priority Preload Cleanup | **Completed** 🟢 |
 | **The Chai Company (TCC)** | Phase 4.32 | Centered Modern Tea Lounge Footer | **Completed** 🟢 |
+
+---
+
+## Phase 4.55 Completion Summary — Node.js 24.x Runtime & Engine Upgrade (Monorepo)
+
+- [x] **`package.json` Engines**: Configured `"engines": { "node": "24.x" }` in both `cafe-little-karachi/package.json` and `the-chai-company/package.json`.
+- [x] **Tooling Version Pins (`.nvmrc` & `.node-version`)**: Created `.nvmrc` and `.node-version` (pinned to `24`) in root workspace, `cafe-little-karachi/`, and `the-chai-company/` to automate version matching for local dev and CI/CD environments.
+- [x] **TypeScript Validation**: `npx tsc --noEmit` executed across both CLK and TCC — 0 errors (exit code 0).
 
 ---
 
