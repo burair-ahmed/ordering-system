@@ -22,6 +22,16 @@ last_updated: 2026-10-02
   - **`MediaGallery.tsx` — Safe JSON Error Parse**: Wrapped `await res.json()` on failed responses in a `try/catch`. On JSON parse failure (non-JSON bodies), falls back to `Server error {status}: {statusText}`. On success, surfaces `err.error`, `err.details`, and `err.cloudinary_http_code` in the toast message.
 - **Rationale**: Makes error diagnosis immediate — the toast now shows the actual Cloudinary HTTP code and error message instead of a blank generic failure, and the server no longer hangs waiting for an unresponsive Cloudinary Search API.
 
+### Root Cause Fix — Missing Cloudinary Credentials in `.env.local` (Addendum)
+- **Files**:
+  - `cafe-little-karachi/src/lib/cloudinary.ts` (UPDATED — credential guard)
+  - `cafe-little-karachi/.env.local` (UPDATED — Cloudinary vars added)
+- **Root Cause**: `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, and `CLOUDINARY_API_SECRET` existed only in `.env` but not in `.env.local`. Next.js loads `.env` as a baseline but `.env.local` is the authoritative override file and the one reliably loaded on every server restart. The original `getCloudinary()` called `cloudinary.config({ cloud_name: undefined, ... })` when vars were missing — this silently **poisoned the Cloudinary SDK module-level singleton**, clearing any previously-set valid credentials and producing `"Must supply cloud_name"` on every subsequent call within the same Node.js process.
+- **Changes Applied**:
+  - **`cloudinary.ts` — Credential Guard**: `getCloudinary()` now reads all three env vars first, validates they are all non-empty, and throws an immediate descriptive error naming which specific variables are missing (`Cloudinary env vars missing: CLOUDINARY_CLOUD_NAME, ...`) before ever calling `cloudinary.config()` — preventing the silent singleton poison entirely.
+  - **`.env.local` — Credentials Synced**: Added `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, and `CLOUDINARY_API_SECRET` to `.env.local` alongside the existing `NEXT_PUBLIC_DISABLE_HOURS_LOCK=true`. Dev server restart required to pick up the new vars.
+- **Rationale**: `.env.local` is the canonical secret-store for Next.js local development. Credentials in `.env` alone are fragile — they work only if the process boots with `.env` loaded before any other file clobbers the env. Putting them in `.env.local` guarantees they are always present regardless of Next.js version env-loading order changes.
+
 ---
 
 ## 0. Phase 4.55 — Monorepo Tooling: Node.js 24.x Runtime & Engine Upgrade (2026-10-02)

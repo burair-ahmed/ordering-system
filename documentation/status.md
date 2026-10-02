@@ -43,7 +43,9 @@ current_sprint: "Error Resilience & Diagnostic Hardening"
 - [x] **Search API Timeout Guard (`src/pages/api/media.ts`)**: Wrapped `searchReq.execute()` in `Promise.race()` with a 20-second timeout — triggers fallback to Admin Resources API instead of hanging indefinitely when Cloudinary Search is unreachable.
 - [x] **Full Cloudinary Error Logging (`src/pages/api/media.ts`)**: `catch (searchErr: any)` now extracts `http_code` and `error.message` from the Cloudinary SDK error shape and logs them precisely before fallback. Outer catch surfaces `cloudinary_http_code` in the 500 JSON response body.
 - [x] **Safe JSON Error Parse (`src/app/components/MediaGallery.tsx`)**: `fetchMedia` error handler wraps `await res.json()` in `try/catch`; on JSON parse failure (e.g., HTML gateway error pages), falls back to `Server error {status}: {statusText}`; on success surfaces `details` + `cloudinary_http_code` in the toast.
-- [x] **TypeScript Validation**: `npx tsc --noEmit` exited with code 0 — zero errors.
+- [x] **Root Cause: Singleton Poison Guard (`src/lib/cloudinary.ts`)**: `getCloudinary()` now validates all three credentials before calling `cloudinary.config()`. Calling config with `undefined` values previously silently cleared the SDK module-level singleton, producing "Must supply cloud_name" on every subsequent call.
+- [x] **Root Cause: Credentials Added to `.env.local`**: `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, and `CLOUDINARY_API_SECRET` synced from `.env` into `.env.local` — the canonical Next.js secret file loaded reliably on every server boot.
+- [x] **TypeScript Validation**: `npx tsc --noEmit` exited with code 0 — zero errors. Dev server restart required.
 
 ---
 

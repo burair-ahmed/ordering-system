@@ -1,11 +1,29 @@
 import { v2 as cloudinary } from "cloudinary";
 
 export function getCloudinary() {
-  cloudinary.config({
-    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-    api_key: process.env.CLOUDINARY_API_KEY,
-    api_secret: process.env.CLOUDINARY_API_SECRET,
-  });
+  const cloud_name = process.env.CLOUDINARY_CLOUD_NAME;
+  const api_key = process.env.CLOUDINARY_API_KEY;
+  const api_secret = process.env.CLOUDINARY_API_SECRET;
+
+  // Guard: never call cloudinary.config() with undefined values.
+  // Passing undefined to the SDK singleton silently clears previously-set
+  // valid credentials, causing "Must supply cloud_name" on the next call.
+  if (!cloud_name || !api_key || !api_secret) {
+    const missing = (
+      [
+        !cloud_name && "CLOUDINARY_CLOUD_NAME",
+        !api_key && "CLOUDINARY_API_KEY",
+        !api_secret && "CLOUDINARY_API_SECRET",
+      ] as Array<string | false>
+    )
+      .filter(Boolean)
+      .join(", ");
+    throw new Error(
+      `Cloudinary env vars missing: ${missing}. Add them to .env.local and restart the dev server.`
+    );
+  }
+
+  cloudinary.config({ cloud_name, api_key, api_secret });
   return cloudinary;
 }
 
