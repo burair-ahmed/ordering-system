@@ -8,6 +8,22 @@ created: 2026-09-04
 last_updated: 2026-10-02
 ---
 
+## 0. Phase 4.56 — CLK Media Gallery: Cloudinary Fetch Error Hardening (2026-10-02)
+
+### Resilient Cloudinary Error Surfacing & Search API Timeout Guard
+- **Files**:
+  - `cafe-little-karachi/src/pages/api/media.ts` (UPDATED)
+  - `cafe-little-karachi/src/app/components/MediaGallery.tsx` (UPDATED)
+- **Context & Goal**: The Media Gallery displayed a generic `"Media Gallery Error: Failed to fetch media assets from Cloudinary"` toast with no actionable detail. Two root causes were identified: (1) The Cloudinary Search API `searchReq.execute()` had no timeout guard, meaning the handler could hang indefinitely (or until the Node.js request timeout) if Cloudinary was momentarily unreachable. (2) The client-side `fetchMedia` error handler called `await res.json()` on the failed response body without a try/catch — if the body was a non-JSON response (e.g., a Next.js 502/504 HTML error page), this produced a secondary `SyntaxError: Unexpected token` that completely obscured the real failure.
+- **Changes Applied**:
+  - **`media.ts` — 20-second Search API Timeout**: Wrapped `searchReq.execute()` in a `Promise.race()` against a 20-second `setTimeout` rejection. If Cloudinary Search is unreachable or slow, the fallback Admin Resources API is triggered within 20s instead of hanging.
+  - **`media.ts` — Full Cloudinary Error Detail Logging**: Updated `catch (searchErr: any)` to extract `searchErr?.http_code` and `searchErr?.error?.message` from the Cloudinary SDK error shape for precise server-log diagnostics before the admin API fallback runs.
+  - **`media.ts` — Outer Error Response Enrichment**: Outer `catch (error: any)` now extracts `error?.error?.message` (Cloudinary SDK shape) and `error?.http_code`, logging them explicitly and including `cloudinary_http_code` in the 500 JSON response body for client-side debugging.
+  - **`MediaGallery.tsx` — Safe JSON Error Parse**: Wrapped `await res.json()` on failed responses in a `try/catch`. On JSON parse failure (non-JSON bodies), falls back to `Server error {status}: {statusText}`. On success, surfaces `err.error`, `err.details`, and `err.cloudinary_http_code` in the toast message.
+- **Rationale**: Makes error diagnosis immediate — the toast now shows the actual Cloudinary HTTP code and error message instead of a blank generic failure, and the server no longer hangs waiting for an unresponsive Cloudinary Search API.
+
+---
+
 ## 0. Phase 4.55 — Monorepo Tooling: Node.js 24.x Runtime & Engine Upgrade (2026-10-02)
 
 ### Node.js 24.x Engine Specification, .nvmrc & .node-version Tooling

@@ -58,7 +58,15 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           searchReq = searchReq.next_cursor(nextCursor);
         }
 
-        const searchRes = await searchReq.execute();
+        // Race with a 20-second timeout to prevent hanging on Cloudinary unreachability
+        const searchWithTimeout = Promise.race([
+          searchReq.execute(),
+          new Promise((_, reject) =>
+            setTimeout(() => reject(new Error("Cloudinary Search API timed out after 20s")), 20000)
+          ),
+        ]);
+
+        const searchRes = await searchWithTimeout as any;
         resources = (searchRes.resources || []).map((r: any) => ({
           public_id: r.public_id,
           format: r.format,
@@ -76,8 +84,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         }));
         newNextCursor = searchRes.next_cursor;
         totalCount = searchRes.total_count;
-      } catch (searchErr) {
-        console.warn("Cloudinary Search API fallback to Admin Resources API:", searchErr);
+      } catch (searchErr: any) {
+        // Log full Cloudinary error detail before falling back (http_code surfaced when available)
+        const searchErrDetail = searchErr?.error?.message || searchErr?.http_code
+          ? `[http_code=${searchErr?.http_code}] ${searchErr?.error?.message || searchErr?.message}`
+          : String(searchErr?.message || searchErr);
+        console.warn("Cloudinary Search API fallback to Admin Resources API:", searchErrDetail);
         // Fallback to standard admin resources API
         const adminOptions: any = {
           resource_type: "image",
@@ -117,10 +129,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         total_count: totalCount,
       });
     } catch (error: any) {
-      console.error("Failed to list Cloudinary media resources:", error);
+      // Surface the real Cloudinary SDK error detail (http_code + message) for diagnostics
+      const errorMessage = error?.error?.message || error?.message || "Unknown error";
+      const httpCode = error?.http_code ?? null;
+      console.error("Failed to list Cloudinary media resources:", httpCode ? `[http_code=${httpCode}]` : "", errorMessage, error);
       return res.status(500).json({
         error: "Failed to fetch media assets from Cloudinary",
-        details: error.message || "Unknown error",
+        details: errorMessage,
+        cloudinary_http_code: httpCode,
       });
     }
   }

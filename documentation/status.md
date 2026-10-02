@@ -6,8 +6,8 @@ tags:
   - #project/ordering-ecosystem
 created: 2026-09-04
 last_updated: 2026-10-02
-overall_completion: "Phase 4.55: Node.js 24.x Runtime & Engine Upgrade (100%)"
-current_sprint: "Ecosystem Tooling & Production Hardening"
+overall_completion: "Phase 4.56: Media Gallery Cloudinary Fetch Error Hardening (100%)"
+current_sprint: "Error Resilience & Diagnostic Hardening"
 ---
 
 # Project Status Dashboard — Advanced Ordering Ecosystem
@@ -16,6 +16,7 @@ current_sprint: "Ecosystem Tooling & Production Hardening"
 
 | Sub-Project | Phase | Focus | Status |
 | :--- | :--- | :--- | :--- |
+| **Monorepo Ecosystem** | Phase 4.56 | Media Gallery Error Hardening: 20s timeout guard on Cloudinary Search API, safe JSON error body parsing in `MediaGallery.tsx`, Cloudinary `http_code` surfaced in toast & server logs | **Completed** 🟢 |
 | **Monorepo Ecosystem** | Phase 4.55 | Node.js 24.x Runtime & Engine Upgrade: `package.json` `engines` (`node: "24.x"`), `.nvmrc` (`24`), `.node-version` (`24`) across root, CLK, and TCC | **Completed** 🟢 |
 | **Cafe Little Karachi (CLK)** | Phase 4.54 | Analytics Phase 4: Multi-Format Report Exporter (`exportAnalytics.ts` — Excel XLSX, CSV, Branded PDF), Safe Purge UI Workflow Modal (`purge-completed.ts`), Package Integrations & Production Hardening | **Completed** 🟢 |
 | **Cafe Little Karachi (CLK)** | Phase 4.53 | Analytics Phase 3: Luxury UI Cockpit (`Analytics.tsx`), Interactive Recharts Suite (Revenue Timeline, Rush Hours, Day-of-Week, Channels Split), Searchable Product Leaderboard, Low-Velocity Alerts, Delivery Rankings & Historical Order Drawer | **Completed** 🟢 |
@@ -34,6 +35,15 @@ current_sprint: "Ecosystem Tooling & Production Hardening"
 | **Cafe Little Karachi (CLK)** | Operations / Logistics | Delivery Areas & Charges Update (Gulshan-e-Iqbal Rs. 280, Bhitaiabad Rs. 300 + 6PM rule, 8 New Regions Seeded) | **Completed** 🟢 |
 | **Cafe Little Karachi (CLK)** | Phase 2 Perf | LCP Optimization (≤ 2.2s), AVIF/WebP, Responsive Sizes & Priority Preload Cleanup | **Completed** 🟢 |
 | **The Chai Company (TCC)** | Phase 4.32 | Centered Modern Tea Lounge Footer | **Completed** 🟢 |
+
+---
+
+## Phase 4.56 Completion Summary — Media Gallery Cloudinary Fetch Error Hardening (CLK)
+
+- [x] **Search API Timeout Guard (`src/pages/api/media.ts`)**: Wrapped `searchReq.execute()` in `Promise.race()` with a 20-second timeout — triggers fallback to Admin Resources API instead of hanging indefinitely when Cloudinary Search is unreachable.
+- [x] **Full Cloudinary Error Logging (`src/pages/api/media.ts`)**: `catch (searchErr: any)` now extracts `http_code` and `error.message` from the Cloudinary SDK error shape and logs them precisely before fallback. Outer catch surfaces `cloudinary_http_code` in the 500 JSON response body.
+- [x] **Safe JSON Error Parse (`src/app/components/MediaGallery.tsx`)**: `fetchMedia` error handler wraps `await res.json()` in `try/catch`; on JSON parse failure (e.g., HTML gateway error pages), falls back to `Server error {status}: {statusText}`; on success surfaces `details` + `cloudinary_http_code` in the toast.
+- [x] **TypeScript Validation**: `npx tsc --noEmit` exited with code 0 — zero errors.
 
 ---
 

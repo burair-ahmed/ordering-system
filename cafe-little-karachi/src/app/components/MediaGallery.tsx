@@ -142,8 +142,18 @@ const MediaGallery: FC<MediaGalleryProps> = ({
 
       const res = await fetch(`/api/media?${params.toString()}`);
       if (!res.ok) {
-        const err = await res.json();
-        throw new Error(err.error || 'Failed to fetch media');
+        // Safely parse error body — body may be non-JSON on network/gateway errors
+        let errMsg = `HTTP ${res.status}`;
+        try {
+          const err = await res.json();
+          errMsg = err.error || err.message || errMsg;
+          if (err.details && err.details !== errMsg) errMsg += ` — ${err.details}`;
+          if (err.cloudinary_http_code) errMsg += ` (Cloudinary ${err.cloudinary_http_code})`;
+        } catch {
+          // body wasn't JSON (e.g. Next.js 502/504 HTML error page)
+          errMsg = `Server error ${res.status}: ${res.statusText}`;
+        }
+        throw new Error(errMsg);
       }
 
       const data = await res.json();
