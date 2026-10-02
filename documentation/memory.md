@@ -8,6 +8,93 @@ created: 2026-09-04
 last_updated: 2026-10-02
 ---
 
+## 0. Phase 4.54 — CLK Analytics Overhaul Phase 4: Multi-Format Report Export Engine & Production Hardening (2026-10-02)
+
+### Multi-Format Report Exporter (XLSX, CSV, PDF), Safe Purge Workflow & Production Hardening
+- **Files**:
+  - `cafe-little-karachi/src/lib/exportAnalytics.ts` (NEW)
+  - `cafe-little-karachi/src/app/components/Analytics.tsx` (UPDATED)
+  - `cafe-little-karachi/package.json` (UPDATED — added `xlsx`, `jspdf`, `jspdf-autotable`)
+- **Context & Goal**: Administrators and restaurant accountants needed the ability to export analytics data and sales reports into spreadsheets and printable PDF summaries, as well as an intuitive UI workflow to safely purge completed live orders while ensuring 100% data preservation in `OrderLedger`.
+- **Changes Applied**:
+  - **`exportAnalytics.ts` Multi-Format Exporter**:
+    - **Excel (.xlsx)**: Built multi-tab workbook generator with sheets: `Executive_Summary` (KPIs & growth metrics), `Product_Sales` (dish rankings, units sold, gross PKR, share %), `Delivery_Areas` (zone rankings & delivery fees), `Channels_Attribution` (fulfillment & marketing split), and `Historical_Orders`.
+    - **CSV (.csv)**: Lightweight raw sales data export for spreadsheet modeling.
+    - **Executive PDF (.pdf)**: Built branded executive sales report via `jspdf` and `jspdf-autotable` with royal plum CLK header (`#741052`), formatted KPI table, top-selling dishes leaderboard, top delivery zones, and multi-page numbering.
+  - **Export Dropdown UI Integration (`Analytics.tsx`)**: Added luxury animated dropdown menu with 1-click triggers for XLSX, CSV, and PDF exports.
+  - **Safe Purge Live Queue Modal (`Analytics.tsx` — Feature A6)**: Integrated confirmation dialog explaining the zero-loss guarantee, retention period selector (30 days, 14 days, 7 days, or all closed orders), and execution trigger wired to `/api/orders/purge-completed`.
+- **Verification**: `npx tsc --noEmit` exited with code 0 — zero errors.
+- **Rationale**: Gives administrators professional export tools for accounting and business reporting while enabling clean maintenance of the active kitchen queue without risking analytical data loss.
+
+---
+
+## 0. Phase 4.53 — CLK Analytics Overhaul Phase 3: Luxury UI Cockpit, Advanced Visual Charting & Historical Order Explorer (2026-10-02)
+
+### Luxury Analytics Cockpit, Interactive Recharts Suite & Digital Order Inspector
+- **Files**:
+  - `cafe-little-karachi/src/app/components/Analytics.tsx` (UPDATED — Complete luxury redesign)
+- **Context & Goal**: The previous Analytics UI was outdated, table-constrained, and did not match the Cafe Little Karachi brand identity. Phase 3 completely revamps the frontend into a responsive, executive analytics cockpit with interactive Recharts, live KPI HUD cards, period-over-period growth indicators, product sales tables, delivery rankings, rush hour charts, and an embedded Historical Order Ledger modal.
+- **Changes Applied**:
+  - **Brand Header & Date Preset Filter Ribbon**: Created sleek top action header with active timeframe indicator, live refresh trigger, and responsive pill ribbon (`Today`, `Yesterday`, `7 Days`, `30 Days`, `Last Month`, `This Year`, `Custom Range`).
+  - **Executive Glassmorphism KPI HUD Cards**: Built 4 top metric cards (Gross Revenue, Total Orders, AOV, AOQ) with animated number roll-ups and color-coded period-over-period delta badges (`+X%` in emerald / `-Y%` in rose).
+  - **Multi-Axis Sales & Order Volume Timeline Chart**: Rendered interactive Recharts Area chart with royal plum gradient fill (`#741052`), metric toggles (Revenue vs Orders), and frosted backdrop tooltip.
+  - **Operational Rush Hours & Day-of-the-Week Charts**: Integrated 24-hour kitchen rush hour bar chart (highlighting 7 PM – 1 AM peak) and weekday-vs-weekend sales comparisons.
+  - **Fulfillment & Attribution Channels Donut**: Interactive channel split donut chart with centered summary and color-coded channel legends.
+  - **Searchable Product Leaderboard & Low-Velocity Warning**: Created interactive table with gold/silver/bronze rank medals, product search, multi-column sorting (units, revenue, times ordered), and zero-sales dormant dish alerts.
+  - **Delivery Area Intelligence & Basket Affinity Cards**: Rendered ranked progress bars for top delivery zones and "Frequently Bought Together" combo pairing cards.
+  - **Customer Retention & Loyalty Gauge**: Formatted repeat diner percentage metrics and top loyal customer leaderboard.
+  - **Historical Order Ledger Explorer Modal & Ticket Inspector**: Built interactive digital ledger drawer with real-time keyword search, status filtering, pagination, and POS ticket inspection modal (order details, variations, delivery fees, and customer notes).
+- **Verification**: `npx tsc --noEmit` exited with code 0 — zero errors.
+- **Rationale**: Elevates the restaurant administrator experience with high-contrast, actionable intelligence and an intuitive interface matching the signature CLK design system.
+
+---
+
+## 0. Phase 4.52 — CLK Analytics Overhaul Phase 2: Backend Aggregation Engine & Intelligence API (2026-10-02)
+
+### Advanced Analytics Aggregator, Sales Velocity, Attribution & Operational Intelligence API
+- **Files**:
+  - `cafe-little-karachi/src/pages/api/analytics.ts` (UPDATED — Full engine overhaul)
+  - `cafe-little-karachi/src/pages/api/analytics/ledger.ts` (NEW — Paginated historical ledger search API)
+- **Context & Goal**: Administrators required deep analytical intelligence beyond simple table numbers, including dish sales frequencies, average order quantities, delivery area rankings, marketing channels, peak rush hours, basket affinities, period-over-period growth comparisons, and customer retention metrics.
+- **Changes Applied**:
+  - **Dynamic Timeframe & Prior Period Engine (`analytics.ts`)**: Built date boundary calculator supporting presets (`today`, `yesterday`, `7d`/`week`, `last-week`, `30d`/`month`, `last-month`, `year`, `custom`) and dynamically computing previous equivalent timeframe boundaries for period-over-period growth comparison.
+  - **Executive Summary & Growth Badges (`analytics.ts` — Feature A3)**: Aggregates `totalRevenue`, `totalOrders`, `deliveredOrders`, `cancelledOrders`, `activeOrders`, `totalItemsSold`, `aov` (Average Order Value), and `aoq` (Average Order Quantity), along with percentage deltas (`revenueGrowth`, `ordersGrowth`, `aovGrowth`, `aoqGrowth`).
+  - **Product Performance Leaderboard (`analytics.ts` — Requirements #1 & #2)**: Unwinds and groups items, computing `timesOrdered`, `totalQuantity` sold, `totalRevenue`, `avgQuantityPerOrder`, and `revenueShare`, ranking items from highest to lowest velocity.
+  - **Low-Velocity / Stagnant Dish Detection (`analytics.ts` — Feature A5)**: Cross-references live catalog (`MenuItem` & `Platter`) with sales history to identify zero-selling or stagnant dishes during the selected period.
+  - **Delivery Area Intelligence (`analytics.ts` — Requirement #3)**: Aggregates delivery orders by `area`, computing order counts, gross revenue, and total delivery fees collected per zone.
+  - **Fulfillment & Marketing Channels (`analytics.ts` — Requirement #4)**: Segments orders by fulfillment mode (`dinein`, `delivery`, `pickup`) and marketing UTM attribution sources (`Facebook`, `Instagram`, `Google`, `Direct`, `WhatsApp`) with AOV and volume shares.
+  - **Peak Kitchen Rush Hours (`analytics.ts` — Feature A1)**: Aggregates 24-hour order density (00:00 to 23:00) with 12-hour AM/PM formatting to map kitchen and delivery rushes.
+  - **Day-of-the-Week Sales Distribution (`analytics.ts` — Requirement #5)**: Aggregates sales volume and revenue across Mondays through Sundays.
+  - **Basket Affinity / "Frequently Bought Together" (`analytics.ts` — Feature A2)**: Evaluates multi-item orders to compute co-occurrence frequencies and surface top product pairings.
+  - **Customer Retention & Repeat Rate (`analytics.ts` — Feature A4)**: Evaluates unique customer phones to compute new vs repeat customer ratios, loyalty repeat percentage, and top loyal customer leaderboards.
+  - **Adaptive Timeline Series (`analytics.ts` — Requirement #5)**: Automatically buckets data into hourly buckets (for 1-day ranges) or daily/monthly buckets with revenue, orders, delivered, and cancelled counts.
+  - **Historical Order Ledger Search API (`analytics/ledger.ts` — Requirement #6)**: Built paginated query endpoint supporting keyword search across order numbers, customer names, phone numbers, delivery areas, and item titles with status and date filtering.
+- **Verification**: Tested against live MongoDB database (`orderledgers` collection with 18 historical orders). `npx tsc --noEmit` exited with code 0 — zero errors.
+- **Rationale**: Equips the platform with a comprehensive analytics engine powering high-speed dashboard visualization, business intelligence, and marketing optimization.
+
+---
+
+## 0. Phase 4.51 — CLK Analytics Overhaul Phase 1: Immutable Order Ledger & Zero-Loss Data Layer (2026-10-02)
+
+### Immutable Order Ledger & Permanent Historical Preservation Engine
+- **Files**:
+  - `cafe-little-karachi/src/models/OrderLedger.ts` (NEW)
+  - `cafe-little-karachi/src/pages/api/orders.ts` (UPDATED)
+  - `cafe-little-karachi/src/pages/api/updateorderstatus.ts` (UPDATED)
+  - `cafe-little-karachi/src/pages/api/orders/purge-completed.ts` (NEW)
+  - `cafe-little-karachi/scripts/backfill-order-ledger.ts` (NEW & EXECUTED)
+- **Context & Goal**: In the restaurant lifecycle, administrators periodically purge completed, delivered, or voided orders from the active live orders queue to free memory and keep operations fast. Previously, deleting an order from the `Order` collection permanently wiped out that order's revenue and sales metrics. Phase 1 establishes an immutable `OrderLedger` collection and dual-sync ingestion pipeline so that 100% of past and future orders (items, prices, variations, timestamps, customer phone, area, marketing source, totals) are permanently secured for analytics regardless of deletions in the live orders queue.
+- **Changes Applied**:
+  - **`OrderLedger.ts` Mongoose Schema**: Built dedicated ledger model with item subdocument schema (`id`, `title`, `price`, `quantity`, `image`, `variations`), marketing attribution subdocument (`source`, `medium`, `campaign`, `label`, `capturedAt`), and compound query indexes (`createdAt`, `ordertype`, `area`, `status`, `items.id`, `items.title`) for high-speed aggregation.
+  - **Dual-Sync Ingestion Pipeline (`orders.ts`)**: Updated order placement POST handler to dual-sync newly created orders into `OrderLedger` with upsert protection (`findOneAndUpdate` with `{ upsert: true }`).
+  - **Live Status Synchronization (`updateorderstatus.ts`)**: Updated status mutation handler to automatically mirror order status changes (`Received`, `Delivered`, `Cancelled`) into `OrderLedger`.
+  - **Historical Order Backfill (`scripts/backfill-order-ledger.ts`)**: Executed one-time backfill script migrating 100% of existing historical orders from MongoDB `orders` collection into `OrderLedger` with 0 errors.
+  - **Safe Purge API (`purge-completed.ts`)**: Created secure admin purge endpoint supporting age filtering (`olderThanDays`) and status targeting (`Delivered`, `Cancelled`), guaranteeing that every candidate order is verified in `OrderLedger` before removal from the live `Order` queue.
+- **Verification**: Executed `npx tsx scripts/backfill-order-ledger.ts` (18 orders synced successfully, 0 errors). `npx tsc --noEmit` exited with code 0 — zero errors.
+- **Rationale**: Eliminates historical data loss when managing live kitchen queues, providing an unalterable sales foundation for advanced business intelligence.
+
+---
+
 ## 0. Phase 4.50 — CLK Media Gallery Drag & Drop Image Uploading (2026-10-02)
 
 ### Full Drag & Drop Multi-Image Uploading in Media Gallery

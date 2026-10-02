@@ -32,6 +32,8 @@
     "formidable": "^3.5.4",
     "framer-motion": "^12.23.22",
     "gsap": "^3.13.0",
+    "jspdf": "^4.2.1",
+    "jspdf-autotable": "^5.0.8",
     "lottie-react": "^2.4.1",
     "lucide-react": "^0.542.0",
     "mongodb": "^6.11.0",
@@ -53,6 +55,7 @@
     "ts-node": "^10.9.2",
     "twilio": "^5.4.0",
     "uuid": "^11.0.3",
+    "xlsx": "^0.18.5",
     "zod": "^4.1.13"
   },
   "devDependencies": {

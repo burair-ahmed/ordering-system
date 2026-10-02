@@ -5,12 +5,45 @@ tags:
   - #status/active
   - #project/ordering-ecosystem
 created: 2026-09-04
-last_updated: 2026-09-11
+last_updated: 2026-10-02
 ---
 
 # Next Steps & Handoff Guide — Advanced Ordering Ecosystem
 
 ## Completed in Current Sprint
+- [x] **Analytics Overhaul Phase 4 — Multi-Format Report Export Engine & Production Hardening (CLK)**:
+  - Built multi-format export engine in `src/lib/exportAnalytics.ts` generating multi-sheet Excel (.xlsx), CSV (.csv), and branded executive PDF (.pdf) reports.
+  - Formatted luxury dropdown export trigger in `Analytics.tsx` allowing 1-click downloads for any selected timeframe.
+  - Implemented Safe Purge Live Queue modal in `Analytics.tsx` wired to `/api/orders/purge-completed` with retention period filters (30d, 14d, 7d, all closed) and zero-loss guarantee.
+  - Installed and verified `xlsx`, `jspdf`, and `jspdf-autotable`.
+- [x] **Analytics Overhaul Phase 3 — Luxury UI Cockpit, Advanced Visual Charting & Historical Order Explorer (CLK)**:
+  - Overhauled `Analytics.tsx` in CLK royal plum design language (`#741052`) with date preset filter ribbon.
+  - Built Glassmorphic KPI HUD cards with period-over-period growth badges (`+X%` in emerald / `-Y%` in rose).
+  - Built multi-axis Area sales and order timeline chart with metric toggles.
+  - Implemented 24-hour kitchen rush hour bar chart (highlighting 7 PM – 1 AM peak) and weekday sales distribution.
+  - Implemented Fulfillment channels donut chart and marketing source performance breakdown.
+  - Implemented Product Sales Leaderboard with rank medals, search, and multi-column sorting.
+  - Implemented Stagnant / Low-Velocity dish alert drawer (Feature A5).
+  - Implemented Delivery Area intelligence and "Frequently Bought Together" basket pairing cards.
+  - Implemented Customer Retention & Loyalty gauge with repeat customer rates.
+  - Built interactive Historical Order Ledger Explorer with multi-field search and POS ticket inspection modal.
+- [x] **Analytics Overhaul Phase 2 — Comprehensive Aggregation Engine & Intelligence API (CLK)**:
+  - Built comprehensive analytics aggregator in `/api/analytics` supporting date presets, custom ranges, and period-over-period delta comparisons.
+  - Implemented Product Performance Leaderboard with sales frequency, units sold, gross revenue, and % revenue contribution.
+  - Implemented Low-Velocity / Stagnant Dish detection (Feature A5).
+  - Implemented Delivery Area performance rankings with delivery fee aggregates.
+  - Implemented Fulfillment (`dinein`/`delivery`/`pickup`) and UTM marketing channel splits.
+  - Implemented 24-hour Peak Rush Hour density heatmap (Feature A1).
+  - Implemented Day-of-the-Week sales trends.
+  - Implemented Basket Affinity & "Frequently Bought Together" pairs (Feature A2).
+  - Implemented Customer Retention & Loyalty repeat rate estimator (Feature A4).
+  - Built paginated, searchable Historical Order Ledger query endpoint (`/api/analytics/ledger`).
+- [x] **Analytics Overhaul Phase 1 — Immutable Order Ledger & Zero-Loss Data Layer (CLK)**:
+  - Created `OrderLedger.ts` Mongoose model for permanent historical order archiving.
+  - Implemented dual-sync ingestion in `/api/orders` to automatically mirror new orders into `OrderLedger`.
+  - Implemented status synchronization in `/api/updateorderstatus` to keep `OrderLedger` statuses updated.
+  - Created and executed `scripts/backfill-order-ledger.ts` migrating 100% of past orders (18 orders, 0 errors).
+  - Built `/api/orders/purge-completed` safe purge endpoint allowing administrators to clear completed live orders without losing analytics data.
 - [x] **Floating Cart Button with Radar Attention Ring (CLK)**:
   - Created circular floating cart button positioned at `top-[10%] right-4 sm:right-6 md:right-8` in high z-index (`z-50`).
   - Integrated `window.scrollY > 80` scroll detection with Framer Motion spring enter/exit transitions so button appears smoothly upon scrolling.

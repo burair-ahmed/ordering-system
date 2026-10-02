@@ -1,6 +1,7 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import mongoose from "mongoose";
 import Order from "../../models/Order";
+import OrderLedger from "../../models/OrderLedger";
 import { Server as HTTPServer } from "http";
 import { Server as SocketIOServer } from "socket.io";
 import { isOpenAt } from "../../app/lib/restaurantStatus";
@@ -149,6 +150,34 @@ const ordersHandler = async (req: NextApiRequest, res: NextApiResponse) => {
       });
 
       await newOrder.save();
+
+      // Dual-sync to permanent immutable OrderLedger
+      try {
+        await OrderLedger.findOneAndUpdate(
+          { orderNumber },
+          {
+            id: newOrder.id || newOrder._id?.toString() || orderNumber,
+            orderNumber,
+            customerName: newOrder.customerName,
+            email: newOrder.email || '',
+            phone: newOrder.phone || null,
+            ordertype: newOrder.ordertype,
+            deliveryCharge: newOrder.deliveryCharge || 0,
+            tableNumber: newOrder.tableNumber || null,
+            area: newOrder.area || null,
+            paymentMethod: newOrder.paymentMethod || 'cash',
+            items: newOrder.items,
+            orderSource: newOrder.orderSource,
+            totalAmount: newOrder.totalAmount,
+            status: newOrder.status,
+            createdAt: newOrder.createdAt || new Date(),
+            archivedAt: new Date(),
+          },
+          { upsert: true, new: true }
+        );
+      } catch (ledgerErr) {
+        console.error('[OrderLedger Sync] Failed to dual-sync order to ledger:', ledgerErr);
+      }
 
       // Dispatch Meta Conversions API (CAPI) Purchase Event (Server-Side)
       try {

@@ -6,8 +6,8 @@ tags:
   - #project/ordering-ecosystem
 created: 2026-09-04
 last_updated: 2026-10-02
-overall_completion: "Phase 4.50: Media Gallery Drag & Drop Upload (100%)"
-current_sprint: "CLK Storefront & Admin UX Polish"
+overall_completion: "Phase 4.54: Multi-Format Export Engine & Hardening (100%)"
+current_sprint: "CLK Advanced Analytics & Intelligence Overhaul"
 ---
 
 # Project Status Dashboard — Advanced Ordering Ecosystem
@@ -16,6 +16,10 @@ current_sprint: "CLK Storefront & Admin UX Polish"
 
 | Sub-Project | Phase | Focus | Status |
 | :--- | :--- | :--- | :--- |
+| **Cafe Little Karachi (CLK)** | Phase 4.54 | Analytics Phase 4: Multi-Format Report Exporter (`exportAnalytics.ts` — Excel XLSX, CSV, Branded PDF), Safe Purge UI Workflow Modal (`purge-completed.ts`), Package Integrations & Production Hardening | **Completed** 🟢 |
+| **Cafe Little Karachi (CLK)** | Phase 4.53 | Analytics Phase 3: Luxury UI Cockpit (`Analytics.tsx`), Interactive Recharts Suite (Revenue Timeline, Rush Hours, Day-of-Week, Channels Split), Searchable Product Leaderboard, Low-Velocity Alerts, Delivery Rankings & Historical Order Drawer | **Completed** 🟢 |
+| **Cafe Little Karachi (CLK)** | Phase 4.52 | Analytics Phase 2: Complete Backend Aggregation Engine (`analytics.ts`), Product Leaderboard & Frequencies, Area Rankings, Channels Split, Peak Rush Hours, Basket Affinity, Repeat Customer Metrics & Ledger Search API (`analytics/ledger.ts`) | **Completed** 🟢 |
+| **Cafe Little Karachi (CLK)** | Phase 4.51 | Analytics Phase 1: Immutable Order Ledger Mongoose Model (`OrderLedger.ts`), Ingestion Dual-Sync Pipeline, Order Status Auto-Sync, One-Time Historical Backfill Migration & Safe Live Queue Purge API (`purge-completed.ts`) | **Completed** 🟢 |
 | **Cafe Little Karachi (CLK)** | Phase 4.50 | Media Gallery Drag & Drop: Full-screen Framer Motion dropzone overlay, flicker-free drag depth counter, multi-image validation, batch base64 conversion & automatic Cloudinary upload with real-time progress | **Completed** 🟢 |
 | **Cafe Little Karachi (CLK)** | Phase 4.49 | Cloudinary Upload Resilience: Built `uploadToCloudinaryWithRetry` with 90s socket timeout and exponential backoff retry for ECONNRESET/ETIMEDOUT drops across `/api/upload`, `/api/media`, and `ensureCloudinaryUrl` | **Completed** 🟢 |
 | **Cafe Little Karachi (CLK)** | Phase 4.48 | Product Card Discount Pill: Luxury high-contrast pill badge on top-right over image across `MenuItem` and `PlatterItem` (grid cards, list view, and modal preview) displaying percentage (`% OFF`) and fixed (`Rs. X OFF`) discounts | **Completed** 🟢 |
@@ -29,6 +33,56 @@ current_sprint: "CLK Storefront & Admin UX Polish"
 | **Cafe Little Karachi (CLK)** | Operations / Logistics | Delivery Areas & Charges Update (Gulshan-e-Iqbal Rs. 280, Bhitaiabad Rs. 300 + 6PM rule, 8 New Regions Seeded) | **Completed** 🟢 |
 | **Cafe Little Karachi (CLK)** | Phase 2 Perf | LCP Optimization (≤ 2.2s), AVIF/WebP, Responsive Sizes & Priority Preload Cleanup | **Completed** 🟢 |
 | **The Chai Company (TCC)** | Phase 4.32 | Centered Modern Tea Lounge Footer | **Completed** 🟢 |
+
+---
+
+## Phase 4.54 Completion Summary — Multi-Format Report Export Engine & Safe Purge Workflow (CLK)
+
+- [x] **Multi-Sheet Excel Exporter (`src/lib/exportAnalytics.ts`)**: Built `.xlsx` generator with 5 sheets (`Executive_Summary`, `Product_Sales`, `Delivery_Areas`, `Channels_Attribution`, `Historical_Orders`).
+- [x] **CSV Spreadsheet Exporter (`src/lib/exportAnalytics.ts`)**: Built instant `.csv` raw sales data export.
+- [x] **Branded Executive PDF Generator (`src/lib/exportAnalytics.ts`)**: Built printable PDF report with CLK header (`#741052`), formatted KPI table, product leaderboard, delivery zones, and page numbers.
+- [x] **Export Dropdown UI Integration (`Analytics.tsx`)**: Formatted luxury action dropdown with 1-click downloads for XLSX, CSV, and PDF.
+- [x] **Safe Purge Live Queue Modal (`Analytics.tsx`)**: Created confirmation dialog with retention selector (30d, 14d, 7d, all closed) calling `/api/orders/purge-completed` with zero-loss guarantee.
+- [x] **TypeScript Validation**: `npx tsc --noEmit` exited with code 0 — zero errors.
+
+---
+
+## Phase 4.53 Completion Summary — Luxury UI Cockpit, Advanced Visual Charting & Historical Order Explorer (CLK)
+
+- [x] **Brand UI & Quick Date Ribbon (`Analytics.tsx`)**: Rebuilt the frontend in CLK royal plum design language (`#741052`) with date presets (`Today`, `Yesterday`, `7D`, `30D`, `Last Month`, `Year`, `Custom Date Range`).
+- [x] **Executive Glassmorphism KPI HUD (`Analytics.tsx`)**: Formatted 4 metric cards (Gross Revenue, Orders, AOV, AOQ) with period-over-period delta badges (`+X%` in emerald / `-Y%` in rose).
+- [x] **Interactive Recharts Timeline Suite (`Analytics.tsx`)**: Implemented multi-axis Area chart with metric toggles (Revenue vs Orders) and custom frosted glass tooltips.
+- [x] **Operational Rush Hours & Day-of-the-Week Charts (`Analytics.tsx`)**: Built 24-hour peak rush hour bar chart (highlighting 7 PM – 1 AM) and weekday vs weekend sales distribution.
+- [x] **Fulfillment Channels Donut (`Analytics.tsx`)**: Interactive donut chart with centered volume count and delivery/dine-in/pickup split.
+- [x] **Product Sales Leaderboard & Low-Velocity Warning (`Analytics.tsx`)**: Interactive table with gold/silver/bronze rank badges, keyword search, multi-column sorting (quantity, revenue, times ordered), and stagnant dish alert drawer.
+- [x] **Delivery Area Rankings & Basket Affinity (`Analytics.tsx`)**: Rendered top delivery areas with revenue metrics and "Frequently Bought Together" combo pairing cards.
+- [x] **Customer Retention & Loyalty Gauge (`Analytics.tsx`)**: Formatted repeat diner percentage metrics and top loyal customer leaderboard.
+- [x] **Historical Order Ledger Explorer Drawer (`Analytics.tsx`)**: Built digital ledger with real-time keyword search, status filtering, pagination, and POS ticket inspector modal.
+- [x] **TypeScript Validation**: `npx tsc --noEmit` exited with code 0 — zero errors.
+
+---
+
+## Phase 4.52 Completion Summary — Analytics Aggregation & Intelligence API (CLK)
+
+- [x] **Comprehensive Aggregation Engine (`src/pages/api/analytics.ts`)**: Built unified analytics endpoint querying `OrderLedger` (with fallback to `Order`), supporting presets (`today`, `yesterday`, `7d`, `last-week`, `30d`, `last-month`, `year`, `custom`).
+- [x] **Executive Summary & Growth Deltas (`analytics.ts`)**: Computes `totalRevenue`, `totalOrders`, `deliveredOrders`, `cancelledOrders`, `activeOrders`, `totalItemsSold`, `aov`, `aoq`, and period-over-period percentage growth badges.
+- [x] **Product Sales Frequencies & Ranking (`analytics.ts`)**: Aggregates `timesOrdered`, units sold, gross PKR revenue, average units per order, and percentage revenue share per dish/platter.
+- [x] **Low-Velocity Menu Alerts (`analytics.ts`)**: Cross-references catalog (`MenuItem` & `Platter`) with sales history to detect stagnant zero-selling dishes.
+- [x] **Delivery Zone & Channel Intelligence (`analytics.ts`)**: Segments delivery regions by order count, revenue, and delivery fees, and analyzes fulfillment types (`dinein`, `delivery`, `pickup`) + marketing UTM sources (`Facebook`, `Instagram`, `Google`, `Direct`, `WhatsApp`).
+- [x] **Operational Intelligence Suite (`analytics.ts`)**: Built 24-hour peak rush hour density maps, day-of-week sales comparisons, basket affinity pairings, and unique-phone customer retention metrics.
+- [x] **Historical Order Ledger Search API (`src/pages/api/analytics/ledger.ts`)**: Built paginated, multi-field search endpoint (`orderNumber`, `customerName`, `phone`, `area`, `items.title`) for historical audit inspection.
+- [x] **TypeScript Validation**: `npx tsc --noEmit` exited with code 0 — zero errors.
+
+---
+
+## Phase 4.51 Completion Summary — Immutable Order Ledger & Zero-Loss Data Layer (CLK)
+
+- [x] **Immutable Order Ledger Schema (`src/models/OrderLedger.ts`)**: Built dedicated ledger collection schema with nested item structure (`id`, `title`, `price`, `quantity`, `image`, `variations`), UTM attribution fields, and compound indexes on `createdAt`, `ordertype`, `area`, `status`, `items.id`, and `items.title`.
+- [x] **Dual-Sync Ingestion Pipeline (`src/pages/api/orders.ts`)**: Wired order creation endpoint to dual-sync newly created orders into `OrderLedger` with upsert protection, guaranteeing instant preservation upon checkout.
+- [x] **Status Mutation Mirroring (`src/pages/api/updateorderstatus.ts`)**: Updated order status handler to synchronize order lifecycle updates (`Received`, `Delivered`, `Cancelled`) into `OrderLedger`.
+- [x] **Historical Order Backfill Migration (`scripts/backfill-order-ledger.ts`)**: Successfully executed migration script — synced 100% of existing historical orders (18 orders, 0 errors) into the live `orderledgers` MongoDB collection.
+- [x] **Safe Live Queue Purge API (`src/pages/api/orders/purge-completed.ts`)**: Built secure admin endpoint supporting age and status filtering to purge completed/cancelled orders from the live kitchen queue while verifying 100% data presence in `OrderLedger`.
+- [x] **TypeScript Validation**: `npx tsc --noEmit` exited with code 0 — zero errors.
 
 ---
 

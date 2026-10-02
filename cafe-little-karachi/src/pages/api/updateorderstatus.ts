@@ -3,6 +3,7 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import mongoose from "mongoose";
 import Order from "../../models/Order";
+import OrderLedger from "../../models/OrderLedger";
 
 // MongoDB URI
 const MONGODB_URI = process.env.MONGODB_URI || 'mongodb+srv://admin:jHG1csS4fbZWUcrL@cafe-little.mfqm3.mongodb.net/?retryWrites=true&w=majority&appName=cafe-little';
@@ -26,12 +27,22 @@ const updateOrderStatusHandler = async (req: NextApiRequest, res: NextApiRespons
       // Connect to the database
       await connectToDatabase();
 
-      // Find and update the order
+      // Find and update the order in live queue
       const updatedOrder = await Order.findOneAndUpdate(
         { orderNumber }, // Find by orderNumber
         { status },      // Update the status field
         { new: true }    // Return the updated document
       );
+
+      // Synchronize status with immutable OrderLedger
+      try {
+        await OrderLedger.findOneAndUpdate(
+          { orderNumber },
+          { status }
+        );
+      } catch (ledgerSyncErr) {
+        console.warn('[OrderLedger Sync] Could not sync status update to ledger:', ledgerSyncErr);
+      }
 
       if (!updatedOrder) {
         return res.status(404).json({ message: "Order not found" });
