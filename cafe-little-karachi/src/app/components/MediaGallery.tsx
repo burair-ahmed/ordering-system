@@ -28,6 +28,8 @@ import {
   SlidersHorizontal,
   BookImage,
   PackageSearch,
+  UploadCloud,
+  Upload,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -116,9 +118,11 @@ const MediaGallery: FC<MediaGalleryProps> = ({
   const [usedIn, setUsedIn] = useState<MediaUsageEntry[]>([]);
   const [loadingUsedIn, setLoadingUsedIn] = useState<boolean>(false);
 
-  // Upload state
+  // Upload & Drag-and-Drop state
   const [isUploading, setIsUploading] = useState<boolean>(false);
   const [uploadProgressText, setUploadProgressText] = useState<string>('');
+  const [isDraggingOver, setIsDraggingOver] = useState<boolean>(false);
+  const dragCounter = useRef<number>(0);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   // Fetch Media Items from Backend
@@ -209,20 +213,31 @@ const MediaGallery: FC<MediaGalleryProps> = ({
     });
   }, [items, searchQuery, selectedFormat]);
 
-  // Upload handler (supports multiple files)
-  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files;
-    if (!files || files.length === 0) return;
+  // Unified File Processing & Cloudinary Upload
+  const processAndUploadFiles = async (fileList: FileList | File[]) => {
+    const rawFiles = Array.from(fileList);
+    const imageFiles = rawFiles.filter(
+      (f) => f.type.startsWith('image/') || /\.(jpe?g|png|webp|gif|svg|avif|bmp|ico)$/i.test(f.name)
+    );
+
+    if (imageFiles.length === 0) {
+      toast.error('Please drop valid image files (PNG, JPG, WebP, GIF, SVG, AVIF, etc.)');
+      return;
+    }
+
+    if (imageFiles.length < rawFiles.length) {
+      toast.warning(`Skipped ${rawFiles.length - imageFiles.length} non-image file(s).`);
+    }
 
     setIsUploading(true);
-    setUploadProgressText(`Uploading ${files.length} item(s)...`);
+    setUploadProgressText(`Uploading ${imageFiles.length} item(s)...`);
 
     try {
       const base64List: string[] = [];
 
-      for (let i = 0; i < files.length; i++) {
-        const file = files[i];
-        setUploadProgressText(`Processing file ${i + 1} of ${files.length}...`);
+      for (let i = 0; i < imageFiles.length; i++) {
+        const file = imageFiles[i];
+        setUploadProgressText(`Processing ${file.name} (${i + 1} of ${imageFiles.length})...`);
         const base64 = await new Promise<string>((resolve, reject) => {
           const reader = new FileReader();
           reader.onload = () => resolve(reader.result as string);
@@ -232,7 +247,7 @@ const MediaGallery: FC<MediaGalleryProps> = ({
         base64List.push(base64);
       }
 
-      setUploadProgressText(`Saving to Cloudinary...`);
+      setUploadProgressText(`Saving ${base64List.length} image(s) to Cloudinary...`);
       const res = await fetch('/api/media', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -259,6 +274,58 @@ const MediaGallery: FC<MediaGalleryProps> = ({
       setIsUploading(false);
       setUploadProgressText('');
       if (fileInputRef.current) fileInputRef.current.value = '';
+    }
+  };
+
+  // Upload handler via standard file picker
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+    await processAndUploadFiles(files);
+  };
+
+  // Drag-and-Drop Event Handlers
+  const handleDragEnter = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    dragCounter.current += 1;
+    if (e.dataTransfer.items && e.dataTransfer.items.length > 0) {
+      setIsDraggingOver(true);
+    }
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    e.dataTransfer.dropEffect = 'copy';
+    if (!isDraggingOver) {
+      setIsDraggingOver(true);
+    }
+  };
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    dragCounter.current -= 1;
+    if (dragCounter.current <= 0) {
+      dragCounter.current = 0;
+      setIsDraggingOver(false);
+    }
+  };
+
+  const handleDrop = async (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    dragCounter.current = 0;
+    setIsDraggingOver(false);
+
+    if (isUploading) {
+      toast.error('An upload is already in progress.');
+      return;
+    }
+
+    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+      await processAndUploadFiles(e.dataTransfer.files);
     }
   };
 
@@ -357,7 +424,46 @@ const MediaGallery: FC<MediaGalleryProps> = ({
   const totalCount = items.length;
 
   return (
-    <div className={`flex flex-col h-full space-y-4 ${isPicker ? 'p-1' : ''}`}>
+    <div
+      onDragEnter={handleDragEnter}
+      onDragOver={handleDragOver}
+      onDragLeave={handleDragLeave}
+      onDrop={handleDrop}
+      className={`relative flex flex-col h-full space-y-4 transition-all duration-200 ${
+        isPicker ? 'p-1' : ''
+      }`}
+    >
+      {/* Drag and Drop Active Overlay */}
+      <AnimatePresence>
+        {isDraggingOver && (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.98 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.98 }}
+            transition={{ duration: 0.15 }}
+            className="absolute inset-0 z-50 rounded-3xl bg-white/95 dark:bg-neutral-950/95 backdrop-blur-md border-3 border-dashed border-[#741052] dark:border-fuchsia-400 flex flex-col items-center justify-center p-6 text-center shadow-2xl pointer-events-none"
+          >
+            <div className="p-5 rounded-full bg-[#741052]/10 dark:bg-fuchsia-950/50 border border-[#741052]/25 dark:border-fuchsia-700/40 text-[#741052] dark:text-fuchsia-400 mb-4 shadow-inner animate-bounce">
+              <UploadCloud className="h-12 w-12" />
+            </div>
+            <h3 className="text-lg font-black tracking-tight text-neutral-900 dark:text-neutral-100 mb-1.5">
+              Drop your image(s) here to upload
+            </h3>
+            <p className="text-xs text-neutral-500 dark:text-neutral-400 max-w-md font-medium">
+              Release to instantly upload directly to Cloudinary Media Gallery. Single or multiple images supported.
+            </p>
+            <div className="flex flex-wrap items-center justify-center gap-1.5 mt-4 text-[10px] font-mono font-bold text-neutral-500 dark:text-neutral-400">
+              <span className="px-2.5 py-1 rounded-lg bg-neutral-100 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800">PNG</span>
+              <span className="px-2.5 py-1 rounded-lg bg-neutral-100 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800">JPG / JPEG</span>
+              <span className="px-2.5 py-1 rounded-lg bg-neutral-100 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800">WEBP</span>
+              <span className="px-2.5 py-1 rounded-lg bg-neutral-100 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800">SVG</span>
+              <span className="px-2.5 py-1 rounded-lg bg-neutral-100 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800">GIF</span>
+              <span className="px-2.5 py-1 rounded-lg bg-neutral-100 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800">AVIF</span>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* Top Action Bar */}
       <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 bg-neutral-50 dark:bg-neutral-900/60 p-3.5 rounded-2xl border border-neutral-200/80 dark:border-neutral-800">
         {/* Left: Search & Filter */}
@@ -427,6 +533,7 @@ const MediaGallery: FC<MediaGalleryProps> = ({
             onClick={() => fileInputRef.current?.click()}
             disabled={isUploading}
             className="h-9 px-4 rounded-xl bg-[#741052] hover:bg-[#5c0d41] text-white font-bold text-xs shadow-sm transition-all"
+            title="Click or drag & drop files anywhere in this gallery"
           >
             {isUploading ? (
               <>
@@ -435,7 +542,7 @@ const MediaGallery: FC<MediaGalleryProps> = ({
               </>
             ) : (
               <>
-                <Plus className="h-4 w-4 mr-1.5" />
+                <UploadCloud className="h-4 w-4 mr-1.5" />
                 <span>Upload Media</span>
               </>
             )}
@@ -571,31 +678,38 @@ const MediaGallery: FC<MediaGalleryProps> = ({
 
       {/* Storage Stats Bar */}
       {!loading && totalCount > 0 && (
-        <div className="flex flex-wrap items-center gap-3 sm:gap-5 px-4 py-2.5 rounded-2xl bg-neutral-50 dark:bg-neutral-900/60 border border-neutral-200/80 dark:border-neutral-800 text-xs">
-          <div className="flex items-center gap-1.5">
-            <div className="p-1.5 rounded-lg bg-[#741052]/10 dark:bg-fuchsia-950/40">
-              <ImageIcon className="h-3.5 w-3.5 text-[#741052] dark:text-fuchsia-400" />
+        <div className="flex flex-wrap items-center justify-between gap-3 px-4 py-2.5 rounded-2xl bg-neutral-50 dark:bg-neutral-900/60 border border-neutral-200/80 dark:border-neutral-800 text-xs">
+          <div className="flex flex-wrap items-center gap-3 sm:gap-5">
+            <div className="flex items-center gap-1.5">
+              <div className="p-1.5 rounded-lg bg-[#741052]/10 dark:bg-fuchsia-950/40">
+                <ImageIcon className="h-3.5 w-3.5 text-[#741052] dark:text-fuchsia-400" />
+              </div>
+              <span className="text-neutral-500 dark:text-neutral-400">Media Count</span>
+              <span className="font-bold text-neutral-800 dark:text-neutral-200">{totalCount.toLocaleString()}</span>
+              {filteredItems.length !== totalCount && (
+                <span className="text-neutral-400 dark:text-neutral-500">({filteredItems.length} shown)</span>
+              )}
             </div>
-            <span className="text-neutral-500 dark:text-neutral-400">Media Count</span>
-            <span className="font-bold text-neutral-800 dark:text-neutral-200">{totalCount.toLocaleString()}</span>
-            {filteredItems.length !== totalCount && (
-              <span className="text-neutral-400 dark:text-neutral-500">({filteredItems.length} shown)</span>
+            <div className="w-px h-4 bg-neutral-200 dark:bg-neutral-800 hidden sm:block" />
+            <div className="flex items-center gap-1.5">
+              <div className="p-1.5 rounded-lg bg-blue-500/10 dark:bg-blue-950/40">
+                <HardDrive className="h-3.5 w-3.5 text-blue-600 dark:text-blue-400" />
+              </div>
+              <span className="text-neutral-500 dark:text-neutral-400">Total Storage</span>
+              <span className="font-bold text-neutral-800 dark:text-neutral-200">{formatBytes(totalBytes, 1)}</span>
+            </div>
+            {nextCursor && (
+              <>
+                <div className="w-px h-4 bg-neutral-200 dark:bg-neutral-800 hidden sm:block" />
+                <span className="text-[11px] text-amber-600 dark:text-amber-400 font-medium italic">More images available — scroll down to load</span>
+              </>
             )}
           </div>
-          <div className="w-px h-4 bg-neutral-200 dark:bg-neutral-800 hidden sm:block" />
-          <div className="flex items-center gap-1.5">
-            <div className="p-1.5 rounded-lg bg-blue-500/10 dark:bg-blue-950/40">
-              <HardDrive className="h-3.5 w-3.5 text-blue-600 dark:text-blue-400" />
-            </div>
-            <span className="text-neutral-500 dark:text-neutral-400">Total Storage</span>
-            <span className="font-bold text-neutral-800 dark:text-neutral-200">{formatBytes(totalBytes, 1)}</span>
+
+          <div className="hidden md:flex items-center gap-1 text-[11px] font-semibold text-neutral-400 dark:text-neutral-500">
+            <UploadCloud className="h-3.5 w-3.5 text-[#741052] dark:text-fuchsia-400" />
+            <span>Drag &amp; drop images anywhere to upload</span>
           </div>
-          {nextCursor && (
-            <>
-              <div className="w-px h-4 bg-neutral-200 dark:bg-neutral-800 hidden sm:block" />
-              <span className="text-[11px] text-amber-600 dark:text-amber-400 font-medium italic">More images available — scroll down to load</span>
-            </>
-          )}
         </div>
       )}
 
@@ -607,24 +721,30 @@ const MediaGallery: FC<MediaGalleryProps> = ({
             <p className="text-xs font-semibold">Connecting to Cloudinary Media Library...</p>
           </div>
         ) : filteredItems.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-20 border-2 border-dashed border-neutral-200 dark:border-neutral-800 rounded-3xl text-center p-6">
-            <div className="p-4 rounded-3xl bg-neutral-100 dark:bg-neutral-900 text-neutral-400 mb-3">
-              <ImageIcon className="h-10 w-10 text-neutral-400" />
+          <div
+            onClick={() => fileInputRef.current?.click()}
+            className="flex flex-col items-center justify-center py-20 border-2 border-dashed border-neutral-300 dark:border-neutral-800 hover:border-[#741052] dark:hover:border-fuchsia-400 rounded-3xl text-center p-6 cursor-pointer group transition-colors bg-neutral-50/50 dark:bg-neutral-900/30"
+          >
+            <div className="p-4 rounded-3xl bg-neutral-100 dark:bg-neutral-900 text-neutral-400 group-hover:text-[#741052] dark:group-hover:text-fuchsia-400 group-hover:scale-110 transition-all mb-3">
+              <UploadCloud className="h-10 w-10 text-neutral-400 group-hover:text-[#741052] dark:group-hover:text-fuchsia-400" />
             </div>
-            <h4 className="text-sm font-bold text-neutral-700 dark:text-neutral-300">
-              {searchQuery || selectedFormat !== 'all' ? 'No matching media assets' : 'No media uploaded yet'}
+            <h4 className="text-sm font-bold text-neutral-800 dark:text-neutral-200">
+              {searchQuery || selectedFormat !== 'all' ? 'No matching media assets' : 'Drag & drop images here or browse'}
             </h4>
             <p className="text-xs text-neutral-400 max-w-sm mt-1 mb-4">
               {searchQuery || selectedFormat !== 'all'
                 ? 'Try clearing the search or filter to see more images.'
-                : 'Upload banners, product photos, and menu graphics to your Cloudinary storage.'}
+                : 'Drop 1 or multiple PNG, JPG, WebP, or SVG files anywhere, or click below.'}
             </p>
             <Button
               size="sm"
-              onClick={() => fileInputRef.current?.click()}
-              className="h-8 px-4 rounded-xl bg-[#741052] text-white text-xs font-bold"
+              onClick={(e) => {
+                e.stopPropagation();
+                fileInputRef.current?.click();
+              }}
+              className="h-8 px-4 rounded-xl bg-[#741052] hover:bg-[#5c0d41] text-white text-xs font-bold shadow-sm"
             >
-              <Plus className="h-3.5 w-3.5 mr-1" /> Upload First Image
+              <Plus className="h-3.5 w-3.5 mr-1" /> Browse &amp; Upload Images
             </Button>
           </div>
         ) : (

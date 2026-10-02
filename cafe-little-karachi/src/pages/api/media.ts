@@ -1,5 +1,5 @@
 import { NextApiRequest, NextApiResponse } from "next";
-import { getCloudinary } from "@/lib/cloudinary";
+import { getCloudinary, uploadToCloudinaryWithRetry } from "@/lib/cloudinary";
 
 export const config = {
   api: {
@@ -143,7 +143,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       const uploadedResults: MediaResource[] = [];
 
       for (const img of imagesToUpload) {
-        const uploadRes = await cloudinary.uploader.upload(img, {
+        const uploadRes = await uploadToCloudinaryWithRetry(img, {
           folder,
           resource_type: "image",
         });

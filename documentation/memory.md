@@ -5,7 +5,60 @@ tags:
   - #status/active
   - #project/ordering-ecosystem
 created: 2026-09-04
-last_updated: 2026-09-30
+last_updated: 2026-10-02
+---
+
+## 0. Phase 4.50 — CLK Media Gallery Drag & Drop Image Uploading (2026-10-02)
+
+### Full Drag & Drop Multi-Image Uploading in Media Gallery
+- **Files**:
+  - `cafe-little-karachi/src/app/components/MediaGallery.tsx` (UPDATED)
+- **Context & Goal**: Administrators needed the ability to drag and drop single or multiple image files directly into the Media Gallery tab (and gallery picker modals) to upload them straight to Cloudinary without having to open the file explorer dialog manually.
+- **Changes Applied**:
+  - **Drag Event Engine & Depth Tracking**: Integrated `onDragEnter`, `onDragOver`, `onDragLeave`, and `onDrop` handlers with a `dragCounter` ref to prevent event bubbling/flickering over nested child elements.
+  - **Full-Screen Drag & Drop Overlay**: Rendered an animated Framer Motion overlay (`AnimatePresence`) with frosted backdrop blur (`bg-white/95 dark:bg-neutral-950/95 backdrop-blur-md`), bold brand plum dashed border (`border-3 border-dashed border-[#741052] dark:border-fuchsia-400`), bouncing `UploadCloud` icon, clear upload messaging, and supported format tags (`PNG`, `JPG / JPEG`, `WEBP`, `SVG`, `GIF`, `AVIF`). Configured with `pointer-events-none` for flicker-free drag over children.
+  - **Multi-File Image Extraction & Filtering**: Implemented `processAndUploadFiles` supporting both `FileList` and `File[]`, filtering for valid image MIME types or extensions, showing toast notices for skipped non-image files, and converting images to base64.
+  - **Direct Cloudinary API Upload & Automatic Refresh**: Uploads batch images to `/api/media` (`cafe-little-karachi/gallery`), displays real-time progress text with sonner toast notifications, and triggers an automatic gallery refresh upon completion.
+  - **Empty-State Drag & Drop Card**: Enhanced empty gallery state with a stylized dashed dropzone card featuring hover glow and click/drop upload triggers.
+  - **Top Action Bar Prompts**: Replaced standard button icon with `UploadCloud` and added visual indicators guiding administrators to drag & drop anywhere.
+- **Verification**: `npx tsc --noEmit` exited with code 0 — zero errors.
+- **Rationale**: Streamlines asset management and product image workflows by allowing instantaneous drag-and-drop media ingestion into Cloudinary.
+
+---
+
+## 0. Phase 4.49 — CLK Cloudinary Upload Resilience & Network Retry (2026-10-01)
+
+### Network Drop & ECONNRESET Recovery during Cloudinary Uploads
+- **Files**:
+  - `cafe-little-karachi/src/lib/cloudinary.ts` (UPDATED)
+  - `cafe-little-karachi/src/pages/api/upload.ts` (UPDATED)
+  - `cafe-little-karachi/src/pages/api/media.ts` (UPDATED)
+- **Context & Goal**: Large image uploads in the Admin Panel occasionally failed with `read ECONNRESET` (`errno: -4077`) after network latency or momentary ISP socket resets (~42s timeout), resulting in 500 API responses.
+- **Changes Applied**:
+  - **`uploadToCloudinaryWithRetry`**: Built resilient uploader function with a 90-second socket timeout and automatic exponential backoff retry (up to 3 attempts) targeting transient network failure codes (`ECONNRESET`, `ETIMEDOUT`, `-4077`, timeout errors).
+  - **`ensureCloudinaryUrl` (`cloudinary.ts`)**: Updated base64 upload flow to use `uploadToCloudinaryWithRetry`, protecting all product and platter creation/update endpoints (`updateItem`, `updatePlatter`, `createPlatter`, etc.).
+  - **`upload.ts` & `media.ts`**: Connected `uploadToCloudinaryWithRetry` to direct upload API handlers.
+- **Verification**: `npx tsc --noEmit` exited with code 0 — zero errors.
+- **Rationale**: Eliminates admin form upload crashes caused by momentary network drops or high-resolution photo upload latency.
+
+---
+
+## 0. Phase 4.48 — CLK Product Card Top-Right Discount Pill Design (2026-10-01)
+
+### Discount Pill Badge on Top Right Over Product & Platter Images
+- **Files**:
+  - `cafe-little-karachi/src/app/components/MenuItem.tsx` (UPDATED)
+  - `cafe-little-karachi/src/app/components/PlatterItem.tsx` (UPDATED)
+- **Context & Goal**: When dishes or combo platters have active percentage or fixed discounts (`discountValue > 0`), product cards needed a visible, luxury pill badge positioned over the top-right corner of the image across all card layouts (grid, compact, minimal, list view) and inside product customization modals.
+- **Changes Applied**:
+  - **`discountLabel` Memo**: Added formatted label resolver handling both `percentage` (`"${discountValue}% OFF"`) and `fixed` (`"Rs. ${discountValue} OFF"`) discount types with fallback.
+  - **Standard Grid Card Placement (`MenuItem.tsx`, `PlatterItem.tsx`)**: Wrapped image in `<div className="relative w-full mb-3">` and overlaid an `absolute top-2 right-2 z-10` luxury pill badge (`rounded-full bg-gradient-to-r from-rose-600 to-[#741052] text-white shadow-md shadow-rose-950/30 border border-white/25 select-none pointer-events-none`).
+  - **List View Card Placement (`MenuItem.tsx`, `PlatterItem.tsx`)**: Placed compact pill badge at `absolute top-1.5 right-1.5 z-10` inside thumbnail wrapper.
+  - **Product Modal Placement (`MenuItem.tsx`, `PlatterItem.tsx`)**: Placed matching pill badge at `absolute top-3 right-3 z-10` over modal image preview for consistent discount visibility.
+  - **Out-of-Stock Coexistence**: Left "Out of Stock" badge at top-left (`top-2 left-2`) so the discount pill at top-right (`top-2 right-2`) never conflicts or overlaps.
+- **Verification**: `npx tsc --noEmit` exited with code 0 — zero errors.
+- **Rationale**: Provides clear, instant discount transparency to customers browsing the catalog, driving click-throughs and higher conversion rates.
+
 ---
 
 ## 0. Phase 4.47 — CLK Quantity Selector & In-Button Cart Confirmation in Product Popups (2026-09-30)

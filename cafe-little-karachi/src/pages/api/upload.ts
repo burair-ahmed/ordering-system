@@ -1,5 +1,5 @@
 import { NextApiRequest, NextApiResponse } from "next";
-import { getCloudinary } from "@/lib/cloudinary";
+import { uploadToCloudinaryWithRetry } from "@/lib/cloudinary";
 
 export const config = {
   api: {
@@ -21,8 +21,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       return res.status(400).json({ error: "Image data is required" });
     }
 
-    const cloudinary = getCloudinary();
-    const result = await cloudinary.uploader.upload(image, {
+    const result = await uploadToCloudinaryWithRetry(image, {
       folder: folder || "cafe-little-karachi/banners",
     });
 

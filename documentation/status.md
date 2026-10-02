@@ -5,9 +5,9 @@ tags:
   - #status/active
   - #project/ordering-ecosystem
 created: 2026-09-04
-last_updated: 2026-09-30
-overall_completion: "Phase 4.47: Quantity Selector in Product Popups (100%)"
-current_sprint: "CLK Storefront UX Polish"
+last_updated: 2026-10-02
+overall_completion: "Phase 4.50: Media Gallery Drag & Drop Upload (100%)"
+current_sprint: "CLK Storefront & Admin UX Polish"
 ---
 
 # Project Status Dashboard — Advanced Ordering Ecosystem
@@ -16,6 +16,9 @@ current_sprint: "CLK Storefront UX Polish"
 
 | Sub-Project | Phase | Focus | Status |
 | :--- | :--- | :--- | :--- |
+| **Cafe Little Karachi (CLK)** | Phase 4.50 | Media Gallery Drag & Drop: Full-screen Framer Motion dropzone overlay, flicker-free drag depth counter, multi-image validation, batch base64 conversion & automatic Cloudinary upload with real-time progress | **Completed** 🟢 |
+| **Cafe Little Karachi (CLK)** | Phase 4.49 | Cloudinary Upload Resilience: Built `uploadToCloudinaryWithRetry` with 90s socket timeout and exponential backoff retry for ECONNRESET/ETIMEDOUT drops across `/api/upload`, `/api/media`, and `ensureCloudinaryUrl` | **Completed** 🟢 |
+| **Cafe Little Karachi (CLK)** | Phase 4.48 | Product Card Discount Pill: Luxury high-contrast pill badge on top-right over image across `MenuItem` and `PlatterItem` (grid cards, list view, and modal preview) displaying percentage (`% OFF`) and fixed (`Rs. X OFF`) discounts | **Completed** 🟢 |
 | **Cafe Little Karachi (CLK)** | Phase 4.47 | Quantity Selector & In-Button Cart Confirmation: Borderless `−/+` stepper in MenuItem & PlatterItem modals, quantity wired to `addToCart`, reset on close, in-button slide-out/in "✓ Added!" text animation with original brand gradient | **Completed** 🟢 |
 | **Cafe Little Karachi (CLK)** | Phase 4.46 | Admin Live Orders: 4 Top Metric Cards Zero-Overflow Responsive Sizing (`grid-cols-2 lg:grid-cols-4`), flexible truncate, rigid number counters & search bar responsiveness | **Completed** 🟢 |
 | **Cafe Little Karachi (CLK)** | Phase 4.45 | Expandable Search Bar: Smooth focus expansion (280px → 620px), borderless luxury pill, animated typewriter rotating placeholder, inline floating results modal (thumbnail left, title top, price below, + button, popup trigger) & Admin "Search Bar Items" manager tab | **Completed** 🟢 |
@@ -26,6 +29,17 @@ current_sprint: "CLK Storefront UX Polish"
 | **Cafe Little Karachi (CLK)** | Operations / Logistics | Delivery Areas & Charges Update (Gulshan-e-Iqbal Rs. 280, Bhitaiabad Rs. 300 + 6PM rule, 8 New Regions Seeded) | **Completed** 🟢 |
 | **Cafe Little Karachi (CLK)** | Phase 2 Perf | LCP Optimization (≤ 2.2s), AVIF/WebP, Responsive Sizes & Priority Preload Cleanup | **Completed** 🟢 |
 | **The Chai Company (TCC)** | Phase 4.32 | Centered Modern Tea Lounge Footer | **Completed** 🟢 |
+
+---
+
+## Phase 4.50 Completion Summary — Media Gallery Drag & Drop Image Uploading (CLK)
+
+- [x] **Drag & Drop Engine (`MediaGallery.tsx`)**: Wired `onDragEnter`, `onDragOver`, `onDragLeave`, and `onDrop` events on the root container, with depth counter `dragCounter` ref preventing dragleave flicker across nested child elements.
+- [x] **Full-Screen Framer Motion Overlay (`MediaGallery.tsx`)**: Created frosted glass dropzone overlay (`bg-white/95 dark:bg-neutral-950/95 backdrop-blur-md`, `border-3 border-dashed border-[#741052] dark:border-fuchsia-400`) with bouncing `UploadCloud` icon, clear upload status text, and supported image format badges (`PNG`, `JPG`, `WEBP`, `SVG`, `GIF`, `AVIF`).
+- [x] **Multi-Image Processing Pipeline (`MediaGallery.tsx`)**: Added `processAndUploadFiles` supporting single and multiple image drops, automatic file-type validation, real-time batch conversion to base64, and live progress display.
+- [x] **Direct Cloudinary Integration (`MediaGallery.tsx`)**: Uploads dropped files to `/api/media` in folder `cafe-little-karachi/gallery` and triggers an automatic gallery refresh upon completion.
+- [x] **Empty State & Action Bar Dropzone Prompts (`MediaGallery.tsx`)**: Enhanced empty gallery state with clickable & droppable card with hover elevation and added guidance in top stats bar.
+- [x] **TypeScript Validation**: Passed `npx tsc --noEmit` with exit code 0 — zero errors.
 
 ---
 

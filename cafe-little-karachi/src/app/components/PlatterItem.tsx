@@ -199,6 +199,17 @@ const PlatterItem: FC<PlatterItemProps> = ({ platter, cardStyle = 'gourmet', ini
     return originalBasePrice;
   }, [originalBasePrice, platter.discountType, platter.discountValue]);
 
+  // Formatted discount label for top-right pill badge
+  const discountLabel = useMemo(() => {
+    if (!platter.discountValue || platter.discountValue <= 0) return null;
+    if (platter.discountType === 'percentage') {
+      return `${platter.discountValue}% OFF`;
+    } else if (platter.discountType === 'fixed') {
+      return `Rs. ${platter.discountValue} OFF`;
+    }
+    return `${platter.discountValue}% OFF`;
+  }, [platter.discountType, platter.discountValue]);
+
   // Use the variation selector hook
   const {
     selections,
@@ -389,6 +400,11 @@ const PlatterItem: FC<PlatterItemProps> = ({ platter, cardStyle = 'gourmet', ini
                 height={150}
                 sizes="(max-width: 640px) 96px, 128px"
               />
+              {discountLabel && (
+                <span className="absolute top-1.5 right-1.5 z-10 inline-flex items-center px-1.5 py-0.5 rounded-full text-[9px] sm:text-[10px] font-black tracking-wide bg-gradient-to-r from-rose-600 to-[#741052] text-white shadow-md border border-white/20 select-none pointer-events-none">
+                  {discountLabel}
+                </span>
+              )}
             </div>
 
             <div className="flex-1 min-w-0 flex flex-col h-full justify-between py-1">
@@ -441,17 +457,22 @@ const PlatterItem: FC<PlatterItemProps> = ({ platter, cardStyle = 'gourmet', ini
               </span>
             )}
 
-            <div className="w-full">
+            <div className="relative w-full mb-3">
               <Image
                 src={platter.image || "/fallback-image.jpg"}
                 alt={platter.title}
-                className={`rounded-xl object-cover w-full mb-3 ${
+                className={`rounded-xl object-cover w-full ${
                   cardStyle === 'minimal' ? 'h-24' : cardStyle === 'compact' ? 'h-28' : 'h-40'
                 }`}
                 width={450}
                 height={160}
                 sizes="(max-width: 640px) 48vw, (max-width: 1024px) 33vw, 25vw"
               />
+              {discountLabel && (
+                <span className="absolute top-2 right-2 z-10 inline-flex items-center px-2.5 py-0.5 sm:px-3 sm:py-1 rounded-full text-[10px] sm:text-xs font-black tracking-wide bg-gradient-to-r from-rose-600 to-[#741052] text-white shadow-md shadow-rose-950/30 border border-white/25 select-none pointer-events-none">
+                  {discountLabel}
+                </span>
+              )}
             </div>
 
             <h2 className={`font-semibold text-[#741052] ${
@@ -540,7 +561,7 @@ const PlatterItem: FC<PlatterItemProps> = ({ platter, cardStyle = 'gourmet', ini
               </button>
 
               {/* Left Column */}
-              <div className="lg:w-1/2 flex justify-center items-center mb-5 lg:mb-0">
+              <div className="lg:w-1/2 flex justify-center items-center mb-5 lg:mb-0 relative">
                 <Image
                   src={platter.image || "/fallback-image.jpg"}
                   alt={platter.title}
@@ -550,6 +571,11 @@ const PlatterItem: FC<PlatterItemProps> = ({ platter, cardStyle = 'gourmet', ini
                   sizes="(max-width: 768px) 100vw, 50vw"
                   loading="lazy"
                 />
+                {discountLabel && (
+                  <span className="absolute top-3 right-3 z-10 inline-flex items-center px-3 py-1 rounded-full text-xs font-black tracking-wide bg-gradient-to-r from-rose-600 to-[#741052] text-white shadow-lg shadow-rose-950/40 border border-white/25 select-none pointer-events-none">
+                    {discountLabel}
+                  </span>
+                )}
               </div>
 
               {/* Right Column */}
