@@ -2,9 +2,13 @@ import mongoose from 'mongoose';
 import Order from '../src/models/Order';
 import OrderLedger from '../src/models/OrderLedger';
 
-const MONGODB_URI =
-  process.env.MONGODB_URI ||
-  'mongodb+srv://admin:jHG1csS4fbZWUcrL@cafe-little.mfqm3.mongodb.net/?retryWrites=true&w=majority&appName=cafe-little';
+import dotenv from 'dotenv';
+dotenv.config();
+
+const MONGODB_URI = process.env.MONGODB_URI;
+if (!MONGODB_URI) {
+  throw new Error('MONGODB_URI is not defined in environment variables');
+}
 
 async function backfillOrderLedger() {
   console.log('🔄 Connecting to MongoDB for OrderLedger backfill...');

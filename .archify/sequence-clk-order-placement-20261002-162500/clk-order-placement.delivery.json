@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "receiptId": "8a603d53-df51-4c1e-a298-4be202e9e756",
+  "status": "current",
+  "command": "deliver",
+  "type": "sequence",
+  "input": "D:\\ordering-system\\.archify\\sequence-clk-order-placement-20261002-162500\\candidate.json",
+  "output": "D:\\ordering-system\\.archify\\sequence-clk-order-placement-20261002-162500\\clk-order-placement.html",
+  "specification": {
+    "sha256": "9589451ebb7121f8bc8cd92fbec54682813564e68d436190fe64177f83f4112a",
+    "bytes": 7347
+  },
+  "artifact": {
+    "sha256": "d662f40c75151164d04e3edd8313302fea5da8665cf0617ec7a3dd7b03a45ef6",
+    "bytes": 770111
+  }
+}

@@ -14,12 +14,10 @@ const connectDB = async () => {
 
   try {
     // Get the MongoDB URI from the environment variable
-    const MONGODB_URI = process.env.MONGODB_URI || '';
+    const MONGODB_URI = process.env.MONGODB_URI;
     if (!MONGODB_URI) {
-      throw new Error('MongoDB URI is not defined');
+      throw new Error('MONGODB_URI is not defined in environment variables');
     }
-
-    console.log('Using MongoDB URI:', MONGODB_URI); // Log the URI for debugging
 
     // Connect to MongoDB
     await mongoose.connect(MONGODB_URI);

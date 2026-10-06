@@ -4,9 +4,7 @@ import Order from "../../models/Order";
 import { Server as HTTPServer } from "http";
 import { Server as SocketIOServer } from "socket.io";
 
-const MONGODB_URI =
-  process.env.MONGODB_URI ||
-  "mongodb+srv://admin:jHG1csS4fbZWUcrL@cafe-little.mfqm3.mongodb.net/?retryWrites=true&w=majority&appName=cafe-little";
+const MONGODB_URI = process.env.MONGODB_URI;
 
 interface OrderItem {
   id: string;
@@ -23,6 +21,9 @@ interface CustomSocket {
 
 async function connectToDatabase() {
   if (mongoose.connection.readyState === 0) {
+    if (!MONGODB_URI) {
+      throw new Error("MONGODB_URI is not defined in environment variables");
+    }
     await mongoose.connect(MONGODB_URI);
   }
 }

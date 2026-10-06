@@ -8,6 +8,91 @@ created: 2026-09-04
 last_updated: 2026-10-02
 ---
 
+## 0. Phase 4.60 — Monorepo Security: Hardcoded MongoDB Credential Removal (2026-10-02)
+
+### Remove All Hardcoded `mongodb+srv://` Connection Strings
+- **Files Modified**:
+  - `cafe-little-karachi/src/lib/db.ts` (UPDATED — removed `console.log` of full URI; strict `throw` when `MONGODB_URI` missing)
+  - `cafe-little-karachi/src/lib/testConnection.ts` (UPDATED — removed hardcoded fallback `|| 'mongodb+srv://...'`, added early-return on connected state, explicit throw)
+  - `cafe-little-karachi/updateMenuItemsStatus.ts` (UPDATED — replaced hardcoded string with `dotenv.config()` + `process.env.MONGODB_URI` + throw)
+  - `cafe-little-karachi/scripts/upload-pulao-products.ts` (UPDATED — removed `|| 'mongodb+srv://...'` fallback, explicit throw)
+  - `cafe-little-karachi/scripts/seed-delivery-areas.ts` (UPDATED — removed `|| 'mongodb+srv://...'` fallback, explicit throw)
+  - `the-chai-company/src/pages/api/fetchCompletedOrders.ts` (UPDATED — removed inline `connectToDatabase` function with hardcoded fallback, now imports and calls `connectDB` from `../../lib/db`)
+  - `the-chai-company/src/pages/api/analytics.ts` (UPDATED — removed inline `connectToDatabase` function with hardcoded fallback, now imports `connectDB` from `../../lib/db`)
+  - `the-chai-company/src/pages/api/analytics/details.ts` (UPDATED — removed inline `connectToDatabase` function with hardcoded fallback, now imports and calls `connectDB` from `../../../lib/db`)
+- **Context & Goal**: The MongoDB Atlas production credential (`mongodb+srv://admin:jHG1csS4fbZWUcrL@cafe-little.mfqm3.mongodb.net/`) was hardcoded as a fallback value (`|| 'mongodb+srv://...'`) in 8 source files across both sub-projects, and also logged in plain text via `console.log` in CLK's `db.ts`. Any developer with repo access (or in logs) could read the live production password.
+- **Changes Applied**:
+  - All hardcoded connection strings replaced with strict `process.env.MONGODB_URI` reads.
+  - Every location now throws an explicit `Error('MONGODB_URI is not defined in environment variables')` instead of silently falling back to the hardcoded URI.
+  - TCC's three legacy inline `connectToDatabase()` function definitions (which each had the hardcoded fallback) were replaced with imports of the canonical `connectDB()` from `src/lib/db.ts` — consolidating all connection logic to a single, tested, env-var-guarded helper.
+  - `console.log('Using MongoDB URI:', MONGODB_URI)` removed from CLK `db.ts` — was printing full credentials including password to server stdout and any log aggregation services.
+- **Verification**: `grep -r 'jHG1csS4fbZWUcrL'` across entire monorepo — **0 results**. `grep -r 'mongodb+srv://admin'` — **0 results**.
+- **Rationale**: Hardcoded database credentials in source code are a critical security vulnerability. Credential rotation, secret scanning, and principle of least privilege all require that secrets live exclusively in environment variables and never in version-controlled files.
+
+---
+
+## 0. Phase 4.59 — CLK Complete Archify Interactive Architecture & Diagrams Suite (2026-10-02)
+
+### Complete Interactive System Architecture & Companion Diagrams Suite
+- **Artifacts & Files**:
+  - `d:/ordering-system/.archify/architecture-clk-master-20261002-162500/clk-master.html` (Master Architecture Diagram)
+  - `d:/ordering-system/.archify/sequence-clk-order-placement-20261002-162500/clk-order-placement.html` (Sequence: Order Placement & Kitchen Dispatch)
+  - `d:/ordering-system/.archify/lifecycle-clk-order-status-20261002-162500/clk-order-status.html` (Lifecycle: Order Status State Machine)
+  - `d:/ordering-system/.archify/dataflow-clk-pii-attribution-20261002-162500/clk-pii-attribution.html` (Dataflow: Customer PII & Attribution Lifecycle)
+  - `d:/ordering-system/.archify/dataflow-clk-analytics-export-20261002-162500/clk-analytics-export.html` (Dataflow: Order Analytics Export Engine)
+  - `d:/ordering-system/.archify/workflow-clk-admin-cms-20261002-162500/clk-admin-cms.html` (Workflow: Admin CMS, Media Pipeline & Catalog Operations)
+  - `d:/ordering-system/.archify/sequence-clk-cache-miss-20261002-155900/clk-cache-miss.html` (Sequence: Cache Miss Request Flow)
+- **Context & Goal**: Document the end-to-end architecture of Cafe Little Karachi (CLK) as interactive, standalone HTML diagrams with Royal Plum (`#741052`) and Gold palette accents, trace animations, linked source code locations, and showcase quality profiles.
+- **Coverage & Diagrams**:
+  1. **Master Architecture**: 14 core nodes grouped across 5 layers (Clients, Edge & Ingress, Compute & Services, Persistence & Data Layer, Third-Party Egress & Cloud Services).
+  2. **Order Placement Sequence**: End-to-end flow from checkout form validation, dual-sync order creation (`orders` & `OrderLedger`), Socket.IO real-time broadcast to kitchen, and Twilio WhatsApp notifications.
+  3. **Order Status State Machine**: Order lifecycle transitions (`Received`, `Preparing`, `OutForDelivery`, `Delivered`, `Cancelled`), POS inspector state mutations, and dual-sync status mirroring.
+  4. **PII & Marketing Attribution Dataflow**: Form input sanitization, encrypted storage, SHA-256 Meta CAPI hashing boundaries, and UTM campaign parameter tracking.
+  5. **Analytics Export Dataflow**: In-memory aggregation engine (`analytics.ts`, `analytics/ledger.ts`), KPI roll-ups, and client-side multi-format generation (Excel XLSX, CSV, branded PDF).
+  6. **Admin CMS, Media Pipeline & Catalog Workflow**: 5-lane workflow (Admin Staff, CMS & Catalog Operations, Cloudinary Media Engine, MongoDB Atlas, Cloudinary Edge CDN) detailing Page Builder banner management, dnd-kit visual reordering, and resilient 90s exponential backoff upload engine.
+  7. **Cache Miss Web Request Sequence**: Request lifecycle with Redis cache check, database query fallback, SETEX cache hydration, and client rendering.
+- **Verification**: All 7 diagrams compiled and validated using `archify finalize` with showcase quality gates passing validation, delivery, static check, and headless browser check.
+- **Rationale**: Provides interactive, standalone visual architecture artifacts for developers, operators, and stakeholders.
+
+---
+
+## 0. Phase 4.58 — CLK Comprehensive Architecture Reference Documentation (2026-10-02)
+
+### Complete Technical Architecture, APIs, Database Models, Tech Stack & Operational Workflows Document
+- **Files**:
+  - `cafe-little-karachi/docs/architecture.md` (NEW — Comprehensive system architecture specification)
+  - `cafe-little-karachi/architecture.md` (NEW — Root-accessible project architecture document)
+- **Context & Goal**: Produce an exhaustive, production-grade technical specification and architecture reference document for **Cafe Little Karachi (CLK)** covering executive architecture, system diagrams, complete dependency catalog (runtime, database, real-time, UI, analytics, exports), Mongoose database models and ER relationships, all REST/WebSocket API endpoints, frontend App Router hierarchy and state management, end-to-end operational workflows (order creation dual-sync, analytics aggregation, multi-format export), performance engineering, and infrastructure configuration.
+- **Content & Coverage**:
+  - **Section 1 (System Overview)**: Multi-channel fulfillment models (Dine-In QR, Takeaway, 55 Delivery sectors), dual-sync immutable data layer philosophy, interaction-deferred analytics, and high-level system architecture Mermaid diagram.
+  - **Section 2 (Tech Stack & Dependencies)**: Detailed versioned breakdown of Node.js 24.x, Next.js 16.0.8, React 19, TypeScript 5.7, MongoDB Atlas / Mongoose 8.8, Socket.IO 4.8, Cloudinary 2.8, Twilio 5.4, SheetJS/xlsx 0.18, jsPDF 4.2, Recharts 2.9, Tailwind CSS 3.4, Radix UI, Framer Motion 12.23, and GSAP 3.13.
+  - **Section 3 (Database Architecture & Models)**: Complete Mongoose schema definitions, field types, validation, and compound query indexes across 14 models (`MenuItem`, `Platter`, `Category`, `PlatterCategory`, `Order`, `OrderLedger`, `PageConfig`, `DeliveryArea`, `DiscountConfig`, `CartUpsellConfig`, `Table`, `AnalyticsEvent`, `NotificationConsent`, `Feedback`) with Mermaid ER diagram.
+  - **Section 4 (API Endpoints Catalog)**: Request methods, query/body contracts, and responses across Order Lifecycle & Live Queue APIs, Catalog & Platters APIs, Analytics & BI APIs, CMS & Media APIs, and Logistics / WebSockets APIs.
+  - **Section 5 (Frontend Architecture & Component Tree)**: App Router hierarchy, global context state providers (`CartContext`, `OrderContext`), and key component catalog.
+  - **Section 6 (End-to-End Operational Workflows)**: Order Creation Dual-Sync Sequence Diagram and Analytics Aggregation & Multi-Format Exporter Pipeline Sequence Diagram.
+  - **Section 7 (Performance, SEO & Security)**: Interaction-deferred analytics stubs, tree-shaking, AVIF/WebP image optimization, JSON-LD schemas, Cloudinary retry resilience, and singleton poison guards.
+  - **Section 8 (Environment Variables)**: Environment configuration reference.
+- **Rationale**: Provides developers, operations teams, and stakeholders with a single source of truth for the technical design and API surface of Cafe Little Karachi.
+
+---
+
+## 0. Phase 4.57 — CLK Architecture: Archify Web Request Sequence Diagram (2026-10-02)
+
+### Cache-Miss Request Sequence Flow (Browser -> CLK API -> Redis -> PostgreSQL -> Redis Hydration)
+- **Artifacts & Files**:
+  - `.archify/sequence-clk-cache-miss-20261002-155900/candidate.json` (NEW — Typed Sequence IR Specification)
+  - `.archify/sequence-clk-cache-miss-20261002-155900/clk-cache-miss.html` (NEW — Standalone Interactive HTML Diagram)
+  - `.archify/sequence-clk-cache-miss-20261002-155900/clk-cache-miss.finalize-summary.json` (NEW — Validation & Browser Check Receipt)
+- **Context & Goal**: Diagram the web request lifecycle for Cafe Little Karachi (CLK) where a customer browses menu items/categories: the browser initiates the request to the Next.js API, the API inspects Redis cache, detects a cache miss, queries PostgreSQL for dish & variation data, hydrates the Redis cache via `SETEX`, and returns the payload to the browser for interactive rendering.
+- **Workflow & Gates**:
+  - Built with the **Archify CLI skill** (`tt-a1i/archify` v3.0.1) under `diagram_type: "sequence"`.
+  - Configured 5 semantic participants (`Diner / Guest`, `CLK Web App`, `CLK API Gateway`, `Redis Cache`, `PostgreSQL DB`).
+  - Implemented 3 lifecycle segments: (1) Inbound Request & Cache Check, (2) Cache Miss & Database Query, (3) Cache Population & Client Hydration.
+  - Verified and delivered with `node .agents/skills/archify/bin/archify.mjs finalize sequence ... --quality showcase --json` (passed `validate`, `deliver`, `check`, and headless `browser-check` with 0 errors).
+- **Rationale**: Provides an interactive, verifiable, and visually rich visual artifact for the engineering and architecture documentation of Cafe Little Karachi.
+
+---
+
 ## 0. Phase 4.56 — CLK Media Gallery: Cloudinary Fetch Error Hardening (2026-10-02)
 
 ### Resilient Cloudinary Error Surfacing & Search API Timeout Guard

@@ -1,0 +1,303 @@
+{
+  "schema_version": 1,
+  "diagram_type": "dataflow",
+  "meta": {
+    "title": "CLK Analytics Aggregation, Intelligence & Multi-Format Exporter",
+    "subtitle": "OrderLedger Aggregation, Peak Rush Hour Heatmaps, Basket Affinity & XLSX/CSV/PDF Export",
+    "output": ".archify/dataflow-clk-analytics-export-20261002-162500/clk-analytics-export.html",
+    "viewBox": [1080, 520],
+    "animation": "trace",
+    "quality_profile": "showcase",
+    "repository": {
+      "url": "https://github.com/burair-ahmed/ordering-system",
+      "revision": "48b32e8c7d4bfd5399337b4c742863a025b0c181"
+    }
+  },
+  "stages": [
+    { "label": "Storage" },
+    { "label": "APIs" },
+    { "label": "Intelligence" },
+    { "label": "Cockpit" },
+    { "label": "Exports" }
+  ],
+  "nodes": [
+    {
+      "id": "mongo_ledger",
+      "type": "database",
+      "label": "OrderLedger",
+      "sublabel": "Permanent DB",
+      "stage": 0,
+      "row": 0,
+      "tag": "Primary",
+      "sources": [{ "path": "cafe-little-karachi/src/models/OrderLedger.ts", "line": 34, "label": "OrderLedger Model" }]
+    },
+    {
+      "id": "mongo_orders",
+      "type": "database",
+      "label": "orders Col",
+      "sublabel": "Live Fallback",
+      "stage": 0,
+      "row": 2,
+      "tag": "Fallback",
+      "sources": [{ "path": "cafe-little-karachi/src/models/Order.ts", "line": 1, "label": "Order Model" }]
+    },
+    {
+      "id": "analytics_api",
+      "type": "backend",
+      "label": "Analytics API",
+      "sublabel": "/api/analytics",
+      "stage": 1,
+      "row": 0,
+      "tag": "5 Indexes",
+      "sources": [{ "path": "cafe-little-karachi/src/pages/api/analytics.ts", "line": 1, "label": "Analytics Handler" }]
+    },
+    {
+      "id": "source_api",
+      "type": "backend",
+      "label": "Source API",
+      "sublabel": "Attribution",
+      "stage": 1,
+      "row": 2,
+      "tag": "UTM Split",
+      "sources": [{ "path": "cafe-little-karachi/src/pages/api/order-source-analytics.ts", "line": 1, "label": "Source Analytics" }]
+    },
+    {
+      "id": "kpi_engine",
+      "type": "backend",
+      "label": "KPI Engine",
+      "sublabel": "Revenue & Rush",
+      "stage": 2,
+      "row": 0,
+      "tag": "Peak 7PM-1AM",
+      "sources": [{ "path": "cafe-little-karachi/src/pages/api/analytics.ts", "line": 150, "label": "Rush Hour Aggregation" }]
+    },
+    {
+      "id": "leaderboard_engine",
+      "type": "backend",
+      "label": "Dish Analytics",
+      "sublabel": "Ranks & Pairs",
+      "stage": 2,
+      "row": 1,
+      "tag": "Affinity BI",
+      "sources": [{ "path": "cafe-little-karachi/src/pages/api/analytics.ts", "line": 280, "label": "Basket Affinity" }]
+    },
+    {
+      "id": "delivery_engine",
+      "type": "backend",
+      "label": "Logistics BI",
+      "sublabel": "55 Karachi Areas",
+      "stage": 2,
+      "row": 2,
+      "tag": "Area Ranks",
+      "sources": [{ "path": "cafe-little-karachi/src/pages/api/analytics.ts", "line": 350, "label": "Delivery Rankings" }]
+    },
+    {
+      "id": "analytics_ui",
+      "type": "frontend",
+      "label": "Analytics HUD",
+      "sublabel": "Recharts Views",
+      "stage": 3,
+      "row": 0,
+      "tag": "Cockpit UI",
+      "sources": [{ "path": "cafe-little-karachi/src/app/components/Analytics.tsx", "line": 1, "label": "Analytics View" }]
+    },
+    {
+      "id": "ledger_drawer",
+      "type": "frontend",
+      "label": "Ledger Drawer",
+      "sublabel": "Ticket Inspector",
+      "stage": 3,
+      "row": 2,
+      "tag": "POS Modal",
+      "sources": [{ "path": "cafe-little-karachi/src/pages/api/analytics/ledger.ts", "line": 1, "label": "Ledger API" }]
+    },
+    {
+      "id": "xlsx_export",
+      "type": "backend",
+      "label": "Excel (.xlsx)",
+      "sublabel": "SheetJS Book",
+      "stage": 4,
+      "row": 0,
+      "tag": "Multi-Sheet",
+      "sources": [{ "path": "cafe-little-karachi/src/lib/exportAnalytics.ts", "line": 15, "label": "XLSX Export" }]
+    },
+    {
+      "id": "csv_export",
+      "type": "backend",
+      "label": "CSV (.csv)",
+      "sublabel": "Fact Stream",
+      "stage": 4,
+      "row": 1,
+      "tag": "Raw CSV",
+      "sources": [{ "path": "cafe-little-karachi/src/lib/exportAnalytics.ts", "line": 150, "label": "CSV Export" }]
+    },
+    {
+      "id": "pdf_export",
+      "type": "backend",
+      "label": "PDF (.pdf)",
+      "sublabel": "Executive PDF",
+      "stage": 4,
+      "row": 2,
+      "tag": "Branded",
+      "sources": [{ "path": "cafe-little-karachi/src/lib/exportAnalytics.ts", "line": 230, "label": "PDF Export" }]
+    }
+  ],
+  "flows": [
+    {
+      "id": "ledger-to-analytics",
+      "from": "mongo_ledger",
+      "to": "analytics_api",
+      "label": "historical data",
+      "classification": "primary data",
+      "variant": "emphasis",
+      "fromSide": "right",
+      "toSide": "left",
+      "route": "straight"
+    },
+    {
+      "id": "orders-to-analytics",
+      "from": "mongo_orders",
+      "to": "source_api",
+      "label": "live orders data",
+      "classification": "fallback data",
+      "variant": "dashed",
+      "fromSide": "right",
+      "toSide": "left",
+      "route": "straight"
+    },
+    {
+      "id": "analytics-to-kpi",
+      "from": "analytics_api",
+      "to": "kpi_engine",
+      "label": "revenue facts",
+      "classification": "KPIs",
+      "variant": "emphasis",
+      "fromSide": "right",
+      "toSide": "left",
+      "route": "straight",
+      "labelAt": [422, 118]
+    },
+    {
+      "id": "analytics-to-leaderboard",
+      "from": "analytics_api",
+      "to": "leaderboard_engine",
+      "label": "dish velocity",
+      "classification": "product BI",
+      "variant": "emphasis",
+      "fromSide": "right",
+      "toSide": "left",
+      "via": [[422, 157], [422, 271]],
+      "labelAt": [440, 214]
+    },
+    {
+      "id": "source-to-delivery",
+      "from": "source_api",
+      "to": "delivery_engine",
+      "label": "channel split",
+      "classification": "logistics BI",
+      "variant": "default",
+      "fromSide": "right",
+      "toSide": "left",
+      "route": "straight"
+    },
+    {
+      "id": "kpi-to-ui",
+      "from": "kpi_engine",
+      "to": "analytics_ui",
+      "label": "KPI HUD charts",
+      "classification": "charts",
+      "variant": "emphasis",
+      "fromSide": "right",
+      "toSide": "left",
+      "route": "straight",
+      "labelAt": [638, 118]
+    },
+    {
+      "id": "leaderboard-to-ui",
+      "from": "leaderboard_engine",
+      "to": "analytics_ui",
+      "label": "dish tables",
+      "classification": "tables",
+      "variant": "emphasis",
+      "fromSide": "right",
+      "toSide": "left",
+      "via": [[638, 271], [638, 157]],
+      "labelAt": [656, 214]
+    },
+    {
+      "id": "delivery-to-drawer",
+      "from": "delivery_engine",
+      "to": "ledger_drawer",
+      "label": "order stream",
+      "classification": "drawer facts",
+      "variant": "default",
+      "fromSide": "right",
+      "toSide": "left",
+      "route": "straight"
+    },
+    {
+      "id": "ui-to-xlsx",
+      "from": "analytics_ui",
+      "to": "xlsx_export",
+      "label": "workbook download",
+      "classification": "accounting file",
+      "variant": "emphasis",
+      "fromSide": "right",
+      "toSide": "left",
+      "route": "straight",
+      "labelAt": [852, 118]
+    },
+    {
+      "id": "ui-to-csv",
+      "from": "analytics_ui",
+      "to": "csv_export",
+      "label": "CSV download",
+      "classification": "CSV file",
+      "variant": "default",
+      "fromSide": "right",
+      "toSide": "left",
+      "via": [[852, 157], [852, 271]],
+      "labelAt": [870, 214]
+    },
+    {
+      "id": "drawer-to-pdf",
+      "from": "ledger_drawer",
+      "to": "pdf_export",
+      "label": "executive PDF",
+      "classification": "PDF report",
+      "variant": "emphasis",
+      "fromSide": "right",
+      "toSide": "left",
+      "route": "straight"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "emerald",
+      "title": "Aggregator & Intelligence Stack",
+      "items": [
+        "OrderLedger Aggregation queries run with 5 compound indexes, ensuring sub-50ms query response.",
+        "Automatic fallback to orders collection preserves backward compatibility for legacy environments.",
+        "Period-over-period delta calculation powers real-time percentage growth badges on KPI cards."
+      ]
+    },
+    {
+      "dot": "rose",
+      "title": "Specialized Analytics Capabilities",
+      "items": [
+        "Rush Hour Heatmap (Feature A1): 24-hour histogram highlighting 7:00 PM–1:00 AM peak ordering window.",
+        "Basket Affinity (Feature A2): Co-occurrence frequency matrix powering 'Frequently Bought Together' pairs.",
+        "Stagnant / Low-Velocity Alert (Feature A5): Identifies underperforming menu items for promotion or removal."
+      ]
+    },
+    {
+      "dot": "violet",
+      "title": "Multi-Format Export Engine",
+      "items": [
+        "XLSX (.xlsx): SheetJS generates multi-tab workbooks (Summary, Products, Logistics, Hourly Trends).",
+        "CSV (.csv): Clean RFC4180 streaming export for accounting pipelines and Google Sheets ingestion.",
+        "PDF (.pdf): jsPDF with AutoTable renders luxury Royal Plum executive summaries with brand headers."
+      ]
+    }
+  ]
+}

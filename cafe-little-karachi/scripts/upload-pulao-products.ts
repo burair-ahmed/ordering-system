@@ -3,7 +3,10 @@ import dotenv from 'dotenv';
 import { v4 as uuidv4 } from 'uuid';
 dotenv.config();
 
-const MONGODB_URI = process.env.MONGODB_URI || 'mongodb+srv://admin:jHG1csS4fbZWUcrL@cafe-little.mfqm3.mongodb.net/?retryWrites=true&w=majority&appName=cafe-little';
+const MONGODB_URI = process.env.MONGODB_URI;
+if (!MONGODB_URI) {
+  throw new Error('MONGODB_URI is not defined in environment variables');
+}
 
 const PLACEHOLDER_CHICKEN_IMG = 'https://res.cloudinary.com/dubg6octv/image/upload/v1767351631/menu_items/mlwu0o8vwdxo90j9e424.webp';
 const PLACEHOLDER_BEEF_IMG = 'https://res.cloudinary.com/dubg6octv/image/upload/v1767351630/menu_items/qqrhqk6vztjpvxuzruyv.webp';

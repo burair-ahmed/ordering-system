@@ -1,16 +1,6 @@
 import { NextApiRequest, NextApiResponse } from "next";
-import mongoose from "mongoose";
 import Order from "../../models/Order";
-
-const MONGODB_URI =
-  process.env.MONGODB_URI ||
-  "mongodb+srv://admin:jHG1csS4fbZWUcrL@cafe-little.mfqm3.mongodb.net/?retryWrites=true&w=majority&appName=cafe-little";
-
-async function connectToDatabase() {
-  if (mongoose.connection.readyState === 0) {
-    await mongoose.connect(MONGODB_URI);
-  }
-}
+import connectDB from "../../lib/db";
 
 // Utility function to get the start and end date for different periods
 const getDateRange = (filter: string, startDate?: string, endDate?: string) => {

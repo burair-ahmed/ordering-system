@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "receiptId": "2015ae1e-d6c7-40d2-b27e-d0c467ed1941",
+  "status": "current",
+  "command": "deliver",
+  "type": "dataflow",
+  "input": "D:\\ordering-system\\.archify\\dataflow-clk-analytics-export-20261002-162500\\candidate.json",
+  "output": "D:\\ordering-system\\.archify\\dataflow-clk-analytics-export-20261002-162500\\clk-analytics-export.html",
+  "specification": {
+    "sha256": "d9ca46712aeefb601043ff93ea26f3370727e6658785c32280635647fbdf228e",
+    "bytes": 9174
+  },
+  "artifact": {
+    "sha256": "b57af2943a9fa5aae8d2022ca975d5ba9d69ad4fca03ab825bc0a3fe945287bf",
+    "bytes": 772098
+  }
+}

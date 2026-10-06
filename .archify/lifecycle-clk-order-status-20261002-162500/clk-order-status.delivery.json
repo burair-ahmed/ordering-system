@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "receiptId": "8a133060-3602-421b-99a4-795b82fb0ef6",
+  "status": "current",
+  "command": "deliver",
+  "type": "lifecycle",
+  "input": "D:\\ordering-system\\.archify\\lifecycle-clk-order-status-20261002-162500\\candidate.json",
+  "output": "D:\\ordering-system\\.archify\\lifecycle-clk-order-status-20261002-162500\\clk-order-status.html",
+  "specification": {
+    "sha256": "e15bc026190a74e28786737afa12917501ea318371a523b4d12dbe2011a48369",
+    "bytes": 5075
+  },
+  "artifact": {
+    "sha256": "c4184eb63e8c0ee6f18baedeb323d84e9788de4dd252b162fd807663c40956c0",
+    "bytes": 764088
+  }
+}

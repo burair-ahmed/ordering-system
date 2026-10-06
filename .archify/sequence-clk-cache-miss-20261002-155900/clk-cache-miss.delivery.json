@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "receiptId": "de591910-6a6b-4892-b5d0-270dfbbd3bd0",
+  "status": "current",
+  "command": "deliver",
+  "type": "sequence",
+  "input": "D:\\ordering-system\\.archify\\sequence-clk-cache-miss-20261002-155900\\candidate.json",
+  "output": "D:\\ordering-system\\.archify\\sequence-clk-cache-miss-20261002-155900\\clk-cache-miss.html",
+  "specification": {
+    "sha256": "84231e580cf1efbc3aa62d9e97a994843fe93937a5c6a298fe47bbdd0f501378",
+    "bytes": 3837
+  },
+  "artifact": {
+    "sha256": "4fd4b1d3957e1460a2122627999e2cb5ba019243c008e29455bbbb896ad7fa00",
+    "bytes": 757178
+  }
+}

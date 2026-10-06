@@ -1,0 +1,135 @@
+{
+  "schema_version": 2,
+  "diagram_type": "lifecycle",
+  "meta": {
+    "title": "CLK Order Status Lifecycle & Safe Purge Workflow",
+    "subtitle": "Live Queue Mutations, Void Restoration, Dual-Sync Synchronization & Zero-Loss Archive Purge",
+    "output": ".archify/lifecycle-clk-order-status-20261002-162500/clk-order-status.html",
+    "animation": "trace",
+    "quality_profile": "showcase",
+    "repository": {
+      "url": "https://github.com/burair-ahmed/ordering-system",
+      "revision": "48b32e8c7d4bfd5399337b4c742863a025b0c181"
+    }
+  },
+  "lanes": [
+    { "id": "main", "label": "Active Live Queue" },
+    { "id": "void", "label": "Void & Exception Handling" },
+    { "id": "sync", "label": "Dual-Sync Ledger Archive" },
+    { "id": "terminal", "label": "Safe Purge & Retention" }
+  ],
+  "states": [
+    {
+      "id": "received",
+      "type": "start",
+      "label": "Received",
+      "sublabel": "Pending Kitchen Action",
+      "lane": "main",
+      "col": 0,
+      "step": "01",
+      "tag": "pending",
+      "sources": [{ "path": "cafe-little-karachi/src/models/Order.ts", "line": 1, "label": "Order Model" }]
+    },
+    {
+      "id": "preparing",
+      "type": "active",
+      "label": "Preparing",
+      "sublabel": "Kitchen & Table Dispatch",
+      "lane": "main",
+      "col": 1,
+      "step": "02",
+      "tag": "cooking",
+      "sources": [{ "path": "cafe-little-karachi/src/app/components/OrdersList.tsx", "line": 1, "label": "Live Orders List" }]
+    },
+    {
+      "id": "delivered",
+      "type": "success",
+      "label": "Delivered",
+      "sublabel": "Fulfilled & Paid",
+      "lane": "main",
+      "col": 2,
+      "step": "03",
+      "tag": "fulfilled",
+      "sources": [{ "path": "cafe-little-karachi/src/pages/api/updateorderstatus.ts", "line": 1, "label": "Status Update API" }]
+    },
+    {
+      "id": "cancelled",
+      "type": "failure",
+      "label": "Cancelled",
+      "sublabel": "Voided by Kitchen / User",
+      "lane": "void",
+      "col": 0,
+      "tag": "voided",
+      "sources": [{ "path": "cafe-little-karachi/src/app/components/OrdersList.tsx", "line": 60, "label": "Cancel Action" }]
+    },
+    {
+      "id": "restored",
+      "type": "waiting",
+      "label": "Restored",
+      "sublabel": "Re-queued to Active",
+      "lane": "void",
+      "col": 1,
+      "tag": "restored",
+      "sources": [{ "path": "cafe-little-karachi/src/app/components/OrdersList.tsx", "line": 61, "label": "Restore Action" }]
+    },
+    {
+      "id": "ledger_synced",
+      "type": "active",
+      "label": "Ledger Synced",
+      "sublabel": "Mirrored to OrderLedger",
+      "lane": "sync",
+      "col": 2,
+      "tag": "persisted",
+      "sources": [{ "path": "cafe-little-karachi/src/models/OrderLedger.ts", "line": 34, "label": "OrderLedger Model" }]
+    },
+    {
+      "id": "purged",
+      "type": "success",
+      "label": "Safe Purged",
+      "sublabel": "Removed with Zero Loss",
+      "lane": "terminal",
+      "col": 2,
+      "tag": "zero-loss",
+      "sources": [{ "path": "cafe-little-karachi/src/pages/api/orders/purge-completed.ts", "line": 21, "label": "Safe Purge API" }]
+    }
+  ],
+  "transitions": [
+    { "from": "received", "to": "preparing", "label": "accept order" },
+    { "from": "preparing", "to": "delivered", "label": "mark fulfilled" },
+    { "from": "received", "to": "cancelled", "variant": "security", "label": "cancel order" },
+    { "from": "cancelled", "to": "restored", "label": "1-click restore" },
+    { "from": "restored", "to": "received", "label": "return to queue" },
+    { "from": "delivered", "to": "ledger_synced", "label": "sync status" },
+    { "from": "ledger_synced", "to": "purged", "variant": "emphasis", "label": "purge completed" },
+    { "from": "cancelled", "to": "purged", "variant": "dashed", "label": "purge voided" }
+  ],
+  "cards": [
+    {
+      "dot": "emerald",
+      "title": "Live Queue State Mutations",
+      "items": [
+        "Received: Instant ingestion status. Kitchen is notified via real-time audio chime.",
+        "Preparing: Active cooking and packaging for Delivery/Takeaway or table dispatch for Dine-In.",
+        "Delivered / Fulfilled: Terminal operational state in live queue, ready for archive."
+      ]
+    },
+    {
+      "dot": "rose",
+      "title": "Cancellation & Void Recovery",
+      "items": [
+        "1-Click Cancellation allows staff to void orders across Grid, Kanban, and Table views.",
+        "Restoration workflow returns accidentally voided orders back to the active Received state.",
+        "All void and restore transitions are synchronized to OrderLedger with timestamp preservation."
+      ]
+    },
+    {
+      "dot": "amber",
+      "title": "Zero-Loss Safe Purge Protocol",
+      "items": [
+        "/api/orders/purge-completed enforces a strict 2-step protocol before any live deletion.",
+        "Step 1: Queries matching orders and verifies 100% presence in OrderLedger (upserting if missing).",
+        "Step 2: Safely deletes records from active orders collection, keeping dashboard clean without losing BI data."
+      ]
+    }
+  ]
+}

@@ -1,0 +1,355 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "Cafe Little Karachi — Complete Platform Architecture",
+    "subtitle": "Next.js 16 Hybrid Monorepo, Dual-Sync Immutable Ledger, Real-Time Socket.IO & Cloudinary Pipeline",
+    "output": ".archify/architecture-clk-master-20261002-162500/clk-master.html",
+    "animation": "trace",
+    "quality_profile": "showcase",
+    "repository": {
+      "url": "https://github.com/burair-ahmed/ordering-system",
+      "revision": "48b32e8c7d4bfd5399337b4c742863a025b0c181"
+    }
+  },
+  "components": [
+    {
+      "id": "client_analytics",
+      "type": "external",
+      "label": "Browser Telemetry",
+      "sublabel": "GA4 · Meta Pixel · MS Clarity",
+      "pos": [80, 80],
+      "size": [170, 64],
+      "tag": "Deferred Hydration",
+      "sources": [
+        { "path": "cafe-little-karachi/src/app/lib/analytics.ts", "line": 1, "label": "Analytics Bridge" }
+      ]
+    },
+    {
+      "id": "customer",
+      "type": "external",
+      "label": "Customer PWA & Browser",
+      "sublabel": "Dine-In QR · Takeaway · 55 Sectors",
+      "pos": [80, 260],
+      "size": [170, 72],
+      "tag": "manifest.ts",
+      "sources": [
+        { "path": "cafe-little-karachi/src/app/manifest.ts", "line": 1, "label": "PWA Manifest" },
+        { "path": "cafe-little-karachi/src/app/checkout/page.tsx", "line": 88, "label": "Checkout Flow" }
+      ]
+    },
+    {
+      "id": "admin_cockpit",
+      "type": "frontend",
+      "label": "Admin & Kitchen Cockpit",
+      "sublabel": "Live Queue · Analytics · CMS · Media",
+      "pos": [80, 440],
+      "size": [170, 72],
+      "tag": "Client Auth Only",
+      "sources": [
+        { "path": "cafe-little-karachi/src/app/admin/page.tsx", "line": 149, "label": "Admin Dashboard" },
+        { "path": "cafe-little-karachi/src/app/components/AdminAuthDialog.tsx", "line": 16, "label": "Client Auth Modal" }
+      ]
+    },
+    {
+      "id": "app_router",
+      "type": "frontend",
+      "label": "Next.js 16 App Router",
+      "sublabel": "SSR + ISR (5-min) · React 19",
+      "pos": [380, 260],
+      "size": [170, 72],
+      "tag": "Dynamic Routes",
+      "sources": [
+        { "path": "cafe-little-karachi/src/app/layout.tsx", "line": 1, "label": "Root Layout" },
+        { "path": "cafe-little-karachi/src/app/order/page.tsx", "line": 1, "label": "Catalog Page" }
+      ]
+    },
+    {
+      "id": "socket_server",
+      "type": "messagebus",
+      "label": "Socket.IO 4.8 Bridge",
+      "sublabel": "Bidirectional Live Dispatch",
+      "pos": [380, 440],
+      "size": [170, 72],
+      "tag": "/api/socket",
+      "sources": [
+        { "path": "cafe-little-karachi/src/pages/api/socket.ts", "line": 1, "label": "Socket Init" },
+        { "path": "cafe-little-karachi/src/app/components/OrdersList.tsx", "line": 1, "label": "Live Queue Sync" }
+      ]
+    },
+    {
+      "id": "pages_api",
+      "type": "backend",
+      "label": "Pages Router API",
+      "sublabel": "REST Endpoints · Node 24",
+      "pos": [680, 260],
+      "size": [170, 72],
+      "tag": "No API Auth Guard",
+      "sources": [
+        { "path": "cafe-little-karachi/src/pages/api/orders.ts", "line": 52, "label": "Orders API" },
+        { "path": "cafe-little-karachi/src/pages/api/analytics.ts", "line": 1, "label": "Analytics API" }
+      ]
+    },
+    {
+      "id": "mongo_catalog",
+      "type": "database",
+      "label": "MongoDB: Catalog & CMS",
+      "sublabel": "MenuItems · Platters · Areas · Config",
+      "pos": [980, 90],
+      "size": [170, 72],
+      "tag": "12 Collections",
+      "sources": [
+        { "path": "cafe-little-karachi/src/models/MenuItem.ts", "line": 1, "label": "MenuItem Schema" },
+        { "path": "cafe-little-karachi/src/models/PageConfig.ts", "line": 1, "label": "PageConfig Schema" }
+      ]
+    },
+    {
+      "id": "mongo_live",
+      "type": "database",
+      "label": "MongoDB: orders",
+      "sublabel": "Active Live Queue · Mongoose 8",
+      "pos": [980, 260],
+      "size": [170, 72],
+      "tag": "Live Queue",
+      "sources": [
+        { "path": "cafe-little-karachi/src/models/Order.ts", "line": 1, "label": "Order Schema" }
+      ]
+    },
+    {
+      "id": "mongo_ledger",
+      "type": "database",
+      "label": "MongoDB: orderledgers",
+      "sublabel": "Permanent Archive · 5 Indexes",
+      "pos": [980, 430],
+      "size": [170, 72],
+      "tag": "Zero Data Loss",
+      "sources": [
+        { "path": "cafe-little-karachi/src/models/OrderLedger.ts", "line": 34, "label": "OrderLedger Schema" },
+        { "path": "cafe-little-karachi/src/pages/api/orders/purge-completed.ts", "line": 21, "label": "Safe Purge API" }
+      ]
+    },
+    {
+      "id": "cloudinary",
+      "type": "cloud",
+      "label": "Cloudinary 2.8 CDN",
+      "sublabel": "Media Upload · AVIF/WebP · Search",
+      "pos": [1280, 90],
+      "size": [170, 72],
+      "tag": "Retry + Timeout",
+      "sources": [
+        { "path": "cafe-little-karachi/src/lib/cloudinary.ts", "line": 20, "label": "Cloudinary Guard" },
+        { "path": "cafe-little-karachi/src/pages/api/media.ts", "line": 1, "label": "Media API" }
+      ]
+    },
+    {
+      "id": "twilio",
+      "type": "cloud",
+      "label": "Twilio 5.4 WhatsApp",
+      "sublabel": "Transactional Order Updates",
+      "pos": [1280, 260],
+      "size": [170, 72],
+      "tag": "Client Trigger",
+      "sources": [
+        { "path": "cafe-little-karachi/src/pages/api/send-whatsapp.ts", "line": 8, "label": "WhatsApp Handler" }
+      ]
+    },
+    {
+      "id": "meta_capi",
+      "type": "cloud",
+      "label": "Meta Graph API (CAPI)",
+      "sublabel": "Server Purchase Event · SHA-256",
+      "pos": [1280, 430],
+      "size": [170, 72],
+      "tag": "Fire-and-Forget",
+      "sources": [
+        { "path": "cafe-little-karachi/src/lib/metaCapi.ts", "line": 1, "label": "CAPI Client" }
+      ]
+    }
+  ],
+  "boundaries": [
+    {
+      "kind": "region",
+      "label": "Next.js 16 Application Server (App Router + Pages API + Socket Bridge)",
+      "wraps": ["app_router", "pages_api", "socket_server"]
+    },
+    {
+      "kind": "region",
+      "label": "MongoDB Atlas Cluster (Cached Singleton Connection Pool)",
+      "wraps": ["mongo_catalog", "mongo_live", "mongo_ledger"]
+    },
+    {
+      "kind": "region",
+      "label": "Third-Party Cloud Services & Ad Networks",
+      "wraps": ["cloudinary", "twilio", "meta_capi"]
+    },
+    {
+      "kind": "security-group",
+      "label": "Public Client Surface (Deferred Telemetry)",
+      "wraps": ["customer", "client_analytics"]
+    },
+    {
+      "kind": "security-group",
+      "label": "Admin Surface (Client Auth Only)",
+      "wraps": ["admin_cockpit"]
+    }
+  ],
+  "connections": [
+    {
+      "id": "diner-to-ssr",
+      "from": "customer",
+      "to": "app_router",
+      "label": "HTTPS browse / cart",
+      "variant": "emphasis"
+    },
+    {
+      "id": "diner-telemetry",
+      "from": "customer",
+      "to": "client_analytics",
+      "label": "deferred init (6s / idle)",
+      "variant": "dashed",
+      "fromSide": "top",
+      "toSide": "bottom"
+    },
+    {
+      "id": "ssr-to-api",
+      "from": "app_router",
+      "to": "pages_api",
+      "label": "POST /api/orders",
+      "variant": "emphasis"
+    },
+    {
+      "id": "api-to-catalog",
+      "from": "pages_api",
+      "to": "mongo_catalog",
+      "label": "CRUD catalog & CMS",
+      "variant": "default",
+      "fromSide": "top",
+      "toSide": "left"
+    },
+    {
+      "id": "api-to-live-queue",
+      "from": "pages_api",
+      "to": "mongo_live",
+      "label": "write live order",
+      "variant": "emphasis",
+      "fromSide": "right",
+      "toSide": "left"
+    },
+    {
+      "id": "api-to-ledger",
+      "from": "pages_api",
+      "to": "mongo_ledger",
+      "label": "dual-sync archive",
+      "variant": "emphasis",
+      "fromSide": "bottom",
+      "toSide": "left"
+    },
+    {
+      "id": "api-to-socket",
+      "from": "pages_api",
+      "to": "socket_server",
+      "label": "emit 'new-order'",
+      "variant": "emphasis",
+      "fromSide": "bottom",
+      "toSide": "top"
+    },
+    {
+      "id": "socket-to-admin",
+      "from": "socket_server",
+      "to": "admin_cockpit",
+      "label": "live audio chime & HUD",
+      "variant": "emphasis",
+      "fromSide": "left",
+      "toSide": "right"
+    },
+    {
+      "id": "admin-to-api",
+      "from": "admin_cockpit",
+      "to": "pages_api",
+      "label": "status / purge / CMS",
+      "variant": "default",
+      "fromSide": "top",
+      "toSide": "bottom"
+    },
+    {
+      "id": "catalog-to-cloudinary",
+      "from": "mongo_catalog",
+      "to": "cloudinary",
+      "label": "media upload & search",
+      "variant": "dashed",
+      "fromSide": "right",
+      "toSide": "left"
+    },
+    {
+      "id": "live-to-twilio",
+      "from": "mongo_live",
+      "to": "twilio",
+      "label": "WhatsApp order payload",
+      "variant": "dashed",
+      "fromSide": "right",
+      "toSide": "left"
+    },
+    {
+      "id": "ledger-to-capi",
+      "from": "mongo_ledger",
+      "to": "meta_capi",
+      "label": "Purchase CAPI event",
+      "variant": "security",
+      "fromSide": "right",
+      "toSide": "left"
+    },
+    {
+      "id": "live-ledger-sync",
+      "from": "mongo_live",
+      "to": "mongo_ledger",
+      "label": "status sync & purge verify",
+      "variant": "emphasis",
+      "fromSide": "bottom",
+      "toSide": "top"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "emerald",
+      "title": "Primary Order Path",
+      "items": [
+        "1. Diner submits checkout on Next.js 16 App Router UI",
+        "2. Handled by POST /api/orders (validating hours, PII, table/area)",
+        "3. Dual-sync writes to orders (Live Queue) and OrderLedger (Immutable Archive)",
+        "4. Synchronously emits 'new-order' via Socket.IO 4.8 server to Admin Cockpit",
+        "5. Fires async Meta CAPI Purchase event and client-triggered Twilio WhatsApp"
+      ]
+    },
+    {
+      "dot": "rose",
+      "title": "Dual-Sync & Safe Purge Architecture",
+      "items": [
+        "Live Queue (`orders`) retains only active orders (Received, Preparing, Delivered, Cancelled)",
+        "Immutable Archive (`orderledgers`) preserves 100% of historical order data across 5 compound indexes",
+        "Safe Purge (/api/orders/purge-completed) guarantees ledger copy exists before removing from live queue",
+        "Analytics and accounting reports query OrderLedger with fallback to orders"
+      ]
+    },
+    {
+      "dot": "amber",
+      "title": "Resilient Media Pipeline",
+      "items": [
+        "Singleton poison guard validates credentials before calling cloudinary.config()",
+        "uploadToCloudinaryWithRetry handles transient drops with 90s timeout and 3-attempt exponential backoff",
+        "Search API execution is guarded with 20s Promise.race fallback to Admin Resources API",
+        "Next.js next/image serves AVIF/WebP formats with 1-year minimumCacheTTL"
+      ]
+    },
+    {
+      "dot": "violet",
+      "title": "Companion Deep-Dive Diagrams",
+      "items": [
+        "Diagram 2 (Sequence): Order Placement & Dual-Sync Pipeline",
+        "Diagram 3 (Lifecycle): Order Status Mutations & Safe Purge Workflow",
+        "Diagram 4 (Data Flow): PII Boundary & Multi-Channel Attribution",
+        "Diagram 5 (Data Flow): Analytics Aggregator & Multi-Format Exporter",
+        "Diagram 6 (Workflow): Admin Content Management & Media Pipeline"
+      ]
+    }
+  ]
+}

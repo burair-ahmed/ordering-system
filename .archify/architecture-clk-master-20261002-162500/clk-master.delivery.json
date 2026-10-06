@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "receiptId": "0e8b0fc0-5fc9-46b6-9e37-e2d146f1888e",
+  "status": "current",
+  "command": "deliver",
+  "type": "architecture",
+  "input": "D:\\ordering-system\\.archify\\architecture-clk-master-20261002-162500\\candidate.json",
+  "output": "D:\\ordering-system\\.archify\\architecture-clk-master-20261002-162500\\clk-master.html",
+  "specification": {
+    "sha256": "dac7baffbefb48084e9a218e7691a2d935f7cfba8ef3d20979ce7a01d6dd95ef",
+    "bytes": 11450
+  },
+  "artifact": {
+    "sha256": "186b09f5d8ca3d188b8dcd6a49c7c0af01a66304354bc6faa4974ce3d80c2386",
+    "bytes": 787693
+  }
+}

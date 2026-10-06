@@ -1,0 +1,1703 @@
+{
+  "schemaVersion": 1,
+  "ok": true,
+  "command": "finalize",
+  "status": "pass",
+  "type": "workflow",
+  "quality": "showcase",
+  "startedAt": "2026-10-02T12:14:01.139Z",
+  "specification": {
+    "path": "D:\\ordering-system\\.archify\\workflow-clk-admin-cms-20261002-162500\\candidate.json",
+    "sha256": "8bd5615bfb0f0b33072b335607556cf6d5ea359b2073df11b9de45a3873087cb",
+    "bytes": 6494
+  },
+  "artifact": {
+    "path": "D:\\ordering-system\\.archify\\workflow-clk-admin-cms-20261002-162500\\clk-admin-cms.html",
+    "sha256": "758d7b2264c3ad2973c918bd4a08f222e1a8c3e1df41e6d82872b15db0cb4d81",
+    "bytes": 764840
+  },
+  "stages": {
+    "validate": {
+      "status": "pass",
+      "exitCode": 0,
+      "durationMs": null,
+      "execution": "embedded-in-deliver",
+      "command": [
+        "C:\\Program Files\\nodejs\\node.exe",
+        "D:\\ordering-system\\.agents\\skills\\archify\\bin\\archify.mjs",
+        "deliver",
+        "workflow",
+        "D:\\ordering-system\\.archify\\workflow-clk-admin-cms-20261002-162500\\candidate.json",
+        "D:\\ordering-system\\.archify\\workflow-clk-admin-cms-20261002-162500\\clk-admin-cms.html",
+        "--quality",
+        "showcase",
+        "--repo-root",
+        "D:\\ordering-system",
+        "--json"
+      ],
+      "receipt": {
+        "schemaVersion": 1,
+        "ok": true,
+        "command": "validate",
+        "specification": {
+          "sha256": "8bd5615bfb0f0b33072b335607556cf6d5ea359b2073df11b9de45a3873087cb",
+          "bytes": 6494
+        },
+        "validation": {
+          "checksPassed": 9,
+          "checkCount": 9,
+          "compositionProfile": "showcase",
+          "compositionStatus": "pass",
+          "errors": 0,
+          "warnings": 0
+        }
+      }
+    },
+    "deliver": {
+      "status": "pass",
+      "exitCode": 0,
+      "durationMs": 2200,
+      "command": [
+        "C:\\Program Files\\nodejs\\node.exe",
+        "D:\\ordering-system\\.agents\\skills\\archify\\bin\\archify.mjs",
+        "deliver",
+        "workflow",
+        "D:\\ordering-system\\.archify\\workflow-clk-admin-cms-20261002-162500\\candidate.json",
+        "D:\\ordering-system\\.archify\\workflow-clk-admin-cms-20261002-162500\\clk-admin-cms.html",
+        "--quality",
+        "showcase",
+        "--repo-root",
+        "D:\\ordering-system",
+        "--json"
+      ],
+      "receipt": {
+        "schemaVersion": 1,
+        "receiptId": "b4942506-f749-488c-bf54-8fa0bf2a5d19",
+        "ok": true,
+        "command": "deliver",
+        "type": "workflow",
+        "input": "D:\\ordering-system\\.archify\\workflow-clk-admin-cms-20261002-162500\\candidate.json",
+        "output": "D:\\ordering-system\\.archify\\workflow-clk-admin-cms-20261002-162500\\clk-admin-cms.html",
+        "specification": {
+          "sha256": "8bd5615bfb0f0b33072b335607556cf6d5ea359b2073df11b9de45a3873087cb",
+          "bytes": 6494
+        },
+        "artifact": {
+          "sha256": "758d7b2264c3ad2973c918bd4a08f222e1a8c3e1df41e6d82872b15db0cb4d81",
+          "bytes": 764840
+        },
+        "validation": {
+          "checksPassed": 9,
+          "checkCount": 9,
+          "compositionProfile": "showcase",
+          "compositionStatus": "pass",
+          "errors": 0,
+          "warnings": 0
+        },
+        "evidence": {
+          "verified": true,
+          "repository": "https://github.com/burair-ahmed/ordering-system",
+          "revision": "48b32e8c7d4bfd5399337b4c742863a025b0c181",
+          "references": 8
+        },
+        "update": {
+          "status": "unavailable",
+          "installedVersion": null,
+          "availableVersion": null,
+          "releaseNotes": null,
+          "checkedAt": null,
+          "source": null,
+          "noticeRequired": false,
+          "noticeText": null,
+          "reason": "disabled"
+        }
+      }
+    },
+    "check": {
+      "status": "pass",
+      "exitCode": 0,
+      "durationMs": 266,
+      "command": [
+        "C:\\Program Files\\nodejs\\node.exe",
+        "D:\\ordering-system\\.agents\\skills\\archify\\bin\\archify.mjs",
+        "check",
+        "D:\\ordering-system\\.archify\\workflow-clk-admin-cms-20261002-162500\\clk-admin-cms.html",
+        "--require-provenance"
+      ],
+      "receipt": {
+        "ok": true,
+        "file": "D:\\ordering-system\\.archify\\workflow-clk-admin-cms-20261002-162500\\clk-admin-cms.html",
+        "artifact": {
+          "sha256": "758d7b2264c3ad2973c918bd4a08f222e1a8c3e1df41e6d82872b15db0cb4d81",
+          "bytes": 764840
+        },
+        "checks": [
+          {
+            "name": "single_svg",
+            "ok": true,
+            "details": [
+              "found 1 <svg> block(s)"
+            ]
+          },
+          {
+            "name": "finite_svg",
+            "ok": true,
+            "details": []
+          },
+          {
+            "name": "orthogonal_arrows",
+            "ok": true,
+            "details": []
+          },
+          {
+            "name": "label_route_clearance",
+            "ok": true,
+            "details": []
+          },
+          {
+            "name": "relationship_crossings",
+            "ok": true,
+            "details": []
+          },
+          {
+            "name": "relationship_corridors",
+            "ok": true,
+            "details": []
+          },
+          {
+            "name": "container_border_runs",
+            "ok": true,
+            "details": []
+          },
+          {
+            "name": "route_rhythm",
+            "ok": true,
+            "details": []
+          },
+          {
+            "name": "legend_clearance",
+            "ok": true,
+            "details": []
+          }
+        ],
+        "composition": {
+          "schemaVersion": 1,
+          "profile": "showcase",
+          "status": "pass",
+          "summary": {
+            "errors": 0,
+            "warnings": 0
+          },
+          "metrics": {
+            "properCrossings": 0,
+            "resolvedCrossovers": 0,
+            "ambiguousCorridors": 0,
+            "arrowheadCollisions": 0,
+            "containerBorderRuns": 0,
+            "labelRouteClearanceIssues": 0,
+            "labelCanvasOverflowIssues": 0,
+            "minLabelRouteClearance": 84.2,
+            "desktopReadabilityIssues": 0,
+            "viewportHeightIssues": 0,
+            "minProjectedNodeTextPx": 6.098360655737705,
+            "maxBends": 2,
+            "routesOverSuggestedBends": 0,
+            "maxStretch": 1.296,
+            "routesOverSuggestedStretch": 0,
+            "minSegmentPx": 21,
+            "minInteriorSegmentPx": 120,
+            "shortSegmentCount": 0,
+            "shortEndpointSegmentCount": 0,
+            "shortInteriorSegmentCount": 0,
+            "microSegmentCount": 0
+          },
+          "suggestedLimits": {
+            "bendsPerRelationship": 2,
+            "stretch": 1.35,
+            "segmentPx": 16,
+            "microSegmentPx": 8
+          },
+          "routeReview": {
+            "crossings": [],
+            "detours": []
+          },
+          "leadingSpace": {
+            "measured": false,
+            "reviewSuggested": false
+          },
+          "desktopReadability": {
+            "budgetBasis": "legacy-930",
+            "readerContract": "declared-wide-v1",
+            "availableDiagramWidth": 930,
+            "actualBudgetPx": 930,
+            "limit": "legacy",
+            "requestedTargetPx": null,
+            "requestedTargetMet": null,
+            "hardFloorPx": 6,
+            "hardFloorMet": true,
+            "minimumOwner": {
+              "kind": "node",
+              "id": "admin_user"
+            },
+            "minimumSourceTextPx": 8,
+            "minimumProjectedTextPx": 6.098360655737705,
+            "semanticTextCount": 23
+          },
+          "issues": []
+        },
+        "provenance": "current",
+        "deliveryReceiptId": "b4942506-f749-488c-bf54-8fa0bf2a5d19"
+      }
+    },
+    "browser-check": {
+      "status": "pass",
+      "exitCode": 0,
+      "durationMs": 3221,
+      "command": [
+        "C:\\Program Files\\nodejs\\node.exe",
+        "D:\\ordering-system\\.agents\\skills\\archify\\bin\\archify.mjs",
+        "browser-check",
+        "D:\\ordering-system\\.archify\\workflow-clk-admin-cms-20261002-162500\\clk-admin-cms.html",
+        "--json",
+        "--require-provenance"
+      ],
+      "execution": "in-process",
+      "receipt": {
+        "schemaVersion": 1,
+        "ok": true,
+        "command": "browser-check",
+        "evidenceKind": "automated-browser",
+        "status": "pass",
+        "visualReview": "not-requested",
+        "provenance": "current",
+        "deliveryReceiptId": "b4942506-f749-488c-bf54-8fa0bf2a5d19",
+        "artifact": {
+          "path": "D:\\ordering-system\\.archify\\workflow-clk-admin-cms-20261002-162500\\clk-admin-cms.html",
+          "sha256": "758d7b2264c3ad2973c918bd4a08f222e1a8c3e1df41e6d82872b15db0cb4d81",
+          "bytes": 764840
+        },
+        "state": {
+          "detail": "read",
+          "motion": "still"
+        },
+        "chrome": {
+          "status": "available",
+          "executable": "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe"
+        },
+        "diagnostics": [],
+        "containment": {
+          "status": "pass",
+          "policy": "fit-or-reader-declared-readable-vertical-scroll",
+          "viewports": [
+            {
+              "width": 1440,
+              "height": 900,
+              "theme": "light",
+              "innerWidth": 1440,
+              "innerHeight": 900,
+              "scrollWidth": 1440,
+              "scrollHeight": 900,
+              "overflowX": false,
+              "overflowY": false,
+              "verticalScrollAccepted": false,
+              "overflowDisposition": "contained",
+              "readerLayout": "adaptive",
+              "readerOverflow": null,
+              "readerFit": null,
+              "ok": true,
+              "readerWidth": 1132,
+              "diagramWidth": 1102,
+              "pageComposition": {
+                "bodyPaddingPx": 12,
+                "headerPx": 94,
+                "diagramChromePx": 78,
+                "svgPx": 705,
+                "cardsPx": 0,
+                "viewBoxHeight": 780
+              },
+              "viewBoxWidth": 1220,
+              "workflowLanes": [
+                {
+                  "frameId": "lane-0",
+                  "heightPx": 94,
+                  "nodeCount": 1,
+                  "nodeIds": [
+                    "admin_user"
+                  ],
+                  "nodeSpanPx": 47,
+                  "spaceAboveNodesPx": 37,
+                  "spaceBelowNodesPx": 10
+                },
+                {
+                  "frameId": "lane-1",
+                  "heightPx": 94,
+                  "nodeCount": 3,
+                  "nodeIds": [
+                    "admin_portal",
+                    "page_builder",
+                    "cms_api"
+                  ],
+                  "nodeSpanPx": 47,
+                  "spaceAboveNodesPx": 37,
+                  "spaceBelowNodesPx": 10
+                },
+                {
+                  "frameId": "lane-2",
+                  "heightPx": 94,
+                  "nodeCount": 2,
+                  "nodeIds": [
+                    "media_gallery",
+                    "retry_uploader"
+                  ],
+                  "nodeSpanPx": 47,
+                  "spaceAboveNodesPx": 37,
+                  "spaceBelowNodesPx": 10
+                },
+                {
+                  "frameId": "lane-3",
+                  "heightPx": 94,
+                  "nodeCount": 1,
+                  "nodeIds": [
+                    "mongo_db"
+                  ],
+                  "nodeSpanPx": 47,
+                  "spaceAboveNodesPx": 37,
+                  "spaceBelowNodesPx": 10
+                },
+                {
+                  "frameId": "lane-4",
+                  "heightPx": 94,
+                  "nodeCount": 1,
+                  "nodeIds": [
+                    "cdn_edge"
+                  ],
+                  "nodeSpanPx": 47,
+                  "spaceAboveNodesPx": 37,
+                  "spaceBelowNodesPx": 10
+                }
+              ],
+              "minimumProjectedNodeTextPx": 7.226229508196721,
+              "minimumProjectedNonEdgeTextPx": 7.226229508196721,
+              "minimumProjectedEdgeTextPx": 7.226229508196721,
+              "minimumProjectedNodeText": "Restaurant Staff",
+              "minimumProjectedNodeTextDetail": "context",
+              "minimumProjectedNodeTextOwner": {
+                "kind": "node",
+                "id": "admin_user"
+              },
+              "minimumRequiredNodeTextPx": 6,
+              "readabilityOk": true,
+              "hasLegend": true,
+              "hasNavigationDock": true,
+              "legendDockIntersectionArea": 0,
+              "dockStageIntersectionArea": 0,
+              "dockStageGap": 10,
+              "requiredDockStageGap": 10,
+              "viewerChromeStageOk": true,
+              "viewerChromeReserve": 54,
+              "viewerChromeActive": true,
+              "viewerChromeOk": true,
+              "resolvedTheme": "light"
+            },
+            {
+              "width": 1600,
+              "height": 1000,
+              "theme": "light",
+              "innerWidth": 1600,
+              "innerHeight": 1000,
+              "scrollWidth": 1600,
+              "scrollHeight": 1000,
+              "overflowX": false,
+              "overflowY": false,
+              "verticalScrollAccepted": false,
+              "overflowDisposition": "contained",
+              "readerLayout": "adaptive",
+              "readerOverflow": null,
+              "readerFit": null,
+              "ok": true,
+              "readerWidth": 1185,
+              "diagramWidth": 1155,
+              "pageComposition": {
+                "bodyPaddingPx": 64,
+                "headerPx": 102,
+                "diagramChromePx": 84,
+                "svgPx": 738,
+                "cardsPx": 0,
+                "viewBoxHeight": 780
+              },
+              "viewBoxWidth": 1220,
+              "workflowLanes": [
+                {
+                  "frameId": "lane-0",
+                  "heightPx": 98,
+                  "nodeCount": 1,
+                  "nodeIds": [
+                    "admin_user"
+                  ],
+                  "nodeSpanPx": 49,
+                  "spaceAboveNodesPx": 39,
+                  "spaceBelowNodesPx": 10
+                },
+                {
+                  "frameId": "lane-1",
+                  "heightPx": 98,
+                  "nodeCount": 3,
+                  "nodeIds": [
+                    "admin_portal",
+                    "page_builder",
+                    "cms_api"
+                  ],
+                  "nodeSpanPx": 49,
+                  "spaceAboveNodesPx": 39,
+                  "spaceBelowNodesPx": 10
+                },
+                {
+                  "frameId": "lane-2",
+                  "heightPx": 98,
+                  "nodeCount": 2,
+                  "nodeIds": [
+                    "media_gallery",
+                    "retry_uploader"
+                  ],
+                  "nodeSpanPx": 49,
+                  "spaceAboveNodesPx": 39,
+                  "spaceBelowNodesPx": 10
+                },
+                {
+                  "frameId": "lane-3",
+                  "heightPx": 98,
+                  "nodeCount": 1,
+                  "nodeIds": [
+                    "mongo_db"
+                  ],
+                  "nodeSpanPx": 49,
+                  "spaceAboveNodesPx": 39,
+                  "spaceBelowNodesPx": 10
+                },
+                {
+                  "frameId": "lane-4",
+                  "heightPx": 98,
+                  "nodeCount": 1,
+                  "nodeIds": [
+                    "cdn_edge"
+                  ],
+                  "nodeSpanPx": 49,
+                  "spaceAboveNodesPx": 39,
+                  "spaceBelowNodesPx": 10
+                }
+              ],
+              "minimumProjectedNodeTextPx": 7.573770491803279,
+              "minimumProjectedNonEdgeTextPx": 7.573770491803279,
+              "minimumProjectedEdgeTextPx": 7.573770491803279,
+              "minimumProjectedNodeText": "Restaurant Staff",
+              "minimumProjectedNodeTextDetail": "context",
+              "minimumProjectedNodeTextOwner": {
+                "kind": "node",
+                "id": "admin_user"
+              },
+              "minimumRequiredNodeTextPx": 6,
+              "readabilityOk": true,
+              "hasLegend": true,
+              "hasNavigationDock": true,
+              "legendDockIntersectionArea": 0,
+              "dockStageIntersectionArea": 0,
+              "dockStageGap": 10,
+              "requiredDockStageGap": 10,
+              "viewerChromeStageOk": true,
+              "viewerChromeReserve": 54,
+              "viewerChromeActive": true,
+              "viewerChromeOk": true,
+              "resolvedTheme": "light"
+            },
+            {
+              "width": 1920,
+              "height": 1080,
+              "theme": "light",
+              "innerWidth": 1920,
+              "innerHeight": 1080,
+              "scrollWidth": 1920,
+              "scrollHeight": 1080,
+              "overflowX": false,
+              "overflowY": false,
+              "verticalScrollAccepted": false,
+              "overflowDisposition": "contained",
+              "readerLayout": "adaptive",
+              "readerOverflow": null,
+              "readerFit": null,
+              "ok": true,
+              "readerWidth": 1335,
+              "diagramWidth": 1305,
+              "pageComposition": {
+                "bodyPaddingPx": 64,
+                "headerPx": 86,
+                "diagramChromePx": 84,
+                "svgPx": 834,
+                "cardsPx": 0,
+                "viewBoxHeight": 780
+              },
+              "viewBoxWidth": 1220,
+              "workflowLanes": [
+                {
+                  "frameId": "lane-0",
+                  "heightPx": 111,
+                  "nodeCount": 1,
+                  "nodeIds": [
+                    "admin_user"
+                  ],
+                  "nodeSpanPx": 56,
+                  "spaceAboveNodesPx": 44,
+                  "spaceBelowNodesPx": 12
+                },
+                {
+                  "frameId": "lane-1",
+                  "heightPx": 111,
+                  "nodeCount": 3,
+                  "nodeIds": [
+                    "admin_portal",
+                    "page_builder",
+                    "cms_api"
+                  ],
+                  "nodeSpanPx": 56,
+                  "spaceAboveNodesPx": 44,
+                  "spaceBelowNodesPx": 12
+                },
+                {
+                  "frameId": "lane-2",
+                  "heightPx": 111,
+                  "nodeCount": 2,
+                  "nodeIds": [
+                    "media_gallery",
+                    "retry_uploader"
+                  ],
+                  "nodeSpanPx": 56,
+                  "spaceAboveNodesPx": 44,
+                  "spaceBelowNodesPx": 12
+                },
+                {
+                  "frameId": "lane-3",
+                  "heightPx": 111,
+                  "nodeCount": 1,
+                  "nodeIds": [
+                    "mongo_db"
+                  ],
+                  "nodeSpanPx": 56,
+                  "spaceAboveNodesPx": 44,
+                  "spaceBelowNodesPx": 12
+                },
+                {
+                  "frameId": "lane-4",
+                  "heightPx": 111,
+                  "nodeCount": 1,
+                  "nodeIds": [
+                    "cdn_edge"
+                  ],
+                  "nodeSpanPx": 56,
+                  "spaceAboveNodesPx": 44,
+                  "spaceBelowNodesPx": 12
+                }
+              ],
+              "minimumProjectedNodeTextPx": 8,
+              "minimumProjectedNonEdgeTextPx": 8,
+              "minimumProjectedEdgeTextPx": 8,
+              "minimumProjectedNodeText": "Restaurant Staff",
+              "minimumProjectedNodeTextDetail": "context",
+              "minimumProjectedNodeTextOwner": {
+                "kind": "node",
+                "id": "admin_user"
+              },
+              "minimumRequiredNodeTextPx": 6,
+              "readabilityOk": true,
+              "hasLegend": true,
+              "hasNavigationDock": true,
+              "legendDockIntersectionArea": 0,
+              "dockStageIntersectionArea": 0,
+              "dockStageGap": 10,
+              "requiredDockStageGap": 10,
+              "viewerChromeStageOk": true,
+              "viewerChromeReserve": 54,
+              "viewerChromeActive": true,
+              "viewerChromeOk": true,
+              "resolvedTheme": "light"
+            },
+            {
+              "width": 2048,
+              "height": 1320,
+              "theme": "light",
+              "innerWidth": 2048,
+              "innerHeight": 1320,
+              "scrollWidth": 2048,
+              "scrollHeight": 1320,
+              "overflowX": false,
+              "overflowY": false,
+              "verticalScrollAccepted": false,
+              "overflowDisposition": "contained",
+              "readerLayout": "adaptive",
+              "readerOverflow": null,
+              "readerFit": null,
+              "ok": true,
+              "readerWidth": 1702,
+              "diagramWidth": 1652,
+              "pageComposition": {
+                "bodyPaddingPx": 64,
+                "headerPx": 94,
+                "diagramChromePx": 94,
+                "svgPx": 1056,
+                "cardsPx": 0,
+                "viewBoxHeight": 780
+              },
+              "viewBoxWidth": 1220,
+              "workflowLanes": [
+                {
+                  "frameId": "lane-0",
+                  "heightPx": 141,
+                  "nodeCount": 1,
+                  "nodeIds": [
+                    "admin_user"
+                  ],
+                  "nodeSpanPx": 70,
+                  "spaceAboveNodesPx": 56,
+                  "spaceBelowNodesPx": 15
+                },
+                {
+                  "frameId": "lane-1",
+                  "heightPx": 141,
+                  "nodeCount": 3,
+                  "nodeIds": [
+                    "admin_portal",
+                    "page_builder",
+                    "cms_api"
+                  ],
+                  "nodeSpanPx": 70,
+                  "spaceAboveNodesPx": 56,
+                  "spaceBelowNodesPx": 15
+                },
+                {
+                  "frameId": "lane-2",
+                  "heightPx": 141,
+                  "nodeCount": 2,
+                  "nodeIds": [
+                    "media_gallery",
+                    "retry_uploader"
+                  ],
+                  "nodeSpanPx": 70,
+                  "spaceAboveNodesPx": 56,
+                  "spaceBelowNodesPx": 15
+                },
+                {
+                  "frameId": "lane-3",
+                  "heightPx": 141,
+                  "nodeCount": 1,
+                  "nodeIds": [
+                    "mongo_db"
+                  ],
+                  "nodeSpanPx": 70,
+                  "spaceAboveNodesPx": 56,
+                  "spaceBelowNodesPx": 15
+                },
+                {
+                  "frameId": "lane-4",
+                  "heightPx": 141,
+                  "nodeCount": 1,
+                  "nodeIds": [
+                    "cdn_edge"
+                  ],
+                  "nodeSpanPx": 70,
+                  "spaceAboveNodesPx": 56,
+                  "spaceBelowNodesPx": 15
+                }
+              ],
+              "minimumProjectedNodeTextPx": 8,
+              "minimumProjectedNonEdgeTextPx": 8,
+              "minimumProjectedEdgeTextPx": 8,
+              "minimumProjectedNodeText": "Restaurant Staff",
+              "minimumProjectedNodeTextDetail": "context",
+              "minimumProjectedNodeTextOwner": {
+                "kind": "node",
+                "id": "admin_user"
+              },
+              "minimumRequiredNodeTextPx": 6,
+              "readabilityOk": true,
+              "hasLegend": true,
+              "hasNavigationDock": true,
+              "legendDockIntersectionArea": 0,
+              "dockStageIntersectionArea": 0,
+              "dockStageGap": 10,
+              "requiredDockStageGap": 10,
+              "viewerChromeStageOk": true,
+              "viewerChromeReserve": 44,
+              "viewerChromeActive": true,
+              "viewerChromeOk": true,
+              "resolvedTheme": "light"
+            }
+          ]
+        },
+        "themeStates": {
+          "status": "pass",
+          "viewports": [
+            {
+              "width": 1440,
+              "height": 900,
+              "requestedTheme": "light",
+              "resolvedTheme": "light",
+              "ok": true
+            },
+            {
+              "width": 1600,
+              "height": 1000,
+              "requestedTheme": "light",
+              "resolvedTheme": "light",
+              "ok": true
+            },
+            {
+              "width": 1920,
+              "height": 1080,
+              "requestedTheme": "light",
+              "resolvedTheme": "light",
+              "ok": true
+            },
+            {
+              "width": 2048,
+              "height": 1320,
+              "requestedTheme": "light",
+              "resolvedTheme": "light",
+              "ok": true
+            },
+            {
+              "width": 1440,
+              "height": 900,
+              "requestedTheme": "dark",
+              "resolvedTheme": "dark",
+              "ok": true
+            },
+            {
+              "width": 2048,
+              "height": 1320,
+              "requestedTheme": "dark",
+              "resolvedTheme": "dark",
+              "ok": true
+            }
+          ]
+        },
+        "readability": {
+          "status": "pass",
+          "minimumProjectedNodeTextPx": 6,
+          "viewports": [
+            {
+              "width": 1440,
+              "height": 900,
+              "theme": "light",
+              "innerWidth": 1440,
+              "innerHeight": 900,
+              "scrollWidth": 1440,
+              "scrollHeight": 900,
+              "overflowX": false,
+              "overflowY": false,
+              "verticalScrollAccepted": false,
+              "overflowDisposition": "contained",
+              "readerLayout": "adaptive",
+              "readerOverflow": null,
+              "readerFit": null,
+              "ok": true,
+              "readerWidth": 1132,
+              "diagramWidth": 1102,
+              "pageComposition": {
+                "bodyPaddingPx": 12,
+                "headerPx": 94,
+                "diagramChromePx": 78,
+                "svgPx": 705,
+                "cardsPx": 0,
+                "viewBoxHeight": 780
+              },
+              "viewBoxWidth": 1220,
+              "workflowLanes": [
+                {
+                  "frameId": "lane-0",
+                  "heightPx": 94,
+                  "nodeCount": 1,
+                  "nodeIds": [
+                    "admin_user"
+                  ],
+                  "nodeSpanPx": 47,
+                  "spaceAboveNodesPx": 37,
+                  "spaceBelowNodesPx": 10
+                },
+                {
+                  "frameId": "lane-1",
+                  "heightPx": 94,
+                  "nodeCount": 3,
+                  "nodeIds": [
+                    "admin_portal",
+                    "page_builder",
+                    "cms_api"
+                  ],
+                  "nodeSpanPx": 47,
+                  "spaceAboveNodesPx": 37,
+                  "spaceBelowNodesPx": 10
+                },
+                {
+                  "frameId": "lane-2",
+                  "heightPx": 94,
+                  "nodeCount": 2,
+                  "nodeIds": [
+                    "media_gallery",
+                    "retry_uploader"
+                  ],
+                  "nodeSpanPx": 47,
+                  "spaceAboveNodesPx": 37,
+                  "spaceBelowNodesPx": 10
+                },
+                {
+                  "frameId": "lane-3",
+                  "heightPx": 94,
+                  "nodeCount": 1,
+                  "nodeIds": [
+                    "mongo_db"
+                  ],
+                  "nodeSpanPx": 47,
+                  "spaceAboveNodesPx": 37,
+                  "spaceBelowNodesPx": 10
+                },
+                {
+                  "frameId": "lane-4",
+                  "heightPx": 94,
+                  "nodeCount": 1,
+                  "nodeIds": [
+                    "cdn_edge"
+                  ],
+                  "nodeSpanPx": 47,
+                  "spaceAboveNodesPx": 37,
+                  "spaceBelowNodesPx": 10
+                }
+              ],
+              "minimumProjectedNodeTextPx": 7.226229508196721,
+              "minimumProjectedNonEdgeTextPx": 7.226229508196721,
+              "minimumProjectedEdgeTextPx": 7.226229508196721,
+              "minimumProjectedNodeText": "Restaurant Staff",
+              "minimumProjectedNodeTextDetail": "context",
+              "minimumProjectedNodeTextOwner": {
+                "kind": "node",
+                "id": "admin_user"
+              },
+              "minimumRequiredNodeTextPx": 6,
+              "readabilityOk": true,
+              "hasLegend": true,
+              "hasNavigationDock": true,
+              "legendDockIntersectionArea": 0,
+              "dockStageIntersectionArea": 0,
+              "dockStageGap": 10,
+              "requiredDockStageGap": 10,
+              "viewerChromeStageOk": true,
+              "viewerChromeReserve": 54,
+              "viewerChromeActive": true,
+              "viewerChromeOk": true,
+              "resolvedTheme": "light"
+            },
+            {
+              "width": 1600,
+              "height": 1000,
+              "theme": "light",
+              "innerWidth": 1600,
+              "innerHeight": 1000,
+              "scrollWidth": 1600,
+              "scrollHeight": 1000,
+              "overflowX": false,
+              "overflowY": false,
+              "verticalScrollAccepted": false,
+              "overflowDisposition": "contained",
+              "readerLayout": "adaptive",
+              "readerOverflow": null,
+              "readerFit": null,
+              "ok": true,
+              "readerWidth": 1185,
+              "diagramWidth": 1155,
+              "pageComposition": {
+                "bodyPaddingPx": 64,
+                "headerPx": 102,
+                "diagramChromePx": 84,
+                "svgPx": 738,
+                "cardsPx": 0,
+                "viewBoxHeight": 780
+              },
+              "viewBoxWidth": 1220,
+              "workflowLanes": [
+                {
+                  "frameId": "lane-0",
+                  "heightPx": 98,
+                  "nodeCount": 1,
+                  "nodeIds": [
+                    "admin_user"
+                  ],
+                  "nodeSpanPx": 49,
+                  "spaceAboveNodesPx": 39,
+                  "spaceBelowNodesPx": 10
+                },
+                {
+                  "frameId": "lane-1",
+                  "heightPx": 98,
+                  "nodeCount": 3,
+                  "nodeIds": [
+                    "admin_portal",
+                    "page_builder",
+                    "cms_api"
+                  ],
+                  "nodeSpanPx": 49,
+                  "spaceAboveNodesPx": 39,
+                  "spaceBelowNodesPx": 10
+                },
+                {
+                  "frameId": "lane-2",
+                  "heightPx": 98,
+                  "nodeCount": 2,
+                  "nodeIds": [
+                    "media_gallery",
+                    "retry_uploader"
+                  ],
+                  "nodeSpanPx": 49,
+                  "spaceAboveNodesPx": 39,
+                  "spaceBelowNodesPx": 10
+                },
+                {
+                  "frameId": "lane-3",
+                  "heightPx": 98,
+                  "nodeCount": 1,
+                  "nodeIds": [
+                    "mongo_db"
+                  ],
+                  "nodeSpanPx": 49,
+                  "spaceAboveNodesPx": 39,
+                  "spaceBelowNodesPx": 10
+                },
+                {
+                  "frameId": "lane-4",
+                  "heightPx": 98,
+                  "nodeCount": 1,
+                  "nodeIds": [
+                    "cdn_edge"
+                  ],
+                  "nodeSpanPx": 49,
+                  "spaceAboveNodesPx": 39,
+                  "spaceBelowNodesPx": 10
+                }
+              ],
+              "minimumProjectedNodeTextPx": 7.573770491803279,
+              "minimumProjectedNonEdgeTextPx": 7.573770491803279,
+              "minimumProjectedEdgeTextPx": 7.573770491803279,
+              "minimumProjectedNodeText": "Restaurant Staff",
+              "minimumProjectedNodeTextDetail": "context",
+              "minimumProjectedNodeTextOwner": {
+                "kind": "node",
+                "id": "admin_user"
+              },
+              "minimumRequiredNodeTextPx": 6,
+              "readabilityOk": true,
+              "hasLegend": true,
+              "hasNavigationDock": true,
+              "legendDockIntersectionArea": 0,
+              "dockStageIntersectionArea": 0,
+              "dockStageGap": 10,
+              "requiredDockStageGap": 10,
+              "viewerChromeStageOk": true,
+              "viewerChromeReserve": 54,
+              "viewerChromeActive": true,
+              "viewerChromeOk": true,
+              "resolvedTheme": "light"
+            },
+            {
+              "width": 1920,
+              "height": 1080,
+              "theme": "light",
+              "innerWidth": 1920,
+              "innerHeight": 1080,
+              "scrollWidth": 1920,
+              "scrollHeight": 1080,
+              "overflowX": false,
+              "overflowY": false,
+              "verticalScrollAccepted": false,
+              "overflowDisposition": "contained",
+              "readerLayout": "adaptive",
+              "readerOverflow": null,
+              "readerFit": null,
+              "ok": true,
+              "readerWidth": 1335,
+              "diagramWidth": 1305,
+              "pageComposition": {
+                "bodyPaddingPx": 64,
+                "headerPx": 86,
+                "diagramChromePx": 84,
+                "svgPx": 834,
+                "cardsPx": 0,
+                "viewBoxHeight": 780
+              },
+              "viewBoxWidth": 1220,
+              "workflowLanes": [
+                {
+                  "frameId": "lane-0",
+                  "heightPx": 111,
+                  "nodeCount": 1,
+                  "nodeIds": [
+                    "admin_user"
+                  ],
+                  "nodeSpanPx": 56,
+                  "spaceAboveNodesPx": 44,
+                  "spaceBelowNodesPx": 12
+                },
+                {
+                  "frameId": "lane-1",
+                  "heightPx": 111,
+                  "nodeCount": 3,
+                  "nodeIds": [
+                    "admin_portal",
+                    "page_builder",
+                    "cms_api"
+                  ],
+                  "nodeSpanPx": 56,
+                  "spaceAboveNodesPx": 44,
+                  "spaceBelowNodesPx": 12
+                },
+                {
+                  "frameId": "lane-2",
+                  "heightPx": 111,
+                  "nodeCount": 2,
+                  "nodeIds": [
+                    "media_gallery",
+                    "retry_uploader"
+                  ],
+                  "nodeSpanPx": 56,
+                  "spaceAboveNodesPx": 44,
+                  "spaceBelowNodesPx": 12
+                },
+                {
+                  "frameId": "lane-3",
+                  "heightPx": 111,
+                  "nodeCount": 1,
+                  "nodeIds": [
+                    "mongo_db"
+                  ],
+                  "nodeSpanPx": 56,
+                  "spaceAboveNodesPx": 44,
+                  "spaceBelowNodesPx": 12
+                },
+                {
+                  "frameId": "lane-4",
+                  "heightPx": 111,
+                  "nodeCount": 1,
+                  "nodeIds": [
+                    "cdn_edge"
+                  ],
+                  "nodeSpanPx": 56,
+                  "spaceAboveNodesPx": 44,
+                  "spaceBelowNodesPx": 12
+                }
+              ],
+              "minimumProjectedNodeTextPx": 8,
+              "minimumProjectedNonEdgeTextPx": 8,
+              "minimumProjectedEdgeTextPx": 8,
+              "minimumProjectedNodeText": "Restaurant Staff",
+              "minimumProjectedNodeTextDetail": "context",
+              "minimumProjectedNodeTextOwner": {
+                "kind": "node",
+                "id": "admin_user"
+              },
+              "minimumRequiredNodeTextPx": 6,
+              "readabilityOk": true,
+              "hasLegend": true,
+              "hasNavigationDock": true,
+              "legendDockIntersectionArea": 0,
+              "dockStageIntersectionArea": 0,
+              "dockStageGap": 10,
+              "requiredDockStageGap": 10,
+              "viewerChromeStageOk": true,
+              "viewerChromeReserve": 54,
+              "viewerChromeActive": true,
+              "viewerChromeOk": true,
+              "resolvedTheme": "light"
+            },
+            {
+              "width": 2048,
+              "height": 1320,
+              "theme": "light",
+              "innerWidth": 2048,
+              "innerHeight": 1320,
+              "scrollWidth": 2048,
+              "scrollHeight": 1320,
+              "overflowX": false,
+              "overflowY": false,
+              "verticalScrollAccepted": false,
+              "overflowDisposition": "contained",
+              "readerLayout": "adaptive",
+              "readerOverflow": null,
+              "readerFit": null,
+              "ok": true,
+              "readerWidth": 1702,
+              "diagramWidth": 1652,
+              "pageComposition": {
+                "bodyPaddingPx": 64,
+                "headerPx": 94,
+                "diagramChromePx": 94,
+                "svgPx": 1056,
+                "cardsPx": 0,
+                "viewBoxHeight": 780
+              },
+              "viewBoxWidth": 1220,
+              "workflowLanes": [
+                {
+                  "frameId": "lane-0",
+                  "heightPx": 141,
+                  "nodeCount": 1,
+                  "nodeIds": [
+                    "admin_user"
+                  ],
+                  "nodeSpanPx": 70,
+                  "spaceAboveNodesPx": 56,
+                  "spaceBelowNodesPx": 15
+                },
+                {
+                  "frameId": "lane-1",
+                  "heightPx": 141,
+                  "nodeCount": 3,
+                  "nodeIds": [
+                    "admin_portal",
+                    "page_builder",
+                    "cms_api"
+                  ],
+                  "nodeSpanPx": 70,
+                  "spaceAboveNodesPx": 56,
+                  "spaceBelowNodesPx": 15
+                },
+                {
+                  "frameId": "lane-2",
+                  "heightPx": 141,
+                  "nodeCount": 2,
+                  "nodeIds": [
+                    "media_gallery",
+                    "retry_uploader"
+                  ],
+                  "nodeSpanPx": 70,
+                  "spaceAboveNodesPx": 56,
+                  "spaceBelowNodesPx": 15
+                },
+                {
+                  "frameId": "lane-3",
+                  "heightPx": 141,
+                  "nodeCount": 1,
+                  "nodeIds": [
+                    "mongo_db"
+                  ],
+                  "nodeSpanPx": 70,
+                  "spaceAboveNodesPx": 56,
+                  "spaceBelowNodesPx": 15
+                },
+                {
+                  "frameId": "lane-4",
+                  "heightPx": 141,
+                  "nodeCount": 1,
+                  "nodeIds": [
+                    "cdn_edge"
+                  ],
+                  "nodeSpanPx": 70,
+                  "spaceAboveNodesPx": 56,
+                  "spaceBelowNodesPx": 15
+                }
+              ],
+              "minimumProjectedNodeTextPx": 8,
+              "minimumProjectedNonEdgeTextPx": 8,
+              "minimumProjectedEdgeTextPx": 8,
+              "minimumProjectedNodeText": "Restaurant Staff",
+              "minimumProjectedNodeTextDetail": "context",
+              "minimumProjectedNodeTextOwner": {
+                "kind": "node",
+                "id": "admin_user"
+              },
+              "minimumRequiredNodeTextPx": 6,
+              "readabilityOk": true,
+              "hasLegend": true,
+              "hasNavigationDock": true,
+              "legendDockIntersectionArea": 0,
+              "dockStageIntersectionArea": 0,
+              "dockStageGap": 10,
+              "requiredDockStageGap": 10,
+              "viewerChromeStageOk": true,
+              "viewerChromeReserve": 44,
+              "viewerChromeActive": true,
+              "viewerChromeOk": true,
+              "resolvedTheme": "light"
+            }
+          ]
+        },
+        "viewerChrome": {
+          "status": "pass",
+          "viewports": [
+            {
+              "width": 1440,
+              "height": 900,
+              "theme": "light",
+              "innerWidth": 1440,
+              "innerHeight": 900,
+              "scrollWidth": 1440,
+              "scrollHeight": 900,
+              "overflowX": false,
+              "overflowY": false,
+              "verticalScrollAccepted": false,
+              "overflowDisposition": "contained",
+              "readerLayout": "adaptive",
+              "readerOverflow": null,
+              "readerFit": null,
+              "ok": true,
+              "readerWidth": 1132,
+              "diagramWidth": 1102,
+              "pageComposition": {
+                "bodyPaddingPx": 12,
+                "headerPx": 94,
+                "diagramChromePx": 78,
+                "svgPx": 705,
+                "cardsPx": 0,
+                "viewBoxHeight": 780
+              },
+              "viewBoxWidth": 1220,
+              "workflowLanes": [
+                {
+                  "frameId": "lane-0",
+                  "heightPx": 94,
+                  "nodeCount": 1,
+                  "nodeIds": [
+                    "admin_user"
+                  ],
+                  "nodeSpanPx": 47,
+                  "spaceAboveNodesPx": 37,
+                  "spaceBelowNodesPx": 10
+                },
+                {
+                  "frameId": "lane-1",
+                  "heightPx": 94,
+                  "nodeCount": 3,
+                  "nodeIds": [
+                    "admin_portal",
+                    "page_builder",
+                    "cms_api"
+                  ],
+                  "nodeSpanPx": 47,
+                  "spaceAboveNodesPx": 37,
+                  "spaceBelowNodesPx": 10
+                },
+                {
+                  "frameId": "lane-2",
+                  "heightPx": 94,
+                  "nodeCount": 2,
+                  "nodeIds": [
+                    "media_gallery",
+                    "retry_uploader"
+                  ],
+                  "nodeSpanPx": 47,
+                  "spaceAboveNodesPx": 37,
+                  "spaceBelowNodesPx": 10
+                },
+                {
+                  "frameId": "lane-3",
+                  "heightPx": 94,
+                  "nodeCount": 1,
+                  "nodeIds": [
+                    "mongo_db"
+                  ],
+                  "nodeSpanPx": 47,
+                  "spaceAboveNodesPx": 37,
+                  "spaceBelowNodesPx": 10
+                },
+                {
+                  "frameId": "lane-4",
+                  "heightPx": 94,
+                  "nodeCount": 1,
+                  "nodeIds": [
+                    "cdn_edge"
+                  ],
+                  "nodeSpanPx": 47,
+                  "spaceAboveNodesPx": 37,
+                  "spaceBelowNodesPx": 10
+                }
+              ],
+              "minimumProjectedNodeTextPx": 7.226229508196721,
+              "minimumProjectedNonEdgeTextPx": 7.226229508196721,
+              "minimumProjectedEdgeTextPx": 7.226229508196721,
+              "minimumProjectedNodeText": "Restaurant Staff",
+              "minimumProjectedNodeTextDetail": "context",
+              "minimumProjectedNodeTextOwner": {
+                "kind": "node",
+                "id": "admin_user"
+              },
+              "minimumRequiredNodeTextPx": 6,
+              "readabilityOk": true,
+              "hasLegend": true,
+              "hasNavigationDock": true,
+              "legendDockIntersectionArea": 0,
+              "dockStageIntersectionArea": 0,
+              "dockStageGap": 10,
+              "requiredDockStageGap": 10,
+              "viewerChromeStageOk": true,
+              "viewerChromeReserve": 54,
+              "viewerChromeActive": true,
+              "viewerChromeOk": true,
+              "resolvedTheme": "light"
+            },
+            {
+              "width": 1600,
+              "height": 1000,
+              "theme": "light",
+              "innerWidth": 1600,
+              "innerHeight": 1000,
+              "scrollWidth": 1600,
+              "scrollHeight": 1000,
+              "overflowX": false,
+              "overflowY": false,
+              "verticalScrollAccepted": false,
+              "overflowDisposition": "contained",
+              "readerLayout": "adaptive",
+              "readerOverflow": null,
+              "readerFit": null,
+              "ok": true,
+              "readerWidth": 1185,
+              "diagramWidth": 1155,
+              "pageComposition": {
+                "bodyPaddingPx": 64,
+                "headerPx": 102,
+                "diagramChromePx": 84,
+                "svgPx": 738,
+                "cardsPx": 0,
+                "viewBoxHeight": 780
+              },
+              "viewBoxWidth": 1220,
+              "workflowLanes": [
+                {
+                  "frameId": "lane-0",
+                  "heightPx": 98,
+                  "nodeCount": 1,
+                  "nodeIds": [
+                    "admin_user"
+                  ],
+                  "nodeSpanPx": 49,
+                  "spaceAboveNodesPx": 39,
+                  "spaceBelowNodesPx": 10
+                },
+                {
+                  "frameId": "lane-1",
+                  "heightPx": 98,
+                  "nodeCount": 3,
+                  "nodeIds": [
+                    "admin_portal",
+                    "page_builder",
+                    "cms_api"
+                  ],
+                  "nodeSpanPx": 49,
+                  "spaceAboveNodesPx": 39,
+                  "spaceBelowNodesPx": 10
+                },
+                {
+                  "frameId": "lane-2",
+                  "heightPx": 98,
+                  "nodeCount": 2,
+                  "nodeIds": [
+                    "media_gallery",
+                    "retry_uploader"
+                  ],
+                  "nodeSpanPx": 49,
+                  "spaceAboveNodesPx": 39,
+                  "spaceBelowNodesPx": 10
+                },
+                {
+                  "frameId": "lane-3",
+                  "heightPx": 98,
+                  "nodeCount": 1,
+                  "nodeIds": [
+                    "mongo_db"
+                  ],
+                  "nodeSpanPx": 49,
+                  "spaceAboveNodesPx": 39,
+                  "spaceBelowNodesPx": 10
+                },
+                {
+                  "frameId": "lane-4",
+                  "heightPx": 98,
+                  "nodeCount": 1,
+                  "nodeIds": [
+                    "cdn_edge"
+                  ],
+                  "nodeSpanPx": 49,
+                  "spaceAboveNodesPx": 39,
+                  "spaceBelowNodesPx": 10
+                }
+              ],
+              "minimumProjectedNodeTextPx": 7.573770491803279,
+              "minimumProjectedNonEdgeTextPx": 7.573770491803279,
+              "minimumProjectedEdgeTextPx": 7.573770491803279,
+              "minimumProjectedNodeText": "Restaurant Staff",
+              "minimumProjectedNodeTextDetail": "context",
+              "minimumProjectedNodeTextOwner": {
+                "kind": "node",
+                "id": "admin_user"
+              },
+              "minimumRequiredNodeTextPx": 6,
+              "readabilityOk": true,
+              "hasLegend": true,
+              "hasNavigationDock": true,
+              "legendDockIntersectionArea": 0,
+              "dockStageIntersectionArea": 0,
+              "dockStageGap": 10,
+              "requiredDockStageGap": 10,
+              "viewerChromeStageOk": true,
+              "viewerChromeReserve": 54,
+              "viewerChromeActive": true,
+              "viewerChromeOk": true,
+              "resolvedTheme": "light"
+            },
+            {
+              "width": 1920,
+              "height": 1080,
+              "theme": "light",
+              "innerWidth": 1920,
+              "innerHeight": 1080,
+              "scrollWidth": 1920,
+              "scrollHeight": 1080,
+              "overflowX": false,
+              "overflowY": false,
+              "verticalScrollAccepted": false,
+              "overflowDisposition": "contained",
+              "readerLayout": "adaptive",
+              "readerOverflow": null,
+              "readerFit": null,
+              "ok": true,
+              "readerWidth": 1335,
+              "diagramWidth": 1305,
+              "pageComposition": {
+                "bodyPaddingPx": 64,
+                "headerPx": 86,
+                "diagramChromePx": 84,
+                "svgPx": 834,
+                "cardsPx": 0,
+                "viewBoxHeight": 780
+              },
+              "viewBoxWidth": 1220,
+              "workflowLanes": [
+                {
+                  "frameId": "lane-0",
+                  "heightPx": 111,
+                  "nodeCount": 1,
+                  "nodeIds": [
+                    "admin_user"
+                  ],
+                  "nodeSpanPx": 56,
+                  "spaceAboveNodesPx": 44,
+                  "spaceBelowNodesPx": 12
+                },
+                {
+                  "frameId": "lane-1",
+                  "heightPx": 111,
+                  "nodeCount": 3,
+                  "nodeIds": [
+                    "admin_portal",
+                    "page_builder",
+                    "cms_api"
+                  ],
+                  "nodeSpanPx": 56,
+                  "spaceAboveNodesPx": 44,
+                  "spaceBelowNodesPx": 12
+                },
+                {
+                  "frameId": "lane-2",
+                  "heightPx": 111,
+                  "nodeCount": 2,
+                  "nodeIds": [
+                    "media_gallery",
+                    "retry_uploader"
+                  ],
+                  "nodeSpanPx": 56,
+                  "spaceAboveNodesPx": 44,
+                  "spaceBelowNodesPx": 12
+                },
+                {
+                  "frameId": "lane-3",
+                  "heightPx": 111,
+                  "nodeCount": 1,
+                  "nodeIds": [
+                    "mongo_db"
+                  ],
+                  "nodeSpanPx": 56,
+                  "spaceAboveNodesPx": 44,
+                  "spaceBelowNodesPx": 12
+                },
+                {
+                  "frameId": "lane-4",
+                  "heightPx": 111,
+                  "nodeCount": 1,
+                  "nodeIds": [
+                    "cdn_edge"
+                  ],
+                  "nodeSpanPx": 56,
+                  "spaceAboveNodesPx": 44,
+                  "spaceBelowNodesPx": 12
+                }
+              ],
+              "minimumProjectedNodeTextPx": 8,
+              "minimumProjectedNonEdgeTextPx": 8,
+              "minimumProjectedEdgeTextPx": 8,
+              "minimumProjectedNodeText": "Restaurant Staff",
+              "minimumProjectedNodeTextDetail": "context",
+              "minimumProjectedNodeTextOwner": {
+                "kind": "node",
+                "id": "admin_user"
+              },
+              "minimumRequiredNodeTextPx": 6,
+              "readabilityOk": true,
+              "hasLegend": true,
+              "hasNavigationDock": true,
+              "legendDockIntersectionArea": 0,
+              "dockStageIntersectionArea": 0,
+              "dockStageGap": 10,
+              "requiredDockStageGap": 10,
+              "viewerChromeStageOk": true,
+              "viewerChromeReserve": 54,
+              "viewerChromeActive": true,
+              "viewerChromeOk": true,
+              "resolvedTheme": "light"
+            },
+            {
+              "width": 2048,
+              "height": 1320,
+              "theme": "light",
+              "innerWidth": 2048,
+              "innerHeight": 1320,
+              "scrollWidth": 2048,
+              "scrollHeight": 1320,
+              "overflowX": false,
+              "overflowY": false,
+              "verticalScrollAccepted": false,
+              "overflowDisposition": "contained",
+              "readerLayout": "adaptive",
+              "readerOverflow": null,
+              "readerFit": null,
+              "ok": true,
+              "readerWidth": 1702,
+              "diagramWidth": 1652,
+              "pageComposition": {
+                "bodyPaddingPx": 64,
+                "headerPx": 94,
+                "diagramChromePx": 94,
+                "svgPx": 1056,
+                "cardsPx": 0,
+                "viewBoxHeight": 780
+              },
+              "viewBoxWidth": 1220,
+              "workflowLanes": [
+                {
+                  "frameId": "lane-0",
+                  "heightPx": 141,
+                  "nodeCount": 1,
+                  "nodeIds": [
+                    "admin_user"
+                  ],
+                  "nodeSpanPx": 70,
+                  "spaceAboveNodesPx": 56,
+                  "spaceBelowNodesPx": 15
+                },
+                {
+                  "frameId": "lane-1",
+                  "heightPx": 141,
+                  "nodeCount": 3,
+                  "nodeIds": [
+                    "admin_portal",
+                    "page_builder",
+                    "cms_api"
+                  ],
+                  "nodeSpanPx": 70,
+                  "spaceAboveNodesPx": 56,
+                  "spaceBelowNodesPx": 15
+                },
+                {
+                  "frameId": "lane-2",
+                  "heightPx": 141,
+                  "nodeCount": 2,
+                  "nodeIds": [
+                    "media_gallery",
+                    "retry_uploader"
+                  ],
+                  "nodeSpanPx": 70,
+                  "spaceAboveNodesPx": 56,
+                  "spaceBelowNodesPx": 15
+                },
+                {
+                  "frameId": "lane-3",
+                  "heightPx": 141,
+                  "nodeCount": 1,
+                  "nodeIds": [
+                    "mongo_db"
+                  ],
+                  "nodeSpanPx": 70,
+                  "spaceAboveNodesPx": 56,
+                  "spaceBelowNodesPx": 15
+                },
+                {
+                  "frameId": "lane-4",
+                  "heightPx": 141,
+                  "nodeCount": 1,
+                  "nodeIds": [
+                    "cdn_edge"
+                  ],
+                  "nodeSpanPx": 70,
+                  "spaceAboveNodesPx": 56,
+                  "spaceBelowNodesPx": 15
+                }
+              ],
+              "minimumProjectedNodeTextPx": 8,
+              "minimumProjectedNonEdgeTextPx": 8,
+              "minimumProjectedEdgeTextPx": 8,
+              "minimumProjectedNodeText": "Restaurant Staff",
+              "minimumProjectedNodeTextDetail": "context",
+              "minimumProjectedNodeTextOwner": {
+                "kind": "node",
+                "id": "admin_user"
+              },
+              "minimumRequiredNodeTextPx": 6,
+              "readabilityOk": true,
+              "hasLegend": true,
+              "hasNavigationDock": true,
+              "legendDockIntersectionArea": 0,
+              "dockStageIntersectionArea": 0,
+              "dockStageGap": 10,
+              "requiredDockStageGap": 10,
+              "viewerChromeStageOk": true,
+              "viewerChromeReserve": 44,
+              "viewerChromeActive": true,
+              "viewerChromeOk": true,
+              "resolvedTheme": "light"
+            }
+          ]
+        },
+        "captures": {
+          "status": "not-requested",
+          "screenshots": [],
+          "contactSheet": null
+        },
+        "sidecars": {
+          "receipt": "clk-admin-cms.browser-check.json",
+          "files": []
+        }
+      }
+    }
+  },
+  "diagnostics": [],
+  "evidence": {
+    "receipt": "D:\\ordering-system\\.archify\\workflow-clk-admin-cms-20261002-162500\\clk-admin-cms.finalize.json",
+    "summaryReceipt": "D:\\ordering-system\\.archify\\workflow-clk-admin-cms-20261002-162500\\clk-admin-cms.finalize-summary.json",
+    "browserCheckReceipt": "D:\\ordering-system\\.archify\\workflow-clk-admin-cms-20261002-162500\\clk-admin-cms.browser-check.json"
+  },
+  "visualReview": "not-requested",
+  "finishedAt": "2026-10-02T12:14:08.080Z",
+  "durationMs": 6941,
+  "update": {
+    "status": "current",
+    "installedVersion": "3.0.1",
+    "availableVersion": "3.0.1",
+    "releaseNotes": null,
+    "checkedAt": "2026-10-02T10:59:59.512Z",
+    "source": "cache",
+    "noticeRequired": false,
+    "noticeText": null
+  }
+}

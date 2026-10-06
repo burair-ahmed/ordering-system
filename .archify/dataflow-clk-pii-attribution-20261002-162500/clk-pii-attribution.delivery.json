@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "receiptId": "00bcc6d9-7a2e-4112-a010-69637d919974",
+  "status": "current",
+  "command": "deliver",
+  "type": "dataflow",
+  "input": "D:\\ordering-system\\.archify\\dataflow-clk-pii-attribution-20261002-162500\\candidate.json",
+  "output": "D:\\ordering-system\\.archify\\dataflow-clk-pii-attribution-20261002-162500\\clk-pii-attribution.html",
+  "specification": {
+    "sha256": "36542c5afd2d67c43412834c46ad6cb0a7532e137bd3c30f3c44b0f8520903d0",
+    "bytes": 7632
+  },
+  "artifact": {
+    "sha256": "9f833beaf02a8de22cbdc7f38c68bc180083ef454ee72b2f05ba4f638a63db5e",
+    "bytes": 770936
+  }
+}

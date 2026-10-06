@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "receiptId": "b4942506-f749-488c-bf54-8fa0bf2a5d19",
+  "status": "current",
+  "command": "deliver",
+  "type": "workflow",
+  "input": "D:\\ordering-system\\.archify\\workflow-clk-admin-cms-20261002-162500\\candidate.json",
+  "output": "D:\\ordering-system\\.archify\\workflow-clk-admin-cms-20261002-162500\\clk-admin-cms.html",
+  "specification": {
+    "sha256": "8bd5615bfb0f0b33072b335607556cf6d5ea359b2073df11b9de45a3873087cb",
+    "bytes": 6494
+  },
+  "artifact": {
+    "sha256": "758d7b2264c3ad2973c918bd4a08f222e1a8c3e1df41e6d82872b15db0cb4d81",
+    "bytes": 764840
+  }
+}

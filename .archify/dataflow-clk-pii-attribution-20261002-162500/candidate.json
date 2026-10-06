@@ -1,0 +1,247 @@
+{
+  "schema_version": 1,
+  "diagram_type": "dataflow",
+  "meta": {
+    "title": "CLK Data Flow: Customer PII & Attribution Lifecycle",
+    "subtitle": "Intake Sanitization, Dual-Sync Persistence, SHA-256 Hash Boundary & Cloud Egress",
+    "output": ".archify/dataflow-clk-pii-attribution-20261002-162500/clk-pii-attribution.html",
+    "viewBox": [1080, 520],
+    "animation": "trace",
+    "quality_profile": "showcase",
+    "repository": {
+      "url": "https://github.com/burair-ahmed/ordering-system",
+      "revision": "48b32e8c7d4bfd5399337b4c742863a025b0c181"
+    }
+  },
+  "stages": [
+    { "label": "Intake (PII)" },
+    { "label": "Sanitize" },
+    { "label": "Store" },
+    { "label": "Consent & Telemetry" },
+    { "label": "Cloud Egress" }
+  ],
+  "nodes": [
+    {
+      "id": "checkout_form",
+      "type": "frontend",
+      "label": "Checkout Form",
+      "sublabel": "Name, Phone, Address",
+      "stage": 0,
+      "row": 0,
+      "tag": "Raw PII",
+      "sources": [{ "path": "cafe-little-karachi/src/app/checkout/page.tsx", "line": 95, "label": "Checkout State" }]
+    },
+    {
+      "id": "utm_capture",
+      "type": "frontend",
+      "label": "Campaign Tracker",
+      "sublabel": "UTM Source & Ref",
+      "stage": 0,
+      "row": 2,
+      "tag": "Attribution",
+      "sources": [{ "path": "cafe-little-karachi/src/app/lib/orderSource.ts", "line": 1, "label": "orderSource Helper" }]
+    },
+    {
+      "id": "orders_api",
+      "type": "backend",
+      "label": "Orders Gateway",
+      "sublabel": "Phone Normalizer",
+      "stage": 1,
+      "row": 1,
+      "tag": "Sanitizer",
+      "sources": [{ "path": "cafe-little-karachi/src/pages/api/orders.ts", "line": 63, "label": "Payload Validation" }]
+    },
+    {
+      "id": "mongo_orders",
+      "type": "database",
+      "label": "orders Col",
+      "sublabel": "Live Queue Record",
+      "stage": 2,
+      "row": 0,
+      "tag": "Encrypted",
+      "sources": [{ "path": "cafe-little-karachi/src/models/Order.ts", "line": 1, "label": "Order Schema" }]
+    },
+    {
+      "id": "mongo_ledger",
+      "type": "database",
+      "label": "OrderLedger Col",
+      "sublabel": "Permanent Archive",
+      "stage": 2,
+      "row": 2,
+      "tag": "Immutable",
+      "sources": [{ "path": "cafe-little-karachi/src/models/OrderLedger.ts", "line": 34, "label": "OrderLedger Schema" }]
+    },
+    {
+      "id": "consent_optin",
+      "type": "database",
+      "label": "NotificationConsent",
+      "sublabel": "WhatsApp Opt-in",
+      "stage": 3,
+      "row": 0,
+      "tag": "Consent",
+      "sources": [{ "path": "cafe-little-karachi/src/models/NotificationConsent.ts", "line": 1, "label": "Consent Schema" }]
+    },
+    {
+      "id": "analytics_events",
+      "type": "database",
+      "label": "AnalyticsEvent",
+      "sublabel": "Funnel Telemetry",
+      "stage": 3,
+      "row": 1,
+      "tag": "No PII",
+      "sources": [{ "path": "cafe-little-karachi/src/models/AnalyticsEvent.ts", "line": 1, "label": "Events Schema" }]
+    },
+    {
+      "id": "feedback_col",
+      "type": "database",
+      "label": "Feedback Col",
+      "sublabel": "Order Rating",
+      "stage": 3,
+      "row": 2,
+      "tag": "Reviews",
+      "sources": [{ "path": "cafe-little-karachi/src/models/Feedback.ts", "line": 1, "label": "Feedback Schema" }]
+    },
+    {
+      "id": "twilio_egress",
+      "type": "cloud",
+      "label": "Twilio WhatsApp",
+      "sublabel": "Phone & Items",
+      "stage": 4,
+      "row": 0,
+      "tag": "Transactional",
+      "sources": [{ "path": "cafe-little-karachi/src/pages/api/send-whatsapp.ts", "line": 18, "label": "Twilio Egress" }]
+    },
+    {
+      "id": "meta_capi_egress",
+      "type": "cloud",
+      "label": "Meta Graph API",
+      "sublabel": "SHA-256 Hashed",
+      "stage": 4,
+      "row": 1,
+      "tag": "SHA-256",
+      "sources": [{ "path": "cafe-little-karachi/src/lib/metaCapi.ts", "line": 15, "label": "SHA-256 Hash" }]
+    },
+    {
+      "id": "clarity_ga4",
+      "type": "cloud",
+      "label": "GA4 / Clarity",
+      "sublabel": "Masked Sessions",
+      "stage": 4,
+      "row": 2,
+      "tag": "Masked",
+      "sources": [{ "path": "cafe-little-karachi/src/app/providers/ClarityProvider.tsx", "line": 1, "label": "Clarity Provider" }]
+    }
+  ],
+  "flows": [
+    {
+      "id": "checkout-to-api",
+      "from": "checkout_form",
+      "to": "orders_api",
+      "label": "customer PII",
+      "classification": "sensitive",
+      "variant": "security"
+    },
+    {
+      "id": "utm-to-api",
+      "from": "utm_capture",
+      "to": "orders_api",
+      "label": "UTM parameters",
+      "classification": "attribution",
+      "variant": "default"
+    },
+    {
+      "id": "api-to-orders",
+      "from": "orders_api",
+      "to": "mongo_orders",
+      "label": "live order write",
+      "classification": "PII at rest",
+      "variant": "emphasis"
+    },
+    {
+      "id": "api-to-ledger",
+      "from": "orders_api",
+      "to": "mongo_ledger",
+      "label": "dual-sync archive",
+      "classification": "immutable",
+      "variant": "emphasis"
+    },
+    {
+      "id": "orders-to-consent",
+      "from": "mongo_orders",
+      "to": "consent_optin",
+      "label": "opt-in record",
+      "classification": "consent",
+      "variant": "default"
+    },
+    {
+      "id": "api-to-events",
+      "from": "orders_api",
+      "to": "analytics_events",
+      "label": "track journey",
+      "classification": "anonymized",
+      "variant": "dashed"
+    },
+    {
+      "id": "ledger-to-feedback",
+      "from": "mongo_ledger",
+      "to": "feedback_col",
+      "label": "customer review",
+      "classification": "feedback",
+      "variant": "default"
+    },
+    {
+      "id": "consent-to-twilio",
+      "from": "consent_optin",
+      "to": "twilio_egress",
+      "label": "WhatsApp message",
+      "classification": "transactional",
+      "variant": "default"
+    },
+    {
+      "id": "events-to-capi",
+      "from": "analytics_events",
+      "to": "meta_capi_egress",
+      "label": "Purchase event",
+      "classification": "SHA-256 hashed",
+      "variant": "security"
+    },
+    {
+      "id": "feedback-to-clarity",
+      "from": "feedback_col",
+      "to": "clarity_ga4",
+      "label": "masked telemetry",
+      "classification": "non-PII",
+      "variant": "dashed"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "rose",
+      "title": "PII Data Boundaries",
+      "items": [
+        "Internal Persistence: Customer name, phone, email, and street address are stored in MongoDB orders & OrderLedger.",
+        "Third-Party Egress: Only Twilio receives raw phone numbers for transactional WhatsApp messages.",
+        "Meta Conversions API (CAPI) receives strictly SHA-256 hashed phone and email values with deduplicated event IDs.",
+        "GA4 & Microsoft Clarity receive anonymized session telemetry with masked form inputs."
+      ]
+    },
+    {
+      "dot": "cyan",
+      "title": "Marketing Attribution Pipeline",
+      "items": [
+        "orderSource captures UTM source, medium, campaign, content, term, referrer, and landing page on arrival.",
+        "Persisted across CartContext and OrderContext via localStorage and cookies.",
+        "Preserved in OrderLedger to enable long-term CAC and ROAS channel performance analysis."
+      ]
+    },
+    {
+      "dot": "emerald",
+      "title": "Consent & Feedback Handling",
+      "items": [
+        "NotificationConsent tracks customer opt-in for future promotional messaging.",
+        "Feedback collection stores post-meal ratings and reviews linked by orderNumber.",
+        "AnalyticsEvent logs conversion milestones without capturing unhashed personal data."
+      ]
+    }
+  ]
+}

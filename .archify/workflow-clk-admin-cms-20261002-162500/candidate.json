@@ -1,0 +1,192 @@
+{
+  "schema_version": 2,
+  "diagram_type": "workflow",
+  "meta": {
+    "title": "CLK Admin Content Management, Media Pipeline & Catalog Operations",
+    "subtitle": "Page Builder CMS, dnd-kit Visual Reordering, Bulk Discounts & Resilient Cloudinary Upload Layer",
+    "output": ".archify/workflow-clk-admin-cms-20261002-162500/clk-admin-cms.html",
+    "viewBox": [1220, 780],
+    "animation": "trace",
+    "quality_profile": "showcase",
+    "repository": {
+      "url": "https://github.com/burair-ahmed/ordering-system",
+      "revision": "48b32e8c7d4bfd5399337b4c742863a025b0c181"
+    }
+  },
+  "lanes": [
+    { "id": "actor",        "label": "Admin Staff" },
+    { "id": "cms_engine",   "label": "CMS & Catalog Operations" },
+    { "id": "media_engine", "label": "Cloudinary Media Engine" },
+    { "id": "database",     "label": "MongoDB Atlas" },
+    { "id": "cdn",          "label": "Cloudinary Edge CDN" }
+  ],
+  "phases": [
+    { "id": "auth",       "label": "Authentication",    "fromCol": 0, "toCol": 1 },
+    { "id": "authoring",  "label": "Interactive UI",    "fromCol": 2, "toCol": 2 },
+    { "id": "api",        "label": "API & Upload Retry", "fromCol": 3, "toCol": 3, "variant": "emphasis" },
+    { "id": "delivery",   "label": "Persistence & CDN", "fromCol": 4, "toCol": 4, "variant": "dashed" }
+  ],
+  "nodes": [
+    {
+      "id": "admin_user",
+      "lane": "actor",
+      "col": 0,
+      "type": "external",
+      "label": "Admin User",
+      "sublabel": "Restaurant Staff",
+      "width": 160,
+      "sources": [{ "path": "cafe-little-karachi/src/app/admin/page.tsx", "line": 149, "label": "Admin Auth Guard" }]
+    },
+    {
+      "id": "admin_portal",
+      "lane": "cms_engine",
+      "col": 1,
+      "type": "frontend",
+      "label": "Admin Dashboard",
+      "sublabel": "/admin Management Hub",
+      "width": 160,
+      "sources": [{ "path": "cafe-little-karachi/src/app/admin/page.tsx", "line": 28, "label": "Admin Hub Tabs" }]
+    },
+    {
+      "id": "page_builder",
+      "lane": "cms_engine",
+      "col": 2,
+      "type": "frontend",
+      "label": "Page Builder CMS",
+      "sublabel": "dnd-kit & Banner Slider",
+      "width": 160,
+      "sources": [{ "path": "cafe-little-karachi/src/app/components/AdminPageBuilder.tsx", "line": 1, "label": "AdminPageBuilder.tsx" }]
+    },
+    {
+      "id": "media_gallery",
+      "lane": "media_engine",
+      "col": 2,
+      "type": "frontend",
+      "label": "Media Gallery UI",
+      "sublabel": "Upload, Search & Audit",
+      "width": 160,
+      "sources": [{ "path": "cafe-little-karachi/src/app/components/MediaGallery.tsx", "line": 1, "label": "MediaGallery.tsx" }]
+    },
+    {
+      "id": "cms_api",
+      "lane": "cms_engine",
+      "col": 3,
+      "type": "backend",
+      "label": "CMS & Sort APIs",
+      "sublabel": "pageconfigs & sortOrder",
+      "width": 160,
+      "sources": [{ "path": "cafe-little-karachi/src/pages/api/page-config.ts", "line": 1, "label": "page-config.ts" }]
+    },
+    {
+      "id": "retry_uploader",
+      "lane": "media_engine",
+      "col": 3,
+      "type": "cloud",
+      "label": "Upload Retry Engine",
+      "sublabel": "90s / 3-Attempt Backoff",
+      "width": 160,
+      "sources": [{ "path": "cafe-little-karachi/src/lib/cloudinary.ts", "line": 20, "label": "cloudinary.ts" }]
+    },
+    {
+      "id": "mongo_db",
+      "lane": "database",
+      "col": 4,
+      "type": "database",
+      "label": "MongoDB Atlas",
+      "sublabel": "pageconfigs, menuitems",
+      "width": 160,
+      "sources": [{ "path": "cafe-little-karachi/src/models/PageConfig.ts", "line": 1, "label": "PageConfig.ts" }]
+    },
+    {
+      "id": "cdn_edge",
+      "lane": "cdn",
+      "col": 4,
+      "type": "cloud",
+      "label": "Cloudinary Edge CDN",
+      "sublabel": "AVIF/WebP Dynamic Transform",
+      "width": 160,
+      "sources": [{ "path": "cafe-little-karachi/next.config.ts", "line": 5, "label": "next.config.ts" }]
+    }
+  ],
+  "edges": [
+    {
+      "id": "admin-to-portal",
+      "from": "admin_user",
+      "to": "admin_portal",
+      "label": "PIN auth",
+      "variant": "security"
+    },
+    {
+      "id": "portal-to-cms",
+      "from": "admin_portal",
+      "to": "page_builder",
+      "label": "edit layout & sort",
+      "variant": "emphasis"
+    },
+    {
+      "id": "portal-to-media",
+      "from": "admin_portal",
+      "to": "media_gallery",
+      "label": "manage media",
+      "variant": "default"
+    },
+    {
+      "id": "cms-to-api",
+      "from": "page_builder",
+      "to": "cms_api",
+      "label": "save layout & sortOrder",
+      "variant": "emphasis"
+    },
+    {
+      "id": "media-to-retry",
+      "from": "media_gallery",
+      "to": "retry_uploader",
+      "label": "upload asset stream",
+      "variant": "security"
+    },
+    {
+      "id": "api-to-mongo",
+      "from": "cms_api",
+      "to": "mongo_db",
+      "label": "atomic persist",
+      "variant": "emphasis"
+    },
+    {
+      "id": "retry-to-cdn",
+      "from": "retry_uploader",
+      "to": "cdn_edge",
+      "label": "transform & cache",
+      "variant": "emphasis"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "emerald",
+      "title": "CMS Page Builder & Visual Reordering",
+      "items": [
+        "AdminPageBuilder supports Classic Layout vs Multi-Slide Carousel modes with custom mobile aspect ratios.",
+        "ItemOrderSorting leverages @dnd-kit/core and @dnd-kit/sortable for touch-friendly menu reordering.",
+        "Bulk sortOrder and layout updates persist to /api/page-config and /api/updateProductSortOrder in atomic batches."
+      ]
+    },
+    {
+      "dot": "amber",
+      "title": "Cloudinary Media Pipeline & Unused Audit",
+      "items": [
+        "Singleton guard validates env credentials before cloudinary.config() to prevent runtime poisoning.",
+        "uploadToCloudinaryWithRetry handles ETIMEDOUT / ECONNRESET with 90s exponential backoff.",
+        "Search API 20s Promise.race timeout falls back to Admin Resources API seamlessly.",
+        "/api/media-usage audits all collections to identify and safely delete unused image assets."
+      ]
+    },
+    {
+      "dot": "violet",
+      "title": "Catalog Operations & Bulk Discounts",
+      "items": [
+        "Category-level bulk discount controls apply instant percentage or fixed-price promotions.",
+        "Real-time UI feedback with optimistic updates and error rollback on network failures.",
+        "Persistent ISR revalidation ensures public storefront updates immediately upon admin save."
+      ]
+    }
+  ]
+}

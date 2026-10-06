@@ -1,0 +1,47 @@
+{
+  "schemaVersion": 1,
+  "ok": true,
+  "command": "finalize",
+  "status": "pass",
+  "type": "lifecycle",
+  "quality": "showcase",
+  "specification": {
+    "path": "D:\\ordering-system\\.archify\\lifecycle-clk-order-status-20261002-162500\\candidate.json",
+    "sha256": "e15bc026190a74e28786737afa12917501ea318371a523b4d12dbe2011a48369",
+    "bytes": 5075
+  },
+  "artifact": {
+    "path": "D:\\ordering-system\\.archify\\lifecycle-clk-order-status-20261002-162500\\clk-order-status.html",
+    "sha256": "c4184eb63e8c0ee6f18baedeb323d84e9788de4dd252b162fd807663c40956c0",
+    "bytes": 764088
+  },
+  "gates": {
+    "validate": "pass",
+    "deliver": "pass",
+    "check": "pass",
+    "browser-check": "pass"
+  },
+  "diagnostics": [],
+  "diagnosticSummary": {
+    "total": 0,
+    "shown": 0,
+    "truncated": false
+  },
+  "evidence": {
+    "receipt": "D:\\ordering-system\\.archify\\lifecycle-clk-order-status-20261002-162500\\clk-order-status.finalize.json",
+    "summaryReceipt": "D:\\ordering-system\\.archify\\lifecycle-clk-order-status-20261002-162500\\clk-order-status.finalize-summary.json",
+    "browserCheckReceipt": "D:\\ordering-system\\.archify\\lifecycle-clk-order-status-20261002-162500\\clk-order-status.browser-check.json"
+  },
+  "update": {
+    "status": "current",
+    "installedVersion": "3.0.1",
+    "availableVersion": "3.0.1",
+    "releaseNotes": null,
+    "checkedAt": "2026-10-02T10:59:59.512Z",
+    "source": "cache",
+    "noticeRequired": false,
+    "noticeText": null
+  },
+  "visualReview": "not-requested",
+  "durationMs": 5402
+}

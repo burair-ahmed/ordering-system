@@ -1,17 +1,7 @@
 // pages/api/analytics/details.ts
 import { NextApiRequest, NextApiResponse } from "next";
-import mongoose from "mongoose";
 import Order from "../../../models/Order";
-
-const MONGODB_URI =
-  process.env.MONGODB_URI ||
-  "mongodb+srv://admin:jHG1csS4fbZWUcrL@cafe-little.mfqm3.mongodb.net/?retryWrites=true&w=majority&appName=cafe-little";
-
-async function connectToDatabase() {
-  if (mongoose.connection.readyState === 0) {
-    await mongoose.connect(MONGODB_URI);
-  }
-}
+import connectDB from "../../../lib/db";
 
 const getTableOrderDetails = async (req: NextApiRequest, res: NextApiResponse) => {
   const { tableNumber } = req.query;
@@ -21,7 +11,7 @@ const getTableOrderDetails = async (req: NextApiRequest, res: NextApiResponse) =
   }
 
   try {
-    await connectToDatabase();
+    await connectDB();
 
     // Fetch the table's orders
     const orders = await Order.aggregate([

@@ -1,0 +1,142 @@
+{
+  "schema_version": 1,
+  "diagram_type": "sequence",
+  "meta": {
+    "title": "CLK Order Placement & Dual-Sync Pipeline",
+    "subtitle": "Checkout Validation, MongoDB Dual-Write, Async Meta CAPI, Socket.IO Live Dispatch & WhatsApp",
+    "output": ".archify/sequence-clk-order-placement-20261002-162500/clk-order-placement.html",
+    "viewBox": [1080, 690],
+    "column_fit": "spread",
+    "animation": "trace",
+    "quality_profile": "showcase",
+    "repository": {
+      "url": "https://github.com/burair-ahmed/ordering-system",
+      "revision": "48b32e8c7d4bfd5399337b4c742863a025b0c181"
+    }
+  },
+  "participants": [
+    {
+      "id": "customer",
+      "type": "external",
+      "label": "Customer",
+      "sublabel": "Diner PWA",
+      "sources": [{ "path": "cafe-little-karachi/src/app/checkout/page.tsx", "line": 88, "label": "Customer Interface" }]
+    },
+    {
+      "id": "checkout_ui",
+      "type": "frontend",
+      "label": "Checkout",
+      "sublabel": "React 19 Form",
+      "sources": [{ "path": "cafe-little-karachi/src/app/checkout/page.tsx", "line": 508, "label": "handlePlaceOrder" }]
+    },
+    {
+      "id": "orders_api",
+      "type": "backend",
+      "label": "Orders API",
+      "sublabel": "POST /orders",
+      "sources": [{ "path": "cafe-little-karachi/src/pages/api/orders.ts", "line": 52, "label": "Orders Handler" }]
+    },
+    {
+      "id": "mongo_live",
+      "type": "database",
+      "label": "Live DB",
+      "sublabel": "orders col",
+      "sources": [{ "path": "cafe-little-karachi/src/models/Order.ts", "line": 1, "label": "Order Model" }]
+    },
+    {
+      "id": "mongo_ledger",
+      "type": "database",
+      "label": "Ledger DB",
+      "sublabel": "immutable",
+      "sources": [{ "path": "cafe-little-karachi/src/models/OrderLedger.ts", "line": 34, "label": "OrderLedger Model" }]
+    },
+    {
+      "id": "meta_capi",
+      "type": "cloud",
+      "label": "Meta CAPI",
+      "sublabel": "Purchase",
+      "sources": [{ "path": "cafe-little-karachi/src/lib/metaCapi.ts", "line": 1, "label": "Meta CAPI SDK" }]
+    },
+    {
+      "id": "socket_io",
+      "type": "messagebus",
+      "label": "Socket.IO",
+      "sublabel": "live push",
+      "sources": [{ "path": "cafe-little-karachi/src/pages/api/socket.ts", "line": 1, "label": "Socket Server" }]
+    },
+    {
+      "id": "admin_live",
+      "type": "frontend",
+      "label": "Admin HUD",
+      "sublabel": "kitchen",
+      "sources": [{ "path": "cafe-little-karachi/src/app/components/OrdersList.tsx", "line": 1, "label": "OrdersList Component" }]
+    },
+    {
+      "id": "twilio_api",
+      "type": "cloud",
+      "label": "Twilio",
+      "sublabel": "WhatsApp",
+      "sources": [{ "path": "cafe-little-karachi/src/pages/api/send-whatsapp.ts", "line": 8, "label": "WhatsApp Handler" }]
+    }
+  ],
+  "segments": [
+    { "from": 150, "to": 260, "label": "1. Inbound Order Submission & Live Queue Write" },
+    { "from": 270, "to": 440, "label": "2. Dual-Sync Ledger & Async Dispatch (CAPI + Socket.IO)" },
+    { "from": 450, "to": 590, "label": "3. 201 Response, WhatsApp Notification & Clean Redirect" }
+  ],
+  "messages": [
+    { "id": "click-confirm", "from": "customer", "to": "checkout_ui", "y": 165, "label": "1. Click 'Confirm Order' in modal", "variant": "default" },
+    { "id": "post-orders", "from": "checkout_ui", "to": "orders_api", "y": 195, "label": "2. POST /api/orders (items, PII, UTM source)", "variant": "emphasis" },
+    { "id": "save-live-order", "from": "orders_api", "to": "mongo_live", "y": 225, "label": "3. await newOrder.save() (Live Queue)", "variant": "emphasis" },
+    { "id": "ack-live-order", "from": "mongo_live", "to": "orders_api", "y": 255, "label": "4. Order saved (orderNumber: CLK-ORD-...)", "variant": "return" },
+    { "id": "upsert-ledger", "from": "orders_api", "to": "mongo_ledger", "y": 285, "label": "5. await OrderLedger.findOneAndUpdate(upsert: true)", "variant": "emphasis" },
+    { "id": "ack-ledger", "from": "mongo_ledger", "to": "orders_api", "y": 315, "label": "6. Immutable ledger copy confirmed", "variant": "return" },
+    { "id": "async-meta-capi", "from": "orders_api", "to": "meta_capi", "y": 345, "label": "7. sendMetaCapiEvent(Purchase) [fire-and-forget]", "variant": "security" },
+    { "id": "emit-socket", "from": "orders_api", "to": "socket_io", "y": 375, "label": "8. io.emit('new-order', newOrder)", "variant": "emphasis" },
+    { "id": "socket-push", "from": "socket_io", "to": "admin_live", "y": 405, "label": "9. Push 'new-order' event to connected clients", "variant": "emphasis" },
+    { "id": "orders-response", "from": "orders_api", "to": "checkout_ui", "y": 465, "label": "10. 201 Created { orderNumber, ordertype }", "variant": "return" },
+    { "id": "post-whatsapp", "from": "checkout_ui", "to": "twilio_api", "y": 495, "label": "11. POST /api/send-whatsapp (Twilio client call)", "variant": "dashed" },
+    { "id": "ack-whatsapp", "from": "twilio_api", "to": "checkout_ui", "y": 525, "label": "12. Twilio WhatsApp SID returned (or logged on err)", "variant": "return" },
+    { "id": "redirect-thank-you", "from": "checkout_ui", "to": "customer", "y": 555, "label": "13. clearCart() & redirect /thank-you", "variant": "return" }
+  ],
+  "activations": [
+    { "participant": "checkout_ui", "from": 165, "to": 565, "type": "frontend" },
+    { "participant": "orders_api", "from": 195, "to": 470, "type": "backend" },
+    { "participant": "mongo_live", "from": 225, "to": 260, "type": "database" },
+    { "participant": "mongo_ledger", "from": 285, "to": 320, "type": "database" },
+    { "participant": "meta_capi", "from": 340, "to": 370, "type": "cloud" },
+    { "participant": "socket_io", "from": 370, "to": 410, "type": "messagebus" },
+    { "participant": "admin_live", "from": 400, "to": 430, "type": "frontend" },
+    { "participant": "twilio_api", "from": 495, "to": 530, "type": "cloud" }
+  ],
+  "cards": [
+    {
+      "dot": "emerald",
+      "title": "Awaited vs Fire-and-Forget Semantics",
+      "items": [
+        "Live Queue Save (`Order.save`): AWAITED. Database failure returns 500 and halts checkout.",
+        "Immutable Ledger Dual-Sync: AWAITED in try/catch. Non-blocking error logging guarantees zero disruption to diner.",
+        "Meta Conversions API (CAPI): ASYNC / FIRE-AND-FORGET. Dispatches in background without delaying HTTP 201 response.",
+        "Socket.IO Emit: Synchronous in-memory broadcast to connected kitchen/admin dashboards."
+      ]
+    },
+    {
+      "dot": "rose",
+      "title": "Client-Side Side-Effect Isolation",
+      "items": [
+        "Twilio WhatsApp notification is executed client-side via `sendWhatsAppNotification` (`/api/send-whatsapp`).",
+        "If Twilio fails (e.g. rate limit, unverified sandbox number), the error is caught and logged without aborting order success.",
+        "Latest order number and phone are saved to `localStorage` before redirection to guarantee resilient `/thank-you` page hydration."
+      ]
+    },
+    {
+      "dot": "cyan",
+      "title": "Error Visibility Matrix",
+      "items": [
+        "Closed Restaurant: 400 Bad Request with operating hours warning (6:30 PM–3:00 AM).",
+        "Missing Fields: 400 Bad Request listing specific missing inputs (Name, Phone, Table/Area).",
+        "Database Outage: 500 Server Error prompting customer to retry."
+      ]
+    }
+  ]
+}
