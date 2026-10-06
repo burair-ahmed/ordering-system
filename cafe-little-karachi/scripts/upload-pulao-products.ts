@@ -7,6 +7,7 @@ const MONGODB_URI = process.env.MONGODB_URI;
 if (!MONGODB_URI) {
   throw new Error('MONGODB_URI is not defined in environment variables');
 }
+// MONGODB_URI is guaranteed to be a string beyond this point
 
 const PLACEHOLDER_CHICKEN_IMG = 'https://res.cloudinary.com/dubg6octv/image/upload/v1767351631/menu_items/mlwu0o8vwdxo90j9e424.webp';
 const PLACEHOLDER_BEEF_IMG = 'https://res.cloudinary.com/dubg6octv/image/upload/v1767351630/menu_items/qqrhqk6vztjpvxuzruyv.webp';
@@ -81,7 +82,7 @@ const productsToUpload = [
 ];
 
 async function uploadProducts() {
-  await mongoose.connect(MONGODB_URI);
+  await mongoose.connect(MONGODB_URI!);
   console.log('Connected to MongoDB');
 
   const db = mongoose.connection.db;

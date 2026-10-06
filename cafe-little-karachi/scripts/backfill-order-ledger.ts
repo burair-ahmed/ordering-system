@@ -9,10 +9,11 @@ const MONGODB_URI = process.env.MONGODB_URI;
 if (!MONGODB_URI) {
   throw new Error('MONGODB_URI is not defined in environment variables');
 }
+// MONGODB_URI is guaranteed to be a string beyond this point
 
 async function backfillOrderLedger() {
   console.log('🔄 Connecting to MongoDB for OrderLedger backfill...');
-  await mongoose.connect(MONGODB_URI);
+  await mongoose.connect(MONGODB_URI!);
   console.log('✅ Connected to MongoDB.');
 
   const totalOrders = await Order.countDocuments();

@@ -62,7 +62,7 @@ const getAnalytics = async (req: NextApiRequest, res: NextApiResponse) => {
   const { filter = "today", startDate, endDate } = req.query; // Default to 'today'
 
   try {
-    await connectToDatabase();
+    await connectDB();
 
     const { start, end } = getDateRange(filter as string, startDate as string, endDate as string);
 

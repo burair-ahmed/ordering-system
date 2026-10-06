@@ -5,7 +5,25 @@ tags:
   - #status/active
   - #project/ordering-ecosystem
 created: 2026-09-04
-last_updated: 2026-10-02
+last_updated: 2026-10-06
+---
+
+## 0. Phase 4.61 — Monorepo TypeScript Compilation Fix (2026-10-06)
+
+### Resolve `string | undefined` Type Errors in CLK Scripts & Stale `connectToDatabase` in TCC
+- **Files Modified**:
+  - `cafe-little-karachi/scripts/backfill-order-ledger.ts` (UPDATED — `MONGODB_URI!` non-null assertion on `mongoose.connect()` call)
+  - `cafe-little-karachi/scripts/seed-delivery-areas.ts` (UPDATED — `MONGODB_URI!` non-null assertion on `mongoose.connect()` call)
+  - `cafe-little-karachi/scripts/upload-pulao-products.ts` (UPDATED — `MONGODB_URI!` non-null assertion on `mongoose.connect()` call)
+  - `the-chai-company/src/pages/api/analytics.ts` (UPDATED — replaced stale `connectToDatabase()` call with `connectDB()` which was already imported)
+- **Root Cause**: The Phase 4.60 security hardening added `if (!MONGODB_URI) { throw new Error(...) }` guards to all scripts, but TypeScript cannot narrow `const` declarations assigned from `process.env.*` (which is always `string | undefined`) through a guard in a separate statement — even with an explicit throw. The type remains `string | undefined` at the `mongoose.connect()` call site, causing `TS2345` errors. Additionally, TCC's `analytics.ts` still called `connectToDatabase()` by name even after Phase 4.60 replaced it with `connectDB()` — the import was updated but the call site was missed.
+- **Changes Applied**:
+  - Added `!` non-null assertion operator on `MONGODB_URI` at every `mongoose.connect(MONGODB_URI!)` call in the 3 CLK scripts. The preceding `throw` guard guarantees the value is non-null at runtime; the `!` is purely a compile-time instruction to TypeScript.
+  - Added `// MONGODB_URI is guaranteed to be a string beyond this point` comment after each guard for clarity.
+  - Replaced `await connectToDatabase()` with `await connectDB()` in TCC `analytics.ts` line 65 — `connectDB` was already imported from `../../lib/db` at line 3.
+- **Verification**: `npx tsc --noEmit` exited with **code 0** on both `cafe-little-karachi` and `the-chai-company` — zero errors.
+- **Rationale**: Vercel's production build runs the TypeScript compiler in strict mode. These errors were blocking every deployment. The `!` non-null assertion is the correct idiomatic pattern when a runtime guard (throw/exit) precedes a usage but TypeScript's control-flow analysis cannot cross the statement boundary to narrow the type.
+
 ---
 
 ## 0. Phase 4.60 — Monorepo Security: Hardcoded MongoDB Credential Removal (2026-10-02)
