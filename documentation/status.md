@@ -5,8 +5,8 @@ tags:
   - #status/active
   - #project/ordering-ecosystem
 created: 2026-09-04
-last_updated: 2026-10-08
-overall_completion: "Phase 4.63: CLK Manual Online Payment & WhatsApp Verification Flow (100%)"
+last_updated: 2026-10-09
+overall_completion: "Phase 4.66: CLK Product & Platter WhatsApp Circular Button (100%)"
 current_sprint: "UX & Checkout Funnel Optimizations"
 ---
 
@@ -16,6 +16,9 @@ current_sprint: "UX & Checkout Funnel Optimizations"
 
 | Sub-Project | Phase | Focus | Status |
 | :--- | :--- | :--- | :--- |
+| **Cafe Little Karachi (CLK)** | Phase 4.66 | WhatsApp Circular Button: Converted WhatsApp order CTA into a 42px circular icon badge around the icon with solid green-to-green gradient (`from-green-500 to-green-600` on idle, `from-green-600 to-green-700` on hover) across both `MenuItem.tsx` and `PlatterItem.tsx`. | **Completed** 🟢 |
+| **Cafe Little Karachi (CLK)** | Phase 4.65 | Brand Identity Harmonization: Replaced "Cafe Little Karachi" with "Little Karachi Express" across all customer-facing touchpoints (Header, Footer, WhatsApp ordering templates, Payment Verification, Cart Sidebar, Invoices, OrdersList slips, Maintenance Screen, Admin Page Builder, and Analytics Exports). | **Completed** 🟢 |
+| **Cafe Little Karachi (CLK)** | Phase 4.64 | WhatsApp Order Button in Product & Platter Popups: Added emerald green "WhatsApp" order button beside "Buy Now" in both `MenuItem.tsx` and `PlatterItem.tsx` modal footers. Clicking it generates a pre-composed WhatsApp message with item/platter title, selected options, quantity, and total price, opening directly in WhatsApp addressed to the restaurant. Includes `journey_whatsapp_order_*` analytics tracking, mobile-friendly flex-wrap styling, and disabled state parity. | **Completed** 🟢 |
 | **Cafe Little Karachi (CLK)** | Phase 4.63 | Manual Online Payment & WhatsApp Verification: Added manual local transfer options (JazzCash, EasyPaisa, Bank Transfer) with 1-click copy credentials, `/payment-verification` holding screen with pre-filled WhatsApp screenshot CTA, real-time Socket.IO + polling listener, Admin Live Orders verification alerts with `[ VERIFY PAYMENT & ACCEPT ]`, and automatic client transition to `/thank-you`. | **Completed** 🟢 |
 | **Cafe Little Karachi (CLK)** | Phase 4.62 | Buy Now Button in Product & Platter Popups: Added amber/gold "Buy Now" button beside "Add to Cart" in both `MenuItem.tsx` and `PlatterItem.tsx` modal footers. Clicking it adds the item/platter to cart with configured variations and quantity, then immediately navigates to `/checkout` via `router.push`. Includes analytics event, open-hours guard, and disabled state parity with Add to Cart. | **Completed** 🟢 |
 | **Monorepo Ecosystem** | Phase 4.61 | TypeScript Compilation Fix: Resolved `string | undefined` type errors in `scripts/backfill-order-ledger.ts`, `scripts/seed-delivery-areas.ts`, `scripts/upload-pulao-products.ts` (CLK) and stale `connectToDatabase()` call in TCC `analytics.ts` — all replaced with `MONGODB_URI!` non-null assertion and `connectDB()`. Both CLK and TCC compile with `npx tsc --noEmit` exit code 0. | **Completed** 🟢 |

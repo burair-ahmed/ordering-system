@@ -3169,7 +3169,7 @@ export default function AdminPageBuilder() {
                                           image: '/bg-hero.webp',
                                           mobileImage: '/bg-hero.webp',
                                           imageOnly: false,
-                                          title: 'Welcome to Cafe Little Karachi',
+                                          title: 'Welcome to Little Karachi Express',
                                           subtitle: 'Authentic Pakistani & Karachi Flavours',
                                           ctaText: 'Explore Menu',
                                           ctaLink: '/order',

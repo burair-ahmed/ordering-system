@@ -19,7 +19,7 @@ const MaintenanceScreen = () => {
             <div className="relative z-10 w-24 h-24 md:w-32 md:h-32">
                 <Image
                 src="/hd-logo.webp"
-                alt="Cafe Little Karachi Logo"
+                alt="Little Karachi Express Logo"
                 fill
                 className="object-contain drop-shadow-[0_0_15px_rgba(0,0,0,0.5)]"
                 priority
@@ -43,7 +43,7 @@ const MaintenanceScreen = () => {
             className="space-y-4 text-white/90 font-medium text-lg md:text-xl leading-relaxed"
         >
           <p>
-            Cafe Little Karachi will remain closed for renovations from{" "}
+            Little Karachi Express will remain closed for renovations from{" "}
             <span className="text-[#ff9824] font-bold">9 February 2026</span> and
             will reopen after <span className="text-[#ff9824] font-bold">Eid Ul Fitr</span>.
           </p>

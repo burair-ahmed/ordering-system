@@ -56,7 +56,7 @@ const ordersHandler = async (req: NextApiRequest, res: NextApiResponse) => {
     if (process.env.NODE_ENV === "production" && !isOpenAt()) {
       return res.status(400).json({
         success: false,
-        message: "Cafe Little Karachi is currently closed. Ordering opens at 6:30 PM.",
+        message: "Little Karachi Express is currently closed. Ordering opens at 6:30 PM.",
       });
     }
 

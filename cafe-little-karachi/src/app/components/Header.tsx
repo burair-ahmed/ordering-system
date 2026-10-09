@@ -122,7 +122,7 @@ export default function Header() {
               {/* WhatsApp Quick Link — Mobile only */}
               <motion.a
                 whileTap={{ scale: 0.9 }}
-                href={`https://wa.me/${process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || '923331702706'}?text=${encodeURIComponent('Hello Cafe Little Karachi! I have an inquiry.')}`}
+                href={`https://wa.me/${process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || '923331702706'}?text=${encodeURIComponent('Hello Little Karachi Express! I have an inquiry.')}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 onClick={() => {
@@ -158,7 +158,7 @@ export default function Header() {
                   
                   <Image 
                     src="/hd-logo.webp" 
-                    alt="Cafe Little Karachi Logo" 
+                    alt="Little Karachi Express Logo" 
                     width={130} 
                     height={130} 
                     priority
@@ -236,7 +236,7 @@ export default function Header() {
                       className="drop-shadow-[0_0_15px_rgba(0,0,0,0.5)] object-contain" 
                     />
                     <div>
-                      <h3 className="font-bold text-lg text-white">Cafe Little Karachi</h3>
+                      <h3 className="font-bold text-lg text-white">Little Karachi Express</h3>
                       <p className="text-[11px] text-white/60">Premium Dining Experience</p>
                     </div>
                   </div>
@@ -273,7 +273,7 @@ export default function Header() {
                     },
                     { 
                       label: 'WhatsApp Support', 
-                      href: `https://wa.me/${process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || '923331702706'}?text=${encodeURIComponent('Hello Cafe Little Karachi! I have an inquiry.')}`,
+                      href: `https://wa.me/${process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || '923331702706'}?text=${encodeURIComponent('Hello Little Karachi Express! I have an inquiry.')}`,
                       external: true,
                       isWhatsApp: true
                     },

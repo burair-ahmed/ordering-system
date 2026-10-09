@@ -43,7 +43,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   } else if (req.method === "POST") {
     try {
       const { sections, useCmsLayout, classicBannerType, classicCategories, searchPlaceholderDishes } = req.body;
-      console.log("Saving PageConfig for Cafe Little Karachi:", JSON.stringify({ sections, useCmsLayout, classicBannerType, classicCategoriesCount: classicCategories?.length, searchPlaceholderDishesCount: searchPlaceholderDishes?.length }, null, 2));
+      console.log("Saving PageConfig for Little Karachi Express:", JSON.stringify({ sections, useCmsLayout, classicBannerType, classicCategoriesCount: classicCategories?.length, searchPlaceholderDishesCount: searchPlaceholderDishes?.length }, null, 2));
 
       const updateData: any = {};
       if (sections !== undefined) updateData.sections = sections;

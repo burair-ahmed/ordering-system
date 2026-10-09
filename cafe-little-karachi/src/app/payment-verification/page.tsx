@@ -101,7 +101,7 @@ const PaymentVerificationContent: FC = () => {
       ? `Rs. ${Number(order.totalAmount).toFixed(2)}`
       : "Full Order Amount";
 
-    const message = `Hi Cafe Little Karachi! 👋
+    const message = `Hi Little Karachi Express! 👋
 I have made the online transfer for my order. Here are my details:
 
 • Order Number: #${orderNumber || "CLK-ORD"}
@@ -292,7 +292,7 @@ I am attaching the payment transaction receipt/screenshot below. Please verify a
         <div className="text-center space-y-2">
           <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#741052]/10 border border-[#741052]/20 text-[#741052] text-xs sm:text-sm font-bold">
             <ShieldCheck className="h-4 w-4 text-[#d0269b]" />
-            Cafe Little Karachi • Online Payment Verification
+            Little Karachi Express • Online Payment Verification
           </div>
           <h1 className="text-2xl sm:text-3xl font-extrabold text-gray-900 tracking-tight">
             Verify Your Payment

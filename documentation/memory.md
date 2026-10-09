@@ -5,7 +5,85 @@ tags:
   - #status/active
   - #project/ordering-ecosystem
 created: 2026-09-04
-last_updated: 2026-10-08
+last_updated: 2026-10-09
+---
+
+## 0. Phase 4.66 — CLK Product & Platter Popup WhatsApp Circular Button Design (2026-10-09)
+
+### WhatsApp Button Redesigned to 42px Circle with Green-to-Green Gradient
+- **Files Modified**:
+  - `cafe-little-karachi/src/app/components/MenuItem.tsx` (UPDATED)
+  - `cafe-little-karachi/src/app/components/PlatterItem.tsx` (UPDATED)
+- **Context & Goal**: Transform the WhatsApp order button from a pill button with text into an iconic circular icon button tightly fitting around the WhatsApp logo, and update the button gradient to pure green-to-green on both default and hover states.
+- **Detailed Micro-Changes Applied**:
+  - **Circular Sizing**: Changed classes from pill dimensions (`px-4 sm:px-5 py-2`) to a true 42px circular badge (`w-[42px] h-[42px] rounded-full p-0 flex items-center justify-center shrink-0`) matching the height of the adjacent Buy Now button.
+  - **Icon Scaling**: Scaled `<FaWhatsapp />` from `size={17}` to `size={20}` for optimal visual balance within the 42px circular frame; removed the commented-out text label.
+  - **Color Palette & Hover**: Replaced emerald-to-green gradient (`from-emerald-600 to-green-600 hover:from-emerald-700...`) with pure WhatsApp green-to-green (`from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white hover:scale-110 shadow-green-900/20`), eliminating light/white sheen on hover.
+- **Verification**: `npx tsc --noEmit` exited with code 0.
+
+---
+
+## 0. Phase 4.65 — Brand Identity Harmonization: "Little Karachi Express" (2026-10-09)
+
+### System-Wide Renaming of Customer & Operational Touchpoints to "Little Karachi Express"
+- **Files Modified**:
+  - `cafe-little-karachi/src/app/components/Header.tsx` (UPDATED — logo alt text, drawer heading, WhatsApp support message text)
+  - `cafe-little-karachi/src/app/components/Footer.tsx` (UPDATED — logo alt text, WhatsApp inquiry message)
+  - `cafe-little-karachi/src/app/components/MenuItem.tsx` (UPDATED — WhatsApp direct order greeting)
+  - `cafe-little-karachi/src/app/components/PlatterItem.tsx` (UPDATED — WhatsApp direct order greeting)
+  - `cafe-little-karachi/src/app/components/WhatsAppButton.tsx` (UPDATED — default inquiry text and aria-label)
+  - `cafe-little-karachi/src/app/components/OrdersList.tsx` (UPDATED — slip header "LITTLE KARACHI EXPRESS (LKE)", WhatsApp merchant customer outreach templates)
+  - `cafe-little-karachi/src/app/components/CompletedOrders.tsx` (UPDATED — print invoice header & thank-you footer)
+  - `cafe-little-karachi/src/app/components/CartSidebar.tsx` (UPDATED — closed operating hours toast notice)
+  - `cafe-little-karachi/src/app/components/MaintenanceScreen.tsx` (UPDATED — logo alt and closure announcement text)
+  - `cafe-little-karachi/src/app/components/AdminPageBuilder.tsx` (UPDATED — default hero slide title)
+  - `cafe-little-karachi/src/app/payment-verification/page.tsx` (UPDATED — WhatsApp payment screenshot message & verification badge)
+  - `cafe-little-karachi/src/config/paymentConfig.ts` (UPDATED — fallback account titles for JazzCash, EasyPaisa, Bank Transfer)
+  - `cafe-little-karachi/src/pages/api/orders.ts` (UPDATED — operating hours rejection response message)
+  - `cafe-little-karachi/src/pages/api/page-config.ts` (UPDATED — server logging namespace)
+  - `cafe-little-karachi/src/lib/exportAnalytics.ts` (UPDATED — Excel summary banner, PDF header, confidential report footer)
+  - `cafe-little-karachi/src/app/lib/orderSource.ts` & `src/app/lib/slugify.ts` (UPDATED — documentation header comments)
+  - `cafe-little-karachi/src/app/admin/page.tsx` (UPDATED — sidebar workspace title)
+  - `cafe-little-karachi/README.md`, `architecture.md`, `docs/architecture.md` (UPDATED — primary technical docs headings)
+- **Context & Goal**: Establish uniform brand consistency across the entire customer ordering journey, kitchen print slips, administrative tools, analytics exports, and automated communication channels by replacing "Cafe Little Karachi" with the official brand name "Little Karachi Express".
+- **Verification**: `npx tsc --noEmit` passed with exit code 0 across the entire sub-project.
+
+---
+
+## 0. Phase 4.64 — CLK Product & Platter Popup "WhatsApp Order" Button (2026-10-09)
+
+### WhatsApp Instant Order Button in MenuItem & PlatterItem Popups
+- **Files Modified**:
+  - `cafe-little-karachi/src/app/components/MenuItem.tsx` (UPDATED)
+  - `cafe-little-karachi/src/app/components/PlatterItem.tsx` (UPDATED)
+- **Context & Goal**: In addition to Add to Cart and Buy Now, customers requested a direct WhatsApp order button beside "Buy Now" on the product and platter modals. Clicking it opens WhatsApp directly addressed to the restaurant (`NEXT_PUBLIC_WHATSAPP_NUMBER` or `923331702706`) with a formatted, ready-to-send order message containing the item/platter title, selected options/variations, quantity, and total price.
+- **Detailed Micro-Changes Applied**:
+  - **`FaWhatsapp` import**: Imported `FaWhatsapp` from `react-icons/fa` across both `MenuItem.tsx` and `PlatterItem.tsx`.
+  - **`handleWhatsAppOrder` callback in `MenuItem.tsx`**:
+    - Gathers flattened variation choices via `getFlattenedVariations()`.
+    - Formats a personalized order message:
+      ```
+      Hello Cafe Little Karachi! 🍽️
+      I would like to order:
+      • Item: <item.title>
+      • Quantity: <quantity>
+      • Options: <variations.join(', ')> (if any)
+      • Total: Rs. <(totalPrice * quantity).toFixed(2)>
+
+      Please confirm availability and delivery/pickup details.
+      ```
+    - Encodes and opens target WhatsApp URL: `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}` in a new tab (`_blank`, `noopener,noreferrer`).
+    - Fires `journey_whatsapp_order_item` analytics event with `item_id`, `item_name`, `price`, `quantity`, `total_amount`, and `has_variations`.
+  - **`handleWhatsAppOrder` callback in `PlatterItem.tsx`**:
+    - Formats platter-specific WhatsApp message with `• Platter: <platter.title>` and `• Selections: <variations.join(', ')>`.
+    - Fires `journey_whatsapp_order_platter` analytics event.
+  - **Action Buttons Row Layout**:
+    - Updated container to `flex items-center gap-2 flex-wrap sm:flex-nowrap` to prevent clipping on small screen devices.
+    - Set `<AddToCartButton>` / `<AddToCartButtonForPlatters>` to `flex-1 min-w-[120px] !mt-0`.
+    - Set `<Buy Now>` button to `px-4 sm:px-5 py-2 h-[42px] font-bold text-sm sm:text-[15px] shrink-0`.
+    - Added `<WhatsApp>` button: `bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-700 hover:to-green-700 text-white`, `px-4 sm:px-5 py-2 h-[42px] font-bold text-sm sm:text-[15px] rounded-full shrink-0`, with `<FaWhatsapp size={17} />`, and matching disabled state (`out of stock || !isValid`).
+- **Rationale**: Gives shoppers in Pakistan the highest-conversion ordering channel (WhatsApp) directly from the item preview without requiring cart or checkout navigation.
+
 ---
 
 ## 0. Phase 4.63 — CLK Manual Online Payment & WhatsApp Verification Flow (2026-10-08)

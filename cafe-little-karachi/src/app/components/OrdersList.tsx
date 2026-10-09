@@ -481,7 +481,7 @@ const OrdersList: FC<OrdersListProps> = ({
 
     const lines = [
       `========================================`,
-      `       CAFE LITTLE KARACHI (CLK)        `,
+      `      LITTLE KARACHI EXPRESS (LKE)      `,
       `          Official Order Slip           `,
       `========================================`,
       `Order #:        #${order.orderNumber}`,
@@ -921,7 +921,7 @@ const OrdersList: FC<OrdersListProps> = ({
                         <div className="flex items-center gap-1.5 shrink-0">
                           <a
                             href={`https://wa.me/${order.phone.replace(/[^0-9]/g, "")}?text=${encodeURIComponent(
-                              `Hello ${order.customerName}, this is Cafe Little Karachi regarding your order #${order.orderNumber}.`
+                              `Hello ${order.customerName}, this is Little Karachi Express regarding your order #${order.orderNumber}.`
                             )}`}
                             target="_blank"
                             rel="noopener noreferrer"
@@ -1027,7 +1027,7 @@ const OrdersList: FC<OrdersListProps> = ({
                               {order.phone ? (
                                 <a
                                   href={`https://wa.me/${order.phone.replace(/[^0-9]/g, "")}?text=${encodeURIComponent(
-                                    `Hi ${order.customerName}, this is Cafe Little Karachi regarding your order #${order.orderNumber}. Please share your payment screenshot so we can prepare your order.`
+                                    `Hi ${order.customerName}, this is Little Karachi Express regarding your order #${order.orderNumber}. Please share your payment screenshot so we can prepare your order.`
                                   )}`}
                                   target="_blank"
                                   rel="noopener noreferrer"
@@ -1515,7 +1515,7 @@ const OrdersList: FC<OrdersListProps> = ({
                               {order.phone && (
                                 <a
                                   href={`https://wa.me/${order.phone.replace(/[^0-9]/g, "")}?text=${encodeURIComponent(
-                                    `Hi ${order.customerName}, this is Cafe Little Karachi regarding order #${order.orderNumber}.`
+                                    `Hi ${order.customerName}, this is Little Karachi Express regarding order #${order.orderNumber}.`
                                   )}`}
                                   target="_blank"
                                   rel="noopener noreferrer"
@@ -1782,7 +1782,7 @@ const OrdersList: FC<OrdersListProps> = ({
                     <div className="pt-2 flex gap-2">
                       <a
                         href={`https://wa.me/${selectedOrder.phone.replace(/[^0-9]/g, "")}?text=${encodeURIComponent(
-                          `Hello ${selectedOrder.customerName}, this is Cafe Little Karachi regarding your order #${selectedOrder.orderNumber}.`
+                          `Hello ${selectedOrder.customerName}, this is Little Karachi Express regarding your order #${selectedOrder.orderNumber}.`
                         )}`}
                         target="_blank"
                         rel="noopener noreferrer"

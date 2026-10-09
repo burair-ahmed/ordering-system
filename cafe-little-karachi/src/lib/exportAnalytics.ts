@@ -81,7 +81,7 @@ export function exportAnalyticsToXLSX(
 
   // Sheet 1: Executive KPI Overview
   const kpiRows = [
-    ['Cafe Little Karachi — Executive Analytics Summary'],
+    ['Little Karachi Express — Executive Analytics Summary'],
     ['Report Period', data.dateRange.label],
     ['Generated At', new Date().toLocaleString()],
     [],
@@ -252,7 +252,7 @@ export function exportAnalyticsToPDF(data: AnalyticsExportData): void {
   doc.setTextColor(255, 255, 255);
   doc.setFontSize(18);
   doc.setFont('helvetica', 'bold');
-  doc.text('CAFE LITTLE KARACHI', 35, 32);
+  doc.text('LITTLE KARACHI EXPRESS', 35, 32);
 
   doc.setFontSize(10);
   doc.setFont('helvetica', 'normal');
@@ -335,7 +335,7 @@ export function exportAnalyticsToPDF(data: AnalyticsExportData): void {
     doc.setFontSize(8);
     doc.setTextColor(150, 150, 150);
     doc.text(
-      'Cafe Little Karachi — Confidential Business Intelligence Report',
+      'Little Karachi Express — Confidential Business Intelligence Report',
       35,
       820
     );

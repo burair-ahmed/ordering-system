@@ -1,6 +1,6 @@
-# Architecture & Technical Reference — Cafe Little Karachi (CLK)
+# Architecture & Technical Reference — Little Karachi Express (CLK)
 
-> **Platform:** Little Karachi Express (Cafe Little Karachi)  
+> **Platform:** Little Karachi Express  
 > **Version:** 4.57 (Production Architecture)  
 > **Repository Sub-Project:** `cafe-little-karachi/`  
 > **Runtime Target:** Node.js 24.x (`.nvmrc`, `.node-version`, `package.json` engines)  
@@ -14,7 +14,7 @@
 
 ## 1. Executive System Overview
 
-**Cafe Little Karachi (CLK)** is an enterprise-grade, high-concurrency restaurant ordering and kitchen operations platform. The platform serves three distinct fulfillment channels:
+**Little Karachi Express (CLK)** is an enterprise-grade, high-concurrency restaurant ordering and kitchen operations platform. The platform serves three distinct fulfillment channels:
 1. **Dine-In:** QR-code table ordering with instant kitchen dispatch and digital bill tracking.
 2. **Takeaway:** Fast-track pickup ordering with automated status notifications.
 3. **Delivery:** Multi-zone logistics routing across 55 Karachi sectors with dynamic distance-based delivery charges and operating-time constraints.

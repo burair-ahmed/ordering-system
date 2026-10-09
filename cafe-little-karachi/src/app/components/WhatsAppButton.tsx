@@ -11,7 +11,7 @@ export default function WhatsAppButton() {
   const pathname = usePathname();
   const [showTooltip, setShowTooltip] = useState(true);
   const whatsappNumber = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || '923331702706';
-  const defaultMessage = encodeURIComponent('Hello Cafe Little Karachi! I have an inquiry about the menu/order.');
+  const defaultMessage = encodeURIComponent('Hello Little Karachi Express! I have an inquiry about the menu/order.');
   const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${defaultMessage}`;
 
   if (pathname?.startsWith('/admin')) return null;
@@ -23,7 +23,7 @@ export default function WhatsAppButton() {
         href={whatsappUrl}
         target="_blank"
         rel="noopener noreferrer"
-        aria-label="Chat with Cafe Little Karachi on WhatsApp"
+        aria-label="Chat with Little Karachi Express on WhatsApp"
         initial={{ scale: 0, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
         whileHover={{ scale: 1.1 }}

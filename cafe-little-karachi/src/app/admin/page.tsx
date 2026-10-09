@@ -295,7 +295,7 @@ const AdminDashboard: FC = () => {
               </div>
               {!isSidebarCollapsed && (
                 <div className="flex flex-col">
-                  <span className="text-sm font-bold tracking-tight text-neutral-900 dark:text-white">Cafe Little Karachi</span>
+                  <span className="text-sm font-bold tracking-tight text-neutral-900 dark:text-white">Little Karachi Express</span>
                   <span className="text-[10px] text-neutral-400 font-bold uppercase tracking-wider">Admin Workspace</span>
                 </div>
               )}

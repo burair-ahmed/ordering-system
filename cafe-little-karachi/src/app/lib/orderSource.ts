@@ -1,6 +1,6 @@
 // src/app/lib/orderSource.ts
 //
-// UTM Parameter and Marketing Source Attribution Engine for Cafe Little Karachi (CLK)
+// UTM Parameter and Marketing Source Attribution Engine for Little Karachi Express
 // Captures UTM tags, referrers, and tags Microsoft Clarity sessions.
 
 export interface OrderSource {

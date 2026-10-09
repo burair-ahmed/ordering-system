@@ -982,7 +982,7 @@ const CompletedOrders: FC = () => {
               {/* PRINT CONTENT INVOICE FRAME */}
               <div className="flex-1 overflow-y-auto p-6 md:p-8 bg-white text-neutral-900" id="invoice-print-container">
                 <div className="w-full text-center pb-6 border-b border-dashed border-neutral-200">
-                  <h2 className="text-2xl font-black tracking-tight text-neutral-900">CAFE LITTLE KARACHI</h2>
+                  <h2 className="text-2xl font-black tracking-tight text-neutral-900">LITTLE KARACHI EXPRESS</h2>
                   <p className="text-[10px] text-neutral-400 uppercase tracking-widest font-black mt-1">Authentic taste of Karachites</p>
                   <div className="mt-3 text-[10px] text-neutral-500 space-y-0.5">
                     <p>Scheme 33, Karachi, Pakistan</p>
@@ -1051,7 +1051,7 @@ const CompletedOrders: FC = () => {
                 </div>
 
                 <div className="pt-8 text-center pb-4">
-                  <p className="text-[10px] text-neutral-400 italic">Thank you for dining with Cafe Little Karachi!</p>
+                  <p className="text-[10px] text-neutral-400 italic">Thank you for dining with Little Karachi Express!</p>
                   <p className="text-[9px] text-neutral-500 font-bold uppercase mt-1">Visit us again</p>
                 </div>
               </div>

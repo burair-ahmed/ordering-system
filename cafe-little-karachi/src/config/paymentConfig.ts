@@ -1,5 +1,5 @@
 /**
- * Online Payment Configuration for Cafe Little Karachi (CLK)
+ * Online Payment Configuration for Little Karachi Express
  * Supports manual local transfers (JazzCash, EasyPaisa, Bank Transfer)
  * Update details here or override via environment variables.
  */
@@ -22,7 +22,7 @@ export const PAYMENT_CONFIG = {
     {
       id: "jazzcash" as const,
       name: "JazzCash",
-      accountTitle: process.env.NEXT_PUBLIC_JAZZCASH_TITLE || "Cafe Little Karachi",
+      accountTitle: process.env.NEXT_PUBLIC_JAZZCASH_TITLE || "Little Karachi Express",
       accountNumber: process.env.NEXT_PUBLIC_JAZZCASH_NUMBER || "0300 1234567",
       instructions: "Transfer the exact order amount to this JazzCash mobile account and share screenshot on WhatsApp.",
       badgeColor: "#ea580c", // Orange/Amber
@@ -30,7 +30,7 @@ export const PAYMENT_CONFIG = {
     {
       id: "easypaisa" as const,
       name: "EasyPaisa",
-      accountTitle: process.env.NEXT_PUBLIC_EASYPAISA_TITLE || "Cafe Little Karachi",
+      accountTitle: process.env.NEXT_PUBLIC_EASYPAISA_TITLE || "Little Karachi Express",
       accountNumber: process.env.NEXT_PUBLIC_EASYPAISA_NUMBER || "0333 1702706",
       instructions: "Transfer the exact order amount to this EasyPaisa mobile account and share screenshot on WhatsApp.",
       badgeColor: "#16a34a", // Green
@@ -39,7 +39,7 @@ export const PAYMENT_CONFIG = {
       id: "bank_transfer" as const,
       name: "Bank Transfer",
       bankName: process.env.NEXT_PUBLIC_BANK_NAME || "Meezan Bank Ltd",
-      accountTitle: process.env.NEXT_PUBLIC_BANK_TITLE || "Cafe Little Karachi",
+      accountTitle: process.env.NEXT_PUBLIC_BANK_TITLE || "Little Karachi Express",
       accountNumber: process.env.NEXT_PUBLIC_BANK_ACCOUNT || "01020304050607",
       iban: process.env.NEXT_PUBLIC_BANK_IBAN || "PK00MEZN0001020304050607",
       instructions: "Transfer via online banking or mobile app to this account and share screenshot on WhatsApp.",

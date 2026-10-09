@@ -11,6 +11,7 @@ import { VariationSelector } from "../../components/variations/VariationSelector
 import { useVariationSelector } from "../../hooks/useVariationSelector";
 import { VariationConfig, SelectedVariation } from "../../types/variations";
 import { X, Zap } from "lucide-react";
+import { FaWhatsapp } from "react-icons/fa";
 import { trackEvent } from '../lib/analytics';
 import { slugify } from '../lib/slugify';
 import { useOrder } from '../context/OrderContext';
@@ -110,7 +111,7 @@ const PlatterItem: FC<PlatterItemProps> = ({ platter, cardStyle = 'gourmet', ini
     if (window.location.pathname === `/platter/${platterSlug}`) {
       setShowModal(true);
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [platterSlug]);
 
   // Non-blocking smooth modal close with clean URL revert.
@@ -366,6 +367,30 @@ const PlatterItem: FC<PlatterItemProps> = ({ platter, cardStyle = 'gourmet', ini
     router.push('/checkout');
   }, [platter.id, platter.title, totalPrice, quantity, platter.image, getFlattenedVariations, setStatusModalOpen, addToCart, router]);
 
+  const handleWhatsAppOrder = useCallback(() => {
+    const variations = getFlattenedVariations();
+    const variationsText = variations.length > 0 ? `\n• Selections: ${variations.join(', ')}` : '';
+    const itemTotal = (totalPrice * quantity).toFixed(2);
+
+    const message = `Hello Little Karachi Express! 🍽️\nI would like to order:\n• Platter: ${platter.title}\n• Quantity: ${quantity}${variationsText}\n• Total: Rs. ${itemTotal}\n\nPlease confirm availability and delivery/pickup details.`;
+
+    const whatsappNumber = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || '923331702706';
+    const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`;
+
+    trackEvent('journey_whatsapp_order_platter', {
+      platter_id: platter.id,
+      platter_name: platter.title,
+      price: totalPrice,
+      quantity,
+      total_amount: totalPrice * quantity,
+      has_variations: variations.length > 0,
+    });
+
+    if (typeof window !== 'undefined') {
+      window.open(whatsappUrl, '_blank', 'noopener,noreferrer');
+    }
+  }, [getFlattenedVariations, totalPrice, quantity, platter.title, platter.id]);
+
   const handleCategorySelect = (categoryId: string, option: SelectedVariation) => {
     selectCategoryVariation(categoryId, option);
     const category = variationConfig.categories?.find(c => c.id === categoryId);
@@ -382,181 +407,174 @@ const PlatterItem: FC<PlatterItemProps> = ({ platter, cardStyle = 'gourmet', ini
     <>
       {/* Card */}
       {!modalOnly && (
-      <motion.div
-        whileHover={{ scale: 1.02, y: -2 }}
-        whileTap={{ scale: 0.98 }}
-        onClick={() => {
-          trackEvent('journey_view_platter_details', {
-            platter_id: platter.id,
-            platter_name: platter.title,
-            price: basePrice
-          });
-          openModal();
-        }}
-        className={
-          cardStyle === 'list'
-            ? "relative flex flex-row items-center gap-4 p-3 md:p-4 rounded-2xl cursor-pointer bg-white/70 backdrop-blur-md shadow-md border border-transparent hover:border-[#741052] transition-all duration-300 w-full"
-            : cardStyle === 'minimal'
-            ? "relative flex flex-col p-3 rounded-xl cursor-pointer bg-transparent border border-neutral-200/60 dark:border-neutral-800 hover:border-[#741052] transition-all duration-300"
-            : cardStyle === 'compact'
-            ? "relative flex flex-col p-3 rounded-xl cursor-pointer bg-white/70 backdrop-blur-md shadow-md border border-transparent hover:border-[#741052] transition-all duration-300"
-            : "relative flex flex-col p-4 rounded-2xl cursor-pointer bg-white/70 backdrop-blur-md shadow-lg border border-transparent hover:border-[#741052] transition-all duration-300"
-        }
-        style={
-          cardStyle === 'list'
-            ? { minHeight: "8.5rem" }
-            : cardStyle === 'minimal'
-            ? { height: "18rem" }
-            : cardStyle === 'compact'
-            ? { height: "21rem" }
-            : { height: "28rem" }
-        }
-      >
-        {cardStyle === 'list' ? (
-          <>
-            {platter.status === "out of stock" && (
-              <span className="absolute top-2 left-2 z-10 bg-red-500 text-white text-[10px] px-2 py-0.5 rounded-full shadow-md animate-pulse">
-                Out of Stock
-              </span>
-            )}
-
-            <div className="relative w-24 h-24 sm:w-28 sm:h-28 md:w-32 md:h-32 shrink-0">
-              <Image
-                src={platter.image || "/fallback-image.jpg"}
-                alt={platter.title}
-                className="rounded-xl object-cover w-full h-full"
-                width={150}
-                height={150}
-                sizes="(max-width: 640px) 96px, 128px"
-              />
-              {discountLabel && (
-                <span className="absolute top-1.5 right-1.5 z-10 inline-flex items-center px-1.5 py-0.5 rounded-full text-[9px] sm:text-[10px] font-black tracking-wide bg-gradient-to-r from-rose-600 to-[#741052] text-white shadow-md border border-white/20 select-none pointer-events-none">
-                  {discountLabel}
+        <motion.div
+          whileHover={{ scale: 1.02, y: -2 }}
+          whileTap={{ scale: 0.98 }}
+          onClick={() => {
+            trackEvent('journey_view_platter_details', {
+              platter_id: platter.id,
+              platter_name: platter.title,
+              price: basePrice
+            });
+            openModal();
+          }}
+          className={
+            cardStyle === 'list'
+              ? "relative flex flex-row items-center gap-4 p-3 md:p-4 rounded-2xl cursor-pointer bg-white/70 backdrop-blur-md shadow-md border border-transparent hover:border-[#741052] transition-all duration-300 w-full"
+              : cardStyle === 'minimal'
+                ? "relative flex flex-col p-3 rounded-xl cursor-pointer bg-transparent border border-neutral-200/60 dark:border-neutral-800 hover:border-[#741052] transition-all duration-300"
+                : cardStyle === 'compact'
+                  ? "relative flex flex-col p-3 rounded-xl cursor-pointer bg-white/70 backdrop-blur-md shadow-md border border-transparent hover:border-[#741052] transition-all duration-300"
+                  : "relative flex flex-col p-4 rounded-2xl cursor-pointer bg-white/70 backdrop-blur-md shadow-lg border border-transparent hover:border-[#741052] transition-all duration-300"
+          }
+          style={
+            cardStyle === 'list'
+              ? { minHeight: "8.5rem" }
+              : cardStyle === 'minimal'
+                ? { height: "18rem" }
+                : cardStyle === 'compact'
+                  ? { height: "21rem" }
+                  : { height: "28rem" }
+          }
+        >
+          {cardStyle === 'list' ? (
+            <>
+              {platter.status === "out of stock" && (
+                <span className="absolute top-2 left-2 z-10 bg-red-500 text-white text-[10px] px-2 py-0.5 rounded-full shadow-md animate-pulse">
+                  Out of Stock
                 </span>
               )}
-            </div>
 
-            <div className="flex-1 min-w-0 flex flex-col h-full justify-between py-1">
-              <div>
-                <h2 className="text-base sm:text-lg font-semibold text-[#741052] truncate">
-                  {platter.title}
-                </h2>
-                <p className="text-xs sm:text-sm text-gray-500 line-clamp-2 mt-1">
-                  {platter.description}
-                </p>
+              <div className="relative w-24 h-24 sm:w-28 sm:h-28 md:w-32 md:h-32 shrink-0">
+                <Image
+                  src={platter.image || "/fallback-image.jpg"}
+                  alt={platter.title}
+                  className="rounded-xl object-cover w-full h-full"
+                  width={150}
+                  height={150}
+                  sizes="(max-width: 640px) 96px, 128px"
+                />
+                {discountLabel && (
+                  <span className="absolute top-1.5 right-1.5 z-10 inline-flex items-center px-1.5 py-0.5 rounded-full text-[9px] sm:text-[10px] font-black tracking-wide bg-gradient-to-r from-rose-600 to-[#741052] text-white shadow-md border border-white/20 select-none pointer-events-none">
+                    {discountLabel}
+                  </span>
+                )}
               </div>
 
-              <div className="flex items-center justify-between mt-2">
-                <div className="flex items-center gap-1.5">
-                  <p className="font-bold text-sm sm:text-base text-[#741052]">
-                    Rs.{basePrice.toFixed(2)}
+              <div className="flex-1 min-w-0 flex flex-col h-full justify-between py-1">
+                <div>
+                  <h2 className="text-base sm:text-lg font-semibold text-[#741052] truncate">
+                    {platter.title}
+                  </h2>
+                  <p className="text-xs sm:text-sm text-gray-500 line-clamp-2 mt-1">
+                    {platter.description}
                   </p>
-                  {platter.discountValue !== undefined && platter.discountValue > 0 && (
-                    <p className="text-[10px] sm:text-xs text-gray-400 line-through">
-                      Rs.{originalBasePrice.toFixed(2)}
-                    </p>
-                  )}
                 </div>
 
-                <motion.button
-                  whileHover={platter.status === "in stock" ? { scale: 1.05 } : {}}
-                  whileTap={platter.status === "in stock" ? { scale: 0.97 } : {}}
-                  disabled={platter.status === "out of stock"}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    openModal();
-                  }}
-                  className={`py-1.5 px-4 text-xs rounded-full font-medium text-white transition-all duration-300
-                    ${
-                      platter.status === "out of stock"
+                <div className="flex items-center justify-between mt-2">
+                  <div className="flex items-center gap-1.5">
+                    <p className="font-bold text-sm sm:text-base text-[#741052]">
+                      Rs.{basePrice.toFixed(2)}
+                    </p>
+                    {platter.discountValue !== undefined && platter.discountValue > 0 && (
+                      <p className="text-[10px] sm:text-xs text-gray-400 line-through">
+                        Rs.{originalBasePrice.toFixed(2)}
+                      </p>
+                    )}
+                  </div>
+
+                  <motion.button
+                    whileHover={platter.status === "in stock" ? { scale: 1.05 } : {}}
+                    whileTap={platter.status === "in stock" ? { scale: 0.97 } : {}}
+                    disabled={platter.status === "out of stock"}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      openModal();
+                    }}
+                    className={`py-1.5 px-4 text-xs rounded-full font-medium text-white transition-all duration-300
+                    ${platter.status === "out of stock"
                         ? "bg-gray-400 grayscale cursor-not-allowed"
                         : "bg-gradient-to-r from-[#741052] to-[#d0269b] shadow-md hover:shadow-pink-500/30"
-                    }`}
-                >
-                  {platter.status === "out of stock" ? "Unavailable" : "Add"}
-                </motion.button>
+                      }`}
+                  >
+                    {platter.status === "out of stock" ? "Unavailable" : "Add"}
+                  </motion.button>
+                </div>
               </div>
-            </div>
-          </>
-        ) : (
-          <>
-            {platter.status === "out of stock" && (
-              <span className="absolute top-2 left-2 bg-red-500 text-white text-xs px-3 py-1 rounded-full shadow-md animate-pulse z-10">
-                Out of Stock
-              </span>
-            )}
-
-            <div className="relative w-full mb-3">
-              <Image
-                src={platter.image || "/fallback-image.jpg"}
-                alt={platter.title}
-                className={`rounded-xl object-cover w-full ${
-                  cardStyle === 'minimal' ? 'h-24' : cardStyle === 'compact' ? 'h-28' : 'h-40'
-                }`}
-                width={450}
-                height={160}
-                sizes="(max-width: 640px) 48vw, (max-width: 1024px) 33vw, 25vw"
-              />
-              {discountLabel && (
-                <span className="absolute top-2 right-2 z-10 inline-flex items-center px-2.5 py-0.5 sm:px-3 sm:py-1 rounded-full text-[10px] sm:text-xs font-black tracking-wide bg-gradient-to-r from-rose-600 to-[#741052] text-white shadow-md shadow-rose-950/30 border border-white/25 select-none pointer-events-none">
-                  {discountLabel}
+            </>
+          ) : (
+            <>
+              {platter.status === "out of stock" && (
+                <span className="absolute top-2 left-2 bg-red-500 text-white text-xs px-3 py-1 rounded-full shadow-md animate-pulse z-10">
+                  Out of Stock
                 </span>
               )}
-            </div>
 
-            <h2 className={`font-semibold text-[#741052] ${
-              cardStyle === 'minimal' ? 'text-sm mb-1 truncate' : cardStyle === 'compact' ? 'text-base mb-1 truncate' : 'text-xl mb-3'
-            }`}>
-              {platter.title}
-            </h2>
+              <div className="relative w-full mb-3">
+                <Image
+                  src={platter.image || "/fallback-image.jpg"}
+                  alt={platter.title}
+                  className={`rounded-xl object-cover w-full ${cardStyle === 'minimal' ? 'h-24' : cardStyle === 'compact' ? 'h-28' : 'h-40'
+                    }`}
+                  width={450}
+                  height={160}
+                  sizes="(max-width: 640px) 48vw, (max-width: 1024px) 33vw, 25vw"
+                />
+                {discountLabel && (
+                  <span className="absolute top-2 right-2 z-10 inline-flex items-center px-2.5 py-0.5 sm:px-3 sm:py-1 rounded-full text-[10px] sm:text-xs font-black tracking-wide bg-gradient-to-r from-rose-600 to-[#741052] text-white shadow-md shadow-rose-950/30 border border-white/25 select-none pointer-events-none">
+                    {discountLabel}
+                  </span>
+                )}
+              </div>
 
-            <div className="relative flex-1 mb-3 overflow-hidden">
-              <p className={`text-gray-500 ${
-                cardStyle === 'minimal' ? 'text-[11px] line-clamp-1' : cardStyle === 'compact' ? 'text-xs line-clamp-2' : 'text-sm line-clamp-2'
-              }`}>{platter.description}</p>
-              {cardStyle === 'gourmet' && (
-                <div className="absolute bottom-0 left-0 w-full h-4 bg-gradient-to-t from-white to-transparent"></div>
-              )}
-            </div>
+              <h2 className={`font-semibold text-[#741052] ${cardStyle === 'minimal' ? 'text-sm mb-1 truncate' : cardStyle === 'compact' ? 'text-base mb-1 truncate' : 'text-xl mb-3'
+                }`}>
+                {platter.title}
+              </h2>
 
-            <div className="flex items-center gap-1.5 mt-auto">
-              <p className={`font-bold text-[#741052] ${
-                cardStyle === 'minimal' ? 'text-sm' : cardStyle === 'compact' ? 'text-base' : 'text-lg'
-              }`}>
-                Rs.{basePrice.toFixed(2)}
-              </p>
-              {platter.discountValue !== undefined && platter.discountValue > 0 && (
-                <p className="text-[10px] sm:text-xs text-gray-400 line-through">
-                  Rs.{originalBasePrice.toFixed(2)}
+              <div className="relative flex-1 mb-3 overflow-hidden">
+                <p className={`text-gray-500 ${cardStyle === 'minimal' ? 'text-[11px] line-clamp-1' : cardStyle === 'compact' ? 'text-xs line-clamp-2' : 'text-sm line-clamp-2'
+                  }`}>{platter.description}</p>
+                {cardStyle === 'gourmet' && (
+                  <div className="absolute bottom-0 left-0 w-full h-4 bg-gradient-to-t from-white to-transparent"></div>
+                )}
+              </div>
+
+              <div className="flex items-center gap-1.5 mt-auto">
+                <p className={`font-bold text-[#741052] ${cardStyle === 'minimal' ? 'text-sm' : cardStyle === 'compact' ? 'text-base' : 'text-lg'
+                  }`}>
+                  Rs.{basePrice.toFixed(2)}
                 </p>
-              )}
-            </div>
+                {platter.discountValue !== undefined && platter.discountValue > 0 && (
+                  <p className="text-[10px] sm:text-xs text-gray-400 line-through">
+                    Rs.{originalBasePrice.toFixed(2)}
+                  </p>
+                )}
+              </div>
 
-            <motion.button
-              whileHover={platter.status === "in stock" ? { scale: 1.05 } : {}}
-              whileTap={platter.status === "in stock" ? { scale: 0.97 } : {}}
-              disabled={platter.status === "out of stock"}
-              onClick={(e) => {
-                e.stopPropagation();
-                openModal();
-              }}
-              className={`w-full text-center rounded-full font-medium text-white transition-all duration-300 ${
-                cardStyle === 'minimal'
-                  ? 'mt-2 py-1 px-3 text-xs border border-[#741052] text-[#741052] bg-transparent hover:bg-[#741052] hover:text-white'
-                  : cardStyle === 'compact'
-                  ? 'mt-2 py-1.5 px-4 text-xs bg-gradient-to-r from-[#741052] to-[#d0269b] shadow-md'
-                  : 'mt-3 py-2 px-6 text-sm bg-gradient-to-r from-[#741052] to-[#d0269b] shadow-lg hover:shadow-pink-500/40'
-              } ${
-                platter.status === "out of stock"
-                  ? "bg-gray-200 text-gray-450 border-gray-300 grayscale animate-pulse cursor-not-allowed hover:bg-transparent hover:text-gray-450"
-                  : ""
-              }`}
-            >
-              {platter.status === "out of stock" ? "Unavailable" : "Add to Cart"}
-            </motion.button>
-          </>
-        )}
-      </motion.div>
+              <motion.button
+                whileHover={platter.status === "in stock" ? { scale: 1.05 } : {}}
+                whileTap={platter.status === "in stock" ? { scale: 0.97 } : {}}
+                disabled={platter.status === "out of stock"}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  openModal();
+                }}
+                className={`w-full text-center rounded-full font-medium text-white transition-all duration-300 ${cardStyle === 'minimal'
+                    ? 'mt-2 py-1 px-3 text-xs border border-[#741052] text-[#741052] bg-transparent hover:bg-[#741052] hover:text-white'
+                    : cardStyle === 'compact'
+                      ? 'mt-2 py-1.5 px-4 text-xs bg-gradient-to-r from-[#741052] to-[#d0269b] shadow-md'
+                      : 'mt-3 py-2 px-6 text-sm bg-gradient-to-r from-[#741052] to-[#d0269b] shadow-lg hover:shadow-pink-500/40'
+                  } ${platter.status === "out of stock"
+                    ? "bg-gray-200 text-gray-450 border-gray-300 grayscale animate-pulse cursor-not-allowed hover:bg-transparent hover:text-gray-450"
+                    : ""
+                  }`}
+              >
+                {platter.status === "out of stock" ? "Unavailable" : "Add to Cart"}
+              </motion.button>
+            </>
+          )}
+        </motion.div>
       )}
 
       {/* Optimized High-Performance Modal */}
@@ -630,7 +648,7 @@ const PlatterItem: FC<PlatterItemProps> = ({ platter, cardStyle = 'gourmet', ini
                     <VariationSelector
                       config={variationConfig}
                       selections={selections}
-                      onSimpleSelect={() => {}}
+                      onSimpleSelect={() => { }}
                       onCategorySelect={handleCategorySelect}
                       errors={validation.errors}
                       warnings={validation.warnings}
@@ -669,14 +687,14 @@ const PlatterItem: FC<PlatterItemProps> = ({ platter, cardStyle = 'gourmet', ini
                   </div>
 
                   {/* Action Buttons Row */}
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2 flex-wrap sm:flex-nowrap">
                     <AddToCartButtonForPlatters
                       platter={platter}
                       selectedVariations={getFlattenedVariations()}
                       onAddRequest={handleAddRequest}
                       onClick={handleItemAdded}
                       showAdded={showAddedMessage}
-                      className="flex-1 !mt-0"
+                      className="flex-1 min-w-[120px] !mt-0"
                       disabled={platter.status === "out of stock" || !isValid}
                     />
 
@@ -687,14 +705,28 @@ const PlatterItem: FC<PlatterItemProps> = ({ platter, cardStyle = 'gourmet', ini
                       aria-label={`Buy ${platter.title} now`}
                       disabled={platter.status === "out of stock" || !isValid}
                       onClick={handleBuyNow}
-                      className={`flex items-center justify-center gap-1.5 rounded-full px-5 py-2 h-[42px] font-bold text-[15px] tracking-wide transition-all duration-300 ease-in-out shrink-0 ${
-                        platter.status === "out of stock" || !isValid
+                      className={`flex items-center justify-center gap-1.5 rounded-full px-4 sm:px-5 py-2 h-[42px] font-bold text-sm sm:text-[15px] tracking-wide transition-all duration-300 ease-in-out shrink-0 ${platter.status === "out of stock" || !isValid
                           ? "bg-slate-500 cursor-not-allowed opacity-60 text-gray-200"
                           : "bg-gradient-to-r from-[#b45309] to-[#d97706] hover:from-[#92400e] hover:to-[#b45309] text-white hover:scale-105 hover:shadow-lg active:scale-95 shadow-md shadow-amber-900/20"
-                      }`}
+                        }`}
                     >
                       <Zap size={15} strokeWidth={2.5} className="fill-white" />
                       <span>Buy Now</span>
+                    </button>
+
+                    {/* WhatsApp Order Button */}
+                    <button
+                      type="button"
+                      id={`whatsapp-order-platter-${platter.id}`}
+                      aria-label={`Order ${platter.title} on WhatsApp`}
+                      disabled={platter.status === "out of stock" || !isValid}
+                      onClick={handleWhatsAppOrder}
+                      className={`flex items-center justify-center w-[42px] h-[42px] rounded-full transition-all duration-300 ease-in-out shrink-0 ${platter.status === "out of stock" || !isValid
+                          ? "bg-slate-500 cursor-not-allowed opacity-60 text-gray-200"
+                          : "bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white hover:scale-110 hover:shadow-lg active:scale-95 shadow-md shadow-green-900/20"
+                        }`}
+                    >
+                      <FaWhatsapp size={20} className="text-white" />
                     </button>
                   </div>
                 </div>

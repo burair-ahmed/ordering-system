@@ -664,7 +664,7 @@ export default function CartSidebar({
                     <button
                       onClick={() =>
                         toast.error(
-                          "Cafe Little Karachi is currently closed. Ordering opens at 6:30 PM!"
+                          "Little Karachi Express is currently closed. Ordering opens at 6:30 PM!"
                         )
                       }
                       className="w-full py-3.5 px-6 rounded-xl bg-slate-600 text-gray-200 font-bold text-base shadow cursor-not-allowed opacity-85 flex items-center justify-center gap-2"

@@ -1,5 +1,5 @@
 /**
- * slugify.ts — URL slug utilities for Cafe Little Karachi clean URL architecture.
+ * slugify.ts — URL slug utilities for Little Karachi Express clean URL architecture.
  *
  * Creates clean, URL-safe slugs from menu item/platter titles and provides
  * catalog lookup helpers for resolving slugs back to item data.

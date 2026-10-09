@@ -1,6 +1,6 @@
-# 🕌 Cafe Little Karachi (CLK)
+# 🕌 Little Karachi Express (CLK)
 
-A premium restaurant management and ordering platform designed for high-end dining experiences. CLK combines a rich, cultural aesthetic with a sophisticated technical architecture to provide a seamless journey for both customers and staff.
+A premium restaurant management and ordering platform designed for authentic dining experiences. Little Karachi Express combines a rich, cultural aesthetic with a sophisticated technical architecture to provide a seamless journey for both customers and staff.
 
 ---
 

@@ -53,7 +53,7 @@ const Footer: FC = () => {
               <div className="relative w-24 h-24 sm:w-28 sm:h-28 rounded-full bg-[#5c0d40] border-2 border-white/20 shadow-[0_10px_30px_rgba(0,0,0,0.5),0_0_20px_rgba(255,152,36,0.15)] flex items-center justify-center p-3.5 backdrop-blur-xl group-hover:scale-105 transition-transform duration-300">
                 <Image
                   src="/hd-logo.webp"
-                  alt="Cafe Little Karachi Logo"
+                  alt="Little Karachi Express Logo"
                   width={110}
                   height={110}
                   className="w-[85%] h-[85%] object-contain drop-shadow-md transition-transform duration-300 group-hover:scale-105"
@@ -103,7 +103,7 @@ const Footer: FC = () => {
 
           {/* WhatsApp Link */}
           <a
-            href={`https://wa.me/${whatsappNumber}?text=${encodeURIComponent('Hello Cafe Little Karachi! I have an inquiry.')}`}
+            href={`https://wa.me/${whatsappNumber}?text=${encodeURIComponent('Hello Little Karachi Express! I have an inquiry.')}`}
             target="_blank"
             rel="noopener noreferrer"
             onClick={() => {
