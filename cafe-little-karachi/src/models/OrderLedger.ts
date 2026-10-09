@@ -49,6 +49,13 @@ const orderLedgerSchema = new mongoose.Schema({
   area: { type: String, default: null, index: true },
 
   paymentMethod: { type: String, default: 'cash' },
+  paymentProvider: { type: String, default: null },
+  paymentStatus: { 
+    type: String, 
+    enum: ['pending', 'verified', 'failed', 'cod'], 
+    default: 'cod',
+    index: true 
+  },
   items: { type: [orderLedgerItemSchema], required: true },
   orderSource: { type: orderLedgerSourceSchema, default: () => ({}) },
   totalAmount: { type: Number, required: true },

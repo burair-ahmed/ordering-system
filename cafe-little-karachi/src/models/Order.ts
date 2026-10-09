@@ -20,6 +20,12 @@ const orderSchema = new mongoose.Schema({
 
 
   paymentMethod: { type: String, required: true },
+  paymentProvider: { type: String, default: null },
+  paymentStatus: { 
+    type: String, 
+    enum: ['pending', 'verified', 'failed', 'cod'], 
+    default: 'cod' 
+  },
   items: [{
     id: { type: String, required: true },
     title: { type: String, required: true },

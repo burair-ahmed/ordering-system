@@ -19,7 +19,7 @@ async function connectToDatabase() {
 
 const updateOrderStatusHandler = async (req: NextApiRequest, res: NextApiResponse) => {
   if (req.method === "PUT") {
-    const { orderNumber, status } = req.body;
+    const { orderNumber, status, paymentStatus } = req.body;
 
     // Validate required fields
     if (!orderNumber || !status) {
@@ -30,10 +30,18 @@ const updateOrderStatusHandler = async (req: NextApiRequest, res: NextApiRespons
       // Connect to the database
       await connectToDatabase();
 
+      const updateFields: Record<string, any> = { status };
+      if (paymentStatus) {
+        updateFields.paymentStatus = paymentStatus;
+      } else if (status === "Received" || status === "Preparing" || status === "Delivered") {
+        // If order was in pending verification and is now marked Received/Preparing/Delivered, auto-verify payment
+        updateFields.paymentStatus = "verified";
+      }
+
       // Find and update the order in live queue
       const updatedOrder = await Order.findOneAndUpdate(
         { orderNumber }, // Find by orderNumber
-        { status },      // Update the status field
+        updateFields,    // Update fields
         { new: true }    // Return the updated document
       );
 
@@ -41,7 +49,7 @@ const updateOrderStatusHandler = async (req: NextApiRequest, res: NextApiRespons
       try {
         await OrderLedger.findOneAndUpdate(
           { orderNumber },
-          { status }
+          updateFields
         );
       } catch (ledgerSyncErr) {
         console.warn('[OrderLedger Sync] Could not sync status update to ledger:', ledgerSyncErr);
@@ -49,6 +57,20 @@ const updateOrderStatusHandler = async (req: NextApiRequest, res: NextApiRespons
 
       if (!updatedOrder) {
         return res.status(404).json({ message: "Order not found" });
+      }
+
+      // Emit real-time WebSocket event to customer holding page / tracking clients
+      try {
+        const socket = (res.socket as any)?.server?.io;
+        if (socket) {
+          socket.emit("order-status-updated", {
+            orderNumber,
+            status: updatedOrder.status,
+            paymentStatus: updatedOrder.paymentStatus,
+          });
+        }
+      } catch (wsErr) {
+        console.warn("WebSocket status update notification error:", wsErr);
       }
 
       return res.status(200).json({ message: "Order status updated successfully", order: updatedOrder });

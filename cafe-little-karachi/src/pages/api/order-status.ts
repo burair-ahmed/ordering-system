@@ -44,7 +44,7 @@ const orderStatusHandler = async (req: NextApiRequest, res: NextApiResponse) => 
     const order = await Order.findOne(query)
       .sort({ createdAt: -1 })
       .select(
-        "orderNumber status items totalAmount deliveryCharge paymentMethod ordertype tableNumber area phone createdAt"
+        "orderNumber status items totalAmount deliveryCharge paymentMethod paymentProvider paymentStatus ordertype tableNumber area phone createdAt"
       )
       .lean();
 

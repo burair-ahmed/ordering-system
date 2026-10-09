@@ -65,6 +65,8 @@ const ordersHandler = async (req: NextApiRequest, res: NextApiResponse) => {
       email,
       tableNumber,
       paymentMethod,
+      paymentProvider,
+      paymentStatus,
       items,
       totalAmount,
       deliveryCharge,
@@ -79,7 +81,6 @@ const ordersHandler = async (req: NextApiRequest, res: NextApiResponse) => {
     if (!customerName) missingFields.push("Customer Name");
     if (!items || !items.length) missingFields.push("Cart Items");
     if (totalAmount === undefined || totalAmount === null) missingFields.push("Total Amount");
-    if (!status) missingFields.push("Status");
     if (!ordertype) missingFields.push("Order Type");
 
     if (missingFields.length > 0) {
@@ -108,6 +109,10 @@ const ordersHandler = async (req: NextApiRequest, res: NextApiResponse) => {
 
       const orderNumber = await generateOrderNumber();
 
+      const isOnline = paymentMethod === "online" || !!paymentProvider;
+      const initialStatus = status || (isOnline ? "Payment Verification" : "Received");
+      const initialPaymentStatus = paymentStatus || (isOnline ? "pending" : "cod");
+
       const newOrder = new Order({
         orderNumber,
         customerName,
@@ -117,6 +122,8 @@ const ordersHandler = async (req: NextApiRequest, res: NextApiResponse) => {
         area: ordertype === "delivery" ? area : null,
         phone: phone || null,
         paymentMethod: paymentMethod || "cash",
+        paymentProvider: paymentProvider || null,
+        paymentStatus: initialPaymentStatus,
         deliveryCharge: ordertype === "delivery" ? deliveryCharge || 0 : 0,
         items: items.map((item: OrderItem) => ({
           id: String(item.id),
@@ -146,7 +153,7 @@ const ordersHandler = async (req: NextApiRequest, res: NextApiResponse) => {
           capturedAt: new Date(),
         },
         totalAmount,
-        status: status || "Received",
+        status: initialStatus,
         createdAt: new Date(),
       });
 
@@ -167,6 +174,8 @@ const ordersHandler = async (req: NextApiRequest, res: NextApiResponse) => {
             tableNumber: newOrder.tableNumber || null,
             area: newOrder.area || null,
             paymentMethod: newOrder.paymentMethod || 'cash',
+            paymentProvider: newOrder.paymentProvider || null,
+            paymentStatus: newOrder.paymentStatus || 'cod',
             items: newOrder.items,
             orderSource: newOrder.orderSource,
             totalAmount: newOrder.totalAmount,

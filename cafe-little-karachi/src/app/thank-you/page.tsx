@@ -58,6 +58,8 @@ type OrderPayload = {
   totalAmount?: number;
   deliveryCharge?: number;
   paymentMethod?: string;
+  paymentProvider?: string | null;
+  paymentStatus?: string;
   ordertype?: string;
   tableNumber?: string | null;
   area?: string | null;
@@ -471,9 +473,14 @@ const ThankYouPage: FC = () => {
             );
           })()}
           {orderDetails.paymentMethod && (
-            <p className="text-xs text-gray-500">
-              Payment method: {orderDetails.paymentMethod.toUpperCase()}
-            </p>
+            <div className="flex items-center justify-between text-xs pt-1 border-t border-gray-100">
+              <span className="text-gray-500">Payment Method:</span>
+              <span className="font-bold text-gray-800">
+                {orderDetails.paymentMethod === 'online'
+                  ? `Online (${(orderDetails.paymentProvider || 'Transfer').toUpperCase()}) · Verified ✓`
+                  : 'Cash on Delivery / Cash'}
+              </span>
+            </div>
           )}
         </div>
       </div>

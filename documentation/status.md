@@ -5,9 +5,9 @@ tags:
   - #status/active
   - #project/ordering-ecosystem
 created: 2026-09-04
-last_updated: 2026-10-06
-overall_completion: "Phase 4.59: CLK Complete Archify Interactive Architecture & Diagrams Suite (100%)"
-current_sprint: "System Architecture & Request Flow Visualizations"
+last_updated: 2026-10-08
+overall_completion: "Phase 4.63: CLK Manual Online Payment & WhatsApp Verification Flow (100%)"
+current_sprint: "UX & Checkout Funnel Optimizations"
 ---
 
 # Project Status Dashboard — Advanced Ordering Ecosystem
@@ -16,6 +16,8 @@ current_sprint: "System Architecture & Request Flow Visualizations"
 
 | Sub-Project | Phase | Focus | Status |
 | :--- | :--- | :--- | :--- |
+| **Cafe Little Karachi (CLK)** | Phase 4.63 | Manual Online Payment & WhatsApp Verification: Added manual local transfer options (JazzCash, EasyPaisa, Bank Transfer) with 1-click copy credentials, `/payment-verification` holding screen with pre-filled WhatsApp screenshot CTA, real-time Socket.IO + polling listener, Admin Live Orders verification alerts with `[ VERIFY PAYMENT & ACCEPT ]`, and automatic client transition to `/thank-you`. | **Completed** 🟢 |
+| **Cafe Little Karachi (CLK)** | Phase 4.62 | Buy Now Button in Product & Platter Popups: Added amber/gold "Buy Now" button beside "Add to Cart" in both `MenuItem.tsx` and `PlatterItem.tsx` modal footers. Clicking it adds the item/platter to cart with configured variations and quantity, then immediately navigates to `/checkout` via `router.push`. Includes analytics event, open-hours guard, and disabled state parity with Add to Cart. | **Completed** 🟢 |
 | **Monorepo Ecosystem** | Phase 4.61 | TypeScript Compilation Fix: Resolved `string | undefined` type errors in `scripts/backfill-order-ledger.ts`, `scripts/seed-delivery-areas.ts`, `scripts/upload-pulao-products.ts` (CLK) and stale `connectToDatabase()` call in TCC `analytics.ts` — all replaced with `MONGODB_URI!` non-null assertion and `connectDB()`. Both CLK and TCC compile with `npx tsc --noEmit` exit code 0. | **Completed** 🟢 |
 | **Monorepo Ecosystem** | Phase 4.60 | Security Hardening: Removed all 5 hardcoded `mongodb+srv://` credential strings from source code — `testConnection.ts`, `updateMenuItemsStatus.ts`, `scripts/upload-pulao-products.ts`, `scripts/seed-delivery-areas.ts` (CLK), and `fetchCompletedOrders.ts`, `analytics.ts`, `analytics/details.ts` (TCC). All files now use `process.env.MONGODB_URI` with an explicit throw on missing env var, routed through the canonical `connectDB` helper. | **Completed** 🟢 |
 | **Cafe Little Karachi (CLK)** | Phase 4.59 | Complete Archify Interactive Architecture Suite: Built 1 Master Architecture Diagram + 6 Companion Interactive Diagrams (Order Placement Sequence, Cache Miss Sequence, Order Lifecycle State Machine, PII Dataflow, Analytics Export Dataflow, and Admin CMS & Media Workflow) verified with showcase quality gates | **Completed** 🟢 |
@@ -40,6 +42,20 @@ current_sprint: "System Architecture & Request Flow Visualizations"
 | **Cafe Little Karachi (CLK)** | Operations / Logistics | Delivery Areas & Charges Update (Gulshan-e-Iqbal Rs. 280, Bhitaiabad Rs. 300 + 6PM rule, 8 New Regions Seeded) | **Completed** 🟢 |
 | **Cafe Little Karachi (CLK)** | Phase 2 Perf | LCP Optimization (≤ 2.2s), AVIF/WebP, Responsive Sizes & Priority Preload Cleanup | **Completed** 🟢 |
 | **The Chai Company (TCC)** | Phase 4.32 | Centered Modern Tea Lounge Footer | **Completed** 🟢 |
+
+---
+
+## Phase 4.63 Completion Summary — Manual Online Payment & WhatsApp Verification Flow (CLK)
+
+- [x] **Centralized Payment Provider Configuration (`src/config/paymentConfig.ts`)**: Built unified config for JazzCash, EasyPaisa, and Bank Transfer with account numbers, titles, IBANs, brand colors, instructions, and target WhatsApp number.
+- [x] **Data Model Synchronization (`Order.ts` & `OrderLedger.ts`)**: Added `paymentProvider` string and indexed `paymentStatus` enum (`pending`, `verified`, `failed`, `cod`) to both schemas to guarantee analytics parity and zero data loss.
+- [x] **Order Placement Lifecycle (`src/pages/api/orders.ts`)**: Online orders automatically initialize with `status: "Payment Verification"` and `paymentStatus: "pending"`, with dual-write to `OrderLedger` and Socket.IO emission to kitchen admin.
+- [x] **Status Mutation & Real-Time Sync (`src/pages/api/updateorderstatus.ts`)**: Upgrades `paymentStatus` to `"verified"` whenever an admin accepts an order into `"Received"` / `"Preparing"` / `"Delivered"`, emitting an `order-status-updated` event via WebSocket.
+- [x] **Checkout Payment Provider Selection (`src/app/checkout/page.tsx`)**: Replaced placeholder with live provider selector cards, one-click copy buttons, automated WhatsApp pre-fill text, and routing directly to `/payment-verification`.
+- [x] **Dedicated Holding & Verification Screen (`src/app/payment-verification/page.tsx`)**: Built luxury waiting room with pre-filled WhatsApp screenshot CTA button, pulsing radar status banner, collapsible bank details, dual-channel update listener (Socket.IO + 3.5s polling fallback), audio chime, and automatic redirect to `/thank-you`.
+- [x] **Admin Live Orders HUD & Verification Action (`src/app/components/OrdersList.tsx`)**: Added pending verification counter to top HUD card, glowing amber verification warning banners across Grid, Kanban, and Table views, `[ VERIFY PAYMENT & ACCEPT ]` one-click confirmation button, and direct WhatsApp customer query link.
+- [x] **Thank You Page Order Breakdown (`src/app/thank-you/page.tsx`)**: Updated receipt summary to display verified online provider badges (`Online (PROVIDER) · Verified ✓`).
+- [x] **TypeScript Validation**: `npx tsc --noEmit` executed with exit code 0 (zero errors).
 
 ---
 

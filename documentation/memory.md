@@ -5,7 +5,77 @@ tags:
   - #status/active
   - #project/ordering-ecosystem
 created: 2026-09-04
-last_updated: 2026-10-06
+last_updated: 2026-10-08
+---
+
+## 0. Phase 4.63 — CLK Manual Online Payment & WhatsApp Verification Flow (2026-10-08)
+
+### End-to-End Manual Online Payment (JazzCash, EasyPaisa, Bank Transfer) with WhatsApp Verification & Live Order Auto-Transition
+- **Files Created / Modified**:
+  - `cafe-little-karachi/src/config/paymentConfig.ts` (NEW — Centralized payment configurations, bank credentials, WhatsApp support number, and branding)
+  - `cafe-little-karachi/src/models/Order.ts` (UPDATED — Added `paymentProvider` string and `paymentStatus` enum `['pending', 'verified', 'failed', 'cod']`)
+  - `cafe-little-karachi/src/models/OrderLedger.ts` (UPDATED — Added `paymentProvider` and indexed `paymentStatus` to mirror live orders)
+  - `cafe-little-karachi/src/pages/api/orders.ts` (UPDATED — Extracted payment fields, auto-set `status: "Payment Verification"` and `paymentStatus: "pending"` for online orders, dual-sync to `OrderLedger`)
+  - `cafe-little-karachi/src/pages/api/updateorderstatus.ts` (UPDATED — Support `paymentStatus` payload, auto-verify upon status change to `"Received"`, emit real-time WebSocket `order-status-updated` event)
+  - `cafe-little-karachi/src/pages/api/order-status.ts` (UPDATED — Included `paymentProvider` and `paymentStatus` in JSON projection)
+  - `cafe-little-karachi/src/app/checkout/page.tsx` (UPDATED — Enabled Online Payment tab, added provider selector tabs with 1-click copy for Title/Account/IBAN, structured order payload with `status: "Payment Verification"`, auto-redirect to `/payment-verification`)
+  - `cafe-little-karachi/src/app/payment-verification/page.tsx` (NEW — Holding page with WhatsApp receipt CTA, real-time Socket.IO listener + 3.5s polling fallback, sound chime, and auto-transition to `/thank-you`)
+  - `cafe-little-karachi/src/app/components/OrdersList.tsx` (UPDATED — Added `paymentStatus` tracking, pending verification counter in top HUD card, glowing amber alerts, `[ VERIFY PAYMENT & ACCEPT ]` one-click action, and customer WhatsApp deep links)
+  - `cafe-little-karachi/src/app/thank-you/page.tsx` (UPDATED — Display verified online provider badge `Online (<PROVIDER>) · Verified ✓` in order receipt summary)
+- **Context & Goal**: Enable Pakistani customers to pay via manual local transfer (JazzCash, EasyPaisa, Bank Transfer) and verify payment by sharing transaction receipts over WhatsApp, while keeping the user on a dedicated live-updating holding page until admin approval.
+- **Detailed Micro-Changes Applied**:
+  - **`paymentConfig.ts`**: Defined `OnlineProviderId` union (`"jazzcash" | "easypaisa" | "bank_transfer"`), account titles ("Muhammad Burair", "Cafe Little Karachi"), accounts, IBANs, brand colors, instructions, and target WhatsApp number (`process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || "923331702706"`).
+  - **Mongoose Models**:
+    - `Order.ts`: `paymentProvider: { type: String, trim: true, default: null }`, `paymentStatus: { type: String, enum: ['pending', 'verified', 'failed', 'cod'], default: 'cod', index: true }`.
+    - `OrderLedger.ts`: Identical schema additions with indexing on `paymentStatus` to maintain immutable analytics parity.
+  - **API Pipeline**:
+    - `orders.ts`: For online payments (`paymentMethod === "online"`), sets `initialStatus = "Payment Verification"` and `initialPaymentStatus = "pending"`. Injects both fields into `newOrder` and `ledgerOrder` dual-sync payloads.
+    - `updateorderstatus.ts`: Accepts `paymentStatus` in body. When an admin marks an order as `"Received"`, `"Preparing"`, or `"Delivered"`, automatically elevates `paymentStatus` to `"verified"`. Emits Socket.IO `order-status-updated` event with `{ orderNumber, status, paymentStatus }`.
+    - `order-status.ts`: Added `paymentProvider` and `paymentStatus` to Mongoose `.select(...)` projection.
+  - **Checkout UX (`checkout/page.tsx`)**:
+    - Removed disabled lock on "Online Payment" option.
+    - Added provider selector pills (`JazzCash`, `EasyPaisa`, `Bank Transfer`) with active borders, badges, and quick-copy buttons for account details.
+    - Updated `handlePlaceOrder` to format payment metadata, pass `status: "Payment Verification"`, set `latest_order_payment_provider`, and route to `/payment-verification?order=...&provider=...`.
+  - **Holding & Verification Page (`payment-verification/page.tsx`)**:
+    - Wrapped in React `<Suspense>` to avoid Next.js CSR deopt.
+    - Created primary high-visibility CTA: "Share Screenshot on WhatsApp" opening `wa.me` with pre-filled message including order ID, customer name, and total amount.
+    - Implemented dual-layer real-time detection: Socket.IO listener on `"order-status-updated"` + 3.5s interval polling to `/api/order-status`.
+    - Included Web Audio API celebration chime and smooth 1.8s countdown transition to `/thank-you` upon status verification.
+    - Handled order cancellation with clear alert banner and support button.
+    - Safe optional chaining `searchParams?.get(...)` to handle null search params cleanly.
+  - **Admin Live Orders HUD (`OrdersList.tsx`)**:
+    - Added `pendingVerificationCount` to metrics and rendered pulsating amber badge on top HUD card.
+    - Added high-visibility warning banner on Grid cards, Kanban cards, and Table view: `"⚠️ Payment Verification Required — Awaiting WhatsApp Screenshot"`.
+    - Added `[ VERIFY PAYMENT & ACCEPT ]` button that calls `/api/updateorderstatus` with `{ status: "Received", paymentStatus: "verified" }` and notifies kitchen instantly.
+    - Added direct WhatsApp button (`"Chat with Customer"`) linking to customer's phone for payment confirmation queries.
+  - **Thank You Page (`thank-you/page.tsx`)**:
+    - Displayed payment provider and status in order breakdown with green verification badge.
+- **Verification**: `npx tsc --noEmit` executed with exit code 0 (zero errors).
+- **Rationale**: Eliminates cart abandonment for customers without credit/debit cards while maintaining strict fraud prevention and real-time operational feedback.
+
+---
+
+## 0. Phase 4.62 — CLK Product & Platter Popup "Buy Now" Buttons (2026-10-08)
+
+### Buy Now Instant Checkout Button in MenuItem & PlatterItem Popups
+- **Files Modified**:
+  - `cafe-little-karachi/src/app/components/MenuItem.tsx` (UPDATED)
+  - `cafe-little-karachi/src/app/components/PlatterItem.tsx` (UPDATED)
+- **Context & Goal**: Customers wanted a faster path from product and platter popups directly to checkout without needing to manually open the cart sidebar. A "Buy Now" button was requested beside the existing "Add to Cart" button in both the product popup (`MenuItem` modal) and platter popup (`PlatterItem` modal).
+- **Changes Applied**:
+  - **`useRouter` import**: Added `useRouter` from `next/navigation` and `Zap` icon from `lucide-react` across both `MenuItem.tsx` and `PlatterItem.tsx`.
+  - **`router` instance**: Instantiated `const router = useRouter()` inside both components.
+  - **`handleBuyNow` callback in `PlatterItem.tsx`**: Added `useCallback` that:
+    1. Guards for restaurant open hours via `isOpenAt()` (shows `RestaurantStatusPopup` if closed).
+    2. Adds platter to cart using `addToCart()` with platter id, title, price (`totalPrice`), quantity, image, and `getFlattenedVariations()`.
+    3. Emits `journey_buy_now_platter` analytics event with platter details.
+    4. Navigates to `/checkout` via `router.push('/checkout')`.
+  - **Modal footer layout restructure in `PlatterItem.tsx`**: Replaced the previous single flex-wrap row with two structured rows:
+    - Row 1: Dedicated quantity stepper row with borderless `−/+` buttons and `"Qty"` label.
+    - Row 2: Action buttons row pairing `<AddToCartButtonForPlatters>` (`flex-1 !mt-0`) with the new amber/gold `Buy Now` button (`shrink-0`).
+  - **Button Styling Parity**: Matched warm amber/gold gradient (`from-[#b45309] to-[#d97706]`), `Zap` icon with `fill-white`, hover scale, shadow, and full disabled state parity (`platter.status === "out of stock" || !isValid`).
+- **Rationale**: Provides consistent instant checkout capability across both standard menu items and platter combos, removing cart friction for high-intent diners.
+
 ---
 
 ## 0. Phase 4.61 — Monorepo TypeScript Compilation Fix (2026-10-06)

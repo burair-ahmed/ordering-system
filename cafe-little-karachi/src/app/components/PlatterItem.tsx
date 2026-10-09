@@ -4,12 +4,13 @@
 
 import { FC, useState, useEffect, useMemo, useCallback } from "react";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import AddToCartButtonForPlatters from "./AddToCartButtonForPlatters";
 import { VariationSelector } from "../../components/variations/VariationSelector";
 import { useVariationSelector } from "../../hooks/useVariationSelector";
 import { VariationConfig, SelectedVariation } from "../../types/variations";
-import { X } from "lucide-react";
+import { X, Zap } from "lucide-react";
 import { trackEvent } from '../lib/analytics';
 import { slugify } from '../lib/slugify';
 import { useOrder } from '../context/OrderContext';
@@ -58,6 +59,7 @@ interface PlatterItemProps {
 const platterCategoryCache = new Map<string, any[]>();
 
 const PlatterItem: FC<PlatterItemProps> = ({ platter, cardStyle = 'gourmet', initialOpen = false, modalOnly = false, onCloseModal }) => {
+  const router = useRouter();
   const { setStatusModalOpen, setProductModalOpen } = useOrder();
   const { addToCart } = useCart();
 
@@ -337,6 +339,33 @@ const PlatterItem: FC<PlatterItemProps> = ({ platter, cardStyle = 'gourmet', ini
     performCartAdd();
   }, [performCartAdd, setStatusModalOpen]);
 
+  const handleBuyNow = useCallback(() => {
+    if (!isOpenAt()) {
+      setShowModal(false);
+      if (typeof window !== 'undefined' && window.location.pathname.startsWith('/platter/')) {
+        window.history.replaceState(null, '', '/');
+      }
+      setStatusModalOpen(true);
+      return;
+    }
+
+    addToCart({
+      id: platter.id,
+      title: platter.title,
+      price: totalPrice,
+      quantity,
+      image: platter.image,
+      variations: getFlattenedVariations(),
+    });
+    trackEvent('journey_buy_now_platter', {
+      platter_id: platter.id,
+      platter_name: platter.title,
+      price: totalPrice,
+      quantity,
+    });
+    router.push('/checkout');
+  }, [platter.id, platter.title, totalPrice, quantity, platter.image, getFlattenedVariations, setStatusModalOpen, addToCart, router]);
+
   const handleCategorySelect = (categoryId: string, option: SelectedVariation) => {
     selectCategoryVariation(categoryId, option);
     const category = variationConfig.categories?.find(c => c.id === categoryId);
@@ -609,10 +638,10 @@ const PlatterItem: FC<PlatterItemProps> = ({ platter, cardStyle = 'gourmet', ini
                   </div>
                 </div>
 
-                {/* Add to Cart */}
+                {/* Add to Cart + Buy Now */}
                 <div className="mt-5 pt-3 border-t border-gray-100">
-                  <div className="flex items-center gap-3 flex-wrap">
-                    {/* Quantity Stepper */}
+                  {/* Quantity Stepper Row */}
+                  <div className="flex items-center gap-3 mb-3">
                     <div className="flex items-center gap-0 rounded-full overflow-hidden bg-[#f6eff7] shrink-0">
                       <button
                         type="button"
@@ -636,7 +665,11 @@ const PlatterItem: FC<PlatterItemProps> = ({ platter, cardStyle = 'gourmet', ini
                         +
                       </button>
                     </div>
+                    <span className="text-xs text-gray-400 font-medium">Qty</span>
+                  </div>
 
+                  {/* Action Buttons Row */}
+                  <div className="flex items-center gap-2">
                     <AddToCartButtonForPlatters
                       platter={platter}
                       selectedVariations={getFlattenedVariations()}
@@ -646,6 +679,23 @@ const PlatterItem: FC<PlatterItemProps> = ({ platter, cardStyle = 'gourmet', ini
                       className="flex-1 !mt-0"
                       disabled={platter.status === "out of stock" || !isValid}
                     />
+
+                    {/* Buy Now Button */}
+                    <button
+                      type="button"
+                      id={`buy-now-platter-${platter.id}`}
+                      aria-label={`Buy ${platter.title} now`}
+                      disabled={platter.status === "out of stock" || !isValid}
+                      onClick={handleBuyNow}
+                      className={`flex items-center justify-center gap-1.5 rounded-full px-5 py-2 h-[42px] font-bold text-[15px] tracking-wide transition-all duration-300 ease-in-out shrink-0 ${
+                        platter.status === "out of stock" || !isValid
+                          ? "bg-slate-500 cursor-not-allowed opacity-60 text-gray-200"
+                          : "bg-gradient-to-r from-[#b45309] to-[#d97706] hover:from-[#92400e] hover:to-[#b45309] text-white hover:scale-105 hover:shadow-lg active:scale-95 shadow-md shadow-amber-900/20"
+                      }`}
+                    >
+                      <Zap size={15} strokeWidth={2.5} className="fill-white" />
+                      <span>Buy Now</span>
+                    </button>
                   </div>
                 </div>
               </div>

@@ -5,12 +5,17 @@ tags:
   - #status/active
   - #project/ordering-ecosystem
 created: 2026-09-04
-last_updated: 2026-10-02
+last_updated: 2026-10-08
 ---
 
 # Next Steps & Handoff Guide — Advanced Ordering Ecosystem
 
 ## Completed in Current Sprint
+- [x] **Manual Online Payment & WhatsApp Verification Flow (Phase 4.63 — CLK)**:
+  - Enabled online payments (JazzCash, EasyPaisa, Bank Transfer) with instant-copy account credentials.
+  - Implemented `/payment-verification` intermediate holding screen with pre-filled WhatsApp screenshot CTA button, dual-channel real-time listener (Socket.IO + 3.5s polling fallback), and automatic redirect to `/thank-you`.
+  - Added Admin Live Orders verification queue with pending count badge, warning banner on order cards, one-click `[ VERIFY PAYMENT & ACCEPT ]` button, and customer WhatsApp link.
+  - Mirrored `paymentProvider` and `paymentStatus` to both live `Order` and immutable `OrderLedger` models.
 - [x] **Complete Archify Interactive Architecture & Diagrams Suite (Phase 4.59 — CLK)**:
   - Built 1 Master Architecture Diagram + 6 Companion Interactive Diagrams in `.archify/` matching production code.
   - Verified all diagrams with `archify finalize ... --quality showcase` passing validation, delivery, static check, and headless browser check with 0 errors.

@@ -65,6 +65,8 @@ interface Order {
   ordertype: OrderType;
   status: string;
   paymentMethod: string;
+  paymentProvider?: string;
+  paymentStatus?: string;
   items: Item[];
   totalAmount: number;
   createdAt: string;
@@ -103,6 +105,15 @@ const isOrderCancelled = (status: string) => {
 
 const isOrderActive = (status: string) => {
   return !isOrderDelivered(status) && !isOrderCancelled(status);
+};
+
+const isOrderPendingVerification = (order: Order) => {
+  const s = (order.status || "").toLowerCase().trim();
+  const p = (order.paymentStatus || "").toLowerCase().trim();
+  return (
+    s === "payment verification" ||
+    (order.paymentMethod === "online" && (p === "pending" || s === "payment verification"))
+  );
 };
 
 const ORDER_TYPE_CONFIG: Record<
@@ -307,6 +318,42 @@ const OrdersList: FC<OrdersListProps> = ({
     }
   };
 
+  // Verify Online Payment (moves from Payment Verification -> Received and verified)
+  const verifyOnlinePayment = async (orderNumber: string) => {
+    setLoadingOrders((prev) => new Set(prev.add(orderNumber)));
+    try {
+      const res = await fetch("/api/updateorderstatus", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          orderNumber,
+          status: "Received",
+          paymentStatus: "verified",
+        }),
+      });
+      if (res.ok) {
+        toast.success(`✓ Order #${orderNumber} Payment Verified & Accepted!`);
+        fetchOrders();
+        if (selectedOrder && selectedOrder.orderNumber === orderNumber) {
+          setSelectedOrder((prev) =>
+            prev ? { ...prev, status: "Received", paymentStatus: "verified" } : null
+          );
+        }
+      } else {
+        toast.error("Failed to verify payment");
+      }
+    } catch (err) {
+      console.error(err);
+      toast.error("Error verifying payment");
+    } finally {
+      setLoadingOrders((prev) => {
+        const u = new Set(prev);
+        u.delete(orderNumber);
+        return u;
+      });
+    }
+  };
+
   // Copy order ID
   const handleCopyOrderId = (orderNumber: string) => {
     navigator.clipboard.writeText(orderNumber);
@@ -320,12 +367,17 @@ const OrdersList: FC<OrdersListProps> = ({
     let receivedCount = 0;
     let deliveredCount = 0;
     let cancelledCount = 0;
+    let pendingVerificationCount = 0;
     let receivedRevenue = 0;
     let deliveredRevenue = 0;
     let cancelledRevenue = 0;
 
     for (const o of orders) {
       const amount = Number(o.totalAmount) || 0;
+      if (isOrderPendingVerification(o)) {
+        pendingVerificationCount++;
+      }
+
       if (isOrderDelivered(o.status)) {
         deliveredCount++;
         deliveredRevenue += amount;
@@ -342,6 +394,7 @@ const OrdersList: FC<OrdersListProps> = ({
       receivedCount,
       deliveredCount,
       cancelledCount,
+      pendingVerificationCount,
       totalCount: orders.length,
       receivedRevenue,
       deliveredRevenue,
@@ -497,6 +550,11 @@ const OrdersList: FC<OrdersListProps> = ({
               <span className="text-sm sm:text-base xl:text-lg 2xl:text-xl font-black text-neutral-900 dark:text-white truncate block leading-tight">
                 RECEIVED
               </span>
+              {counts.pendingVerificationCount > 0 && (
+                <span className="inline-flex items-center gap-1 text-[10px] sm:text-[11px] font-black text-amber-600 dark:text-amber-400 mt-0.5 animate-pulse">
+                  ⚡ {counts.pendingVerificationCount} Proof Needed
+                </span>
+              )}
             </div>
           </div>
           <div className="text-right shrink-0 min-w-max pl-1 sm:pl-2">
@@ -789,6 +847,19 @@ const OrdersList: FC<OrdersListProps> = ({
                   <div className="p-5 flex-1 flex flex-col justify-between space-y-4">
                     {/* Order # and Type / Location */}
                     <div>
+                      {/* Online Payment Verification Banner */}
+                      {isOrderPendingVerification(order) && (
+                        <div className="mb-2 px-3 py-1.5 rounded-xl bg-amber-500/15 border border-amber-500/30 text-amber-900 dark:text-amber-200 text-xs font-bold flex items-center justify-between">
+                          <span className="flex items-center gap-1.5">
+                            <span className="w-2 h-2 rounded-full bg-amber-500 animate-ping" />
+                            ⚡ Online Payment: {(order.paymentProvider || "Transfer").toUpperCase()}
+                          </span>
+                          <span className="text-[10px] uppercase tracking-wider bg-amber-500 text-white px-2 py-0.5 rounded-full font-black">
+                            Proof Needed
+                          </span>
+                        </div>
+                      )}
+
                       <div className="flex items-center justify-between gap-2">
                         <button
                           onClick={() => handleCopyOrderId(order.orderNumber)}
@@ -940,27 +1011,70 @@ const OrdersList: FC<OrdersListProps> = ({
                     ───────────────────────────────────────────────────────────── */}
                     <div className="pt-1">
                       {active ? (
-                        <div className="space-y-2">
-                          <button
-                            type="button"
-                            onClick={() => setOrderStatus(order.orderNumber, "Delivered")}
-                            disabled={loadingOrders.has(order.orderNumber)}
-                            className="w-full h-12 rounded-2xl bg-gradient-to-r from-[#741052] via-[#8a1361] to-[#a01671] hover:from-[#5c0d40] hover:to-[#741052] active:scale-[0.98] text-white font-black text-sm flex items-center justify-center gap-2 shadow-lg shadow-[#741052]/25 transition-all cursor-pointer"
-                          >
-                            <Check className="h-5 w-5 stroke-[3]" />
-                            <span>MARK AS DELIVERED</span>
-                          </button>
+                        isOrderPendingVerification(order) ? (
+                          <div className="space-y-2">
+                            <button
+                              type="button"
+                              onClick={() => verifyOnlinePayment(order.orderNumber)}
+                              disabled={loadingOrders.has(order.orderNumber)}
+                              className="w-full h-12 rounded-2xl bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-700 hover:from-emerald-700 hover:to-teal-800 active:scale-[0.98] text-white font-black text-sm flex items-center justify-center gap-2 shadow-lg shadow-emerald-600/25 transition-all cursor-pointer"
+                            >
+                              <CheckCircle2 className="h-5 w-5 stroke-[2.5]" />
+                              <span>VERIFY PAYMENT & ACCEPT</span>
+                            </button>
 
-                          <button
-                            type="button"
-                            onClick={() => setOrderStatus(order.orderNumber, "Cancelled")}
-                            disabled={loadingOrders.has(order.orderNumber)}
-                            className="w-full h-9 rounded-xl border border-rose-200 dark:border-rose-900/50 hover:bg-rose-50 dark:hover:bg-rose-950/30 text-rose-600 dark:text-rose-400 font-bold text-xs flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
-                          >
-                            <Ban className="h-3.5 w-3.5" />
-                            <span>Cancel Order</span>
-                          </button>
-                        </div>
+                            <div className="grid grid-cols-2 gap-2">
+                              {order.phone ? (
+                                <a
+                                  href={`https://wa.me/${order.phone.replace(/[^0-9]/g, "")}?text=${encodeURIComponent(
+                                    `Hi ${order.customerName}, this is Cafe Little Karachi regarding your order #${order.orderNumber}. Please share your payment screenshot so we can prepare your order.`
+                                  )}`}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="h-9 rounded-xl border border-emerald-300 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-950/30 hover:bg-emerald-100 text-emerald-800 dark:text-emerald-300 font-bold text-xs flex items-center justify-center gap-1.5 transition-colors"
+                                >
+                                  <MessageCircle className="h-3.5 w-3.5" />
+                                  <span>WhatsApp</span>
+                                </a>
+                              ) : (
+                                <div />
+                              )}
+                              <button
+                                type="button"
+                                onClick={() => setOrderStatus(order.orderNumber, "Cancelled")}
+                                disabled={loadingOrders.has(order.orderNumber)}
+                                className={`h-9 rounded-xl border border-rose-200 dark:border-rose-900/50 hover:bg-rose-50 dark:hover:bg-rose-950/30 text-rose-600 dark:text-rose-400 font-bold text-xs flex items-center justify-center gap-1.5 transition-colors cursor-pointer ${
+                                  !order.phone ? "col-span-2 w-full" : ""
+                                }`}
+                              >
+                                <Ban className="h-3.5 w-3.5" />
+                                <span>Cancel Order</span>
+                              </button>
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="space-y-2">
+                            <button
+                              type="button"
+                              onClick={() => setOrderStatus(order.orderNumber, "Delivered")}
+                              disabled={loadingOrders.has(order.orderNumber)}
+                              className="w-full h-12 rounded-2xl bg-gradient-to-r from-[#741052] via-[#8a1361] to-[#a01671] hover:from-[#5c0d40] hover:to-[#741052] active:scale-[0.98] text-white font-black text-sm flex items-center justify-center gap-2 shadow-lg shadow-[#741052]/25 transition-all cursor-pointer"
+                            >
+                              <Check className="h-5 w-5 stroke-[3]" />
+                              <span>MARK AS DELIVERED</span>
+                            </button>
+
+                            <button
+                              type="button"
+                              onClick={() => setOrderStatus(order.orderNumber, "Cancelled")}
+                              disabled={loadingOrders.has(order.orderNumber)}
+                              className="w-full h-9 rounded-xl border border-rose-200 dark:border-rose-900/50 hover:bg-rose-50 dark:hover:bg-rose-950/30 text-rose-600 dark:text-rose-400 font-bold text-xs flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
+                            >
+                              <Ban className="h-3.5 w-3.5" />
+                              <span>Cancel Order</span>
+                            </button>
+                          </div>
+                        )
                       ) : delivered ? (
                         <div className="flex items-center gap-2">
                           <div className="flex-1 h-11 rounded-2xl bg-[#3d0a2b]/10 dark:bg-[#3d0a2b]/30 border border-[#3d0a2b]/20 dark:border-[#5c0d40]/40 text-[#5c0d40] dark:text-pink-300 font-black text-xs flex items-center justify-center gap-1.5">
@@ -1098,20 +1212,41 @@ const OrdersList: FC<OrdersListProps> = ({
                       ))}
                     </div>
 
+                    {isOrderPendingVerification(order) && (
+                      <div className="px-2.5 py-1 rounded-lg bg-amber-500/15 border border-amber-500/30 text-amber-900 dark:text-amber-200 text-[11px] font-bold flex items-center justify-between">
+                        <span>⚡ {(order.paymentProvider || "Online").toUpperCase()}</span>
+                        <span className="bg-amber-500 text-white text-[9px] px-1.5 py-0.2 rounded font-black">
+                          Proof Needed
+                        </span>
+                      </div>
+                    )}
+
                     <div className="flex items-center justify-between pt-1">
                       <span className="font-black text-base text-[#741052] dark:text-pink-400">
                         {formatPrice(order.totalAmount)}
                       </span>
 
                       <div className="flex items-center gap-1.5">
-                        <button
-                          type="button"
-                          onClick={() => setOrderStatus(order.orderNumber, "Delivered")}
-                          className="px-3 py-1.5 bg-[#741052] hover:bg-[#5c0d40] text-white font-black text-xs rounded-xl shadow-md flex items-center gap-1 cursor-pointer"
-                        >
-                          <Check className="h-3.5 w-3.5" />
-                          <span>Deliver</span>
-                        </button>
+                        {isOrderPendingVerification(order) ? (
+                          <button
+                            type="button"
+                            onClick={() => verifyOnlinePayment(order.orderNumber)}
+                            className="px-2.5 py-1.5 bg-gradient-to-r from-emerald-600 to-teal-700 hover:from-emerald-700 hover:to-teal-800 text-white font-extrabold text-[11px] rounded-xl shadow-md flex items-center gap-1 cursor-pointer transition-all active:scale-95"
+                            title="Verify and Accept Online Payment"
+                          >
+                            <CheckCircle2 className="h-3.5 w-3.5" />
+                            <span>Verify</span>
+                          </button>
+                        ) : (
+                          <button
+                            type="button"
+                            onClick={() => setOrderStatus(order.orderNumber, "Delivered")}
+                            className="px-3 py-1.5 bg-[#741052] hover:bg-[#5c0d40] text-white font-black text-xs rounded-xl shadow-md flex items-center gap-1 cursor-pointer"
+                          >
+                            <Check className="h-3.5 w-3.5" />
+                            <span>Deliver</span>
+                          </button>
+                        )}
                         <button
                           type="button"
                           onClick={() => setOrderStatus(order.orderNumber, "Cancelled")}
@@ -1346,35 +1481,78 @@ const OrdersList: FC<OrdersListProps> = ({
                       </td>
                       <td className="py-3.5 px-4">
                         <Badge
-                          className={`font-black text-xs px-3 py-1 rounded-full ${cancelled
+                          className={`font-black text-xs px-3 py-1 rounded-full ${
+                            cancelled
                               ? "bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/30"
+                              : isOrderPendingVerification(order)
+                              ? "bg-amber-500/15 text-amber-800 dark:text-amber-300 border border-amber-500/40 animate-pulse"
                               : delivered
-                                ? "bg-[#3d0a2b]/10 dark:bg-[#3d0a2b]/30 text-[#5c0d40] dark:text-pink-300 border border-[#3d0a2b]/20 dark:border-[#5c0d40]/30"
-                                : "bg-[#741052]/10 text-[#741052] dark:text-pink-300 border border-[#741052]/30"
-                            }`}
+                              ? "bg-[#3d0a2b]/10 dark:bg-[#3d0a2b]/30 text-[#5c0d40] dark:text-pink-300 border border-[#3d0a2b]/20 dark:border-[#5c0d40]/30"
+                              : "bg-[#741052]/10 text-[#741052] dark:text-pink-300 border border-[#741052]/30"
+                          }`}
                         >
-                          {cancelled ? "CANCELLED" : delivered ? "DELIVERED" : "RECEIVED"}
+                          {cancelled
+                            ? "CANCELLED"
+                            : isOrderPendingVerification(order)
+                            ? `VERIFY (${(order.paymentProvider || "ONLINE").toUpperCase()})`
+                            : delivered
+                            ? "DELIVERED"
+                            : "RECEIVED"}
                         </Badge>
                       </td>
                       <td className="py-3.5 px-4 text-right">
                         {active ? (
-                          <div className="flex items-center justify-end gap-1.5">
-                            <button
-                              type="button"
-                              onClick={() => setOrderStatus(order.orderNumber, "Delivered")}
-                              className="px-3 py-1.5 bg-[#741052] hover:bg-[#5c0d40] text-white font-black text-xs rounded-xl shadow-sm cursor-pointer"
-                            >
-                              ✓ Deliver
-                            </button>
-                            <button
-                              type="button"
-                              onClick={() => setOrderStatus(order.orderNumber, "Cancelled")}
-                              className="px-2 py-1.5 text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 border border-rose-200 dark:border-rose-900/40 font-bold text-xs rounded-xl cursor-pointer"
-                              title="Cancel Order"
-                            >
-                              ✕ Cancel
-                            </button>
-                          </div>
+                          isOrderPendingVerification(order) ? (
+                            <div className="flex items-center justify-end gap-1.5">
+                              <button
+                                type="button"
+                                onClick={() => verifyOnlinePayment(order.orderNumber)}
+                                className="px-2.5 py-1.5 bg-gradient-to-r from-emerald-600 to-teal-700 hover:from-emerald-700 hover:to-teal-800 text-white font-extrabold text-xs rounded-xl shadow-sm cursor-pointer transition-all active:scale-95"
+                                title="Verify Online Payment"
+                              >
+                                ✓ Verify
+                              </button>
+                              {order.phone && (
+                                <a
+                                  href={`https://wa.me/${order.phone.replace(/[^0-9]/g, "")}?text=${encodeURIComponent(
+                                    `Hi ${order.customerName}, this is Cafe Little Karachi regarding order #${order.orderNumber}.`
+                                  )}`}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="p-1.5 bg-emerald-50 text-emerald-800 border border-emerald-300 rounded-lg hover:bg-emerald-100 transition-colors"
+                                  title="Chat Client on WhatsApp"
+                                >
+                                  <MessageCircle className="h-3.5 w-3.5" />
+                                </a>
+                              )}
+                              <button
+                                type="button"
+                                onClick={() => setOrderStatus(order.orderNumber, "Cancelled")}
+                                className="px-2 py-1.5 text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 border border-rose-200 dark:border-rose-900/40 font-bold text-xs rounded-xl cursor-pointer"
+                                title="Cancel Order"
+                              >
+                                ✕
+                              </button>
+                            </div>
+                          ) : (
+                            <div className="flex items-center justify-end gap-1.5">
+                              <button
+                                type="button"
+                                onClick={() => setOrderStatus(order.orderNumber, "Delivered")}
+                                className="px-3 py-1.5 bg-[#741052] hover:bg-[#5c0d40] text-white font-black text-xs rounded-xl shadow-sm cursor-pointer"
+                              >
+                                ✓ Deliver
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => setOrderStatus(order.orderNumber, "Cancelled")}
+                                className="px-2 py-1.5 text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 border border-rose-200 dark:border-rose-900/40 font-bold text-xs rounded-xl cursor-pointer"
+                                title="Cancel Order"
+                              >
+                                ✕ Cancel
+                              </button>
+                            </div>
+                          )
                         ) : delivered ? (
                           <div className="flex items-center justify-end gap-1.5">
                             <button
@@ -1471,42 +1649,72 @@ const OrdersList: FC<OrdersListProps> = ({
                     </span>
                     <span className={`text-lg font-black ${isOrderCancelled(selectedOrder.status)
                         ? "text-rose-600 dark:text-rose-400"
-                        : isOrderDelivered(selectedOrder.status)
-                          ? "text-[#5c0d40] dark:text-pink-300"
-                          : "text-[#741052] dark:text-pink-400"
+                        : isOrderPendingVerification(selectedOrder)
+                          ? "text-amber-600 dark:text-amber-400"
+                          : isOrderDelivered(selectedOrder.status)
+                            ? "text-[#5c0d40] dark:text-pink-300"
+                            : "text-[#741052] dark:text-pink-400"
                       }`}>
                       {isOrderCancelled(selectedOrder.status)
                         ? "CANCELLED (VOIDED)"
-                        : isOrderDelivered(selectedOrder.status)
-                          ? "DELIVERED ✓"
-                          : "RECEIVED (PENDING)"}
+                        : isOrderPendingVerification(selectedOrder)
+                          ? `VERIFICATION NEEDED (${(selectedOrder.paymentProvider || "ONLINE").toUpperCase()})`
+                          : isOrderDelivered(selectedOrder.status)
+                            ? "DELIVERED ✓"
+                            : "RECEIVED (PENDING)"}
                     </span>
                   </div>
 
                   <div className="flex items-center gap-2">
                     {isOrderActive(selectedOrder.status) ? (
-                      <>
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setOrderStatus(selectedOrder.orderNumber, "Delivered");
-                            closeDetail();
-                          }}
-                          className="px-4 py-2 bg-[#741052] hover:bg-[#5c0d40] text-white font-black text-xs rounded-xl shadow-md cursor-pointer"
-                        >
-                          ✓ Mark as Delivered
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setOrderStatus(selectedOrder.orderNumber, "Cancelled");
-                            closeDetail();
-                          }}
-                          className="px-3 py-2 bg-rose-500/10 hover:bg-rose-500/20 text-rose-600 dark:text-rose-400 border border-rose-500/30 font-bold text-xs rounded-xl cursor-pointer"
-                        >
-                          ✕ Cancel Order
-                        </button>
-                      </>
+                      isOrderPendingVerification(selectedOrder) ? (
+                        <>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              verifyOnlinePayment(selectedOrder.orderNumber);
+                              closeDetail();
+                            }}
+                            className="px-4 py-2 bg-gradient-to-r from-emerald-600 to-teal-700 hover:from-emerald-700 hover:to-teal-800 text-white font-black text-xs rounded-xl shadow-md cursor-pointer flex items-center gap-1.5 transition-all active:scale-95"
+                          >
+                            <CheckCircle2 className="h-4 w-4" />
+                            <span>Verify Payment & Accept</span>
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setOrderStatus(selectedOrder.orderNumber, "Cancelled");
+                              closeDetail();
+                            }}
+                            className="px-3 py-2 bg-rose-500/10 hover:bg-rose-500/20 text-rose-600 dark:text-rose-400 border border-rose-500/30 font-bold text-xs rounded-xl cursor-pointer"
+                          >
+                            ✕ Cancel Order
+                          </button>
+                        </>
+                      ) : (
+                        <>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setOrderStatus(selectedOrder.orderNumber, "Delivered");
+                              closeDetail();
+                            }}
+                            className="px-4 py-2 bg-[#741052] hover:bg-[#5c0d40] text-white font-black text-xs rounded-xl shadow-md cursor-pointer"
+                          >
+                            ✓ Mark as Delivered
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setOrderStatus(selectedOrder.orderNumber, "Cancelled");
+                              closeDetail();
+                            }}
+                            className="px-3 py-2 bg-rose-500/10 hover:bg-rose-500/20 text-rose-600 dark:text-rose-400 border border-rose-500/30 font-bold text-xs rounded-xl cursor-pointer"
+                          >
+                            ✕ Cancel Order
+                          </button>
+                        </>
+                      )
                     ) : isOrderDelivered(selectedOrder.status) ? (
                       <>
                         <button

@@ -49,6 +49,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { PAYMENT_CONFIG, OnlineProviderId } from "@/config/paymentConfig";
 
 const BRAND_FROM = "#741052";
 const BRAND_TO = "#d0269b";
@@ -111,6 +112,7 @@ const CheckoutPageContent: FC = () => {
   const [selectedDeliveryArea, setSelectedDeliveryArea] = useState("");
   const [streetAddress, setStreetAddress] = useState("");
   const [showOnlineInfo, setShowOnlineInfo] = useState(false);
+  const [selectedOnlineProvider, setSelectedOnlineProvider] = useState<OnlineProviderId>("jazzcash");
   const [tipAmount, setTipAmount] = useState<string>("");
   const [cashPreference, setCashPreference] = useState<
     "none" | "exact" | "need-change"
@@ -515,6 +517,7 @@ const CheckoutPageContent: FC = () => {
     const finalTable = formData.tableNumber || tableId || "";
     const finalOrderType = formData.ordertype || orderType || "dinein";
 
+    const isOnlinePayment = formData.paymentMethod === "online";
     const newOrder = {
       customerName: formData.name,
       email: formData.email || "",
@@ -524,6 +527,8 @@ const CheckoutPageContent: FC = () => {
       ordertype: finalOrderType,
       deliveryCharge: deliveryCharge,
       paymentMethod: formData.paymentMethod || "cash",
+      paymentProvider: isOnlinePayment ? selectedOnlineProvider : null,
+      paymentStatus: isOnlinePayment ? "pending" : "cod",
       items: cartItems.map((item) => ({
         id: String(item.id),
         title: item.title,
@@ -536,13 +541,14 @@ const CheckoutPageContent: FC = () => {
           : [],
       })),
       totalAmount: finalAmount,
-      status: "Received",
+      status: isOnlinePayment ? "Payment Verification" : "Received",
       orderSource: getOrderSource(),
     };
 
     trackEvent('journey_order_placed', {
       order_type: finalOrderType,
       payment_method: formData.paymentMethod,
+      payment_provider: isOnlinePayment ? selectedOnlineProvider : null,
       item_count: cartItems.length,
       total_amount: finalAmount,
       delivery_charge: deliveryCharge
@@ -578,6 +584,7 @@ const CheckoutPageContent: FC = () => {
           order_number: orderNumber,
           order_type: resolvedOrderType,
           payment_method: formData.paymentMethod,
+          payment_provider: isOnlinePayment ? selectedOnlineProvider : null,
           total_amount: finalAmount,
           item_count: cartItems.length
         });
@@ -590,13 +597,15 @@ const CheckoutPageContent: FC = () => {
           area: finalArea,
           phone: formData.phone,
           ordertype: resolvedOrderType,
+          paymentProvider: isOnlinePayment ? selectedOnlineProvider : null,
         });
         clearCart();
         setIsModalOpen(false);
 
-        // Redirect dynamically based on order type with clean URL parameters
-        const targetUrl =
-          resolvedOrderType === "dinein" && finalTable
+        // Redirect dynamically: online orders go to holding/verification page; cash orders go directly to thank-you
+        const targetUrl = isOnlinePayment
+          ? `/payment-verification?order=${encodeURIComponent(orderNumber)}&provider=${encodeURIComponent(selectedOnlineProvider)}&type=${encodeURIComponent(resolvedOrderType)}${formData.phone ? `&phone=${encodeURIComponent(formData.phone)}` : ""}${finalArea ? `&area=${encodeURIComponent(finalArea)}` : ""}`
+          : resolvedOrderType === "dinein" && finalTable
             ? `/thank-you?type=dinein&tableId=${encodeURIComponent(finalTable)}&order=${encodeURIComponent(orderNumber)}`
             : `/thank-you?type=${resolvedOrderType}&order=${encodeURIComponent(orderNumber)}${formData.phone ? `&phone=${encodeURIComponent(formData.phone)}` : ""
             }${finalArea ? `&area=${encodeURIComponent(finalArea)}` : ""}`;
@@ -633,6 +642,7 @@ const CheckoutPageContent: FC = () => {
     ordertype: string;
     deliveryCharge?: number;
     paymentMethod: string;
+    paymentProvider?: string | null;
     items: {
       id: string;
       title: string;
@@ -650,6 +660,7 @@ const CheckoutPageContent: FC = () => {
       ordertype,
       deliveryCharge: orderDeliveryCharge,
       paymentMethod,
+      paymentProvider,
       items,
       totalAmount,
       orderNumber,
@@ -665,13 +676,17 @@ const CheckoutPageContent: FC = () => {
         ? `- Delivery Address: ${orderArea || 'N/A'}\n- Contact Phone: ${orderPhone || 'N/A'}`
         : `- Order Mode: Pickup\n- Contact Phone: ${orderPhone || 'N/A'}`;
 
+    const paymentLine = paymentMethod === 'online'
+      ? `- Payment Method: ONLINE (${(paymentProvider || 'Transfer').toUpperCase()}) ⚠️ [SCREENSHOT VERIFICATION REQUIRED]`
+      : `- Payment Method: Cash on Delivery / Cash`;
+
     const message = `
 New Order Received:
 - Order Number: ${orderNumber}
 - Customer Name: ${customerName}
 - Order Type: ${ordertype.toUpperCase()}
 ${destinationLine}
-- Payment Method: ${paymentMethod}
+${paymentLine}
 - Subtotal: Rs. ${totalAmount.toFixed(2)}
 ${discountLine}${deliveryLine}- Total Amount: Rs. ${order.totalAmount.toFixed(2)}
 - Items:
@@ -1049,20 +1064,18 @@ ${items
 
                     <Button
                       type="button"
-                      onClick={() => {
-                        handlePaymentChange("online");
-                        toast.error("Online payment is coming soon!");
-                      }}
+                      onClick={() => handlePaymentChange("online")}
                       variant={formData.paymentMethod === "online" ? "default" : "outline"}
-                      className={`h-16 flex items-center gap-3 text-lg font-semibold ${formData.paymentMethod === "online"
+                      className={`h-16 flex items-center justify-center gap-3 text-lg font-semibold ${formData.paymentMethod === "online"
                           ? "bg-gradient-to-r from-[#741052] to-[#d0269b] text-white border-0 shadow-lg"
                           : "border-2 border-gray-200 hover:border-[#741052] transition-colors"
                         }`}
-                      disabled={true}
                     >
                       <CreditCard className="h-6 w-6" />
-                      Online Payment
-                      <span className="text-xs opacity-75">(Coming Soon)</span>
+                      <div className="text-left">
+                        <div>Online Payment</div>
+                        <div className="text-xs opacity-80 font-normal">JazzCash • EasyPaisa • Bank</div>
+                      </div>
                     </Button>
                   </div>
 
@@ -1132,61 +1145,151 @@ ${items
                     )}
                   </AnimatePresence>
 
-                  {/* Online Payment Notice */}
+                  {/* Online Payment Provider Selection & Instructions */}
                   <AnimatePresence>
-                    {formData.paymentMethod === "online" && showOnlineInfo && (
+                    {formData.paymentMethod === "online" && (
                       <motion.div
                         initial={{ opacity: 0, height: 0 }}
                         animate={{ opacity: 1, height: "auto" }}
                         exit={{ opacity: 0, height: 0 }}
-                        className="p-4 bg-amber-50 border border-amber-200 rounded-xl"
+                        className="space-y-5 p-5 bg-gradient-to-br from-amber-50/70 via-purple-50/40 to-white border-2 border-[#741052]/20 rounded-2xl shadow-sm"
                       >
-                        <h4 className="font-semibold text-amber-900 mb-3">Online Payment Instructions</h4>
-                        <p className="text-sm text-amber-800 mb-4">
-                          Online payment is coming soon. For now, you can pay via bank transfer or mobile wallet and share the proof upon delivery.
-                        </p>
-
-                        <div className="space-y-3">
-                          {/* Bank Transfer */}
-                          <div className="flex items-start gap-3 p-3 bg-white rounded-lg border">
-                            <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-                              <Banknote className="h-4 w-4 text-blue-600" />
-                            </div>
-                            <div className="flex-1">
-                              <p className="font-medium text-gray-900">Bank Transfer</p>
-                              <p className="text-xs text-gray-600">Meezan Bank - Account: 0123456789</p>
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => handleCopy("Meezan Bank - Account No: 0123456789", "Bank details")}
-                                className="mt-1 h-6 text-xs"
-                              >
-                                <Copy className="h-3 w-3 mr-1" />
-                                Copy
-                              </Button>
-                            </div>
-                          </div>
-
-                          {/* Easypaisa */}
-                          <div className="flex items-start gap-3 p-3 bg-white rounded-lg border">
-                            <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
-                              <Phone className="h-4 w-4 text-green-600" />
-                            </div>
-                            <div className="flex-1">
-                              <p className="font-medium text-gray-900">Easypaisa</p>
-                              <p className="text-xs text-gray-600">Number: 03XX-XXXXXXX</p>
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => handleCopy("Easypaisa Number: 03XX-XXXXXXX", "Easypaisa number")}
-                                className="mt-1 h-6 text-xs"
-                              >
-                                <Copy className="h-3 w-3 mr-1" />
-                                Copy
-                              </Button>
-                            </div>
-                          </div>
+                        <div>
+                          <h4 className="font-bold text-[#741052] text-base flex items-center gap-2">
+                            <CreditCard className="h-5 w-5 text-[#d0269b]" />
+                            Choose Your Payment Method
+                          </h4>
+                          <p className="text-xs text-gray-600 mt-0.5">
+                            Transfer manually using any of the accounts below, then share screenshot via WhatsApp to verify.
+                          </p>
                         </div>
+
+                        {/* Provider Selection Tabs */}
+                        <div className="grid grid-cols-3 gap-2 p-1 bg-white/80 rounded-xl border border-gray-200">
+                          {PAYMENT_CONFIG.methods.map((method) => {
+                            const isSelected = selectedOnlineProvider === method.id;
+                            return (
+                              <button
+                                key={method.id}
+                                type="button"
+                                onClick={() => setSelectedOnlineProvider(method.id)}
+                                className={`py-2.5 px-2 rounded-lg text-xs sm:text-sm font-bold transition-all flex flex-col items-center justify-center gap-1 ${
+                                  isSelected
+                                    ? "bg-[#741052] text-white shadow-md scale-[1.02]"
+                                    : "text-gray-700 hover:bg-gray-100"
+                                }`}
+                              >
+                                <span>{method.name}</span>
+                              </button>
+                            );
+                          })}
+                        </div>
+
+                        {/* Active Provider Details Card */}
+                        {(() => {
+                          const activeMethod = PAYMENT_CONFIG.methods.find(
+                            (m) => m.id === selectedOnlineProvider
+                          ) || PAYMENT_CONFIG.methods[0];
+
+                          return (
+                            <div className="space-y-4">
+                              <div className="p-4 bg-white rounded-xl border border-gray-200 shadow-sm space-y-3">
+                                <div className="flex items-center justify-between pb-2 border-b border-gray-100">
+                                  <div className="flex items-center gap-2">
+                                    <span
+                                      className="w-3 h-3 rounded-full"
+                                      style={{ backgroundColor: activeMethod.badgeColor }}
+                                    />
+                                    <span className="font-bold text-gray-900">{activeMethod.name} Details</span>
+                                  </div>
+                                  <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800">
+                                    Manual Transfer
+                                  </span>
+                                </div>
+
+                                {activeMethod.bankName && (
+                                  <div className="flex items-center justify-between text-sm py-1">
+                                    <span className="text-gray-500">Bank Name:</span>
+                                    <span className="font-semibold text-gray-900">{activeMethod.bankName}</span>
+                                  </div>
+                                )}
+
+                                <div className="flex items-center justify-between text-sm py-1">
+                                  <span className="text-gray-500">Account Title:</span>
+                                  <div className="flex items-center gap-2">
+                                    <span className="font-bold text-gray-900">{activeMethod.accountTitle}</span>
+                                    <Button
+                                      type="button"
+                                      variant="ghost"
+                                      size="sm"
+                                      onClick={() => handleCopy(activeMethod.accountTitle, "Account Title")}
+                                      className="h-6 w-6 p-0 text-[#741052] hover:bg-purple-100"
+                                    >
+                                      <Copy className="h-3.5 w-3.5" />
+                                    </Button>
+                                  </div>
+                                </div>
+
+                                <div className="flex items-center justify-between text-sm py-1">
+                                  <span className="text-gray-500">
+                                    {activeMethod.id === "bank_transfer" ? "Account No:" : "Mobile Account:"}
+                                  </span>
+                                  <div className="flex items-center gap-2">
+                                    <span className="font-mono font-bold text-[#741052] text-base">
+                                      {activeMethod.accountNumber}
+                                    </span>
+                                    <Button
+                                      type="button"
+                                      variant="ghost"
+                                      size="sm"
+                                      onClick={() => handleCopy(activeMethod.accountNumber, "Account Number")}
+                                      className="h-6 w-6 p-0 text-[#741052] hover:bg-purple-100"
+                                    >
+                                      <Copy className="h-3.5 w-3.5" />
+                                    </Button>
+                                  </div>
+                                </div>
+
+                                {activeMethod.iban && (
+                                  <div className="flex items-center justify-between text-sm py-1">
+                                    <span className="text-gray-500">IBAN:</span>
+                                    <div className="flex items-center gap-2">
+                                      <span className="font-mono text-xs font-semibold text-gray-800">
+                                        {activeMethod.iban}
+                                      </span>
+                                      <Button
+                                        type="button"
+                                        variant="ghost"
+                                        size="sm"
+                                        onClick={() => handleCopy(activeMethod.iban!, "IBAN")}
+                                        className="h-6 w-6 p-0 text-[#741052] hover:bg-purple-100"
+                                      >
+                                        <Copy className="h-3.5 w-3.5" />
+                                      </Button>
+                                    </div>
+                                  </div>
+                                )}
+
+                                <div className="pt-2 border-t border-gray-100 flex items-center justify-between">
+                                  <span className="text-xs font-medium text-gray-500">Payable Amount:</span>
+                                  <span className="text-base font-extrabold text-[#741052]">
+                                    Rs. {finalAmount.toFixed(2)}
+                                  </span>
+                                </div>
+                              </div>
+
+                              {/* Simple 3-step Instructions */}
+                              <div className="p-3.5 bg-purple-50/70 border border-purple-200/60 rounded-xl space-y-1.5 text-xs text-[#741052]">
+                                <p className="font-bold">Next Steps for Online Payment:</p>
+                                <ol className="list-decimal pl-4 space-y-1 text-gray-700">
+                                  <li>Transfer <strong>Rs. {finalAmount.toFixed(2)}</strong> to the {activeMethod.name} account above.</li>
+                                  <li>Click <strong>&quot;Proceed to Payment&quot;</strong> and confirm your order below.</li>
+                                  <li>On the next screen, tap <strong>&quot;Share Screenshot on WhatsApp&quot;</strong> to get your order verified & dispatched!</li>
+                                </ol>
+                              </div>
+                            </div>
+                          );
+                        })()}
                       </motion.div>
                     )}
                   </AnimatePresence>
@@ -1439,9 +1542,13 @@ ${items
                                 </div>
                               </>
                             )}
-                            <div className="flex justify-between">
+                            <div className="flex justify-between items-center">
                               <span className="text-gray-600">Payment:</span>
-                              <span className="font-medium capitalize">{formData.paymentMethod}</span>
+                              <span className="font-semibold text-[#741052]">
+                                {formData.paymentMethod === "online"
+                                  ? `Online (${PAYMENT_CONFIG.methods.find((m) => m.id === selectedOnlineProvider)?.name || "Transfer"})`
+                                  : "Cash"}
+                              </span>
                             </div>
                           </CardContent>
                         </Card>
